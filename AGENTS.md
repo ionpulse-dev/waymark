@@ -38,6 +38,12 @@ people who use them: companies, teams, and private people. Plain Markdown in a
 Git repository that the owner controls. It runs locally and needs no server.
 Read [specs/PROJECT.md](specs/PROJECT.md) for the details.
 
+## Where things are
+
+- `specs/`: the specification (the source of truth). Decisions that belong to one spec are in its `decisions.md`.
+- `docs/`: roadmap, ideas, similar projects, project-wide decisions, and open questions.
+- `README.md`: the public project page. Keep it in sync with the specs. Only list advantages that a spec supports.
+
 ## What does not belong in this repository
 
 This repository is public. Never commit secrets, company or customer names,

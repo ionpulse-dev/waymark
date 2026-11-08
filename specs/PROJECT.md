@@ -141,3 +141,10 @@ _Capabilities intentionally deferred. No specs exist yet — this section is a r
 - `anchor-check` — flag documents whose anchored code changed.
 - `device-login` — OAuth device flow instead of a pasted token.
 - `company-rollout` — deploy the app with a pre-filled configuration through device management.
+
+## Further reading
+
+- [Roadmap](../docs/roadmap.md): phases from design to public release.
+- [Ideas](../docs/ideas.md): the details of the post-MVP list.
+- [Similar projects](../docs/similar-projects.md): what exists and what we learn from it.
+- [Project decisions](../docs/decisions.md) and [open questions](../docs/open-questions.md).
