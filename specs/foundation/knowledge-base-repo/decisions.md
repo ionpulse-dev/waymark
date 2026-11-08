@@ -25,6 +25,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Teams are folders — 2026-11-06
 
+**Superseded by:** No `_team.md` convention
+
 **Decision:** The folder tree mirrors the teams or areas of an organization, and the folder of a document is its owning team. waymark has no built-in folders, no `owners` field, and no list of followed folders. A `_team.md` document per folder is an optional convention.
 
 **Alternatives considered:**
@@ -47,3 +49,14 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `init` writes `.obsidian/app.json` with Markdown links and relative paths as defaults, and Git ignore rules for personal Obsidian files.
 
 **Reason:** Links that people create in Obsidian match waymark's style, and personal files never cause conflicts.
+
+## No `_team.md` convention — 2026-11-08
+
+**Supersedes:** Teams are folders — 2026-11-06
+
+**Decision:** There is no `_team.md` document and no convention for team documents. The folder tree may mirror the team structure if the organization decides so, and waymark does not care. The rest of the earlier decision stands: waymark has no built-in folders, no `owners` field, and no list of followed folders.
+
+**Alternatives considered:**
+- A `_team.md` document per folder with contacts — suggested during the design phase and rejected. It is outdated.
+
+**Reason:** The folder structure is the organization's own choice. waymark needs no special file for it.

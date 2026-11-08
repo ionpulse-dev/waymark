@@ -46,7 +46,7 @@ Features that we want later, but not in the first release. When an idea moves in
 
 | Idea | What it does | Limit |
 |---|---|---|
-| Pull request gate | A write becomes a pull request on the Git host. A second person approves it, shown in the review list. Could be one setting for the whole knowledge base, or per document type. Reviewers come from the code owners file. | The only server-side control for approval. Needs branch protection on the content repo. |
+| Pull request gate | A write becomes a pull request on the Git host. A second person approves it, shown in the review list. Could be one setting for the whole knowledge base. Reviewers come from the code owners file. | The only server-side control for approval. Needs branch protection on the content repo. |
 
 ## Enforce that writes go through waymark
 
@@ -60,7 +60,7 @@ Features that we want later, but not in the first release. When an idea moves in
 
 | Idea | What it does |
 |---|---|
-| Approval per folder or per type | Different write levels for some folders or document types. Dropped from the first release because it is too complex. |
+| Approval per folder | Different write levels for some folders. Dropped from the first release because it is too complex. |
 
 ## CLI-free access
 

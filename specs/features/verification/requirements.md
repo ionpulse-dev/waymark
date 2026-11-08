@@ -59,4 +59,3 @@ waymark reject <id> --reason <text> --kb <uuid>
 
 ## Open Questions
 
-- Should verification be allowed for some document types only?

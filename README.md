@@ -37,7 +37,7 @@ control.
 
 - **Documents are small Markdown files in one Git repo per knowledge base:**
   for a company, a team, or just you. One topic
-  per document, with a header (title, description, type, status, authors, dates, sources).
+  per document, with a header (title, description, status, authors, dates, sources).
 - **Agents can write as a side effect of normal work, when you allow it.**
   A skill tells the agent what is worth keeping, when to write it, and how
   to keep it short.

@@ -72,3 +72,26 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - Keep the rules in both projects and sync them by hand — they drift.
 
 **Reason:** One source of truth, shared with the standalone skills.
+
+## Six document types, no `team` type — 2026-11-08
+
+**Superseded by:** No `type` field
+
+**Decision:** The default list of `type` has six values: `fact`, `decision`, `contract`, `howto`, `glossary`, and `gotcha`. The value `team` was removed, because the `_team.md` convention was rejected (see `knowledge-base-repo`). This follows the Markdown Knowledge Base Document Standard.
+
+**Alternatives considered:**
+- Keep `team` as an unused value — it invites a convention that nobody wants.
+
+**Reason:** The format should hold only what is used.
+
+## No `type` field — 2026-11-08
+
+**Supersedes:** Six document types, no `team` type
+
+**Decision:** Documents have no `type` field and there is no list of document types. The list was never reviewed, and agents had no rule for choosing a type. This follows the Markdown Knowledge Base Document Standard. The commands lose the `--type` option, `init` loses `--types`, and the settings file loses `types`.
+
+**Alternatives considered:**
+- Make `type` optional — it keeps an unreviewed list.
+- Keep it required and define the values — it makes the unreviewed list official.
+
+**Reason:** The format should hold only what the project decided. A field can be added later.

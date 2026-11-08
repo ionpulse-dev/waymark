@@ -23,7 +23,7 @@ requires:
 
 | Command | Task |
 |---|---|
-| `waymark add` | Creates a document. Input: folder, type, title, description, sources, tags, and the body (from a flag, a file, or stdin). waymark creates the frontmatter, picks a unique file name (a slug of the title, plus a short ID if needed), places the file in `knowledge/`, validates it, and syncs. With verification on, it sets `trust: unverified`. |
+| `waymark add` | Creates a document. Input: folder, title, description, sources, tags, and the body (from a flag, a file, or stdin). waymark creates the frontmatter, picks a unique file name (a slug of the title, plus a short ID if needed), places the file in `knowledge/`, validates it, and syncs. With verification on, it sets `trust: unverified`. |
 | `waymark update-document <id>` | Changes a document. Validates and syncs. Takes `--base <hash>`. |
 | `waymark dispute <id> --reason <text>` | Sets `disputed: true` and `dispute_reason`. Used when an agent finds a contradiction. The document shows in the review list of its author and in `updates`. |
 | `waymark deprecate <id> --reason <text>` | Sets `status: deprecated` and keeps the file. |
@@ -45,7 +45,7 @@ With the CLI present, agents never write files in the content repository directl
 ## Interfaces & Contracts
 
 ```text
-waymark add --kb <uuid> --folder backend/payments --type fact --title "..." --description "..." [--sources ...] [--tags ...] [--preview] < body.md
+waymark add --kb <uuid> --folder backend/payments --title "..." --description "..." [--sources ...] [--tags ...] [--preview] < body.md
 waymark update-document <id> --kb <uuid> --base <hash> [--title ...] [--description ...] < body.md
 ```
 

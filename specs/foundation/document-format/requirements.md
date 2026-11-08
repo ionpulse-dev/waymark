@@ -52,7 +52,6 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 |---|---|---|
 | `title` | yes | One sentence, about 15 words. |
 | `description` | yes | What the document contains and when to read it. About 50 words. |
-| `type` | yes | `fact`, `decision`, `contract`, `howto`, `glossary`, `team`, or `gotcha`. A knowledge base can change the list. |
 | `status` | yes | `active` or `deprecated`. |
 | `created`, `updated` | yes | Dates. Set by waymark. |
 | `created_by`, `updated_by` | yes | Text `"Name <email>"`. Set by waymark. Git history stays the source of truth. |

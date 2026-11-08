@@ -27,7 +27,7 @@ small and new. The big ones are single-user memory tools.
 - **Small read budget.** teamlore gives the agent at most 5 matching notes, about 800 tokens. If nothing matches, it gives nothing. Silence is better than noise. `waymark search` has a read budget too.
 - **Start-of-session summary.** waypost has one. `waymark updates` lists new and disputed documents in the same way.
 - **Honest output.** teamctx says plainly what it could not check. waymark output says "unverified" and "not checked" in plain words.
-- **MADR as the template** for the `decision` document type.
+- **MADR as the template** for documents that record a decision.
 
 ### Avoid
 

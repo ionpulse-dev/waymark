@@ -23,10 +23,10 @@ requires:
 
 | Command | Task |
 |---|---|
-| `waymark search <query> [<folder>...]` | Full-text search over title, description, tags, and body by default. `--in path,title,description,tags,body` limits the parts, and is the way to search the path. `--level 0\|1\|2` sets how much each result shows. Filters: `--type`, `--tag`, `--status`. Results are ranked. |
+| `waymark search <query> [<folder>...]` | Full-text search over title, description, tags, and body by default. `--in path,title,description,tags,body` limits the parts, and is the way to search the path. `--level 0\|1\|2` sets how much each result shows. Filters: `--tag`, `--status`. Results are ranked. |
 | `waymark show <id-or-path>` | Prints one document with frontmatter, author and last editor (name and email from Git), the version hash for `--base`, computed backlinks, and a stale mark if `updated` is older than `stale_after_days`. |
 | `waymark list [<folder>...] [--level 0\|1\|2]` | Lists documents by filter, for example `--stale`. |
-| `waymark stats [<folder>...] [--metric words\|tokens\|chars\|documents] [--by folder\|type\|author]` | Total size of the documents in some folders, with an optional breakdown. Read-only. Default metric: `words`. Tokens are an estimate; other metrics are exact. |
+| `waymark stats [<folder>...] [--metric words\|tokens\|chars\|documents] [--by folder\|author]` | Total size of the documents in some folders, with an optional breakdown. Read-only. Default metric: `words`. Tokens are an estimate; other metrics are exact. |
 
 Rules:
 

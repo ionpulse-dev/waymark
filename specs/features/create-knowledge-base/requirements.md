@@ -29,7 +29,7 @@ The flow runs in the setup window of the app, or in a terminal with `waymark ini
 | Name of the company or project | `waymark.toml` | none |
 | Short name (slug) | `waymark.toml` | derived from the name |
 | Git host and repository URL | `waymark.toml` | none |
-| Document types and first team folders | `waymark.toml`, `knowledge/` | built-in types, no folders |
+| First folders | `knowledge/` | no folders |
 | Allowed email domains (optional) | `waymark.toml` | none |
 | Start values and limits for read level, write level, and confirm in | `waymark.toml` | start `manual`, `manual`, `chat`; no limit |
 | Who will use it: only me, or several people | which standalone skill goes into `AGENTS.md` | derived from the allowed email domains, else several people |
@@ -44,7 +44,7 @@ Then `init`:
 ## Interfaces & Contracts
 
 ```text
-waymark init [--name <name>] [--slug <slug>] [--repo <url>] [--types <list>]
+waymark init [--name <name>] [--slug <slug>] [--repo <url>]
              [--email-domains <list>] [--read-default <level>] [--write-default <level>] ...
 ```
 

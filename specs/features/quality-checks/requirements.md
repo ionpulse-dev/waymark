@@ -23,7 +23,7 @@ requires:
 | Command | Task |
 |---|---|
 | `waymark lint` | Checks Obsidian compatibility, the frontmatter schema, file location and names, size limits, broken links, duplicate titles, the author fields against Git history, and secrets and personal data with built-in patterns. Runs automatically before every commit that waymark makes. Can run on demand for the whole repository or some folders. |
-| `waymark index` | Generates index files (per domain, per team, per type). Nobody edits index files by hand. There is no central index that writers edit. |
+| `waymark index` | Generates index files (per domain and per team). Nobody edits index files by hand. There is no central index that writers edit. |
 
 A failed check stops a write with exit code 2 and a message in plain words. `lint` also runs on manual edits (see `manual-edits`).
 
