@@ -46,7 +46,7 @@ _A single user may play more than one persona._
 
 One Git repository with Markdown documents. It has its own repository (the
 content repository), separate from this project. It holds shared settings in a
-`waymark.toml` file and an `AGENTS.md` with rules for agents. Every
+`.mkbds/waymark.toml` file and an `AGENTS.md` with rules for agents. Every
 knowledge base is a valid Obsidian vault.
 
 ### Document

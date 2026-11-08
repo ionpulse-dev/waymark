@@ -16,20 +16,20 @@ Define the content repository of a knowledge base: its layout, its shared settin
 ## Dependents
 
 - `create-knowledge-base` and `join-knowledge-base` — create or clone this layout.
-- `project-binding` — the UUID in `waymark.toml` identifies the knowledge base.
+- `project-binding` — the UUID in `.mkbds/waymark.toml` identifies the knowledge base.
 - `plain-git-access` — the `AGENTS.md` in the repository root carries the plain-Git rules.
 
 ## Deliverables
 
-- The layout of a content repository.
-- The schema of `waymark.toml`.
-- The templates for `waymark.toml` and `AGENTS.md`.
+- The layout of a content repository, with the marker folder `.mkbds` that marks the root of the knowledge base and holds its metadata and configuration (see the Markdown Knowledge Base Document Standard).
+- The schema of `.mkbds/waymark.toml`.
+- The templates for `.mkbds/waymark.toml` and `AGENTS.md`.
 - The Obsidian vault settings and Git ignore rules that `init` writes.
 
 ## Scope
 
 **In scope:**
-- Files in the repository root and the `knowledge/` tree.
+- Files in the repository root and the `knowledge/` tree, whose root folder is marked by the folder `.mkbds`.
 - Teams as folders, if the organization chooses to.
 - Shared settings. Personal settings are specified in `join-knowledge-base`.
 
@@ -47,25 +47,28 @@ Define the content repository of a knowledge base: its layout, its shared settin
 
 ```text
 <slug>-knowledge-base/        (cloned to ~/Projects/<slug>-knowledge-base by default)
-  waymark.toml                shared settings
   AGENTS.md                   rules for agents
   .obsidian/app.json          Markdown links and relative paths as defaults
   .gitignore                  .obsidian/workspace*.json, .obsidian/cache, .waymark/
   .waymark/                   lock and state, never committed
-  knowledge/
+  knowledge/                  root of the knowledge base
+    .mkbds/                   marker folder: metadata and configuration, committed
+      version                 version of the document standard, for example 1.0
+      waymark.toml            shared settings of waymark
     backend/
       payments/
         idempotency-keys.md
 ```
 
 - `.waymark/` in the content repository holds the lock and the sync state. It is a dot folder, so Obsidian ignores it, and Git ignores it too. In a project folder, `.waymark/` is the binding and is committed (see `project-binding`). A session that starts inside the content repository has no binding and uses that repository directly.
-- `waymark.toml` and `AGENTS.md` are allowed in the vault root.
-- **The folder is the owner.** A document in `backend/payments/` belongs to that team. A parent folder includes its children.
+- `AGENTS.md` is allowed in the repository root, outside the knowledge base.
+- `init` writes the marker folder `knowledge/.mkbds/` with the file `version`. The folder that contains `.mkbds/` is the root of the knowledge base. The ID of a document is its path below that root. The marker folder is defined by the Markdown Knowledge Base Document Standard and is not specific to waymark.
+- Everything that describes or configures the knowledge base lives in `.mkbds/`. waymark keeps its shared settings in `.mkbds/waymark.toml`. Other tools may keep their own files there. waymark keeps its local state (lock and sync status) outside `.mkbds/`, because the state is never committed.
 - **The organization builds the tree.** waymark has no built-in folders. The folder structure may mirror the team structure if the organization decides so. waymark does not care. A knowledge base can add a `shared/` folder. It is a normal folder.
 - **No `owners` field.** The author is in Git history, with name and email.
-- Folders are teams. Reorganizations use `move-documents`.
+- Reorganizations use `move-documents`.
 
-### `waymark.toml` (shared settings)
+### `.mkbds/waymark.toml` (shared settings)
 
 ```toml
 name = "Example Company"        # asked by init
@@ -108,7 +111,7 @@ extra_secret_patterns = []      # regular expressions
 
 - **Given** a new repository from `init`, **When** it is opened in Obsidian, **Then** it opens as a vault and new links use Markdown links with relative paths.
 - **Given** a repository, **When** `git status` runs after Obsidian was used, **Then** personal Obsidian files and `.waymark/` do not show as changes.
-- **Given** a `waymark.toml` without `id`, **When** a command reads it, **Then** the command fails with a setup problem.
+- **Given** a `.mkbds/waymark.toml` without `id`, **When** a command reads it, **Then** the command fails with a setup problem.
 - **Given** a value outside the allowed limits in a person's settings, **When** the CLI reads both, **Then** the stricter value applies.
 - **Given** a folder reorganization, **When** it is done through waymark, **Then** no `owners` field or team list needs an update.
 

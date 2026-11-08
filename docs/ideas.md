@@ -17,7 +17,7 @@ Features that we want later, but not in the first release. When an idea moves in
 
 | Idea | What it does |
 |---|---|
-| Device login (OAuth device flow) | Log in with a short code in the browser instead of a pasted token. Needs an OAuth app per Git host. The project could own one for github.com, and an organization with its own Git host registers one and puts the client ID in `waymark.toml`. |
+| Device login (OAuth device flow) | Log in with a short code in the browser instead of a pasted token. Needs an OAuth app per Git host. The project could own one for github.com, and an organization with its own Git host registers one and puts the client ID in `.mkbds/waymark.toml`. |
 
 ## Documents and staleness
 

@@ -66,7 +66,7 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 
 ### Document ID and links
 
-- The ID of a document is its path under `knowledge/` without `.md`, for example `backend/payments/idempotency-keys`. The file name never changes, also when the title changes.
+- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbds` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. The file name never changes, also when the title changes.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - Backlinks are computed on demand. No document stores its backlinks, and there is no central index file.

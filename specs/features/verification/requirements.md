@@ -15,7 +15,7 @@ requires:
 
 ## Personas
 
-- **Knowledge base owner** — turns verification on in `waymark.toml`.
+- **Knowledge base owner** — turns verification on in `.mkbds/waymark.toml`.
 - **Document owner** — verifies documents of their team's folder.
 
 ## Behaviour

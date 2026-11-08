@@ -26,18 +26,18 @@ The flow runs in the setup window of the app, or in a terminal with `waymark ini
 
 | Question | Stored in | Default |
 |---|---|---|
-| Name of the company or project | `waymark.toml` | none |
-| Short name (slug) | `waymark.toml` | derived from the name |
-| Git host and repository URL | `waymark.toml` | none |
+| Name of the company or project | `.mkbds/waymark.toml` | none |
+| Short name (slug) | `.mkbds/waymark.toml` | derived from the name |
+| Git host and repository URL | `.mkbds/waymark.toml` | none |
 | First folders | `knowledge/` | no folders |
-| Allowed email domains (optional) | `waymark.toml` | none |
-| Start values and limits for read level, write level, and confirm in | `waymark.toml` | start `manual`, `manual`, `chat`; no limit |
+| Allowed email domains (optional) | `.mkbds/waymark.toml` | none |
+| Start values and limits for read level, write level, and confirm in | `.mkbds/waymark.toml` | start `manual`, `manual`, `chat`; no limit |
 | Who will use it: only me, or several people | which standalone skill goes into `AGENTS.md` | derived from the allowed email domains, else several people |
 
 Then `init`:
 
 1. Generates the UUID of the knowledge base once.
-2. Creates the repository skeleton: `waymark.toml`, `AGENTS.md` (with the plain-Git rules), `.obsidian/app.json`, `.gitignore`, and `knowledge/`.
+2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules), `.obsidian/app.json`, `.gitignore`, and `knowledge/` with the marker folder `knowledge/.mkbds/`, which holds the file `version` and the shared settings `waymark.toml`.
 3. Commits and pushes it.
 4. Runs `setup` for this person (see `join-knowledge-base`).
 

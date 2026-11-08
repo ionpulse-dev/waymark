@@ -29,7 +29,7 @@ Steps for a new person: download `Waymark.dmg`, drag the app to Applications, op
 1. Checks that `git` works. If not, it starts Apple's installer for the command line tools (`xcode-select --install`).
 2. Logs in to the Git host if needed (see `login-and-identity`).
 3. Clones the content repository.
-4. Reads `waymark.toml`.
+4. Reads `.mkbds/waymark.toml`.
 5. Asks only the personal questions.
 6. Writes the instruction blocks and skill files for the chosen agent tools (see `agent-tool-setup`).
 
@@ -47,7 +47,7 @@ Personal questions:
 
 Two places hold settings:
 
-- **Shared** settings are in `waymark.toml` in the repository. People who join never type them again.
+- **Shared** settings are in `.mkbds/waymark.toml` in the repository. People who join never type them again.
 - **Personal** settings are in `~/.config/waymark/config.toml`, one entry per knowledge base, keyed by its UUID. A person can join several knowledge bases.
 
 ### Personal settings (`~/.config/waymark/config.toml`)
@@ -89,7 +89,7 @@ waymark setup [<content-repo-url>] [--path <folder>] [--tools <list>] [--email <
 - **Given** a valid URL and login, **When** setup ends, **Then** the repository is cloned and the chosen tools are configured.
 - **Given** a personal level looser than the shared limit, **When** setup stores it, **Then** the stricter value is stored.
 - **Given** a person who joins a second knowledge base, **When** setup ends, **Then** the first one is unchanged.
-- **Given** a repository whose `waymark.toml` has no `id`, **When** setup reads it, **Then** it stops with a clear message.
+- **Given** a repository whose `.mkbds/waymark.toml` has no `id`, **When** setup reads it, **Then** it stops with a clear message.
 - **Given** setup ran twice, **When** the second run ends, **Then** nothing is duplicated.
 
 ## Constraints & Edge Cases

@@ -21,7 +21,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 - [ ] Review and approve the requirements of every spec, foundation first.
 - [ ] Draft the skill (`agent-skill`). It is the most important text of the project.
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
-- [ ] Write the `waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).
+- [ ] Write the `.mkbds/waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).
 - [ ] Release the standalone plain-Git skill from the `waymark-trail` project and pin a version (`plain-git-access`). Test it in Claude Code on the web.
 - [ ] Verify the global instruction and skill paths of Claude Code, GitHub Copilot, and OpenAI Codex (`agent-tool-setup`).
 - [ ] Decide the build environment: minimum macOS version, Rust toolchain version, Xcode and Swift version.
