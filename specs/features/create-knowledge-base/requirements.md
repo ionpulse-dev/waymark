@@ -37,7 +37,7 @@ The flow runs in the setup window of the app, or in a terminal with `waymark ini
 Then `init`:
 
 1. Generates the UUID of the knowledge base once.
-2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules), `.obsidian/app.json`, `.gitignore`, and `knowledge/` with the marker folder `knowledge/.mkbds/`, which holds the file `version` and the shared settings `waymark.toml`.
+2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules), `.obsidian/app.json` (with `"useMarkdownLinks": true` and `"newLinkFormat": "relative"`, as MKBDS 1.0 section 11 recommends), `.gitignore` (with `.obsidian/*` and `!.obsidian/app.json`, so only `app.json` is kept in Git), and `knowledge/` with the marker folder `knowledge/.mkbds/`, which holds the file `version` and the shared settings `waymark.toml`.
 3. Commits and pushes it.
 4. Runs `setup` for this person (see `join-knowledge-base`).
 
