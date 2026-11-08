@@ -34,8 +34,7 @@ macOS notifications for:
 One list in the app with:
 
 - disputes on my documents,
-- my stale documents,
-- waiting approvals.
+- my stale documents.
 
 Each item opens the document and offers the next step.
 

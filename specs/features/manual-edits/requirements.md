@@ -6,6 +6,7 @@ updated: 2026-11-08
 requires:
   - mac-app
   - quality-checks
+  - git-sync
 ---
 
 # Manual edits and Sync now
@@ -36,7 +37,7 @@ The app calls `lint`, then a commit and push through the CLI. It uses the lock o
 - **Given** an edit in Obsidian, **When** one minute passes without changes, **Then** a commit "Manual edit" under my account reaches the remote.
 - **Given** an edit that fails `lint`, **When** the minute passes, **Then** a notification names the problem and nothing is pushed.
 - **Given** "Sync now", **When** I choose it, **Then** pending manual edits are committed and the result shows.
-- **Given** approval is on, **When** a manual edit is ready, **Then** the dialog opens before the push.
+- **Given** write level `confirm` and confirm in `app`, **When** a manual edit is ready, **Then** the dialog opens before the push.
 - **Given** an agent write in progress, **When** the app wants to commit, **Then** it waits for the lock.
 
 ## Constraints & Edge Cases

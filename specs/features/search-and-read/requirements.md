@@ -23,15 +23,15 @@ requires:
 
 | Command | Task |
 |---|---|
-| `waymark search <query> [<folder>...]` | Full-text search over path, title, description, tags, and body. `--in path,title,description,tags,body` limits the parts. `--level 0\|1\|2` sets how much each result shows. Filters: `--type`, `--tag`, `--status`. Results are ranked. |
+| `waymark search <query> [<folder>...]` | Full-text search over title, description, tags, and body by default. `--in path,title,description,tags,body` limits the parts, and is the way to search the path. `--level 0\|1\|2` sets how much each result shows. Filters: `--type`, `--tag`, `--status`. Results are ranked. |
 | `waymark show <id-or-path>` | Prints one document with frontmatter, author and last editor (name and email from Git), the version hash for `--base`, computed backlinks, and a stale mark if `updated` is older than `stale_after_days`. |
 | `waymark list [<folder>...] [--level 0\|1\|2]` | Lists documents by filter, for example `--stale`. |
-| `waymark stats [<folder>...] [--metric words\|tokens\|chars\|documents] [--by folder\|type\|author]` | Total size of the documents in some folders, with an optional breakdown. Read-only. Tokens are an estimate; other metrics are exact. |
+| `waymark stats [<folder>...] [--metric words\|tokens\|chars\|documents] [--by folder\|type\|author]` | Total size of the documents in some folders, with an optional breakdown. Read-only. Default metric: `words`. Tokens are an estimate; other metrics are exact. |
 
 Rules:
 
 - **No folder means everything.** Every command that takes folders treats "no folder" as the root. Folders include subfolders. There is no list of followed folders.
-- **Levels:** `0` shows the document ID (path and file name), `1` adds the title, `2` adds the description. `search` shows level 2 plus a short snippet by default. `list` shows level 1.
+- **Levels:** `0` shows the document ID (path and file name), `1` adds the title, `2` adds the description. `search` shows level 2 plus a short snippet by default. `list` shows level 1. The read budget applies to listings too.
 - **Read budget:** `search` returns at most `search.max_results` documents (default 5) and `search.max_tokens` tokens (default 800), or nothing if nothing matches. `--limit` overrides it. Silence is better than noise.
 - **Pull before read:** if the last good sync is older than a few minutes, a read does a fast pull first.
 - **No stored index.** Search reads the local files.

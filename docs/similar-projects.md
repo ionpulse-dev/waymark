@@ -53,7 +53,7 @@ small and new. The big ones are single-user memory tools.
 
 ## Personal AI memory with a self-hosted MCP server
 
-Research from 2026-11-06, after . Question: does a tool give a person
+Research from 2026-11-06, after the decision to serve private people too. Question: does a tool give a person
 their own AI memory, in a Git repo they own, reachable from Claude and
 ChatGPT through a self-hosted remote MCP server?
 

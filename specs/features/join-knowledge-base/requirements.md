@@ -4,9 +4,9 @@ status: draft
 created: 2026-11-08
 updated: 2026-11-08
 requires:
-  - cli-core
-  - knowledge-base-repo
-  - distribution
+  - login-and-identity
+  - agent-tool-setup
+  - git-sync
 ---
 
 # Join a knowledge base
@@ -26,7 +26,7 @@ Steps for a new person: download `Waymark.dmg`, drag the app to Applications, op
 
 `setup`:
 
-1. Checks that `git` works. If not, it starts the installer for the command line tools.
+1. Checks that `git` works. If not, it starts Apple's installer for the command line tools (`xcode-select --install`).
 2. Logs in to the Git host if needed (see `login-and-identity`).
 3. Clones the content repository.
 4. Reads `waymark.toml`.
@@ -43,11 +43,38 @@ Personal questions:
 | Contact email address | from the Git host account, confirmed or corrected by the person |
 | Personal read level, write level, confirm in | the shared start values, within the shared limits |
 | Background sync on, and its interval | on, every 5 minutes |
+| Access mode of this knowledge base | `read and write` when the person joins on purpose. A knowledge base added any other way starts `off`. |
 
 Two places hold settings:
 
 - **Shared** settings are in `waymark.toml` in the repository. People who join never type them again.
 - **Personal** settings are in `~/.config/waymark/config.toml`, one entry per knowledge base, keyed by its UUID. A person can join several knowledge bases.
+
+### Personal settings (`~/.config/waymark/config.toml`)
+
+One entry per knowledge base, keyed by its UUID. Only the app writes the levels and the access mode (non-interactive `setup` may set initial values for rollout scripts).
+
+```toml
+[kb."<uuid>"]
+slug = "example"                 # label
+path = "~/Projects/example-knowledge-base"
+mode = "read and write"          # off | read only | read and write
+tools = ["claude-code", "codex"]
+email = "jane@example.org"
+sync = true
+sync_interval_minutes = 5
+
+[kb."<uuid>".read]
+level = "manual"                 # auto | manual
+
+[kb."<uuid>".write]
+level = "manual"                 # auto | confirm | manual
+confirm_in = "chat"              # chat | app
+```
+
+Other files in `~/.config/waymark/`: `default-id` (the personal default knowledge base), `installed.json` (the manifest), a status file written by the sync run, a hash of the settings (the app uses it to detect outside changes), and the time of the last `updates` call per knowledge base.
+
+Without the app (first phase), the install uses the channel of `distribution` that exists then, for example `install.sh`.
 
 ## Interfaces & Contracts
 

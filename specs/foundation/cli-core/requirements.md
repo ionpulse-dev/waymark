@@ -38,7 +38,7 @@ The `waymark` command is the only tool that touches a content repository for age
 ## Constraints
 
 - **Agent first.** Every command supports `--json`. Output is stable and short.
-- **Non-interactive for agents.** Only `init`, `setup`, `login`, and `doctor` ask questions, and only when a human runs them in a terminal. Every question also has a flag. With all flags set, or without a terminal, no prompt appears.
+- **Non-interactive for agents.** Only `init`, `setup`, `login`, and `doctor` ask questions, and so do `uninstall` (before it deletes the clone) and `resume` and `link` in the first phase. They ask only when a human runs them in a terminal. Every question also has a flag. With all flags set, or without a terminal, no prompt appears.
 - **Idempotent.** Running a command twice gives the same result.
 - **Content stays plain Markdown.** The CLI is a convenience and a guard.
 - **No server.** A command runs, does its work, and exits.
@@ -69,7 +69,7 @@ waymark → output (JSON + message) → agent → person in the chat
 | 1 | General error |
 | 2 | Validation failed (lint, schema, secrets) |
 | 3 | Sync failed (no network, login, or push rejected) |
-| 4 | Setup problem (run `waymark doctor`) |
+| 4 | Setup problem (run `waymark doctor`). Also: a knowledge base that is not set up, an access mode that blocks the command, and a feature that is turned off (for example `verify` while verification is off). |
 | 5 | Document changed since the agent read it |
 | 6 | Write canceled by the person, or no answer in time |
 | 7 | Approval needed, but the app is not running |

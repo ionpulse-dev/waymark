@@ -6,7 +6,6 @@ updated: 2026-11-08
 requires:
   - cli-core
   - git-sync
-  - document-format
 ---
 
 # Write documents
@@ -24,10 +23,12 @@ requires:
 
 | Command | Task |
 |---|---|
-| `waymark add` | Creates a document. Input: folder, type, title, description, sources, tags, and the body (from a flag, a file, or stdin). waymark creates the frontmatter, picks a unique file name, places the file in `knowledge/`, validates it, and syncs. With verification on, it sets `trust: unverified`. |
+| `waymark add` | Creates a document. Input: folder, type, title, description, sources, tags, and the body (from a flag, a file, or stdin). waymark creates the frontmatter, picks a unique file name (a slug of the title, plus a short ID if needed), places the file in `knowledge/`, validates it, and syncs. With verification on, it sets `trust: unverified`. |
 | `waymark update-document <id>` | Changes a document. Validates and syncs. Takes `--base <hash>`. |
 | `waymark dispute <id> --reason <text>` | Sets `disputed: true` and `dispute_reason`. Used when an agent finds a contradiction. The document shows in the review list of its author and in `updates`. |
 | `waymark deprecate <id> --reason <text>` | Sets `status: deprecated` and keeps the file. |
+
+`add` sets all four author fields (`created`, `created_by`, `updated`, `updated_by`). `update-document`, `dispute`, and `deprecate` set `updated` and `updated_by`.
 
 All write commands follow the write flow of `git-sync`: lock, fetch, base check, checks, commit under the person's account, push. They accept `--preview`, which shows what would be written and writes nothing.
 

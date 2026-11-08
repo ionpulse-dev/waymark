@@ -12,6 +12,6 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## One review list — 2026-11-06
 
-**Decision:** One list for disputes, stale documents, and waiting approvals. The pull request reviewer item was dropped.
+**Decision:** One list for disputes and stale documents. The pull request reviewer item was dropped.
 
 **Reason:** One place to look.

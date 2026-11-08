@@ -5,7 +5,6 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - mac-app
-  - trust-model
 ---
 
 # Approval dialog
@@ -32,7 +31,7 @@ A native macOS dialog from the menu bar app. It shows the repository name, the f
 
 ## Behaviour
 
-- It applies at write level `confirm` with confirm in `app`, and to moves and bulk changes. Levels `auto` and `manual` never open a dialog.
+- It applies at write level `confirm` with confirm in `app`. At that level it also covers moves and bulk changes. Levels `auto` and `manual` never open a dialog.
 - The dialog belongs to the app. The agent cannot answer it.
 - Manual edits use the same dialog (see `manual-edits`).
 - The skill tells the agent to allow enough time, because some tools stop a command after about 2 minutes.

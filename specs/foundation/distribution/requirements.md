@@ -19,7 +19,7 @@ Define how waymark reaches people: one download, a signed and notarized app, a s
 
 ## Deliverables
 
-- `Waymark.app` (zipped) with the CLI inside, as a `.dmg`.
+- `Waymark.app` with the CLI inside, in a `.dmg`.
 - `install.sh` and a Homebrew cask that install it and link the CLI into the `PATH`.
 - Signed and notarized releases with an Apple Developer ID.
 - Releases of the CLI alone for Linux and Windows, later.
@@ -36,7 +36,7 @@ Define how waymark reaches people: one download, a signed and notarized app, a s
 
 - No Node, no Python, no Docker. One binary per platform.
 - The new person needs `waymark` before `waymark setup`. `install.sh` downloads the latest release and links the CLI. Then `waymark setup <url>` runs. Two commands in total.
-- The release is built from the public repository and its CI.
+- The release is built from the public repository and its CI. An organization can mirror the repository into its own Git host and build releases there.
 - The skill and the templates are inside the binary, so their versions always match.
 
 ## Acceptance Criteria

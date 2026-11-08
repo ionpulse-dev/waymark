@@ -5,6 +5,7 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - app-link
+  - git-sync
 ---
 
 # Mac app
@@ -15,7 +16,8 @@ Provide `Waymark.app`, the native macOS menu bar app for people. People use the 
 
 ## Dependents
 
-- `approval-dialog`, `pause-and-resume`, `activity-and-undo`, `notifications-and-review`, `manual-edits`, `project-binding`, `create-knowledge-base`, `join-knowledge-base`, `login-and-identity`, `distribution`.
+- `approval-dialog`, `activity-and-undo`, `notifications-and-review`, `manual-edits`, and `distribution`.
+- `pause-and-resume`, `project-binding`, `create-knowledge-base`, `join-knowledge-base`, and `login-and-identity` — their native parts (windows and dialogs).
 
 ## Deliverables
 

@@ -18,6 +18,7 @@ Define how waymark keeps the local clone and the remote in step and how every wr
 - `write-documents`, `move-documents`, `verification`, `manual-edits` — use the write flow.
 - `search-and-read` — reads pull first.
 - `mac-app` — runs the background sync.
+- `manual-edits` — commits under the lock.
 
 ## Deliverables
 
@@ -66,6 +67,7 @@ Every write command runs these steps:
 - A run writes a small status file that `doctor` and `status` read.
 - A background run never shows a window. If sync fails for more than one day, the next command prints a short warning.
 - After the Mac wakes, the app runs the next sync at once.
+- Other systems later: Linux could use a `systemd` user timer. macOS is the only target for the app.
 - Before every read, waymark does a fast pull if the last good sync is older than a few minutes.
 
 ## Acceptance Criteria

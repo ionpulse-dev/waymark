@@ -5,7 +5,6 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - cli-core
-  - knowledge-base-repo
 ---
 
 # Create a knowledge base
@@ -33,6 +32,7 @@ The flow runs in the setup window of the app, or in a terminal with `waymark ini
 | Document types and first team folders | `waymark.toml`, `knowledge/` | built-in types, no folders |
 | Allowed email domains (optional) | `waymark.toml` | none |
 | Start values and limits for read level, write level, and confirm in | `waymark.toml` | start `manual`, `manual`, `chat`; no limit |
+| Who will use it: only me, or several people | which standalone skill goes into `AGENTS.md` | derived from the allowed email domains, else several people |
 
 Then `init`:
 

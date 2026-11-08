@@ -17,7 +17,7 @@ learned, so the next agent does not get lost on the same path.
 ### Developer
 
 Works in a code repository with a coding agent such as Claude Code, GitHub
-Copilot, or ChatGPT Codex. Wants the agent to know decisions, contracts, and
+Copilot, or OpenAI Codex. Wants the agent to know decisions, contracts, and
 known problems that live outside the repository. Success: the agent finds the
 right document in seconds and uses little context.
 
@@ -90,6 +90,8 @@ are `manual`: the agent reads and writes only when asked.
 A project folder is bound to exactly one knowledge base by an id in a hidden
 `.waymark/` folder. A session in that folder uses only that knowledge base.
 
+The long-term goal is a building block for a software factory, where agents do more of the delivery work with the right context.
+
 ## Design Principles
 
 - **You own the memory** — plain Markdown in your own Git repository. No
@@ -117,7 +119,7 @@ A project folder is bound to exactly one knowledge base by an id in a hidden
 - The `waymark` CLI for agents (Rust).
 - The macOS menu bar app (Swift).
 - The skill and the instruction blocks for Claude Code, GitHub Copilot, and
-  ChatGPT Codex.
+  OpenAI Codex.
 - Setup, sync, quality checks, and undo.
 
 **Out of scope:**

@@ -5,7 +5,6 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - cli-core
-  - app-link
 ---
 
 # Login and identity
@@ -49,6 +48,8 @@ waymark accepts only an address that reaches a person. It checks in `setup` and 
 5. **Verified on the Git host, when possible.** If the token can read the account's emails, the address must be a verified email of that account. If not, skip this check.
 
 With managed accounts the account email comes from the company directory, so all checks pass unnoticed. With personal accounts the email can be private, so waymark takes it from the account and the person confirms it.
+
+The credential is requested from the app over the app link when the app runs. Without the app (first phase), the CLI reads the Keychain itself.
 
 ## Interfaces & Contracts
 

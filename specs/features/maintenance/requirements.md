@@ -29,16 +29,18 @@ requires:
 
 ### Uninstall
 
-`uninstall` removes exactly the items in the manifest, in this order:
+`uninstall` reads the manifest first, then removes exactly its items, in this order:
 
 1. The app: quit it, remove its login item, and move `Waymark.app` to the Trash.
 2. The instruction block in each agent tool, only the part between the waymark markers.
 3. The skill files in each agent tool.
 4. The token in the macOS Keychain.
-5. The status file, logs, and personal config (`~/.config/waymark/`).
+5. The status file and logs.
 6. The content repository clone. waymark asks first. Before it deletes the clone, it checks for changes that are not pushed and shows them. `--keep-repo` keeps it.
 7. The `PATH` line in the shell profile, if the installer added one.
-8. The `waymark` binary itself, last.
+8. The personal config (`~/.config/waymark/`, including the manifest), then the `waymark` binary itself, last.
+
+The `.waymark/` folders and skill files that `link` wrote into project folders belong to the projects and stay.
 
 It prints what it removed. Running it twice does no harm.
 

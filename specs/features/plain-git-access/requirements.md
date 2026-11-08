@@ -20,7 +20,7 @@ requires:
 
 ## Behaviour
 
-Every content repository has an `AGENTS.md` in its root. `init` writes it from a template. It always contains the plain-Git rules, which are a copy of the standalone skill from the `waymark-trail` project (a separate repository, independent of waymark). The skill works on any Git repository of Markdown documents with no `waymark.toml`, no CLI, and no app.
+Every content repository has an `AGENTS.md` in its root. `init` writes it from a template. It always contains the plain-Git rules, which are a copy of the standalone skill from the `waymark-trail` project (a separate repository, independent of waymark). `init` copies the `personal-knowledge-base` skill for a knowledge base of one person and the `team-knowledge-base` skill for several people. The skill works on any Git repository of Markdown documents with no `waymark.toml`, no CLI, and no app.
 
 The file has two modes:
 

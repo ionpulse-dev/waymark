@@ -169,8 +169,8 @@ Your agent uses these commands through the waymark skill:
 | `waymark updates [<folder>...] [--since <date>]` | What changed since a date, in some folders or all. |
 | `waymark stale [<folder>...] [--before <date>]` | Documents that nobody changed for a long time, in some folders or all. |
 
-Every command takes `--kb <uuid>`, the id of the project's knowledge base. The full list, with all options and exit codes, is in the
-[CLI core spec](specs/foundation/cli-core/requirements.md).
+Every command takes `--kb <uuid>`, the id of the project's knowledge base. The commands that set up or check a machine (`init`, `setup`, `doctor`) need no id. The full list is in the
+[CLI core spec](specs/foundation/cli-core/requirements.md), and the options of each command are in its feature spec.
 
 ## Access without waymark: the plain-Git rules
 
@@ -236,7 +236,7 @@ waymark install), and **Confluence** with an MCP server.
 | Read permissions per page or folder | ❌ | ❌ | ✅ |
 
 Where the ⚠️ appears for waymark: on web and iPhone, the agent has no CLI,
-so it falls back to the plain-Git skill of the [waymark-trail](https://github.com/ionpulse-dev/waymark-trail) project. That skill is standalone and works on any Git repo of Markdown documents, with or without waymark. The plain-Git mode is a good
+so it falls back to the plain-Git skill of the waymark-trail project. That skill is standalone and works on any Git repo of Markdown documents, with or without waymark. The plain-Git mode is a good
 second channel and a safe default. It is not a replacement for the CLI.
 
 Why not Confluence? Many companies use it, and some connect it to their

@@ -5,7 +5,6 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - agent-skill
-  - join-knowledge-base
 ---
 
 # Agent tool setup
@@ -25,7 +24,9 @@ Setup detects which of the three tools are present and asks which to configure. 
 - adds a short instruction block to the global instructions of the tool, between the markers `<!-- waymark:start -->` and `<!-- waymark:end -->`. Setup replaces only this block and never touches other content.
 - writes the skill from the binary into the global skill folder of the tool. If a tool has no skill support, the instruction block points the agent to the skill file by path.
 
-The block is short. It says where the knowledge base is, when to search, when to write, and to use the `waymark` CLI and follow the `AGENTS.md` of the knowledge base.
+The block and the skill are static: the same text for every project, with no path and no id. They tell the agent to find the knowledge base id in `.waymark/id` of the project root, then in `~/.config/waymark/default-id`, to pass it as `--kb`, to use the `waymark` CLI, and to follow the `AGENTS.md` of the knowledge base. The clone path lives in the personal config.
+
+Setup writes the global files only if the person chooses to use waymark outside bound projects (the personal default knowledge base, see `project-binding`). `waymark link` writes the same static skill files into a project folder.
 
 Global locations, to be verified against the current tool versions before the first release:
 

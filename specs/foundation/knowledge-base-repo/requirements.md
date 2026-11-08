@@ -16,7 +16,6 @@ Define the content repository of a knowledge base: its layout, its shared settin
 ## Dependents
 
 - `create-knowledge-base` and `join-knowledge-base` — create or clone this layout.
-- `trust-model` — the shared settings carry the limits.
 - `project-binding` — the UUID in `waymark.toml` identifies the knowledge base.
 - `plain-git-access` — the `AGENTS.md` in the repository root carries the plain-Git rules.
 
@@ -51,7 +50,7 @@ Define the content repository of a knowledge base: its layout, its shared settin
   waymark.toml                shared settings
   AGENTS.md                   rules for agents
   .obsidian/app.json          Markdown links and relative paths as defaults
-  .gitignore                  personal Obsidian files, .waymark/
+  .gitignore                  .obsidian/workspace*.json, .obsidian/cache, .waymark/
   .waymark/                   lock and state, never committed
   knowledge/
     backend/
@@ -59,6 +58,8 @@ Define the content repository of a knowledge base: its layout, its shared settin
         idempotency-keys.md
 ```
 
+- `.waymark/` in the content repository holds the lock and the sync state. It is a dot folder, so Obsidian ignores it, and Git ignores it too. In a project folder, `.waymark/` is the binding and is committed (see `project-binding`). A session that starts inside the content repository has no binding and uses that repository directly.
+- `waymark.toml` and `AGENTS.md` are allowed in the vault root.
 - **The folder is the owner.** A document in `backend/payments/` belongs to that team. A parent folder includes its children.
 - **The organization builds the tree.** waymark has no built-in folders. A knowledge base can add a `shared/` folder or a `_team.md` document (type `team`) per folder with contacts. These are normal documents.
 - **No `owners` field.** The author is in Git history, with name and email.

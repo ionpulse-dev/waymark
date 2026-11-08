@@ -10,11 +10,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** These are the tools the first users have. Local sessions keep every write under a person's control.
 
-## A fixed path in the instruction block — 2026-11-06
+## A static block, found by id — 2026-11-07
 
-**Decision:** The block references the local path of the knowledge base.
+**Decision:** The block and the skill hold no path. The agent finds the knowledge base by the id in `.waymark/id`. The first design used a fixed path in the block, `~/Projects/<slug>-knowledge-base`; the id binding replaced it.
 
-**Reason:** A fixed path is the simplest way for agents in other repositories to find it, and the main reason to avoid an MCP server at first.
+**Reason:** The text stays static and version-matched, and several knowledge bases can coexist. A known location of the id still lets agents in other repositories find the knowledge base without an MCP server.
 
 ## Markers and a manifest — 2026-11-06
 

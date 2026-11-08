@@ -58,7 +58,7 @@ Define who is responsible for what agents write, how much an agent may do alone,
 
 Rules:
 - Read level and write level are independent.
-- Confirm in applies only at write level `confirm`, and to moves and bulk changes.
+- Confirm in applies only at write level `confirm`. At that level it also covers moves and bulk changes.
 - Only the person changes the levels, in the app. The CLI can read them but has no command to change them. An agent can never change them.
 - The shared settings set a start value and the loosest value allowed. A person can be stricter, never looser. Order from loosest to strictest: `auto`, `confirm`, `manual` (read: `auto`, `manual`).
 - The repository access mode wins over the levels.

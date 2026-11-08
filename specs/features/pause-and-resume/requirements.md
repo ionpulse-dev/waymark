@@ -5,7 +5,6 @@ created: 2026-11-08
 updated: 2026-11-08
 requires:
   - cli-core
-  - app-link
 ---
 
 # Pause and resume

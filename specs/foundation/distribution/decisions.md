@@ -14,9 +14,6 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** The whole product is open source under the MIT license and free for everybody.
 
-**Alternatives considered:**
-- Paid apps, paid features, or open core — against adoption and against the open source goal.
-
 **Reason:** Public releases make install easy for everyone.
 
 ## Direct download — 2026-11-06

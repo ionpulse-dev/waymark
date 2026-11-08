@@ -60,3 +60,9 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Decision:** The plain-Git rules for agents without the CLI are the `waymark-trail` skills, in their own repository. waymark depends on them, never the other way around.
 
 **Reason:** They are useful without waymark and can spread on their own.
+
+## License and copyright holder — 2026-11-08
+
+**Decision:** MIT license. The copyright holder is IonPulse, the company behind the project's GitHub organization, not a person. The Unlicense and CC0 were rejected: the rights of an author cannot be fully waived in some countries (for example Austria and Germany), and the Unlicense has no fallback license.
+
+**Reason:** MIT is simple and permissive, and the holder should be the organization that owns the repositories.
