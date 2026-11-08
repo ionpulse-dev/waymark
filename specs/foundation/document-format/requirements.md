@@ -11,6 +11,8 @@ updated: 2026-11-08
 
 Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
 
+The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 1.0](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbds-1.0.md), which belongs to the separate `waymark-trail` project. This item implements that standard. If the two differ, the standard wins, and this item changes to match.
+
 ## Dependents
 
 - `knowledge-base-repo` — the repository layout holds these documents.

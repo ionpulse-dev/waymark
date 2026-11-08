@@ -63,3 +63,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `anchors` is a list of strings `"<type>:<target>"` with the types `git` and `url`. The check that flags documents whose anchored code changed comes after the first release. Web pages change often, so a later `url` check may give false alarms.
 
 **Reason:** Anchors are free to write now, so early documents already carry them.
+
+## The format follows MKBDS — 2026-11-08
+
+**Decision:** The document format is defined in the Markdown Knowledge Base Document Standard (MKBDS) 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
+
+**Alternatives considered:**
+- Keep the rules in both projects and sync them by hand — they drift.
+
+**Reason:** One source of truth, shared with the standalone skills.
