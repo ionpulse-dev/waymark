@@ -26,7 +26,7 @@ Setup detects which of the three tools are present and asks which to configure. 
 
 The block and the skill are static: the same text for every project, with no path and no id. They tell the agent to find the knowledge base id in `.waymark/id` of the project root, then in `~/.config/waymark/default-id`, to pass it as `--kb`, to use the `waymark` CLI, and to follow the `AGENTS.md` of the knowledge base. The clone path lives in the personal config.
 
-Setup writes the global files only if the person chooses to use waymark outside bound projects (the personal default knowledge base, see `project-binding`). `waymark link` writes the same static skill files into a project folder.
+Setup writes the global files only if the person chooses to use waymark outside bound projects (the personal default knowledge base, see `project-binding`). `waymark link` writes the same static skill files into a project folder, in `.agents/skills/<name>/SKILL.md`, the folder that Copilot, Codex, and Gemini CLI read for project skills. The instruction block goes into the `AGENTS.md` of the project, which Claude Code reads when there is no `CLAUDE.md`.
 
 Global locations, to be verified against the current tool versions before the first release:
 
