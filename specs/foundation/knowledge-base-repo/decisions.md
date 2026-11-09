@@ -61,25 +61,25 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The folder structure is the organization's own choice. waymark needs no special file for it.
 
-## The root of the knowledge base is marked by `.mkbds` — 2026-11-08
+## The root of the knowledge base is marked by `.mkbase` — 2026-11-08
 
-**Superseded by:** The marker is the folder `.mkbds` with all metadata and configuration
+**Superseded by:** The marker is the folder `.mkbase` with all metadata and configuration
 
-**Decision:** `init` writes an empty file `knowledge/.mkbds`. The folder with this file is the root of the knowledge base, and document IDs are paths below it. The file is defined by the Markdown Knowledge Base Document Standard and is not specific to waymark. The default folder `knowledge/` stays as the layout of a waymark repository, but the standard does not require it. The idea "the folder is the owner" is dropped: the organization decides how it uses folders.
+**Decision:** `init` writes an empty file `knowledge/.mkbase`. The folder with this file is the root of the knowledge base, and document IDs are paths below it. The file is defined by the MKBase Document Standard and is not specific to waymark. The default folder `knowledge/` stays as the layout of a waymark repository, but the standard does not require it. The idea "the folder is the owner" is dropped: the organization decides how it uses folders.
 
 **Alternatives considered:**
 - Keep the root implicit as `knowledge/` — it ties the format to one folder name.
 
 **Reason:** The same marker works for other tools and for the standalone skills.
 
-## The marker is the folder `.mkbds` with all metadata and configuration — 2026-11-08
+## The marker is the folder `.mkbase` with all metadata and configuration — 2026-11-08
 
-**Supersedes:** The root of the knowledge base is marked by `.mkbds`
+**Supersedes:** The root of the knowledge base is marked by `.mkbase`
 
-**Decision:** `.mkbds` is a folder, defined by the Markdown Knowledge Base Document Standard. It marks the root of the knowledge base and holds everything that describes or configures it. Its content is open. `init` writes `knowledge/.mkbds/version`, and the shared settings move from the repository root to `knowledge/.mkbds/waymark.toml`. The local state (lock and sync status) stays in `.waymark/`, outside the committed folder. In a project folder, `.waymark/` stays as the binding to a knowledge base.
+**Decision:** `.mkbase` is a folder, defined by the MKBase Document Standard. It marks the root of the knowledge base and holds everything that describes or configures it. Its content is open. `init` writes `knowledge/.mkbase/version`, and the shared settings move from the repository root to `knowledge/.mkbase/waymark.toml`. The local state (lock and sync status) stays in `.waymark/`, outside the committed folder. In a project folder, `.waymark/` stays as the binding to a knowledge base.
 
 **Alternatives considered:**
 - Keep `waymark.toml` in the repository root — the configuration of the knowledge base would live in two places.
-- Move the lock and the sync state into `.mkbds/` — they are never committed, and they are not part of the knowledge base.
+- Move the lock and the sync state into `.mkbase/` — they are never committed, and they are not part of the knowledge base.
 
 **Reason:** One open place for the metadata and the configuration of a knowledge base, not bound to waymark.

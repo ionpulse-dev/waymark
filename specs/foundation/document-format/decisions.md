@@ -64,9 +64,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** Anchors are free to write now, so early documents already carry them.
 
-## The format follows MKBDS — 2026-11-08
+## The format follows MKBase — 2026-11-08
 
-**Decision:** The document format is defined in the Markdown Knowledge Base Document Standard (MKBDS) 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
+**Decision:** The document format is defined in the MKBase Document Standard 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
 
 **Alternatives considered:**
 - Keep the rules in both projects and sync them by hand — they drift.
@@ -77,7 +77,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Superseded by:** No `type` field
 
-**Decision:** The default list of `type` has six values: `fact`, `decision`, `contract`, `howto`, `glossary`, and `gotcha`. The value `team` was removed, because the `_team.md` convention was rejected (see `knowledge-base-repo`). This follows the Markdown Knowledge Base Document Standard.
+**Decision:** The default list of `type` has six values: `fact`, `decision`, `contract`, `howto`, `glossary`, and `gotcha`. The value `team` was removed, because the `_team.md` convention was rejected (see `knowledge-base-repo`). This follows the MKBase Document Standard.
 
 **Alternatives considered:**
 - Keep `team` as an unused value — it invites a convention that nobody wants.
@@ -88,7 +88,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Supersedes:** Six document types, no `team` type
 
-**Decision:** Documents have no `type` field and there is no list of document types. The list was never reviewed, and agents had no rule for choosing a type. This follows the Markdown Knowledge Base Document Standard. The commands lose the `--type` option, `init` loses `--types`, and the settings file loses `types`.
+**Decision:** Documents have no `type` field and there is no list of document types. The list was never reviewed, and agents had no rule for choosing a type. This follows the MKBase Document Standard. The commands lose the `--type` option, `init` loses `--types`, and the settings file loses `types`.
 
 **Alternatives considered:**
 - Make `type` optional — it keeps an unreviewed list.

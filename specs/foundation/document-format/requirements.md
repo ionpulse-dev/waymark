@@ -11,7 +11,7 @@ updated: 2026-11-09
 
 Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
 
-The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 1.0](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbds-1.0.md), which belongs to the separate `waymark-trail` project. This item implements that standard. If the two differ, the standard wins, and this item changes to match.
+The format is defined by the [MKBase Document Standard 1.0](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbase-1.0.md), which belongs to the separate `waymark-trail` project. This item implements that standard. If the two differ, the standard wins, and this item changes to match.
 
 ## Dependents
 
@@ -66,7 +66,7 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 
 ### Document ID and links
 
-- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbds` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
+- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbase` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - Backlinks are computed on demand. No document stores its backlinks, and there is no central index file.

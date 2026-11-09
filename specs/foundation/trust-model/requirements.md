@@ -46,7 +46,7 @@ Define who is responsible for what agents write, how much an agent may do alone,
 - The person whose agent writes a document is responsible for it. History and blame show who changed what.
 - Wrong documents are fixed like in a wiki: another agent or person changes them, or marks them `disputed` with a reason.
 - Readers treat a document as a wiki page: use it, name the author and date, and check important facts against the code.
-- Owner verification is optional. A knowledge base turns it on in `.mkbds/waymark.toml`. It is off by default.
+- Owner verification is optional. A knowledge base turns it on in `.mkbase/waymark.toml`. It is off by default.
 
 ### Levels
 
