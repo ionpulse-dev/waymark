@@ -1,4 +1,17 @@
-# waymark
+<p align="center">
+  <img src="banner.svg" alt="waymark" width="800"/>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"/></a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/plain-Markdown-brightgreen" alt="Plain Markdown"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/works%20with-any%20AI%20agent-blueviolet" alt="Works with any AI agent"/>
+</p>
+
+<br/>
+
 
 An automated, AI-driven knowledge base and memory for AI agents and the
 people who use them. For companies, teams, and you alone. Plain Markdown in
