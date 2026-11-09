@@ -21,3 +21,13 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** Agents mark wrong documents as disputed or deprecated and keep the file.
 
 **Reason:** History stays, and the author sees the problem in the review list.
+
+**Superseded in part by:** Delete on request, and one process for wrong documents — 2026-11-09
+
+## Delete on request, and one process for wrong documents — 2026-11-09
+
+**Decision:** The agent never deletes on its own, but deletes when the person asks (`waymark delete`). Before it deletes, it fixes every link to the document in the same commit. The tools for wrong documents are, from light to heavy: fix, dispute, deprecate, replace (`add --supersedes`), delete. A dispute ends with `dispute --clear`. A reader of a deprecated document reads the replacement.
+
+**Reason:** In a personal knowledge base the person owns the content and may want a document gone. Git keeps the history. The tested rules of the waymark-trail skills show that agents need the whole process in one place.
+
+**Supersedes:** Dispute instead of delete (in part)

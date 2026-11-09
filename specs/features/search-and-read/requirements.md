@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 requires:
   - cli-core
   - git-sync
@@ -24,8 +24,8 @@ requires:
 | Command | Task |
 |---|---|
 | `waymark search <query> [<folder>...]` | Full-text search over title, description, tags, and body by default. `--in path,title,description,tags,body` limits the parts, and is the way to search the path. `--level 0\|1\|2` sets how much each result shows. Filters: `--tag`, `--status`. Results are ranked. |
-| `waymark show <id-or-path>` | Prints one document with frontmatter, author and last editor (name and email from Git), the version hash for `--base`, computed backlinks, and a stale mark if `updated` is older than `stale_after_days`. |
-| `waymark list [<folder>...] [--level 0\|1\|2]` | Lists documents by filter, for example `--stale`. |
+| `waymark show <id-or-path>` | Prints one document with frontmatter, author and last editor (name and email from Git), the version hash for `--base`, and computed backlinks. A disputed document shows its `dispute_reason`. A deprecated document names the document that replaces it (the one whose `supersedes` names it). |
+| `waymark list [<folder>...] [--level 0\|1\|2]` | Lists documents by filter, for example `--status deprecated` or `--disputed`. |
 | `waymark stats [<folder>...] [--metric words\|tokens\|chars\|documents] [--by folder\|author]` | Total size of the documents in some folders, with an optional breakdown. Read-only. Default metric: `words`. Tokens are an estimate; other metrics are exact. |
 
 Rules:
@@ -48,7 +48,8 @@ Every command takes `--kb <uuid>` and `--json`. `show` prints a `base` hash that
 - **Given** more matches than the budget, **When** `search` runs, **Then** it returns at most 5 documents within 800 tokens.
 - **Given** `--level 0`, **When** `list` runs, **Then** each line is only the ID.
 - **Given** a document that others link to, **When** `show` runs, **Then** it lists the backlinks.
-- **Given** a document older than `stale_after_days`, **When** `show` runs, **Then** it is marked stale.
+- **Given** a disputed document, **When** `show` runs, **Then** it shows the `dispute_reason`.
+- **Given** a deprecated document that another document supersedes, **When** `show` runs, **Then** it names the replacement.
 - **Given** a folder, **When** `stats --by author` runs, **Then** it counts per `created_by`.
 - **Given** a clone that is a few minutes behind, **When** `search` runs, **Then** it pulls first.
 

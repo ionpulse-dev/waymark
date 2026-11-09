@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 requires:
   - write-documents
 ---
@@ -20,13 +20,13 @@ requires:
 
 ## Behaviour
 
-`waymark move <old> <new>` moves a folder or a document and rewrites all links to it, in the body and in properties, in one commit.
+`waymark move <old> <new>` moves or renames a folder or a document and rewrites all links to it, in the body and in properties. A rename is a move: it changes the ID. Do it only when the person asks.
 
 Rules for history, shared by `move`, the app, and the plain-Git rules:
 
 1. Move with `git mv`. Never delete and re-create.
 2. Do not change the text of the moved document in the move, except relative body links that the move breaks. Full-path wikilinks need no change.
-3. Rewrite links in other documents and commit the move and the rewrites together.
+3. Commit the move alone (a pure rename, message `kb: move`). Then, in a second commit, rewrite the links in other documents and in the moved document, and set `updated` and `updated_by` in each document that changed.
 4. Never move and edit the content of one document in the same commit.
 5. Check afterwards that `git log --follow <new-path>` reaches the old history. The CLI verifies this.
 
@@ -44,7 +44,7 @@ waymark move <old> <new> --kb <uuid> [--preview]
 
 - **Given** a folder with 42 documents, **When** it is moved, **Then** all links to them in other documents work after the move.
 - **Given** a moved document, **When** `git log --follow` runs on the new path, **Then** the old history shows.
-- **Given** a move, **When** the commit is inspected, **Then** it contains renames and link rewrites only.
+- **Given** a move, **When** the commit is inspected, **Then** the first commit contains renames only and the second contains link rewrites only.
 - **Given** `show <old-id>`, **When** the document moved, **Then** the answer names the new ID.
 - **Given** a move into an existing path, **When** it runs, **Then** it fails.
 - **Given** `--preview`, **When** `move` runs, **Then** the list of changes is shown and nothing changes.

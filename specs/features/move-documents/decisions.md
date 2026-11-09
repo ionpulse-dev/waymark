@@ -18,3 +18,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `move` handles folders and documents and rewrites links.
 
 **Reason:** Folders are teams, and teams reorganize.
+
+## Two commits and rename — 2026-11-09
+
+**Decision:** A move is two commits: first a pure `git mv`, then the link fixes. A rename is a move.
+
+**Reason:** A pure rename commit makes Git detect the rename for sure (similarity 100%). The link fixes in a second commit keep the history of the moved file. This is the rule of the tested waymark-trail skills.

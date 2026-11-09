@@ -6,7 +6,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Wiki model — 2026-11-06
 
-**Decision:** Every write goes to `main` under the Git account of the person whose agent wrote it. That person is responsible. The `disputed` flag and stale expiry stay. Owner verification is optional.
+**Decision:** Every write goes to `main` under the Git account of the person whose agent wrote it. That person is responsible. The `disputed` flag stays. (The stale expiry was dropped later, see `updates`.) Owner verification is optional.
 
 **Alternatives considered:**
 - Direct write with review after the fact — readers cannot tell checked knowledge from guesses.

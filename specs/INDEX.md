@@ -20,39 +20,39 @@ All specs are `draft`. The requirements are written. The next step is the review
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
-| [activity-and-undo](features/activity-and-undo/requirements.md) | `draft` | 2026-11-08 |
-| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `draft` | 2026-11-08 |
-| [approval-dialog](features/approval-dialog/requirements.md) | `draft` | 2026-11-08 |
-| [create-knowledge-base](features/create-knowledge-base/requirements.md) | `draft` | 2026-11-08 |
-| [join-knowledge-base](features/join-knowledge-base/requirements.md) | `draft` | 2026-11-08 |
-| [login-and-identity](features/login-and-identity/requirements.md) | `draft` | 2026-11-08 |
-| [maintenance](features/maintenance/requirements.md) | `draft` | 2026-11-08 |
-| [manual-edits](features/manual-edits/requirements.md) | `draft` | 2026-11-08 |
-| [move-documents](features/move-documents/requirements.md) | `draft` | 2026-11-08 |
-| [notifications-and-review](features/notifications-and-review/requirements.md) | `draft` | 2026-11-08 |
-| [pause-and-resume](features/pause-and-resume/requirements.md) | `draft` | 2026-11-08 |
-| [plain-git-access](features/plain-git-access/requirements.md) | `draft` | 2026-11-08 |
-| [project-binding](features/project-binding/requirements.md) | `draft` | 2026-11-08 |
-| [quality-checks](features/quality-checks/requirements.md) | `draft` | 2026-11-08 |
-| [search-and-read](features/search-and-read/requirements.md) | `draft` | 2026-11-08 |
-| [session-start](features/session-start/requirements.md) | `draft` | 2026-11-08 |
-| [updates-and-stale](features/updates-and-stale/requirements.md) | `draft` | 2026-11-08 |
-| [verification](features/verification/requirements.md) | `draft` | 2026-11-08 |
-| [write-documents](features/write-documents/requirements.md) | `draft` | 2026-11-08 |
+| [activity-and-undo]() | `draft` | 2026-11-08 |
+| [agent-tool-setup]() | `draft` | 2026-11-08 |
+| [approval-dialog]() | `draft` | 2026-11-08 |
+| [create-knowledge-base]() | `draft` | 2026-11-08 |
+| [join-knowledge-base]() | `draft` | 2026-11-08 |
+| [login-and-identity]() | `draft` | 2026-11-08 |
+| [maintenance]() | `draft` | 2026-11-08 |
+| [manual-edits]() | `draft` | 2026-11-08 |
+| [move-documents]() | `draft` | 2026-11-09 |
+| [notifications-and-review]() | `draft` | 2026-11-09 |
+| [pause-and-resume]() | `draft` | 2026-11-08 |
+| [plain-git-access]() | `draft` | 2026-11-08 |
+| [project-binding]() | `draft` | 2026-11-08 |
+| [quality-checks]() | `draft` | 2026-11-08 |
+| [search-and-read]() | `draft` | 2026-11-09 |
+| [session-start]() | `draft` | 2026-11-09 |
+| [updates]() | `draft` | 2026-11-09 |
+| [verification]() | `draft` | 2026-11-09 |
+| [write-documents]() | `draft` | 2026-11-09 |
 
 ## Foundation
 
 | Item | Status | Updated |
 |:-----|:-------|:--------|
-| [agent-skill](foundation/agent-skill/requirements.md) | `draft` | 2026-11-08 |
-| [app-link](foundation/app-link/requirements.md) | `draft` | 2026-11-08 |
-| [cli-core](foundation/cli-core/requirements.md) | `draft` | 2026-11-08 |
-| [distribution](foundation/distribution/requirements.md) | `draft` | 2026-11-08 |
-| [document-format](foundation/document-format/requirements.md) | `draft` | 2026-11-08 |
-| [git-sync](foundation/git-sync/requirements.md) | `draft` | 2026-11-08 |
-| [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `draft` | 2026-11-08 |
-| [mac-app](foundation/mac-app/requirements.md) | `draft` | 2026-11-08 |
-| [trust-model](foundation/trust-model/requirements.md) | `draft` | 2026-11-08 |
+| [agent-skill]() | `draft` | 2026-11-09 |
+| [app-link]() | `draft` | 2026-11-08 |
+| [cli-core]() | `draft` | 2026-11-09 |
+| [distribution]() | `draft` | 2026-11-08 |
+| [document-format]() | `draft` | 2026-11-09 |
+| [git-sync]() | `draft` | 2026-11-08 |
+| [knowledge-base-repo]() | `draft` | 2026-11-09 |
+| [mac-app]() | `draft` | 2026-11-08 |
+| [trust-model]() | `draft` | 2026-11-09 |
 
 ---
 

@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 requires:
   - project-binding
   - agent-skill
@@ -26,7 +26,6 @@ requires:
 - the current read level, write level, and confirm in,
 - the pause state and the access mode,
 - notices,
-- at read level `auto`, the result of `updates` for knowledge bases that allow reading.
 
 The agent shows the person a one-line reminder of the settings and the knowledge base. It follows the `settings` of every later result.
 
@@ -46,8 +45,7 @@ The command only informs. Every command checks the same rules itself, so a skipp
 ## Acceptance Criteria
 
 - **Given** a bound project, **When** `session` runs, **Then** the result names the knowledge base and carries all five settings.
-- **Given** read level `manual`, **When** `session` runs, **Then** it does not include `updates`.
-- **Given** read level `auto`, **When** `session` runs, **Then** it includes `updates` for readable knowledge bases.
+- **Given** any read level, **When** `session` runs, **Then** it does not include `updates`. The person asks for `updates` when they want it.
 - **Given** writes are paused, **When** `session` runs, **Then** a notice says so.
 - **Given** an agent that skips `session`, **When** it runs a write, **Then** the CLI still enforces all limits.
 

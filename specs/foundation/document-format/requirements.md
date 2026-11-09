@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 ---
 
 # Document format
@@ -32,7 +32,7 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 
 **In scope:**
 - One document: file name, frontmatter, body, links, sizes.
-- The meaning of status, disputed, stale, and trust fields.
+- The meaning of status, disputed, and trust fields.
 
 **Out of scope:**
 - The folder layout of a repository (see `knowledge-base-repo`).
@@ -50,8 +50,8 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 
 | Field | Required | Meaning |
 |---|---|---|
-| `title` | yes | One sentence, about 15 words. |
-| `description` | yes | What the document contains and when to read it. About 50 words. |
+| `title` | yes | One sentence, at most 15 words. |
+| `description` | yes | What the document contains and when to read it. At most 50 words. |
 | `status` | yes | `active` or `deprecated`. |
 | `created`, `updated` | yes | Dates. Set by waymark. |
 | `created_by`, `updated_by` | yes | Text `"Name <email>"`. Set by waymark. Git history stays the source of truth. |
@@ -61,12 +61,12 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 | `tags` | no | List of strings, no `#`, no spaces. |
 | `related` | no | List of full-path wikilinks: read these too. |
 | `supersedes` | no | List of full-path wikilinks: this document replaces an older one. The older one becomes `deprecated`. |
-| `anchors` | no | List of strings `"<type>:<target>"` that point to the code or page the document describes. Types: `git` (`<repo>/<path>@<commit>`) and `url`. |
+| `anchors` | no | List of strings `"<type>:<target>"` that point to the file or page the document describes. Types: `git` (`<repo>/<path>@<commit>`) and `url`. |
 | `trust`, `verified_by`, `verified` | no | Only when the knowledge base turns on verification. `trust` is `unverified` or `verified`. |
 
 ### Document ID and links
 
-- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbds` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. The file name never changes, also when the title changes.
+- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbds` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - Backlinks are computed on demand. No document stores its backlinks, and there is no central index file.
@@ -75,8 +75,8 @@ The format is defined by the [Markdown Knowledge Base Document Standard (MKBDS) 
 
 | Part | Default | Setting |
 |---|---|---|
-| `title` | about 15 words | `documents.title_max_words` |
-| `description` | about 50 words | `documents.description_max_words` |
+| `title` | 15 words | `documents.title_max_words` |
+| `description` | 50 words | `documents.description_max_words` |
 | Whole document | 100 KB, hard cap | `documents.max_bytes` |
 
 There is no limit on words in the body. Headings are allowed. A full architecture decision record fits in one document. Counting rules for words, characters, and estimated tokens (words times a fixed factor) are fixed here so that the CLI and `lint` agree.

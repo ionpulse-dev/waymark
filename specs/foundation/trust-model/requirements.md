@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 ---
 
 # Trust model
@@ -23,13 +23,13 @@ Define who is responsible for what agents write, how much an agent may do alone,
 - The wiki model and the rules of authorship.
 - The read level, the write level, and the confirm-in setting, with their limits.
 - The repository access modes.
-- The rules for disputed and stale documents.
+- The rules for disputed documents.
 - A list of the honest limits of the model.
 
 ## Scope
 
 **In scope:**
-- Responsibility, authorship, levels, access modes, disputes, staleness, confidentiality.
+- Responsibility, authorship, levels, access modes, disputes, confidentiality.
 
 **Out of scope:**
 - A pull request gate where a second person approves a write. This is an idea for after the first release.
@@ -52,7 +52,7 @@ Define who is responsible for what agents write, how much an agent may do alone,
 
 | Setting | Values | Default |
 |---|---|---|
-| **Read level** | `auto`: the agent searches and opens documents on its own and reports `updates` at session start. `manual`: only when the person asks. | `manual` |
+| **Read level** | `auto`: the agent searches and opens documents on its own. `manual`: only when the person asks. | `manual` |
 | **Write level** | `auto`: the agent decides what to write and writes; undo is the safety net. `confirm`: the agent decides and asks first. `manual`: the person asks, the agent writes without confirmation. | `manual` |
 | **Confirm in** | `chat`: the agent asks in the conversation (advice only). `app`: the native dialog shows the full document (enforced). | `chat` |
 
@@ -68,10 +68,10 @@ Rules:
 
 Each connected knowledge base has one mode: `off`, `read only`, or `read and write`. A new one starts `off`. The mode is set only in the app and applies at once, because the CLI checks it on every call. In `read only`, writes fail at any write level.
 
-### Disputed and stale
+### Disputed documents
 
-- A document is stale when its `updated` date is older than `stale_after_days`. With verification on, the `verified` date counts instead.
-- A disputed document is not to be relied on. Readers mention the dispute.
+- A disputed document is not to be relied on. Readers mention the dispute and its reason.
+- A document has no stale mark. If `updated` is old, a reader checks the facts that matter before relying on them and says how old the document is.
 - The folder shows which team to ask.
 
 ### Limits (honest)
@@ -88,7 +88,6 @@ Each connected knowledge base has one mode: `off`, `read only`, or `read and wri
 - **Given** a shared limit `write.max = "confirm"`, **When** a person sets `auto`, **Then** the CLI uses `confirm`.
 - **Given** an agent, **When** it tries to change a level through the CLI, **Then** no such command exists.
 - **Given** access mode `read only`, **When** a write runs at write level `auto`, **Then** the write fails.
-- **Given** a document older than `stale_after_days`, **When** it is shown, **Then** it is marked stale.
 - **Given** a new setup, **When** the person has not changed anything, **Then** read level and write level are `manual` and confirm in is `chat`.
 
 ## Open Questions

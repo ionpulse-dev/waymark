@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 requires:
   - knowledge-base-repo
   - trust-model
@@ -83,8 +83,8 @@ waymark → output (JSON + message) → agent → person in the chat
 | Maintenance | `doctor`, `status`, `update`, `uninstall` | `maintenance` |
 | Binding | `link`, `unlink`, `--kb <uuid>` | `project-binding` |
 | Session | `session` | `session-start` |
-| Read | `search`, `show`, `list`, `stats`, `updates`, `stale` | `search-and-read`, `updates-and-stale` |
-| Write | `add`, `update-document`, `dispute`, `deprecate`, `move` | `write-documents`, `move-documents` |
+| Read | `search`, `show`, `list`, `stats`, `updates` | `search-and-read`, `updates` |
+| Write | `add`, `update-document`, `dispute`, `deprecate`, `delete`, `move` | `write-documents`, `move-documents` |
 | Sync | `sync` | `git-sync` |
 | Quality | `lint`, `index` | `quality-checks` |
 | Control | `pause`, `resume` | `pause-and-resume` |

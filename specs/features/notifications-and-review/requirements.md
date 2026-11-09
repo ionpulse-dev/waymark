@@ -2,10 +2,10 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-09
 requires:
   - mac-app
-  - updates-and-stale
+  - updates
 ---
 
 # Notifications and review list
@@ -33,26 +33,25 @@ macOS notifications for:
 
 One list in the app with:
 
-- disputes on my documents,
-- my stale documents.
+- disputes on my documents.
 
 Each item opens the document and offers the next step.
 
 ## Behaviour
 
-- The app reads the data from `updates` and `stale`, and from the status file of the background sync.
+- The app reads the data from `updates`, and from the status file of the background sync.
 - With verification on, documents waiting for verification show too (see `verification`).
 - The same information also arrives as `notices` in CLI output.
 
 ## Interfaces & Contracts
 
-The app calls `updates`, `stale`, and `status` through the CLI.
+The app calls `updates` and `status` through the CLI.
 
 ## Acceptance Criteria
 
 - **Given** someone disputes my document, **When** the next sync completes, **Then** a notification appears.
 - **Given** the login expired, **When** a sync fails, **Then** a notification explains what to do.
-- **Given** a stale document of mine, **When** the review list opens, **Then** it shows with an action.
+- **Given** a disputed document of mine, **When** the review list opens, **Then** it shows with an action.
 - **Given** no problems, **When** the list opens, **Then** it is empty and says so.
 
 ## Constraints & Edge Cases

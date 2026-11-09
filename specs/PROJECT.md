@@ -52,10 +52,10 @@ knowledge base is a valid Obsidian vault.
 ### Document
 
 One topic in one Markdown file with flat YAML frontmatter. It has a title, a
-required short description, a type, a status, authors, dates, and links to
+required short description, a status, authors, dates, and links to
 other documents. The ID of a document is its path without `.md`. A document is
 either active or deprecated. It can be marked as disputed with a reason. It
-becomes stale when nobody changes it for a configured number of days.
+can be replaced by a newer document or deleted when the person asks.
 
 ### Folder
 

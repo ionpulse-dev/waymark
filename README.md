@@ -80,12 +80,13 @@ all the AI tools you use yourself.
 - **Captured during normal work.** When an agent learns something that
   other teams need, it writes a document. Nobody has to stop and "do
   documentation".
-- **Noise stays out.** The skill tells the agent to keep only facts that are still true in
-  three months and that someone outside your team needs. Status updates
-  and chat summaries do not belong in the knowledge base.
+- **Noise stays out.** When you ask for a document, the agent writes it. When the
+  agent decides alone, it keeps only facts that are still true in three months
+  and useful beyond the conversation. Status updates and chat summaries do not
+  belong in the knowledge base.
 - **Wrong documents get fixed.** Any agent can update a document or mark it
-  `disputed` when the code says otherwise. Old documents show up as stale, so
-  someone checks them.
+  `disputed` when its source says otherwise. A new document can replace an old
+  one, and the old one is marked deprecated.
 - **Always up to date.** waymark syncs in the background every few
   minutes. Every agent reads the latest state.
 
@@ -166,8 +167,9 @@ Your agent uses these commands through the waymark skill:
 | `waymark update-document <id>` | Change a document. |
 | `waymark dispute <id>` | Mark a document as wrong, with a reason. |
 | `waymark deprecate <id>` | Retire a document that is no longer true. |
+| `waymark delete <id>` | Delete a document, only when you ask for it. Links to it are fixed. |
+| `waymark move <old> <new>` | Move or rename a document or a folder. Links are fixed. |
 | `waymark updates [<folder>...] [--since <date>]` | What changed since a date, in some folders or all. |
-| `waymark stale [<folder>...] [--before <date>]` | Documents that nobody changed for a long time, in some folders or all. |
 
 Every command takes `--kb <uuid>`, the id of the project's knowledge base. The commands that set up or check a machine (`init`, `setup`, `doctor`) need no id. The full list is in the
 [CLI core spec](specs/foundation/cli-core/requirements.md), and the options of each command are in its feature spec.
@@ -219,7 +221,7 @@ waymark install), and **Confluence** with an MCP server.
 | Search by title and description first | ✅ | ❌ | ⚠️ |
 | No silent overwrite (base-version check) | ✅ | ⚠️ | ❌ |
 | Move with automatic link rewrite | ✅ | ⚠️ | ⚠️ |
-| Dispute, deprecate, and stale checks | ✅ | ⚠️ | ❌ |
+| Dispute, deprecate, and replace | ✅ | ⚠️ | ❌ |
 | "What changed since" for each person | ✅ | ⚠️ | ❌ |
 | Reachable author on every document | ✅ | ⚠️ | ⚠️ |
 | Approval dialog and pause switch | ✅ | ❌ | ❌ |

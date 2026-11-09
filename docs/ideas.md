@@ -19,12 +19,12 @@ Features that we want later, but not in the first release. When an idea moves in
 |---|---|
 | Device login (OAuth device flow) | Log in with a short code in the browser instead of a pasted token. Needs an OAuth app per Git host. The project could own one for github.com, and an organization with its own Git host registers one and puts the client ID in `.mkbds/waymark.toml`. |
 
-## Documents and staleness
+## Documents
 
 | Idea | What it does |
 |---|---|
-| Anchor check | `waymark stale` flags documents whose `git` or `url` anchor changed. Watch for false alarms on `url` anchors. |
-| Personal default folders | A personal default filter for `search`, `updates`, and `stale`, if people ask for it. |
+| Anchor check | A command flags documents whose `git` or `url` anchor changed. Watch for false alarms on `url` anchors. |
+| Personal default folders | A personal default filter for `search` and `updates`, if people ask for it. |
 | Attachments | A text document with a binary attachment. Today a document describes binary data and links to it. |
 
 ## Agent integration

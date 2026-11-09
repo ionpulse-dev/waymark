@@ -36,7 +36,7 @@ The portable Rust `waymark` CLI with the conformance tests (fixture repo, comman
 - [ ] `cli-core`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
 - [ ] Setup and maintenance: `create-knowledge-base`, `join-knowledge-base` (non-interactive with flags), `login-and-identity`, `agent-tool-setup`, `maintenance`.
 - [ ] Binding and session: `project-binding`, `session-start`.
-- [ ] Read: `search-and-read`, `updates-and-stale`.
+- [ ] Read: `search-and-read`, `updates`.
 - [ ] Write: `write-documents`, `move-documents`, `quality-checks`, `plain-git-access`.
 - [ ] `pause-and-resume`. In this phase, `resume` asks in the terminal.
 
@@ -91,4 +91,4 @@ See [ideas.md](ideas.md). The largest items:
 - A self-hosted MCP server for Claude and ChatGPT connectors. This is the way to use the memory on mobile.
 - An optional iPhone app for approval and review only (no LLM inside).
 - Knowledge browser, Spotlight, quick capture, company rollout through device management.
-- Anchor check in `waymark stale`, device login.
+- Anchor check (see `docs/ideas.md`), device login.

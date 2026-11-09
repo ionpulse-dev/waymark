@@ -25,7 +25,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The ID is the path — 2026-11-06
 
-**Decision:** The document ID is its path without `.md`. File names never change. Typed links are only `related` and `supersedes`. Folders and tags give implicit links. Backlinks are computed.
+**Decision:** The document ID is its path without `.md`. (File names never change was replaced, see below.) Typed links are only `related` and `supersedes`. Folders and tags give implicit links. Backlinks are computed.
 
 **Alternatives considered:**
 - A separate ID system or stored backlinks — extra state and write conflicts.
@@ -95,3 +95,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - Keep it required and define the values — it makes the unreviewed list official.
 
 **Reason:** The format should hold only what the project decided. A field can be added later.
+
+## A rename is a move — 2026-11-09
+
+**Decision:** A file name does not change only because the title changed, but a person may rename a document. A rename is a move: it changes the ID, uses `git mv`, and fixes every link.
+
+**Reason:** A rename is nothing else than a move. "Never rename" forced people to keep names that no longer fit. The history stays with `git mv`.
+
+**Supersedes:** The part "File names never change" of the ID decision
