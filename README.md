@@ -17,9 +17,8 @@ An automated, AI-driven knowledge base and memory for AI agents and the
 people who use them. For companies, teams, and you alone. Plain Markdown in
 your own Git repository. Runs locally. No server.
 
-> **Status: design phase.** There is no code yet. The specification is in
-> [specs/](specs/). This project is built spec first, with the workflow in
-> [specs/WORKFLOW.md](specs/WORKFLOW.md).
+The specification is in [specs/](specs/). This project is built spec first, with
+the workflow in [specs/WORKFLOW.md](specs/WORKFLOW.md).
 
 ## Why the name
 
