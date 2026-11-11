@@ -105,3 +105,13 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Reason:** A rename is nothing else than a move. "Never rename" forced people to keep names that no longer fit. The history stays with `git mv`.
 
 **Supersedes:** The part "File names never change" of the ID decision
+
+## A verbatim copy of the standard lives in `standard/` — 2026-11-11
+
+**Decision:** The folder `standard/` holds a verbatim copy of the MKBase Document Standard and its conformance fixtures from `waymark-trail` (commit `e0761d6`). It is never edited in this repository. When the standard changes in `waymark-trail`, the whole folder is replaced and the commit is noted here.
+
+**Alternatives considered:**
+- Link to the other repository only. The specs and the conformance tests then depend on a remote file.
+- A Git submodule. It adds a Git concept that contributors must learn.
+
+**Reason:** The specs and the tests can link to a local file. One source of truth stays in `waymark-trail`, so there is no fork of the standard.

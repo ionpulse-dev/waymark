@@ -11,7 +11,7 @@ updated: 2026-11-11
 
 Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
 
-The format is defined by the [MKBase Document Standard 1.0](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbase-1.0.md), which belongs to the separate `waymark-trail` project. This item implements that standard. If the two differ, the standard wins, and this item changes to match.
+The format is defined by the [MKBase Document Standard 1.0](../../../standard/mkbase-1.0.md), which belongs to the separate `waymark-trail` project ([source](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbase-1.0.md)). This repository holds a verbatim copy in `standard/`, with its conformance fixtures, so that the specs and the tests can link to it. This item implements that standard. If the two differ, the standard wins, and this item changes to match. The copy is never edited here. A change to the standard is made in `waymark-trail`, and the copy is then replaced.
 
 ## Dependents
 
@@ -26,6 +26,7 @@ The format is defined by the [MKBase Document Standard 1.0](https://github.com/i
 - The rules for document IDs, file names, and links.
 - The size limits and the counting rules.
 - The Obsidian compatibility rules.
+- A verbatim copy of the standard and its conformance fixtures in `standard/`.
 - A sample vault used by tests and by the check in Obsidian before each release.
 
 ## Scope
