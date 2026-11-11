@@ -39,7 +39,7 @@ requires:
 Then `init`:
 
 1. Generates the UUID of the knowledge base once.
-2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules, see `plain-git-access`), `.obsidian/app.json` (with `"useMarkdownLinks": true` and `"newLinkFormat": "relative"`, as MKBase 1.0 section 11 recommends), `.gitignore` (with `.obsidian/*` and `!.obsidian/app.json`), and `knowledge/` with the marker folder `knowledge/.mkbase/`, which holds the file `version` and the shared settings `waymark.toml`.
+2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules, see `plain-git-access`), `.obsidian/app.json` (with `"useMarkdownLinks": true` and `"newLinkFormat": "relative"`, as [MKBase 1.0 section 11](../../../standard/mkbase-1.0.md) recommends), `.gitignore` (with `.obsidian/*` and `!.obsidian/app.json`), and `knowledge/` with the marker folder `knowledge/.mkbase/`, which holds the file `version` and the shared settings `waymark.toml`.
 3. Commits and pushes it.
 
 `init` runs only on a repository that has no `.mkbase` folder and no `knowledge/` folder. Anything else fails with `validation_failed` and no change. It is a write tool, so the limits apply: a layer can switch it off with `tools_denied = ["init"]`, and `access = "read-only"` blocks it.

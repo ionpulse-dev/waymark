@@ -20,7 +20,7 @@ requires:
 
 ## Behaviour
 
-Every content repository has an `AGENTS.md` in its root. The `init` tool writes it from a template. It always contains the plain-Git rules, which are a copy of the standalone skill from the `waymark-trail` project (a separate repository, independent of waymark). `init` copies the `personal-knowledge-base` skill for a knowledge base of one person and the `team-knowledge-base` skill for several people. The skill works on any Git repository of Markdown documents with no `.mkbase/waymark.toml` and no waymark program.
+Every content repository has an `AGENTS.md` in its root. The `init` tool writes it from a template. It always contains the plain-Git rules, which are a copy of a standalone skill (today in the separate `waymark-trail` repository, independent of waymark; its future home is an open question). `init` copies the `personal-knowledge-base` skill for a knowledge base of one person and the `team-knowledge-base` skill for several people. The skill works on any Git repository of Markdown documents with no `.mkbase/waymark.toml` and no waymark program.
 
 The file has two modes:
 
@@ -51,5 +51,7 @@ The template block between marker comments holds the skill text and a version he
 - The plain Claude chat tab and non-GitHub hosts are not verified for this mode.
 
 ## Open Questions
+
+- Where do the standalone skills live once `waymark-trail` is retired? The standard is already in `standard/` of this repository.
 
 - How does waymark pin a version of the standalone skill: a Git tag, a commit hash, or a version header in the copy?

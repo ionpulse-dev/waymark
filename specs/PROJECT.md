@@ -59,7 +59,8 @@ that cannot use the MCP server. Every knowledge base is a valid Obsidian vault.
 
 ### Document
 
-One topic in one Markdown file with flat YAML frontmatter. It has a title, a
+One topic in one Markdown file with flat YAML frontmatter, as defined by the
+[MKBase Document Standard](../standard/mkbase-1.0.md). It has a title, a
 required short description, a status, authors, dates, and links to
 other documents. The ID of a document is its path without `.md`. A document is
 either active or deprecated. It can be marked as disputed with a reason. It
@@ -136,7 +137,8 @@ The long-term goal is a building block for a software factory, where agents do m
 ## Scope
 
 **In scope:**
-- The knowledge base format and its rules.
+- The knowledge base format and its rules: the MKBase Document Standard in
+  `standard/`, with its conformance fixtures.
 - The `waymark` binary (Rust): the MCP server, local mode and server mode.
 - Sign-in, roles, Git credentials, tenancy, and the audit log of server mode.
 - The web console of server mode.
@@ -154,8 +156,9 @@ The long-term goal is a building block for a software factory, where agents do m
 - Operating a service. The project ships the software and a deploy guide. Who
   runs a server is not decided here.
 
-**Related project:** the plain-Git rules for agents without MCP are a
-separate, standalone project, `waymark-trail`.
+**Standalone parts:** the MKBase Document Standard is part of this project
+(`standard/`). The plain-Git rules for agents without MCP are a standalone skill.
+Its home after `waymark-trail` is retired is open (see the open questions).
 
 ## Post-MVP
 

@@ -18,6 +18,8 @@ See [architecture-direction.md](architecture-direction.md) for the full list. Th
 - How does a read budget per session fit a stateless server, and how does the server find the knowledge base?
 - Should the built-in default of the limit `access` be `read-only`?
 
+- **Home of the plain-Git skills.** The standard now lives in `standard/`. Where do the standalone plain-Git skills (`personal-knowledge-base`, `team-knowledge-base`) live once `waymark-trail` is retired? Options: a folder in this repository, or another repository.
+
 ## Build environment
 
 - Rust toolchain version and the MCP library.
@@ -28,4 +30,4 @@ See [architecture-direction.md](architecture-direction.md) for the full list. Th
 ## Agent tools
 
 - Verified MCP config formats and locations of Claude Code, GitHub Copilot, and OpenAI Codex (see `specs/features/agent-tool-setup`).
-- How waymark pins a version of the standalone plain-Git skill (see `specs/features/plain-git-access`).
+- How waymark pins a version of the standalone plain-Git skill, and where the skill lives after `waymark-trail` is retired (see `specs/features/plain-git-access`).

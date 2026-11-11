@@ -63,6 +63,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Decision:** The plain-Git rules for agents without the CLI are the `waymark-trail` skills, in their own repository. waymark depends on them, never the other way around.
 
+**Amended by:** "The MKBase standard lives in this repository" below. The standard moved here. The home of the skills after `waymark-trail` is retired is open (see [open-questions.md](open-questions.md)).
+
 **Reason:** They are useful without waymark and can spread on their own.
 
 ## License and copyright holder — 2026-11-08
@@ -80,7 +82,7 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 - A CLI and an MCP server as two interfaces. Two interfaces to keep in step.
 - MCP only for chat apps. Coding agents also support MCP, and tool descriptions are always in their context.
 
-**Reason:** One interface, one behavior to test, and a standard that the three target agent tools support (to be verified). The plain-Git rules of `waymark-trail` remain the fallback for agents without MCP.
+**Reason:** One interface, one behavior to test, and a standard that the three target agent tools support (to be verified). The standalone plain-Git skill remains the fallback for agents without MCP.
 
 **Supersedes:** "No MCP server first" in `specs/foundation/cli-core/decisions.md` (to be marked there when `cli-core` is revised).
 
@@ -133,3 +135,13 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Decision:** All specs were rewritten for the direction above on the same day. Five specs are superseded: `cli-core`, `agent-skill`, `mac-app`, `app-link`, and `approval-dialog`. Five are new: `mcp-server`, `server-mode`, `multi-tenancy`, `write-approval`, and `web-console`. Every spec stays `draft`.
 
 **Reason:** The state of the repository should reflect the new direction completely. See [architecture-direction.md](architecture-direction.md).
+
+## The MKBase standard lives in this repository — 2026-11-11
+
+**Decision:** The MKBase Document Standard 1.0, with its conformance fixtures, is part of waymark. It lives in `standard/` and is maintained here. The `waymark-trail` repository is to be retired when this repository goes public. Until then, both hold the same text, and changes are made here only.
+
+**Alternatives considered:**
+- A separate repository for the standard. It adds a repository for a file that this project owns.
+- Keep it in `waymark-trail`. That repository is to be taken down.
+
+**Reason:** One repository, one spec workflow, and no second copy to keep in step. See `specs/foundation/document-format/decisions.md`.

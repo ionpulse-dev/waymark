@@ -25,7 +25,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 - [ ] Verify the login flows that Claude and ChatGPT accept for a self-hosted MCP server (`server-mode`).
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
 - [ ] Write the `.mkbase/waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).
-- [ ] Release the standalone plain-Git skill from the `waymark-trail` project and pin a version (`plain-git-access`). Test it in Claude Code on the web.
+- [ ] Decide where the standalone plain-Git skills live after `waymark-trail` is retired, pin a version, and test it in Claude Code on the web (`plain-git-access`).
 - [ ] Decide the build environment: Rust toolchain version, MCP library, and the signing identity.
 - [ ] Install Obsidian on a test machine for the sample vault check.
 
@@ -84,6 +84,7 @@ Result: a list of fixes, and a go or no-go for the public release.
 - [ ] README, user docs, and a short demo.
 - [ ] Open the sample vault in the current Obsidian version and check properties, links, graph, and tags.
 - [ ] Make the repository public and publish the signed binary and the image.
+- [ ] Retire the `waymark-trail` repository. The standard is in `standard/` here. Move or archive the skills first (see open questions).
 
 ## After the first release
 

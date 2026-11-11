@@ -19,7 +19,7 @@ agent tool or chat app ⇄ MCP ⇄ waymark (core: documents, checks, Git) ⇄ Gi
 - One interface means one behavior to build and test.
 - Chat apps and phones can only use MCP, and only a remote one.
 
-Costs: the tool schemas use context in every session, so the tool set must stay small. Agents without MCP support cannot use waymark. The plain-Git rules of `waymark-trail` remain the fallback for them.
+Costs: the tool schemas use context in every session, so the tool set must stay small. Agents without MCP support cannot use waymark. The standalone plain-Git skill remains the fallback for them.
 
 ## Principles
 

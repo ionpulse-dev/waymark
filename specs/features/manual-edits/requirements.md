@@ -45,7 +45,7 @@ The `sync` tool takes no arguments except `preview: true`. The result lists what
 ## Constraints & Edge Cases
 
 - Edits made in Obsidian bypass the write checks until they are committed. `lint` is the safety net.
-- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of MKBase 1.0 section 11, is kept.
+- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of [MKBase 1.0 section 11](../../../standard/mkbase-1.0.md), is kept.
 - A person who edits and never runs a session leaves edits unpublished. This is a known limit of having no background job.
 
 ## Open Questions

@@ -11,7 +11,7 @@ updated: 2026-11-11
 
 Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
 
-The format is defined by the [MKBase Document Standard 1.0](../../../standard/mkbase-1.0.md), which belongs to the separate `waymark-trail` project ([source](https://github.com/ionpulse-dev/waymark-trail/blob/main/standard/mkbase-1.0.md)). This repository holds a verbatim copy in `standard/`, with its conformance fixtures, so that the specs and the tests can link to it. This item implements that standard. If the two differ, the standard wins, and this item changes to match. The copy is never edited here. A change to the standard is made in `waymark-trail`, and the copy is then replaced.
+The format is defined by the [MKBase Document Standard 1.0](../../../standard/mkbase-1.0.md). The standard is part of this project. It lives in `standard/` in this repository, together with its conformance fixtures, and it is maintained here. Any other tool may use it. This item implements the standard. If the two differ, the standard wins, and this item changes to match. A format change is made in the standard first.
 
 ## Dependents
 
@@ -26,7 +26,7 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 - The rules for document IDs, file names, and links.
 - The size limits and the counting rules.
 - The Obsidian compatibility rules.
-- A verbatim copy of the standard and its conformance fixtures in `standard/`.
+- The MKBase Document Standard 1.0 and its conformance fixtures in `standard/` (see [standard/mkbase-1.0.md](../../../standard/mkbase-1.0.md)).
 - A sample vault used by tests and by the check in Obsidian before each release.
 
 ## Scope
@@ -97,8 +97,10 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 - **Given** a document over the hard cap, **When** it is written, **Then** the write fails and tells the agent to split the document or move details into a source.
 - **Given** a title change, **When** the document is saved, **Then** the file name and the ID stay the same.
 - **Given** a sample vault, **When** the test suite runs, **Then** every document in it passes `lint`.
+- **Given** the conformance fixtures in `standard/conformance/`, **When** the test suite runs, **Then** every valid document passes `lint` and every invalid document fails it with a finding that names the broken rule.
 
 ## Open Questions
 
+- How are changes to the standard versioned and announced, so that other tools can follow? (Version 1.0 is the baseline.)
 - Which Obsidian version is the baseline for the release check?
 - Should a knowledge base be able to choose "name only" for `created_by` and `updated_by`?

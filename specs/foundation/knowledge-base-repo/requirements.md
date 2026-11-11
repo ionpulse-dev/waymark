@@ -22,7 +22,7 @@ Define the content repository of a knowledge base: its layout, its shared settin
 
 ## Deliverables
 
-- The layout of a content repository, with the marker folder `.mkbase` that marks the root of the knowledge base and holds its metadata and configuration (see the MKBase Document Standard).
+- The layout of a content repository, with the marker folder `.mkbase` that marks the root of the knowledge base and holds its metadata and configuration (see the [MKBase Document Standard](../../../standard/mkbase-1.0.md)).
 - The schema of `.mkbase/waymark.toml`.
 - The templates for `.mkbase/waymark.toml` and `AGENTS.md`.
 - The Obsidian vault settings and Git ignore rules that `init` writes (the `init` tool, see `create-knowledge-base`).

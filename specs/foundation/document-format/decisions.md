@@ -70,6 +70,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** The document format is defined in the MKBase Document Standard 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
 
+**Superseded by:** The standard lives in this repository (the location changed, the rule "a format change is made in the standard first" stays).
+
 **Alternatives considered:**
 - Keep the rules in both projects and sync them by hand — they drift.
 
@@ -115,3 +117,19 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - A Git submodule. It adds a Git concept that contributors must learn.
 
 **Reason:** The specs and the tests can link to a local file. One source of truth stays in `waymark-trail`, so there is no fork of the standard.
+
+**Superseded by:** The standard lives in this repository.
+
+## The standard lives in this repository — 2026-11-11
+
+**Decision:** The MKBase Document Standard is part of waymark. It lives in `standard/` in this repository, with its conformance fixtures, and it is maintained here. The copy is no longer verbatim and read-only: a change to the standard is made here, in the standard first, and then in this spec. The same text exists in the `waymark-trail` repository until that repository is retired when this one goes public. That copy is not updated after the retirement is decided.
+
+**Supersedes:** "The format follows MKBase" (the location only) and "A verbatim copy of the standard lives in `standard/`".
+
+**Alternatives considered:**
+- Keep the standard in `waymark-trail` and copy it here. The copy would drift or block changes, and the other repository is to be taken down.
+- A separate repository only for the standard. One more repository to keep in step, for a file that this project owns.
+
+**Reason:** The standard and the product that implements it change together, under one spec workflow. One repository is one source of truth.
+
+**Source of the first text:** `waymark-trail` at commit `7828ae4` (the standard folder), copied on 2026-11-11.

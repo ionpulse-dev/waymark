@@ -49,6 +49,11 @@ AI agents read it, and AI agents keep it up to date, as far as you allow.
 - **Documents are small Markdown files in one Git repo per knowledge base:**
   for a company, a team, or just you. One topic
   per document, with a header (title, description, status, authors, dates, sources).
+- **An open document standard.** The [MKBase Document Standard](standard/mkbase-1.0.md)
+  defines one document: a small Markdown file with a short header and no fixed
+  folders. It is part of this project, with
+  [conformance fixtures](standard/conformance/) that any tool can use to check
+  that it reads and writes the same documents. waymark implements it.
 - **One interface: MCP.** Every agent tool that speaks MCP can search, read,
   write, move, and sync documents. There is no CLI for agents and no skill to
   install.
@@ -303,8 +308,8 @@ Three ways to give an agent shared knowledge: **waymark** (an MCP server),
 
 Where the ⚠️ appears for waymark: on web and iPhone, an agent can use a
 shared waymark server over MCP, or, without a server, fall back to the
-plain-Git skill of the waymark-trail project. That skill is standalone and works
-on any Git repo of Markdown documents, with or without waymark. The plain-Git
+standalone plain-Git skill. It works on any Git repo of Markdown documents, with
+or without waymark. The plain-Git
 mode is a good second channel and a safe default.
 
 Why not Confluence? Many companies use it, and some connect it to their
@@ -322,6 +327,7 @@ Confluence page as its source, and a Confluence page can link to a document.
 ## Documentation
 
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
+- [MKBase Document Standard](standard/mkbase-1.0.md): the document format, with [conformance fixtures](standard/conformance/).
 - [Specifications](specs/INDEX.md): all specs and their status.
 - [Roadmap](docs/roadmap.md): phases from design to public release.
 - [Ideas](docs/ideas.md): features for after the first release.
