@@ -2,34 +2,38 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
-  - cli-core
+  - mcp-server
 ---
 
 # Login and identity
 
 ## User Story
 
-> As a person, I want waymark to log in to my Git host once and use my own name and a reachable email, so that every document I publish shows who is responsible.
+> As a person, I want waymark to use my own Git login and my own name and a reachable email, so that every document I publish shows who is responsible, without waymark handling any secret.
 
 ## Personas
 
-- **Every person** — logs in once and confirms the email address.
+- **Every person** — signs in with Git once and confirms the email address.
 - **Knowledge base owner** — can limit allowed email domains.
+- **Operator** — configures sign-in and Git credentials of a server.
 
 ## Behaviour
 
-### Login
+### Git login (local mode)
 
-1. If `gh` is installed and logged in to the Git host, setup offers to use its token.
-2. Otherwise setup opens the token page of the Git host in the browser, with the needed settings filled in. The person generates the token and pastes it once.
+waymark does not log in and stores no token. `git` uses what the person set up: an SSH key, or a credential helper that was filled by `gh auth login` or by an earlier `git push`. The server only checks that the remote answers (`status`). If not, the result says in plain words what to do, for example "Git cannot sign in to this repository. Sign in with Git first, for example with `gh auth login`, or set up an SSH key." The error is `sync_failed`. IT can prepare the login for a whole team.
 
-The token is stored in the macOS Keychain, never in a file. `git` gets it through `waymark credential`, which speaks the Git credential helper protocol. After login, waymark reads the name and email of the person from the Git host for the commit author. If the token expires, the next command fails with a clear message and `waymark login` asks for a new one.
+No tool receives or returns a secret, and no secret is an argument of the MCP entry.
+
+### Author
+
+The commit author is the name and email of the person. Order: the arguments `--author-name` and `--author-email` (or the environment variables), then the Git settings of the person. If neither gives a usable address, writes fail with `setup_problem` and say how to set one.
 
 ### Email check
 
-waymark accepts only an address that reaches a person. It checks in `setup` and again before every commit. If a check fails, the command stops and asks for a valid address. Checks, in this order:
+waymark accepts only an address that reaches a person. It checks at start and again before every commit. If a check fails, the write stops and says what to fix. Checks, in this order:
 
 1. **Syntax.** One `@`, a local part, a domain with a dot.
 2. **Blocklist.** The address must not contain these parts (case does not matter):
@@ -45,34 +49,32 @@ waymark accepts only an address that reaches a person. It checks in `setup` and 
    A knowledge base adds its own parts in `people.email_blocklist`.
 3. **Allowed domains (optional).** If `people.email_domains` is set, the address must use one of them. This is the strongest check.
 4. **Domain receives mail.** The domain must have an MX record.
-5. **Verified on the Git host, when possible.** If the token can read the account's emails, the address must be a verified email of that account. If not, skip this check.
+5. **Verified on the Git host, when possible.** On a server with a Git host token that can read account emails, the address must be a verified email of the account. If not possible, skip this check.
 
-With managed accounts the account email comes from the company directory, so all checks pass unnoticed. With personal accounts the email can be private, so waymark takes it from the account and the person confirms it.
+### Sign-in (server mode)
 
-The credential is requested from the app over the app link when the app runs. Without the app (first phase), the CLI reads the Keychain itself.
+On a server, people sign in with single sign-on (see `server-mode`). Name and email come from the token and go through the same email check. The server pushes with its own Git credential (a GitHub App preferred). The commit author is still the signed-in person.
 
 ## Interfaces & Contracts
 
-```text
-waymark login [--host <host>]
-waymark credential get|store|erase      # Git credential helper, not for people or agents
-```
+No tool. The inputs are the arguments and variables of the MCP entry (see `mcp-server`) and, on a server, the token.
 
 ## Acceptance Criteria
 
-- **Given** `gh` is logged in, **When** setup runs, **Then** it offers to reuse the token and stores nothing in a file.
-- **Given** an expired token, **When** a command needs the Git host, **Then** it exits with code 3 and tells the person to run `waymark login`.
+- **Given** a Git login that works, **When** `status` runs, **Then** the Git login check is ok and no secret was read.
+- **Given** an expired Git login, **When** a sync runs, **Then** it fails with `sync_failed` and a plain `next` sentence.
 - **Given** the address `jane@users.noreply.github.com`, **When** the check runs, **Then** it fails on the blocklist.
 - **Given** `people.email_domains = ["corp.example.org"]`, **When** the address uses another domain, **Then** the check fails.
 - **Given** a domain without an MX record, **When** the check runs, **Then** it fails.
-- **Given** a token that cannot read emails, **When** the check runs, **Then** step 5 is skipped.
 - **Given** a commit by waymark, **When** it is created, **Then** the author email passed the check.
+- **Given** any result or log, **When** it is inspected, **Then** it holds no token or password.
 
 ## Constraints & Edge Cases
 
-- The token never appears in output, logs, or the repository.
-- Device login (OAuth device flow) comes after the first release. It needs an OAuth app per Git host.
+- waymark never stores, prints, or passes a secret.
+- Device login (OAuth device flow) comes after the first release.
 
 ## Open Questions
 
 - Which Git hosts besides GitHub and GitHub Enterprise are supported at first?
+- Which OIDC providers must work in the first server release?

@@ -1,6 +1,8 @@
 # Roadmap
 
-The order follows one idea: **prove the skill first, then build the comfort.** The rules in the skill (when to write, what is worth a document) decide whether waymark is useful. The app makes it comfortable, but it cannot fix bad documents.
+The order follows one idea: **prove the tools first, then add the shared server.** The server limits and the tool descriptions decide whether waymark is useful. Local mode proves them with one person and no infrastructure. Server mode then serves a whole organization.
+
+The design changed on 2026-11-11: MCP is the only interface, and there is no skill and no app. See [architecture-direction.md](architecture-direction.md).
 
 No dates. Each phase ends with a clear result. The status of each spec is in [specs/INDEX.md](../specs/INDEX.md).
 
@@ -8,39 +10,37 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 
 | Phase | Result | Main risk it removes |
 |---|---|---|
-| 0. Close the design | All first-release specs have reviewed requirements, the skill is drafted | Building the wrong thing |
-| 1. Core and CLI | Agents read and write documents through `waymark` | Does the skill produce useful documents? |
-| 2. Dogfooding | Real use on own knowledge bases for some weeks | Noise, friction, sync problems |
-| 3. Mac app | People install, set up, approve, and undo without a terminal | Adoption by non-developers |
+| 0. Close the design | All specs have reviewed requirements, and the facts about the agent tools are verified | Building on wrong assumptions |
+| 1. Core and local mode | Agents read and write documents through MCP over stdio | Do the tool descriptions and limits produce useful documents? |
+| 2. Dogfooding | Real use on own knowledge bases for some weeks | Noise, context cost, sync problems |
+| 3. Server mode | A shared server for one organization, with sign-in, roles, and a web console | Does it work for a team and for chat apps? |
 | 4. Pilot | A team and private users use it daily | Does it work beyond the author? |
-| 5. Public release | Open source release, signed app, docs | — |
-| After the first release | Items from [ideas.md](ideas.md) | — |
+| 5. Public release | Open source release, signed binary, container image, docs | — |
+| After the first release | Multi-tenancy and the items from [ideas.md](ideas.md) | — |
 
 ## Phase 0: Close the design
 
 - [ ] Review and approve the requirements of every spec, foundation first.
-- [ ] Draft the skill (`agent-skill`). It is the most important text of the project.
+- [ ] Verify against the current documentation of Claude Code, GitHub Copilot, and OpenAI Codex: MCP config formats and locations, project entries overriding user entries, the approval prompt for project servers, per-tool permission prompts, elicitation, server instructions, managed MCP config, and remote MCP servers.
+- [ ] Verify the login flows that Claude and ChatGPT accept for a self-hosted MCP server (`server-mode`).
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
 - [ ] Write the `.mkbase/waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).
 - [ ] Release the standalone plain-Git skill from the `waymark-trail` project and pin a version (`plain-git-access`). Test it in Claude Code on the web.
-- [ ] Verify the global instruction and skill paths of Claude Code, GitHub Copilot, and OpenAI Codex (`agent-tool-setup`).
-- [ ] Decide the build environment: minimum macOS version, Rust toolchain version, Xcode and Swift version.
-- [ ] Specify the message format of the app link (`app-link`).
-- [ ] Get an Apple Developer account for signing and notarization.
-- [ ] Install Obsidian on the test Mac for the sample vault check.
+- [ ] Decide the build environment: Rust toolchain version, MCP library, and the signing identity.
+- [ ] Install Obsidian on a test machine for the sample vault check.
 
-## Phase 1: Core and CLI
+## Phase 1: Core and local mode
 
-The portable Rust `waymark` CLI with the conformance tests (fixture repo, command, expected output). No app yet.
+The portable Rust `waymark` binary with the conformance tests (fixture repo, tool call, expected result). stdio only.
 
-- [ ] `cli-core`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
-- [ ] Setup and maintenance: `create-knowledge-base`, `join-knowledge-base` (non-interactive with flags), `login-and-identity`, `agent-tool-setup`, `maintenance`.
-- [ ] Binding and session: `project-binding`, `session-start`.
-- [ ] Read: `search-and-read`, `updates`.
-- [ ] Write: `write-documents`, `move-documents`, `quality-checks`, `plain-git-access`.
-- [ ] `pause-and-resume`. In this phase, `resume` asks in the terminal.
+- [ ] `mcp-server`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
+- [ ] Setup: `create-knowledge-base`, `join-knowledge-base`, `login-and-identity`, `agent-tool-setup` (README snippets), `maintenance`.
+- [ ] Binding and start: `project-binding`, `session-start`.
+- [ ] Read: `search-and-read`, `updates`, `notifications-and-review` (notices).
+- [ ] Write: `write-documents`, `move-documents`, `quality-checks`, `manual-edits`, `activity-and-undo`, `pause-and-resume`, `write-approval` (elicitation).
+- [ ] `plain-git-access`.
 
-Result: an agent in Claude Code, Copilot, or Codex can search, read, write, and dispute documents in a real Git repo.
+Result: an agent in Claude Code, Copilot, or Codex can search, read, write, and dispute documents in a real Git repo, within enforced limits.
 
 ## Phase 2: Dogfooding
 
@@ -52,24 +52,25 @@ Use waymark for real, before anyone else does:
 Measure and fix:
 
 - How many documents per week, and how many are noise?
-- Do searches find the right document? Is the read budget right?
+- Do searches find the right document? Are the caps and the read budget right?
+- How much context do the tool descriptions use?
+- Do rejections teach the agent, or does it loop?
 - How often does a push fail?
-- Is the skill clear enough for all three agent tools?
 
-Result: a skill and CLI that the author uses every day without workarounds.
+Result: tools and limits that the author uses every day without workarounds, and a tested set of `AGENTS.md` examples for the README.
 
-## Phase 3: Mac app
+## Phase 3: Server mode
 
-- [ ] `mac-app`, `app-link`, `distribution`.
-- [ ] `approval-dialog`, `activity-and-undo`, `notifications-and-review`, `manual-edits`.
-- [ ] The native versions of `pause-and-resume`, setup, and login.
-- [ ] Signing, notarization, `.dmg`, `install.sh` or a Homebrew cask.
+- [ ] `server-mode`: the HTTPS transport, sign-in, roles, Git credentials, workspace, and audit log.
+- [ ] `web-console` and console approval in `write-approval`.
+- [ ] The container image and the deploy guide (`distribution`).
+- [ ] Test with the chat apps of Claude and ChatGPT.
 
-Result: a person without a terminal can install, set up, approve, pause, and undo.
+Result: an organization runs one server, people sign in, and approvals and undo work in a web page.
 
 ## Phase 4: Pilot
 
-- One team with 3 to 10 people, including at least one non-developer.
+- One team with 3 to 10 people, including at least one person without Git knowledge.
 - Some private users.
 - Collect feedback on noise, approval friction, and setup.
 
@@ -82,13 +83,13 @@ Result: a list of fixes, and a go or no-go for the public release.
 - [ ] Decide how to handle outside contributions (for example a contributor license agreement).
 - [ ] README, user docs, and a short demo.
 - [ ] Open the sample vault in the current Obsidian version and check properties, links, graph, and tags.
-- [ ] Make the repository public and publish the signed release.
+- [ ] Make the repository public and publish the signed binary and the image.
 
 ## After the first release
 
 See [ideas.md](ideas.md). The largest items:
 
-- A self-hosted MCP server for Claude and ChatGPT connectors. This is the way to use the memory on mobile.
-- An optional iPhone app for approval and review only (no LLM inside).
-- Knowledge browser, Spotlight, quick capture, company rollout through device management.
-- Anchor check (see `docs/ideas.md`), device login.
+- Multi-tenancy (`multi-tenancy`): separate organizations on one server.
+- A console page to connect a Git account.
+- Knowledge browser, company rollout through device management.
+- Anchor check, device login.

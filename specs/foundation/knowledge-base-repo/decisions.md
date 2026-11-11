@@ -1,5 +1,7 @@
 # Decisions: Knowledge base repository
 
+> **Note 2026-11-11:** The `waymark.toml` schema changed: the read and write levels and the tool list are gone, and the sections `[limits]` and `[approval]` are new (see `trust-model`). The `.waymark/` folder is gone from the content repository, because the lock is in `.git/`. All other decisions stay valid.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---

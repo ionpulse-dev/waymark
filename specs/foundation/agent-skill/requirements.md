@@ -1,11 +1,17 @@
 ---
 type: foundation
-status: draft
+status: superseded
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 requires:
   - cli-core
+superseded_by:
+  - agent-tool-setup
+  - mcp-server
 ---
+
+> **Superseded on 2026-11-11 by `agent-tool-setup` and `mcp-server`.** waymark no longer ships or installs a skill. Tool descriptions are the only built-in guidance (see `mcp-server`). Behavior is the choice of each team, in its own `AGENTS.md`. The README gives example snippets (see `agent-tool-setup`). Enforced limits live in the server (see `trust-model`).
+> The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # Agent skill
 

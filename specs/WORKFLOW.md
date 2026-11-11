@@ -219,6 +219,9 @@ draft → planned → in-progress → implemented → done
 | `blocked`     | Cannot proceed — a `requires` dependency is not yet `implemented` or `done`          |
 | `implemented` | All tasks in `tasks.md` are checked off                                              |
 | `done`        | All items in `test.md` are checked off (auto + manual)                               |
+| `superseded`  | Replaced by other specs. The files stay as a record.                                 |
+
+`superseded` is an end state. A spec is superseded when other specs replace it, for example after a change of direction. Its `requirements.md` gets `status: superseded` and a `superseded_by` list in the frontmatter, and a short note at the top. The folder and its files stay, because specs are never deleted. `INDEX.md` lists it in a Superseded table and does not count it.
 
 `blocked` can interrupt any active status. When the blocking dependency is resolved, status reverts to what it was before being blocked.
 

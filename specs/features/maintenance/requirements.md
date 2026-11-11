@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
   - agent-tool-setup
 ---
@@ -15,52 +15,62 @@ requires:
 
 ## Personas
 
-- **Every person** — checks health, updates, uninstalls.
-- **IT** — runs the same commands in scripts.
+- **Every person** — checks health, updates, removes.
+- **IT or an operator** — runs the same checks in scripts and monitoring.
 
 ## Behaviour
 
-| Command | Task |
-|---|---|
-| `waymark doctor` | Checks the setup and prints a fix for each problem: repository present and clean, remote reachable, login valid, background sync on and the time of the last good sync, instruction blocks and skills present for each tool, binary up to date, `git` works. |
-| `waymark status` | Prints running or paused, last good sync, last error, and login state. |
-| `waymark update` | Updates the binary to the latest release, writes the embedded skill again into each tool, and pulls the content repository. |
-| `waymark uninstall` | Removes everything that setup and the installer put on the machine. |
+waymark has no commands for people. Health checks are a tool, and update and removal use the tools that installed waymark.
 
-### Uninstall
+### The `status` tool
 
-`uninstall` reads the manifest first, then removes exactly its items, in this order:
+`status` is read-only and runs in every limit state. It returns `checks`, each with `name`, `ok`, and `fix`, plus the facts of `session-start`:
 
-1. The app: quit it, remove its login item, and move `Waymark.app` to the Trash.
-2. The instruction block in each agent tool, only the part between the waymark markers.
-3. The skill files in each agent tool.
-4. The token in the macOS Keychain.
-5. The status file and logs.
-6. The content repository clone. waymark asks first. Before it deletes the clone, it checks for changes that are not pushed and shows them. `--keep-repo` keeps it.
-7. The `PATH` line in the shell profile, if the installer added one.
-8. The personal config (`~/.config/waymark/`, including the manifest), then the `waymark` binary itself, last.
+- the clone is present, clean, and its remote is reachable,
+- the Git login works (the server runs a read-only call to the remote),
+- `git` works (`git --version`, because `/usr/bin/git` on macOS can be a stub),
+- the repository matches the ID of `.mkbase/waymark.toml`,
+- the effective limits and which layer set each (see `trust-model`),
+- the last good pull and the last error,
+- the version of the binary.
 
-The `.waymark/` folders and skill files that `link` wrote into project folders belong to the projects and stay.
+A failed check carries a plain-words `fix`, for example "Git cannot sign in. Sign in with Git first, for example with `gh auth login`, or set up an SSH key."
 
-It prints what it removed. Running it twice does no harm.
+In server mode, `/health` returns the same facts for operators, without secrets.
+
+### Update
+
+- **Local mode.** The person updates the binary with the package manager or a new download. The tool descriptions come with the binary.
+- **Server mode.** The operator deploys a new image tag.
+
+### Removal
+
+The README lists the steps. waymark does not remove itself:
+
+1. Remove the MCP entry from the agent tool.
+2. Check the clone for changes that are not pushed (`git status`), then delete the folder if no longer needed. The remote repository stays.
+3. Delete `~/.config/waymark/`.
+4. Remove the binary with the package manager.
+
+waymark never writes into agent tools, so nothing else is left behind.
 
 ## Interfaces & Contracts
 
-`doctor --json` returns a list of checks, each with `name`, `ok`, and `fix`.
+`status` returns `checks`: a list of `{ name, ok, fix }`, and the fields `message`, `notices`, and `settings`.
 
 ## Acceptance Criteria
 
-- **Given** a broken login, **When** `doctor` runs, **Then** it reports the problem and the fix `waymark login`.
-- **Given** a healthy setup, **When** `doctor` runs, **Then** all checks are ok and the exit code is 0.
-- **Given** unpushed changes in the clone, **When** `uninstall` runs without `--keep-repo`, **Then** it shows them and asks before deleting.
-- **Given** `uninstall` ran, **When** the machine is inspected, **Then** no waymark file or Keychain item remains, except the kept repository.
-- **Given** `uninstall` ran twice, **When** the second run ends, **Then** it reports nothing to remove.
-- **Given** a new release, **When** `update` runs, **Then** binary and skill have the same version.
+- **Given** a broken Git login, **When** `status` runs, **Then** it reports the problem and the fix.
+- **Given** a healthy setup, **When** `status` runs, **Then** all checks are ok.
+- **Given** `access = "read-only"` or `paused = true`, **When** `status` runs, **Then** it still works and names the state.
+- **Given** a repository with another ID than expected, **When** `status` runs, **Then** it reports it.
+- **Given** the steps of the README, **When** a person follows them, **Then** no waymark file or entry remains, except the repository they chose to keep.
+- **Given** a running server, **When** `/health` is called, **Then** it returns the state without a secret.
 
 ## Constraints & Edge Cases
 
-- `/usr/bin/git` can be a stub. `doctor` checks that `git --version` really works.
+- `status` runs a network call. It has a short time-out and reports "not reachable" instead of waiting.
 
 ## Open Questions
 
-- How does `update` replace the app while it runs?
+- Is a small `waymark doctor` command worth adding later for people without an agent?

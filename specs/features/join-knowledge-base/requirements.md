@@ -2,101 +2,84 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
   - login-and-identity
   - agent-tool-setup
-  - git-sync
 ---
 
 # Join a knowledge base
 
 ## User Story
 
-> As a new person, I want to install the app and answer a few questions, so that my agents can use the knowledge base without any Git knowledge.
+> As a new person, I want to install waymark and add one entry to my agent tool, so that my agents can use the knowledge base without any Git knowledge.
 
 ## Personas
 
-- **Manager or other non-developer** — installs the app and answers questions with defaults.
-- **Developer** — joins from a terminal with flags.
+- **Developer** — installs the binary and adds the entry.
+- **Anyone with a coding agent** — follows the README steps. IT can prepare the machine (Git login, system config).
 
 ## Behaviour
 
-Steps for a new person: download `Waymark.dmg`, drag the app to Applications, open it. The setup window asks the personal questions. Developers and IT use `install.sh` and then `waymark setup <content-repo-url>` with flags.
+Steps for a new person:
 
-`setup`:
+1. Install the binary (see `distribution`).
+2. Make sure Git can sign in to the repository (see `login-and-identity`).
+3. Add the MCP entry for the agent tool, from the README snippet, with the repository URL (see `agent-tool-setup`).
+4. Start a session. The server clones the repository on first start and confirms with `status`.
 
-1. Checks that `git` works. If not, it starts Apple's installer for the command line tools (`xcode-select --install`).
-2. Logs in to the Git host if needed (see `login-and-identity`).
-3. Clones the content repository.
-4. Reads `.mkbase/waymark.toml`.
-5. Asks only the personal questions.
-6. Writes the instruction blocks and skill files for the chosen agent tools (see `agent-tool-setup`).
+On first start the server:
 
-Personal questions:
+1. Checks that `git` works.
+2. Clones the repository to `--path`, default `~/Projects/<repository-name>`, and asks for nothing.
+3. Reads `.mkbase/waymark.toml` and the shared limits.
+4. Checks the ID, if the entry names one.
+5. Uses the author from the entry, or from the Git settings of the person, and checks the email (see `login-and-identity`).
 
-| Question | Default |
-|---|---|
-| Content repository URL | from the argument |
-| Local folder | `~/Projects/<slug>-knowledge-base` |
-| Agent tools to configure | tools found on the machine |
-| Contact email address | from the Git host account, confirmed or corrected by the person |
-| Personal read level, write level, confirm in | the shared start values, within the shared limits |
-| Background sync on, and its interval | on, every 5 minutes |
-| Access mode of this knowledge base | `read and write` when the person joins on purpose. A knowledge base added any other way starts `off`. |
+There are no questions and no setup window. Everything the person must decide is an argument of the entry or a key of the personal config.
 
-Two places hold settings:
+### Shared and personal settings
 
 - **Shared** settings are in `.mkbase/waymark.toml` in the repository. People who join never type them again.
-- **Personal** settings are in `~/.config/waymark/config.toml`, one entry per knowledge base, keyed by its UUID. A person can join several knowledge bases.
-
-### Personal settings (`~/.config/waymark/config.toml`)
-
-One entry per knowledge base, keyed by its UUID. Only the app writes the levels and the access mode (non-interactive `setup` may set initial values for rollout scripts).
+- **Personal** settings are in `~/.config/waymark/config.toml`. The file is optional. The server reads it at every call.
 
 ```toml
-[kb."<uuid>"]
-slug = "example"                 # label
-path = "~/Projects/example-knowledge-base"
-mode = "read and write"          # off | read only | read and write
-tools = ["claude-code", "codex"]
-email = "jane@example.org"
-sync = true
-sync_interval_minutes = 5
+# ~/.config/waymark/config.toml  (all keys optional)
+[limits]
+access = "read-write"            # read-only | read-write
+paused = false
+tools_denied = []
+allowed_repo_hosts = []          # empty = no restriction
 
-[kb."<uuid>".read]
-level = "manual"                 # auto | manual
+[approval]
+required_for = []
+via = "elicitation"
 
-[kb."<uuid>".write]
-level = "manual"                 # auto | confirm | manual
-confirm_in = "chat"              # chat | app
+[kb."<uuid>".limits]             # tightens further for one knowledge base
+access = "read-only"
 ```
 
-Other files in `~/.config/waymark/`: `default-id` (the personal default knowledge base), `installed.json` (the manifest), a status file written by the sync run, a hash of the settings (the app uses it to detect outside changes), and the time of the last `updates` call per knowledge base.
-
-Without the app (first phase), the install uses the channel of `distribution` that exists then, for example `install.sh`.
+A personal value can only tighten the shared one (see `trust-model`). Other state is a small folder `~/.config/waymark/state/`, for example the time of the last `updates` call.
 
 ## Interfaces & Contracts
 
-```text
-waymark setup [<content-repo-url>] [--path <folder>] [--tools <list>] [--email <address>]
-              [--read <level>] [--write <level>] [--confirm-in <where>] ...
-```
+The MCP entry is the interface (see `mcp-server`). There is no `setup` command.
 
 ## Acceptance Criteria
 
-- **Given** a Mac without `git`, **When** setup runs, **Then** it starts the installer once and continues when `git` works.
-- **Given** a valid URL and login, **When** setup ends, **Then** the repository is cloned and the chosen tools are configured.
-- **Given** a personal level looser than the shared limit, **When** setup stores it, **Then** the stricter value is stored.
-- **Given** a person who joins a second knowledge base, **When** setup ends, **Then** the first one is unchanged.
-- **Given** a repository whose `.mkbase/waymark.toml` has no `id`, **When** setup reads it, **Then** it stops with a clear message.
-- **Given** setup ran twice, **When** the second run ends, **Then** nothing is duplicated.
+- **Given** a Mac without working `git`, **When** the server starts, **Then** `status` reports it with a fix and no clone starts.
+- **Given** a valid URL and a Git login, **When** the first session starts, **Then** the repository is cloned and `status` is ok.
+- **Given** a personal value looser than the shared limit, **When** the server reads both, **Then** the stricter value applies.
+- **Given** a person who adds a second entry for another knowledge base, **When** a session starts, **Then** the first one is unchanged.
+- **Given** a repository whose `.mkbase/waymark.toml` has no `id`, **When** the server reads it, **Then** it reports `setup_problem`.
+- **Given** the server started twice, **When** the second start ends, **Then** nothing is cloned twice.
 
 ## Constraints & Edge Cases
 
-- A new person must reach a working setup in under 5 minutes with two steps.
-- waymark never clones a repository without a person confirming it.
+- A new person must reach a working setup in under 5 minutes with two steps: install the binary and add one entry.
+- waymark never clones without an entry that the person (or the project and the person's agent tool) approved.
 
 ## Open Questions
 
-- What does the setup window show when the Git host account has no usable email?
+- What does `status` show when the Git login gives no usable email?
+- Is the default clone folder `~/Projects/<repository-name>` right for people who do not use that folder?

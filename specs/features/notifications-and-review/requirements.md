@@ -2,13 +2,12 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 requires:
-  - mac-app
   - updates
 ---
 
-# Notifications and review list
+# Notices and review
 
 ## User Story
 
@@ -16,48 +15,37 @@ requires:
 
 ## Personas
 
-- **Every person** — gets macOS notifications and one list of open items.
-
-## UI / Visual Design
-
-### Notifications
-
-macOS notifications for:
-
-- a document of mine was disputed or changed by others,
-- sync fails (for example the login expired),
-- writes are paused,
-- a manual edit failed the checks (see `manual-edits`).
-
-### Review list
-
-One list in the app with:
-
-- disputes on my documents.
-
-Each item opens the document and offers the next step.
+- **Every person** — gets notices in the results of their agent and sees one list of open items.
 
 ## Behaviour
 
-- The app reads the data from `updates`, and from the status file of the background sync.
-- With verification on, documents waiting for verification show too (see `verification`).
-- The same information also arrives as `notices` in CLI output.
+waymark has no background process in local mode and cannot push a message to a person. It uses three ways:
+
+- **Notices in results.** Every tool result may carry `notices` (see `mcp-server`). They are short plain sentences. The server adds a notice for: a document of the person was disputed or changed by others, the last pull failed, writes are paused, and the clone may be behind. A notice is shown until the problem is gone or the person has seen it in `updates`.
+- **The `updates` and `status` tools.** A person or an agent can ask at any time (see `updates` and `maintenance`).
+- **The review list in the web console** (server mode, see `web-console`): disputes on the person's documents and, with verification on, documents that wait for verification (see `verification`).
+
+What an agent does with a notice is the choice of the team, in its `AGENTS.md`. A suggested wording for the README: tell the person at once.
+
+Optional later: email or webhook messages from a server.
 
 ## Interfaces & Contracts
 
-The app calls `updates` and `status` through the CLI.
+A notice is a string in the `notices` list. The server keeps a small record per person to avoid repeating the same notice in every result. The default is once per session and problem.
 
 ## Acceptance Criteria
 
-- **Given** someone disputes my document, **When** the next sync completes, **Then** a notification appears.
-- **Given** the login expired, **When** a sync fails, **Then** a notification explains what to do.
-- **Given** a disputed document of mine, **When** the review list opens, **Then** it shows with an action.
-- **Given** no problems, **When** the list opens, **Then** it is empty and says so.
+- **Given** someone disputes my document, **When** the next tool result is built after the next pull, **Then** it carries a notice.
+- **Given** a failed pull, **When** a read runs, **Then** the result carries a notice that the clone may be behind.
+- **Given** the same problem in one session, **When** several results are built, **Then** the notice appears once.
+- **Given** no problems, **When** a result is built, **Then** `notices` is absent.
+- **Given** a server and a disputed document of mine, **When** the console review list opens, **Then** it shows with an action.
 
 ## Constraints & Edge Cases
 
-- waymark cannot reach a person who uses neither an agent nor the app.
+- waymark cannot reach a person who uses neither an agent nor the console.
+- Desktop notifications do not exist. They belonged to the old app.
 
 ## Open Questions
 
-- How often should notifications repeat for the same problem?
+- How often should a notice repeat for the same problem across sessions?

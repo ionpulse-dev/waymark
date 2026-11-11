@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 requires:
   - write-documents
 ---
@@ -20,39 +20,39 @@ requires:
 
 ## Behaviour
 
-Verification is off by default. With `verification = true`:
+Verification is off by default. With `verification = true`, three more tools exist:
 
 - `add` sets `trust: unverified`.
-- `waymark verify <id>` sets `trust: verified`, `verified_by`, and `verified` to today. It runs only after an explicit "yes" from a human owner.
-- `waymark review [<folder>...]` shows the review queue of the current user: unverified and disputed documents, for each: verify, fix, or reject.
-- `waymark reject <id> --reason` marks the document as deprecated with the reason and keeps the file.
+- `verify` sets `trust: verified`, `verified_by`, and `verified` to today.
+- `review` shows the review queue of the current person: unverified and disputed documents, for each: verify, fix, or reject.
+- `reject` marks the document as deprecated with the reason and keeps the file.
 
-How agents treat the trust state:
+Who may verify:
 
-| State | Agent behavior |
-|---|---|
-| `verified` | Use as a fact. Cite the document. |
-| `unverified` | Use as a hint. Say that it is not verified. Check it against the code if possible. |
-| `disputed` | Do not rely on it. Mention the dispute. |
+- **Local mode.** `verify` is a normal write tool. waymark cannot prove that a human, not an agent, called it. A team that wants this proof sets `approval.required_for = ["verify"]` with `via = "elicitation"`, or works on a server.
+- **Server mode.** `verify` and `reject` are listed only for the role `owner`. With `approval.via = "console"` they need the owner's answer in the console. This is enforced.
+
+How readers treat the trust state is advice for the team's `AGENTS.md`. A suggested wording for the README: use a verified document as a fact and cite it, use an unverified one as a hint and say so, and do not rely on a disputed one.
 
 ## Interfaces & Contracts
 
-```text
-waymark verify <id> --kb <uuid>
-waymark review [<folder>...] --kb <uuid>
-waymark reject <id> --reason <text> --kb <uuid>
+```json
+{ "tool": "verify", "arguments": { "id": "backend/payments/idempotency-keys" } }
+{ "tool": "reject", "arguments": { "id": "...", "reason": "..." } }
 ```
 
 ## Acceptance Criteria
 
-- **Given** verification is off, **When** `verify` runs, **Then** it fails with a clear message.
+- **Given** verification is off, **When** the client lists tools, **Then** `verify`, `review`, and `reject` are not listed.
 - **Given** verification is on, **When** `add` runs, **Then** the document has `trust: unverified`.
-- **Given** an agent without a human "yes", **When** the skill is followed, **Then** it does not run `verify`.
+- **Given** a server and a `writer`, **When** the client lists tools, **Then** `verify` and `reject` are not listed.
+- **Given** `approval.required_for = ["verify"]` with `via = "console"`, **When** `verify` runs, **Then** the owner must answer in the console first.
 - **Given** `reject`, **When** it runs, **Then** the file stays with `status: deprecated`.
 
 ## Constraints & Edge Cases
 
-- The CLI cannot prove that a human, not an agent, ran `verify`. The skill forbids it, and the commit author shows who did it. This is a policy with an audit trail, not a hard control.
+- In local mode, `verify` is a policy with an audit trail (the commit author), not a hard control.
 
 ## Open Questions
 
+- Which role or group verifies a folder in server mode: the folder owner, or any `owner`?

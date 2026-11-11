@@ -1,12 +1,18 @@
 ---
 type: foundation
-status: draft
+status: superseded
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
   - app-link
   - git-sync
+superseded_by:
+  - web-console
+  - distribution
 ---
+
+> **Superseded on 2026-11-11 by `web-console` and `distribution`.** There is no macOS app. The jobs that need a human channel (approval, activity, undo, review, pause) go to the web console of server mode (see `web-console`). Setup is an MCP entry and the Git login of the person (see `join-knowledge-base`).
+> The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # Mac app
 

@@ -1,5 +1,7 @@
 # Decisions: Git sync
 
+> **Note 2026-11-11:** "The running app syncs in the background" is superseded by "No app, pull in the session" below. "Always fetch before a write, check the base version" and "One lock for all commands" stay valid. The lock is now a file in `.git/`, and the commands are MCP tools.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -42,3 +44,20 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** Abort the rebase, keep both versions as two files, and report it.
 
 **Reason:** Managers must never resolve a merge conflict by hand, and no content may be lost.
+
+## No app, pull in the session — 2026-11-11
+
+**Decision:** There is no app and no background job in local mode. The server pulls at start, before a read when the clone is a few minutes old, and in every write flow. Server mode adds a background pull.
+
+**Supersedes:** "The running app syncs in the background".
+
+**Alternatives considered:**
+- A background job per computer. It needs an installer and a process that no session owns.
+
+**Reason:** The server lives for one session, and that is when the clone must be current.
+
+## Git handles the login — 2026-11-11
+
+**Decision:** `git` uses the credentials that the person set up. waymark never handles a secret. waymark sets only the commit author.
+
+**Reason:** The agent and the MCP entry must never hold a secret.

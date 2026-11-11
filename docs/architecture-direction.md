@@ -1,6 +1,6 @@
 # Architecture direction
 
-Status: agreed in a design discussion on 2026-11-11. It is **not yet in the specs**. The specs listed under "Impact on the specs" must be revised and approved before any implementation starts.
+Status: agreed in a design discussion on 2026-11-11. All specs were revised to match it on the same day. They are all `draft`, and each needs review and approval before implementation starts. The section "Impact on the specs" records what changed.
 
 ## Summary
 
@@ -113,16 +113,28 @@ Possible ceilings: access mode (read-only or read-write), allowed tools (no dele
 
 ## Impact on the specs
 
-These specs describe the earlier design (CLI, skill, and macOS app). They must be reviewed and revised, one by one, with approval at each gate. Nothing is changed yet.
+Done on 2026-11-11. All specs are `draft`.
 
-- `foundation/cli-core`: becomes the core and the MCP server in one binary. The agent commands become tools. The decision "No MCP server first" is superseded.
-- `foundation/agent-skill` and `features/agent-tool-setup`: the skill is dropped. At most a documented MCP config snippet per tool remains.
-- `foundation/trust-model`: the read level and write level become ceilings that the server enforces. The confirm-in setting moves to client prompts, elicitation, and the web console.
-- `foundation/mac-app`, `foundation/app-link`, `features/approval-dialog`, `features/login-and-identity`, `features/pause-and-resume`: the app and its link are dropped. Their jobs go to the server, the web console, or Git's own login.
-- `features/session-start`, `features/project-binding`, `features/updates`, `features/activity-and-undo`, `features/notifications-and-review`, `features/maintenance`: review each against the MCP-only design.
-- `foundation/distribution`: no app to sign or notarize. A container image for server mode.
-- `specs/PROJECT.md` and the `README.md`: scope, principles, and the comparison table.
-- A new foundation item for the MCP server, and later one for server mode.
+**New**
+- `foundation/mcp-server` — the core and the MCP server in one binary. Replaces `cli-core`.
+- `foundation/server-mode` — the HTTPS transport, sign-in, roles, Git credentials, workspace, and audit log for one organization.
+- `foundation/multi-tenancy` — many organizations on one server.
+- `features/write-approval` — approval through MCP elicitation or the console.
+- `features/web-console` — approval, activity, undo, review, and pause on a server.
+
+**Superseded** (the folders stay as a record, see `specs/INDEX.md`)
+- `foundation/cli-core` by `mcp-server`.
+- `foundation/agent-skill` by `agent-tool-setup` and `mcp-server`.
+- `foundation/mac-app` by `web-console` and `distribution`.
+- `foundation/app-link` by `write-approval` and `web-console`.
+- `features/approval-dialog` by `write-approval` and `web-console`.
+
+**Rewritten or revised**
+- `foundation/trust-model`: limits and config layers replace the read level, write level, and the app.
+- `foundation/knowledge-base-repo`: the `waymark.toml` schema has `[limits]` and `[approval]`. No `.waymark/` folder.
+- `foundation/git-sync`, `foundation/distribution`, `foundation/document-format`.
+- All feature specs that remain: the commands became tools, and behavior advice left the specs.
+- `specs/PROJECT.md`, `specs/INDEX.md`, `specs/WORKFLOW.md` (new status `superseded`), and the README.
 
 ## Open questions
 

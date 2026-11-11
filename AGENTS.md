@@ -35,7 +35,8 @@ The short version of the rules (the full rules are in `WORKFLOW.md`):
 
 A generic, open source knowledge base and AI memory for AI agents and the
 people who use them: companies, teams, and private people. Plain Markdown in a
-Git repository that the owner controls. It runs locally and needs no server.
+Git repository that the owner controls. One program, an MCP server: it runs
+locally with no server, or as a shared server that anyone can host.
 Read [specs/PROJECT.md](specs/PROJECT.md) for the details.
 
 ## Where things are

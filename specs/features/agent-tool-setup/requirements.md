@@ -2,62 +2,56 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
-  - agent-skill
+  - mcp-server
 ---
 
 # Agent tool setup
 
 ## User Story
 
-> As a person, I want setup to prepare my agent tools, so that my agents know about the knowledge base without me editing files.
+> As a person, I want a clear recipe for each of my agent tools, so that I add waymark with one entry and write my own rules, without waymark editing my files.
 
 ## Personas
 
-- **Every person** — uses Claude Code, GitHub Copilot, or OpenAI Codex on their own computer.
+- **Every person** — uses Claude Code, GitHub Copilot, or OpenAI Codex.
+- **A team** — writes its own `AGENTS.md` and shares an MCP entry in the project.
 
 ## Behaviour
 
-Setup detects which of the three tools are present and asks which to configure. For each chosen tool it:
+waymark does not install anything into agent tools. It ships **no skill** and **no instruction block**. It gives documentation in the README:
 
-- adds a short instruction block to the global instructions of the tool, between the markers `<!-- waymark:start -->` and `<!-- waymark:end -->`. Setup replaces only this block and never touches other content.
-- writes the skill from the binary into the global skill folder of the tool. If a tool has no skill support, the instruction block points the agent to the skill file by path.
+1. **MCP entry for each tool.** A copy-paste entry for Claude Code, GitHub Copilot (VS Code and CLI), and OpenAI Codex, for user scope and for project scope. The formats differ (JSON for some tools, TOML for Codex).
+2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. Tool kind hints (read-only, write, destructive) support this.
+3. **Example `AGENTS.md` snippets.** Short examples that a team may copy and change. They are suggestions only. waymark does not insert them and does not check them. Suggested examples:
+   - *Manual:* use waymark only when asked.
+   - *Balanced:* search at the start of a task, write only when asked or after the person says yes.
+   - *Proactive:* search first, save decisions and pitfalls, update before adding, dispute instead of deleting, and tell the person in one line what was saved.
+   All examples end with "never write secrets, tokens, or personal data". The server enforces the hard rules. The examples only guide behavior.
+4. **How to tighten limits.** Where the personal config, the shared file, and the system config live (see `trust-model`).
 
-The block and the skill are static: the same text for every project, with no path and no id. They tell the agent to find the knowledge base id in `.waymark/id` of the project root, then in `~/.config/waymark/default-id`, to pass it as `--kb`, to use the `waymark` CLI, and to follow the `AGENTS.md` of the knowledge base. The clone path lives in the personal config.
-
-Setup writes the global files only if the person chooses to use waymark outside bound projects (the personal default knowledge base, see `project-binding`). `waymark link` writes the same static skill files into a project folder, in `.agents/skills/<name>/SKILL.md`, the folder that Copilot, Codex, and Gemini CLI read for project skills. The instruction block goes into the `AGENTS.md` of the project, which Claude Code reads when there is no `CLAUDE.md`.
-
-Global locations, to be verified against the current tool versions before the first release:
-
-| Tool | Global instructions | Global skills |
-|---|---|---|
-| Claude Code | `~/.claude/CLAUDE.md` | `~/.claude/skills/<name>/SKILL.md` |
-| OpenAI Codex | `~/.codex/AGENTS.md` | `~/.codex/skills/<name>/SKILL.md` (verify) |
-| GitHub Copilot | `~/.copilot/copilot-instructions.md` (CLI), VS Code user instructions | agent skills folder (verify) |
-
-All three tools read Markdown instructions, so one `SKILL.md` serves all three.
-
-Setup writes a manifest of everything it installs (`~/.config/waymark/installed.json`), used by `uninstall`.
+The entries use the same server name, `waymark`, so that a project entry can override a user entry (see `project-binding`).
 
 ## Interfaces & Contracts
 
-The manifest lists every file and every block that setup created, with the tool name and a hash.
+The README sections are the deliverable. Each snippet is tested before a release against the current version of its tool.
 
 ## Acceptance Criteria
 
-- **Given** an existing global file with other content, **When** setup runs, **Then** only the block between the markers changes.
-- **Given** setup ran twice, **When** the second run ends, **Then** there is one block per tool.
-- **Given** a new release, **When** `waymark update` runs, **Then** the skill file in every tool is replaced.
-- **Given** a tool that is not installed, **When** setup runs, **Then** it does not create files for it.
-- **Given** the manifest, **When** `uninstall` runs, **Then** every item in it is removed.
+- **Given** the snippet for a tool, **When** a person adds it and starts a session, **Then** the tool lists the tools of waymark.
+- **Given** a tool that is not listed in the README, **When** it speaks MCP over stdio, **Then** the generic entry (command and arguments) works.
+- **Given** the README, **When** it is read, **Then** every `AGENTS.md` example is marked as a suggestion.
+- **Given** an installed waymark, **When** the home and project folders are inspected, **Then** waymark wrote no file into any agent tool folder.
+- **Given** a new release, **When** the snippets are checked, **Then** each one works with the current tool version.
 
 ## Constraints & Edge Cases
 
-- No cloud agents. Only local tools that a person starts.
-- The paths in the table are unverified until the research in the first implementation phase.
-- The user may add rules in their own `AGENTS.md`. waymark does not edit them.
+- No cloud agents. Only local tools that a person starts, or a login on a server.
+- The paths and formats of each tool are unverified until the first implementation phase. The snippets list the tool version they were tested with.
+- The person may write any rules in their own `AGENTS.md`. waymark does not edit them.
 
 ## Open Questions
 
-- What are the verified skill and instruction paths of each tool?
+- What are the verified MCP config formats and locations of each tool?
+- Do all three tools show tool kind hints and ask before write tools?

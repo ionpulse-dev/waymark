@@ -1,5 +1,7 @@
 # Decisions: Updates
 
+> **Note 2026-11-11:** All decisions stay valid. `updates` is a tool.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -23,3 +25,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Reason:** The tested rules of the waymark-trail skills dropped both. A startup report costs context in every session. A stale mark means "somebody else should look at it": a person who doubts a document fixes it or disputes it right away.
 
 **Supersedes:** `stale` has the same shape (2026-11-06); `updates` is in the first release (the part about session start)
+
+## `updates` is a tool — 2026-11-11
+
+**Decision:** The time of the last call is stored per person in the personal state folder, or on the server.
+
+**Reason:** MCP is the only interface.

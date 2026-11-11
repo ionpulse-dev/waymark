@@ -1,5 +1,7 @@
 # Decisions: Document format
 
+> **Note 2026-11-11:** Mentions of the CLI now mean the MCP server. No decision in this file changes.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---

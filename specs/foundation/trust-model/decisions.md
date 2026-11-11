@@ -1,5 +1,7 @@
 # Decisions: Trust model
 
+> **Note 2026-11-11:** The decisions below that mention read and write levels, the app, or the dialog are superseded by "Limits instead of levels" and "Config layers, the strictest wins" at the end of this file. "Wiki model", "No agent attribution", "No pull request gate in the first release", and "Raw Git is forbidden only by rule" stay valid. In "Raw Git is forbidden only by rule", read "in the `AGENTS.md` of the team" for "in the skill".
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -60,3 +62,34 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The only enforcement that writes go through waymark is the rule in the skill and the repository `AGENTS.md`. No Git hooks, credential isolation, or signed commits in the first release.
 
 **Reason:** Keep the first release small. The CLI still checks every write that goes through it. Hard layers are ideas for later.
+
+## Limits instead of levels — 2026-11-11
+
+**Decision:** The read level and the write level are dropped. The server enforces limits: access, pause, switched-off tools, folders, caps, and approval rules. When an agent reads or writes is the choice of the team, in its `AGENTS.md`.
+
+**Supersedes:** "Separate read and write levels, default manual" and "Several knowledge bases with access modes" (access mode becomes the limit `access`).
+
+**Alternatives considered:**
+- Keep the levels as advice text. waymark no longer ships behavior text, so levels would have no home.
+
+**Reason:** Limits can be enforced and tested. Advice cannot.
+
+## Config layers, the strictest wins — 2026-11-11
+
+**Decision:** Limits come from five layers: system file, server config, shared knowledge base file, personal file, and MCP entry. The strictest layer wins. A layer can only tighten. A system file owned by an administrator gives IT a hard limit in local mode.
+
+**Supersedes:** "Only the person changes settings" (the app is dropped). Only the person or the operator changes limits, and no tool can.
+
+**Alternatives considered:**
+- Limits only in the MCP entry. The user controls that file, so it is no hard limit.
+
+**Reason:** Every case gets the strongest layer that fits it. Local mode is honest about what is hard and what is a safety default.
+
+## Built-in default is `read-write` — 2026-11-11
+
+**Decision:** With no layer set, `access` is `read-write`. The README suggests `read-only` for a first trial.
+
+**Alternatives considered:**
+- `read-only` as default, so that writes need an explicit step. This is listed as an open question.
+
+**Reason:** Behavior is the choice of the team. Writes are safe through checks, history, and undo. A layer can tighten at any time.

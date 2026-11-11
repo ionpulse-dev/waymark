@@ -1,5 +1,7 @@
 # Decisions: Search and read
 
+> **Note 2026-11-11:** "A small read budget" stays valid and is now enforced as result caps and a per-session read budget. All other decisions stay valid.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -33,3 +35,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** A read pulls first if the clone is older than a few minutes.
 
 **Reason:** Agents never read an old clone, even if the background sync is off.
+
+## Caps and a read budget are limits — 2026-11-11
+
+**Decision:** `search` is capped by `max_results` and `max_tokens`. `show` is capped by `max_documents_opened` per session. The advice "read at most 5 documents" is gone, because the server enforces it.
+
+**Reason:** make the wrong action impossible instead of asking the agent not to do it. The numbers are defaults that a layer can tighten.

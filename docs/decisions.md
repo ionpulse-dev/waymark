@@ -27,6 +27,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** The person stays in control. Capture must be part of normal work, so the skill tells the agent when to write.
 
+**Amended by:** MCP is the only interface for agents. There is no skill. In server mode, a person's login stands for the local session. Every agent action still belongs to a person.
+
 ## Users need no Git knowledge — 2026-11-06
 
 **Decision:** waymark does all Git work. Users never see a branch, a commit, or a conflict.
@@ -115,3 +117,19 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Decision:** In local mode, Git uses its own login (SSH key or credential helper). In server mode, the secret comes from the secret store of the host. The commit author is the person who used the agent. The push credential is separate.
 
 **Reason:** The agent and the MCP config must never hold a secret. Separating the push credential from the author keeps the commit history correct, whatever the credential is.
+
+## Specs are superseded, never deleted — 2026-11-11
+
+**Decision:** A spec that other specs replace gets the status `superseded` and a `superseded_by` list. Its folder stays. `INDEX.md` lists it in a separate table and does not count it. A short note at the top of the spec and of its `decisions.md` says so.
+
+**Alternatives considered:**
+- Delete the old specs. The workflow forbids it, and Git history is not as easy to read.
+- Keep them as `draft`. They would still look like part of the plan.
+
+**Reason:** The specification describes the current state, and the history of why it changed stays readable.
+
+## The specification follows the MCP-only direction — 2026-11-11
+
+**Decision:** All specs were rewritten for the direction above on the same day. Five specs are superseded: `cli-core`, `agent-skill`, `mac-app`, `app-link`, and `approval-dialog`. Five are new: `mcp-server`, `server-mode`, `multi-tenancy`, `write-approval`, and `web-console`. Every spec stays `draft`.
+
+**Reason:** The state of the repository should reflect the new direction completely. See [architecture-direction.md](architecture-direction.md).

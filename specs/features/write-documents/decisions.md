@@ -1,5 +1,7 @@
 # Decisions: Write documents
 
+> **Note 2026-11-11:** All decisions stay valid. The commands are tools, and the advice about what deserves a document moved out of waymark.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -31,3 +33,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Reason:** In a personal knowledge base the person owns the content and may want a document gone. Git keeps the history. The tested rules of the waymark-trail skills show that agents need the whole process in one place.
 
 **Supersedes:** Dispute instead of delete (in part)
+
+## Enforced checks, no behavior advice — 2026-11-11
+
+**Decision:** The server rejects duplicates, near-duplicates, oversize, secrets, broken links, and forbidden folders, with a `next` sentence. When to write and what to write is for the team's `AGENTS.md`.
+
+**Reason:** the server enforces, the team advises. `delete` can be switched off with `tools_denied`.

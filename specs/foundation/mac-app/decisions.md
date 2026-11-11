@@ -1,5 +1,7 @@
 # Decisions: Mac app
 
+> **Note 2026-11-11:** This spec is superseded by `web-console` and `distribution`. The decisions below are kept as a record. They no longer apply.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---

@@ -10,21 +10,22 @@ Questions that need an answer before or during planning. Each spec also lists it
 
 ## Architecture direction
 
-See [architecture-direction.md](architecture-direction.md) for the full list of open questions. The main ones:
+See [architecture-direction.md](architecture-direction.md) for the full list. The main ones:
 
-- Do Claude Code, GitHub Copilot, and OpenAI Codex support remote MCP servers, managed MCP config, and per-tool permission prompts?
-- How does the server find the knowledge base, and how does a read budget per session fit the rule "no server state"?
+- Do Claude Code, GitHub Copilot, and OpenAI Codex support remote MCP servers, managed MCP config, per-tool permission prompts, elicitation, and server instructions?
+- Does a project MCP entry override a user entry of the same name in all three tools, and do they ask before they start a project server?
+- Which login flows do Claude and ChatGPT accept for a self-hosted MCP server?
+- How does a read budget per session fit a stateless server, and how does the server find the knowledge base?
+- Should the built-in default of the limit `access` be `read-only`?
 
 ## Build environment
 
-- Minimum macOS version.
-- Rust toolchain version.
-- Xcode and Swift version.
-- Message format of the app link (see `specs/foundation/app-link`).
-- Apple Developer account for signing and notarization.
+- Rust toolchain version and the MCP library.
+- The signing identity for the binary.
+- The container registry for the server image.
 - Obsidian version for the release check of the sample vault.
 
 ## Agent tools
 
-- Verified global instruction and skill paths of Claude Code, GitHub Copilot, and OpenAI Codex (see `specs/features/agent-tool-setup`).
+- Verified MCP config formats and locations of Claude Code, GitHub Copilot, and OpenAI Codex (see `specs/features/agent-tool-setup`).
 - How waymark pins a version of the standalone plain-Git skill (see `specs/features/plain-git-access`).

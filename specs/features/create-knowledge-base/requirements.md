@@ -2,9 +2,9 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
-  - cli-core
+  - mcp-server
 ---
 
 # Create a knowledge base
@@ -20,50 +20,52 @@ requires:
 
 ## Behaviour
 
-The flow runs in the setup window of the app, or in a terminal with `waymark init`. Every question has a default and a flag. With all flags set, or without a terminal, no prompt appears.
+1. The person creates an empty, private repository on the Git host. waymark does not create repositories.
+2. The person adds an MCP entry with `--repo <url>` (see `join-knowledge-base`) and starts a session. The server clones the empty repository.
+3. `status` reports that the repository is empty and that the `init` tool can set it up.
+4. The `init` tool creates the structure, commits, and pushes.
 
-`init` asks for:
+`init` takes these inputs. Every input has a default or is optional:
 
-| Question | Stored in | Default |
+| Input | Stored in | Default |
 |---|---|---|
-| Name of the company or project | `.mkbase/waymark.toml` | none |
-| Short name (slug) | `.mkbase/waymark.toml` | derived from the name |
-| Git host and repository URL | `.mkbase/waymark.toml` | none |
-| First folders | `knowledge/` | no folders |
-| Allowed email domains (optional) | `.mkbase/waymark.toml` | none |
-| Start values and limits for read level, write level, and confirm in | `.mkbase/waymark.toml` | start `manual`, `manual`, `chat`; no limit |
-| Who will use it: only me, or several people | which standalone skill goes into `AGENTS.md` | derived from the allowed email domains, else several people |
+| `name` of the company or project | `.mkbase/waymark.toml` | none, required |
+| `slug` | `.mkbase/waymark.toml` | derived from the name |
+| `email_domains` (optional) | `.mkbase/waymark.toml` | none |
+| `limits` and `approval` (optional shared limits, see `trust-model`) | `.mkbase/waymark.toml` | none |
+| `folders` (first folders) | `knowledge/` | no folders |
+| `audience`: `personal` or `team` | which standalone rules go into `AGENTS.md` | derived from the email domains, else `team` |
 
 Then `init`:
 
 1. Generates the UUID of the knowledge base once.
-2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules), `.obsidian/app.json` (with `"useMarkdownLinks": true` and `"newLinkFormat": "relative"`, as MKBase 1.0 section 11 recommends), `.gitignore` (with `.obsidian/*` and `!.obsidian/app.json`, so only `app.json` is kept in Git), and `knowledge/` with the marker folder `knowledge/.mkbase/`, which holds the file `version` and the shared settings `waymark.toml`.
+2. Creates the repository skeleton: `AGENTS.md` (with the plain-Git rules, see `plain-git-access`), `.obsidian/app.json` (with `"useMarkdownLinks": true` and `"newLinkFormat": "relative"`, as MKBase 1.0 section 11 recommends), `.gitignore` (with `.obsidian/*` and `!.obsidian/app.json`), and `knowledge/` with the marker folder `knowledge/.mkbase/`, which holds the file `version` and the shared settings `waymark.toml`.
 3. Commits and pushes it.
-4. Runs `setup` for this person (see `join-knowledge-base`).
+
+`init` runs only on a repository that has no `.mkbase` folder and no `knowledge/` folder. Anything else fails with `validation_failed` and no change. It is a write tool, so the limits apply: a layer can switch it off with `tools_denied = ["init"]`, and `access = "read-only"` blocks it.
 
 ## Interfaces & Contracts
 
-```text
-waymark init [--name <name>] [--slug <slug>] [--repo <url>]
-             [--email-domains <list>] [--read-default <level>] [--write-default <level>] ...
+```json
+{ "tool": "init", "arguments": { "name": "Example", "slug": "example", "email_domains": ["example.org"], "audience": "team" } }
 ```
-
-Exit code 4 if a value is missing and no terminal is available.
 
 ## Acceptance Criteria
 
-- **Given** an empty remote repository, **When** `init` runs with all flags, **Then** the repository has the skeleton and the first commit is pushed.
-- **Given** the result, **When** another person runs `setup` with the URL, **Then** they need not enter any shared value.
-- **Given** `init` ran twice with the same input, **When** the second run ends, **Then** nothing changes and no error appears.
-- **Given** a remote repository that is not empty, **When** `init` runs, **Then** it stops with a clear message and changes nothing.
+- **Given** an empty remote repository and a running server, **When** `init` runs with a name, **Then** the repository has the skeleton and the first commit is pushed.
+- **Given** the result, **When** another person adds the entry with the URL, **Then** they need not enter any shared value.
+- **Given** `init` ran, **When** it runs again, **Then** it fails with `validation_failed` and changes nothing.
+- **Given** a repository that is not empty, **When** `init` runs, **Then** it fails and changes nothing.
 - **Given** the new repository, **When** it is opened in Obsidian, **Then** it works as a vault.
+- **Given** `access = "read-only"`, **When** `init` runs, **Then** it fails with `access_denied`.
 
 ## Constraints & Edge Cases
 
-- The remote repository is created by the person on the Git host. waymark does not create repositories.
-- The repository should be private. waymark warns if it can see that it is public.
+- The repository should be private. waymark warns in `status` if it can see that it is public.
 - A private person can create a knowledge base on github.com in the same flow.
+- There is no terminal flow and no prompt. The agent or a client form collects the inputs.
 
 ## Open Questions
 
 - Should `init` offer to create the remote repository when the Git host API allows it?
+- Which inputs may a person leave to the defaults without losing the shared limits?

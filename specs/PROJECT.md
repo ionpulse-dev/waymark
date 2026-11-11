@@ -5,9 +5,11 @@
 Waymark is an automated, AI-driven knowledge base and memory for AI agents
 and the people who use them. It serves companies, teams, and private
 people. The knowledge is plain Markdown in a Git repository that the owner
-controls. It runs locally and needs no server. Unlike the memory of an AI
-vendor, the memory is yours, it is shared between all your AI tools, and it
-has a history and an undo.
+controls. Unlike the memory of an AI vendor, the memory is yours, it is shared
+between all your AI tools, and it has a history and an undo.
+
+Waymark is one program: an MCP server. Agent tools use it through MCP, on the
+person's own computer or on a shared server that anyone can host.
 
 A **waymark** is a sign on a trail. Each agent leaves a short mark of what it
 learned, so the next agent does not get lost on the same path.
@@ -21,11 +23,12 @@ Copilot, or OpenAI Codex. Wants the agent to know decisions, contracts, and
 known problems that live outside the repository. Success: the agent finds the
 right document in seconds and uses little context.
 
-### Manager or other non-developer
+### Team member without Git knowledge
 
 Uses an AI agent but does not know Git. Wants to read and add knowledge
-without ever seeing a branch or a merge conflict. Success: installs the app,
-answers a few questions, and everything else works.
+without ever seeing a branch or a merge conflict. IT prepares the Git login.
+Success: adds one MCP entry, and everything else works. On a shared server, the
+person signs in and approves writes in a web page.
 
 ### Private person
 
@@ -35,8 +38,13 @@ switching the AI tool does not lose what the agents learned.
 ### Knowledge base owner
 
 The first person of a company or team. Creates the knowledge base and sets the
-shared settings, such as the loosest level of autonomy that is allowed.
-Success: new people join in a few minutes and the knowledge base stays clean.
+shared limits. Success: new people join in a few minutes and the knowledge base
+stays clean.
+
+### Operator
+
+Runs a shared server for an organization, or for many. Sets the sign-in, the Git
+credentials, and the limits that users cannot change.
 
 _A single user may play more than one persona._
 
@@ -46,8 +54,8 @@ _A single user may play more than one persona._
 
 One Git repository with Markdown documents. It has its own repository (the
 content repository), separate from this project. It holds shared settings in a
-`.mkbase/waymark.toml` file and an `AGENTS.md` with rules for agents. Every
-knowledge base is a valid Obsidian vault.
+`.mkbase/waymark.toml` file and an `AGENTS.md` with plain-Git rules for agents
+that cannot use the MCP server. Every knowledge base is a valid Obsidian vault.
 
 ### Document
 
@@ -63,32 +71,42 @@ Folders are the teams or areas of an organization. The folder of a document is
 its owner. The organization builds its own folder tree. Waymark has no built-in
 folders.
 
-### Skill
+### MCP server
 
-The rules of behavior for an AI agent: when to read, when to write, what is
-worth a document, and how to write it. It is compiled into the CLI and
-written into each agent tool.
+The `waymark` binary. It is the only interface for agents. Its tools search,
+read, write, move, and sync documents. It does all Git work and enforces the
+rules: format, size, links, secrets, and limits. Tool descriptions are the only
+built-in guidance.
 
-### CLI
+### Behavior
 
-The `waymark` command. Agents use it to search, read, write, and sync. It does
-all Git work and enforces the rules: format, size, links, and secrets.
+What an agent reads, when it writes, and what deserves a document is the choice
+of each team. Teams write it in their own `AGENTS.md`. The README gives example
+snippets. Waymark ships no skill.
 
-### App
+### Limits
 
-A small macOS menu bar app for people: setup, approval dialogs, notifications,
-a list of what the agent wrote with undo, and background sync.
+The most that the server allows: access (read-only or read-write), pause,
+switched-off tools, folders, result caps, and approval rules. They come from
+layers (system file, server config, shared file, personal file, MCP entry). The
+strictest layer wins.
 
-### Read level and write level
+### Local mode and server mode
 
-Settings of a person that control how much the agent does alone. Read level:
-`auto` or `manual`. Write level: `auto`, `confirm`, or `manual`. The defaults
-are `manual`: the agent reads and writes only when asked.
+The same binary runs in two modes. In local mode, the agent tool starts it over
+stdio for one session. In server mode, it runs as a shared MCP server over HTTPS
+with sign-in, roles, and an audit log, for one organization or many. Anyone can
+host it.
+
+### Web console
+
+A web page of server mode. People approve writes, see what their agents wrote,
+undo it, review disputes, and pause writes.
 
 ### Project binding
 
-A project folder is bound to exactly one knowledge base by an id in a hidden
-`.waymark/` folder. A session in that folder uses only that knowledge base.
+A project uses one knowledge base through a project-level MCP entry that names
+the repository. One server process serves exactly one knowledge base.
 
 The long-term goal is a building block for a software factory, where agents do more of the delivery work with the right context.
 
@@ -96,17 +114,20 @@ The long-term goal is a building block for a software factory, where agents do m
 
 - **You own the memory** — plain Markdown in your own Git repository. No
   database, no vendor lock-in.
-- **Local, no server** — everything runs on the person's computer. The Git host
-  is the only shared part.
-- **The agent is the interface** — people talk to their agent. The app and the
-  CLI support this and never replace it.
+- **Local first, server optional** — local mode needs no server. Server mode is
+  the same code, hosted by anyone.
+- **MCP is the only interface** — one interface for every agent tool and chat
+  app.
+- **The server enforces, the team advises** — hard rules are limits in code.
+  Behavior is the choice of each team.
 - **The person is responsible** — every write is committed under the Git
   account of the person whose agent wrote it, as in a wiki.
-- **Control stays with the person** — the defaults are the strictest. People
-  loosen them later.
+- **Limits belong to the person and the operator** — the server enforces them,
+  and no tool can loosen them. The strictest layer wins.
 - **Cheap to read** — one topic per document, a short description, a hard size
   cap, and a small read budget.
 - **No Git knowledge needed** — Waymark runs all Git commands.
+- **Secrets stay with Git** — Waymark never stores or passes a Git secret.
 - **Obsidian compatible** — everything Waymark writes works in Obsidian
   without changes.
 - **Spec driven** — the specification drives the code, never the other way
@@ -116,36 +137,42 @@ The long-term goal is a building block for a software factory, where agents do m
 
 **In scope:**
 - The knowledge base format and its rules.
-- The `waymark` CLI for agents (Rust).
-- The macOS menu bar app (Swift).
-- The skill and the instruction blocks for Claude Code, GitHub Copilot, and
-  OpenAI Codex.
-- Setup, sync, quality checks, and undo.
+- The `waymark` binary (Rust): the MCP server, local mode and server mode.
+- Sign-in, roles, Git credentials, tenancy, and the audit log of server mode.
+- The web console of server mode.
+- Documentation: MCP entries for Claude Code, GitHub Copilot, and OpenAI Codex,
+  and example `AGENTS.md` snippets.
+- Quality checks, sync, and undo.
 
 **Out of scope:**
-- Servers that the project operates.
-- Cloud or background agents. Every agent action happens in a session that a
-  person starts.
+- A skill or any installer that writes into agent tools.
+- A desktop app.
+- Background or cloud agents. Every agent action happens in a session that a
+  person starts or a person's login on a server.
 - Binary data in the knowledge base. A document describes it and links to it.
 - A wiki backend such as Confluence. Storage is Markdown in Git only.
+- Operating a service. The project ships the software and a deploy guide. Who
+  runs a server is not decided here.
 
-**Related project:** the plain-Git rules for agents without the CLI are a
+**Related project:** the plain-Git rules for agents without MCP are a
 separate, standalone project, `waymark-trail`.
 
 ## Post-MVP
 
 _Capabilities intentionally deferred. No specs exist yet — this section is a reminder only._
 
-- `mcp-server` — a thin MCP adapter over the CLI, for Claude and ChatGPT connectors.
-- `mobile-companion` — an iPhone app for approval and review only.
+- `connect-git-account` — a console page where an owner connects a Git account, with tokens stored encrypted.
 - `knowledge-browser` — a window to search and read documents without an agent.
 - `pull-request-gate` — approval of a write by a second person.
 - `anchor-check` — flag documents whose anchored code changed.
-- `device-login` — OAuth device flow instead of a pasted token.
-- `company-rollout` — deploy the app with a pre-filled configuration through device management.
+- `message-channels` — email or webhook messages from a server.
+- `device-login` — OAuth device flow instead of the Git login of the person.
+- `company-rollout` — deploy the binary and the system config file through device management.
+- `waymark-doctor` — a small command for people without an agent.
 
 ## Further reading
 
+- [Architecture direction](../docs/architecture-direction.md): why MCP only, and the two modes.
 - [Roadmap](../docs/roadmap.md): phases from design to public release.
 - [Ideas](../docs/ideas.md): the details of the post-MVP list.
 - [Similar projects](../docs/similar-projects.md): what exists and what we learn from it.

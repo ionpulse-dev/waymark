@@ -2,58 +2,58 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 requires:
   - project-binding
-  - agent-skill
 ---
 
 # Session start
 
 ## User Story
 
-> As a person, I want my agent to tell me at the start of a session which knowledge base it uses and how much it may do alone, so that I am never surprised.
+> As a person, I want my agent to know at the start of a session which knowledge base it uses and which limits apply, so that I am never surprised.
 
 ## Personas
 
-- **Every person** — sees a one-line reminder of the settings.
+- **Every person** — can see the knowledge base in use and the limits.
 
 ## Behaviour
 
-`waymark session` is the first command the skill tells the agent to run in every session. It returns JSON with a plain English `message` and `notices`:
+When an MCP client connects, the server answers with its **instructions**. They are a short, neutral summary and hold no behavior advice:
 
-- the knowledge base in use,
-- the current read level, write level, and confirm in,
-- the pause state and the access mode,
-- notices,
+- what waymark is, in one sentence, and the meaning of a document, a folder, and an ID,
+- the knowledge base in use (name and ID),
+- the effective limits (see `trust-model`),
+- open notices.
 
-The agent shows the person a one-line reminder of the settings and the knowledge base. It follows the `settings` of every later result.
+The same facts are in the `status` tool, which an agent or a person can call at any time. Every tool result also carries the current `settings`, so a change of a limit applies at once.
 
-The command only informs. Every command checks the same rules itself, so a skipped or ignored `session` call cannot allow a forbidden action.
+Whether the agent tells the person, and what it does first in a session, is the choice of the team, in its `AGENTS.md`.
+
+The summary only informs. Every tool checks the same limits itself, so an ignored summary cannot allow a forbidden action.
 
 ## Interfaces & Contracts
 
-```json
-{
-  "message": "Using the knowledge base 'Example' (read and write).",
-  "knowledge_base": {"id": "<uuid>", "name": "Example"},
-  "settings": {"read_level": "manual", "write_level": "manual", "confirm_in": "chat", "paused": false, "mode": "read and write"},
-  "notices": []
-}
+The instructions are plain text of a few lines, for example:
+
+```text
+waymark: documents of the knowledge base "Example" (read-write, paused: no).
+Tools: search, show, list, add, ... Limits: results 5, documents opened per session 20.
 ```
 
 ## Acceptance Criteria
 
-- **Given** a bound project, **When** `session` runs, **Then** the result names the knowledge base and carries all five settings.
-- **Given** any read level, **When** `session` runs, **Then** it does not include `updates`. The person asks for `updates` when they want it.
-- **Given** writes are paused, **When** `session` runs, **Then** a notice says so.
-- **Given** an agent that skips `session`, **When** it runs a write, **Then** the CLI still enforces all limits.
+- **Given** a bound project, **When** a client connects, **Then** the instructions name the knowledge base and carry the effective limits.
+- **Given** the instructions, **When** they are read, **Then** they hold no advice on when to read or write.
+- **Given** writes are paused, **When** a client connects, **Then** the instructions and a notice say so.
+- **Given** an agent that ignores the instructions, **When** it runs a write, **Then** the server still enforces all limits.
+- **Given** no knowledge base is set up, **When** a client connects, **Then** the instructions say so and `status` shows how to fix it.
 
 ## Constraints & Edge Cases
 
-- A folder without a binding and without a default returns a message that no knowledge base is in use.
-- Session start hooks of agent tools are an option for later.
+- Some clients ignore server instructions. The facts are in `status` and in every result.
+- The instructions stay short, because they use context in every session.
 
 ## Open Questions
 
-- Should a session hook be added for tools that support it?
+- Do Claude Code, Copilot, and Codex show or use server instructions today? Verify.

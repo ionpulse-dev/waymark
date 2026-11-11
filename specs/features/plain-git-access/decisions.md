@@ -1,5 +1,7 @@
 # Decisions: Plain-Git access
 
+> **Note 2026-11-11:** All decisions stay valid. Mentions of the CLI now mean the MCP tools.
+
 _Records why technical choices were made. Never delete entries — add new ones as decisions are made. This file helps future AI sessions and developers understand settled choices without re-debating them._
 
 ---
@@ -25,3 +27,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** This is a second access channel and a safe default. It is not a replacement for the CLI.
 
 **Reason:** It opposes the "agents do not run raw Git" rule, so only the skill rule holds.
+
+## MCP tools replace the CLI in `AGENTS.md` — 2026-11-11
+
+**Decision:** The `AGENTS.md` of a content repository says: use the waymark tools if present, else the plain-Git rules.
+
+**Reason:** MCP is the only interface for agents. The plain-Git rules remain the fallback.

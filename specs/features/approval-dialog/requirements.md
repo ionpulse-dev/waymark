@@ -1,11 +1,17 @@
 ---
 type: feature
-status: draft
+status: superseded
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
   - mac-app
+superseded_by:
+  - write-approval
+  - web-console
 ---
+
+> **Superseded on 2026-11-11 by `write-approval` and `web-console`.** There is no native dialog. Approval is a limit, asked through MCP elicitation or the web console (see `write-approval`).
+> The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # Approval dialog
 

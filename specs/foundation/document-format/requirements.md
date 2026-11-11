@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 ---
 
 # Document format
@@ -16,9 +16,9 @@ The format is defined by the [MKBase Document Standard 1.0](https://github.com/i
 ## Dependents
 
 - `knowledge-base-repo` — the repository layout holds these documents.
-- `cli-core` — every read and write command uses this format.
+- `mcp-server` — every read and write tool uses this format.
 - `quality-checks` — `lint` checks documents against this format.
-- `plain-git-access` — the plain-Git rules teach the same format to agents without the CLI.
+- `plain-git-access` — the plain-Git rules teach the same format to agents without waymark.
 
 ## Deliverables
 
@@ -79,7 +79,7 @@ The format is defined by the [MKBase Document Standard 1.0](https://github.com/i
 | `description` | 50 words | `documents.description_max_words` |
 | Whole document | 100 KB, hard cap | `documents.max_bytes` |
 
-There is no limit on words in the body. Headings are allowed. A full architecture decision record fits in one document. Counting rules for words, characters, and estimated tokens (words times a fixed factor) are fixed here so that the CLI and `lint` agree.
+There is no limit on words in the body. Headings are allowed. A full architecture decision record fits in one document. Counting rules for words, characters, and estimated tokens (words times a fixed factor) are fixed here so that the server and `lint` agree.
 
 ### Obsidian compatibility
 
@@ -92,7 +92,7 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 - **Given** a document that waymark wrote, **When** it is opened in the current Obsidian version, **Then** the properties, links, graph, and tags show without errors.
 - **Given** a document with a nested frontmatter object, **When** `lint` runs, **Then** it fails the document.
 - **Given** a file name with an uppercase letter or a forbidden character, **When** `lint` runs, **Then** it fails the document.
-- **Given** a document without `description`, **When** it is written through waymark, **Then** the write fails with a validation error.
+- **Given** a document without `description`, **When** it is written through waymark, **Then** the write fails with `validation_failed`.
 - **Given** a document over the hard cap, **When** it is written, **Then** the write fails and tells the agent to split the document or move details into a source.
 - **Given** a title change, **When** the document is saved, **Then** the file name and the ID stay the same.
 - **Given** a sample vault, **When** the test suite runs, **Then** every document in it passes `lint`.

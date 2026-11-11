@@ -1,11 +1,17 @@
 ---
 type: foundation
-status: draft
+status: superseded
 created: 2026-11-08
-updated: 2026-11-08
+updated: 2026-11-11
 requires:
   - cli-core
+superseded_by:
+  - write-approval
+  - web-console
 ---
+
+> **Superseded on 2026-11-11 by `write-approval` and `web-console`.** There is no app and no link to it. Approval uses MCP elicitation or the web console (see `write-approval`). Git credentials stay with Git (see `login-and-identity`).
+> The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # App link
 

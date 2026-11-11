@@ -1,12 +1,17 @@
 ---
 type: foundation
-status: draft
+status: superseded
 created: 2026-11-08
-updated: 2026-11-09
+updated: 2026-11-11
 requires:
   - knowledge-base-repo
   - trust-model
+superseded_by:
+  - mcp-server
 ---
+
+> **Superseded on 2026-11-11 by `mcp-server`.** The `waymark` binary is now an MCP server that holds all logic. Agents use no CLI. The output contract, the error codes, the technology, and the tests moved to `mcp-server`.
+> The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # CLI core
 
