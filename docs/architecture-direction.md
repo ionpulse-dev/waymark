@@ -1,0 +1,135 @@
+# Architecture direction
+
+Status: agreed in a design discussion on 2026-11-11. It is **not yet in the specs**. The specs listed under "Impact on the specs" must be revised and approved before any implementation starts.
+
+## Summary
+
+waymark is **one binary**. It is an MCP server and it holds all logic: documents, Git work, checks, and limits. MCP is the **only interface for agents**. There is no CLI for agents, and waymark does not ship or install a skill. Teams describe the behavior they want in their own `AGENTS.md`. The README only gives examples.
+
+```text
+agent tool or chat app ⇄ MCP ⇄ waymark (core: documents, checks, Git) ⇄ Git repository of the owner
+```
+
+## Why MCP and not a CLI with a skill
+
+- All three target agent tools (Claude Code, GitHub Copilot, OpenAI Codex) support MCP. This is from memory and must be verified (see open questions).
+- Tool descriptions are always in the context of the agent. A skill can fail to load.
+- Tool input is typed. There are no shell quoting problems.
+- Many clients ask the person before a tool runs, per tool.
+- One interface means one behavior to build and test.
+- Chat apps and phones can only use MCP, and only a remote one.
+
+Costs: the tool schemas use context in every session, so the tool set must stay small. Agents without MCP support cannot use waymark. The plain-Git rules of `waymark-trail` remain the fallback for them.
+
+## Principles
+
+1. **The server enforces, the team advises.** Hard rules live in the server: format, size, secrets, links, duplicates, result caps, a read budget per session, access mode, and which tools exist. Behavior advice ("read at most 5 documents") becomes a limit in the server. What an agent does and when, is the choice of the team, written in its `AGENTS.md`.
+2. **Rejections teach.** An error message tells the agent what to do next ("update `ops/deploy` instead").
+3. **Results carry the facts.** A result includes the age of a document and its dispute reason, so the agent can pass them on.
+4. **No control tools.** There is no tool to change limits, the access mode, or credentials. An agent can never loosen its own limits.
+5. **Git credentials never pass through the agent.** See "Credentials".
+6. **Git stays the source of truth.** A deployment never owns the data. It holds a cache clone of the Git repository.
+
+## One core, two modes
+
+The core has no knowledge of the transport. The same tools and the same logic run in two modes.
+
+| Mode | Transport | For | Notes |
+|---|---|---|---|
+| **Local** | MCP over stdio. The agent tool starts the binary for one session. | One person or a small team on desktops | No infrastructure. Uses the Git login of the person. Quick start. |
+| **Server** | MCP over HTTPS, with OAuth 2.1 | A company or provider that runs a shared server. Also chat apps and phones. | Needs identity, tenancy, and credential handling. |
+
+Anyone can host the server mode: a company on its own infrastructure, or a provider for others. The same code serves both. The question whether the project itself operates a hosted service is not decided here. The decision "no servers that we operate" stays valid until it is changed on purpose.
+
+### Build order
+
+1. Core and local mode (stdio). This is the first usable product and the quick start.
+2. Server mode for one organization, self-hosted: single sign-on, GitHub App, web console.
+3. Multi-tenant server mode on top of step 2.
+
+Tenancy goes into the data model from step 1, so it does not have to be added later.
+
+### Server mode components
+
+```text
+client ⇄ MCP over HTTPS ⇄ [ identity | tenancy | policy | credentials | audit ] ⇄ core ⇄ Git repository
+```
+
+- **Identity.** Single sign-on (OIDC or SAML) for organizations. Email or Git host login for private people.
+- **Tenancy.** Each organization has its own knowledge bases, settings, and limits. Nothing is visible across tenants.
+- **Git credentials.** A GitHub App installed on the organization is the preferred model: short-lived, scoped to chosen repositories, and no pasted tokens. A deploy key or a fine-grained token also works for a small setup.
+- **Commit author.** The commit author is the person who used the agent, taken from the login. The push credential only proves that the server may write. The two are separate.
+- **Authorization.** Who may read or write which knowledge base.
+- **Workspace.** One cache clone per knowledge base, with a write lock.
+- **Audit log.** Who did what, and when.
+- **Web console.** A web page for approval of writes, the activity list, and undo. The person signs in separately, so the agent cannot answer it. It replaces the macOS app.
+
+## Configuration and limits
+
+The MCP config entry of the agent tool starts the server and passes arguments and environment variables.
+
+```json
+{
+  "mcpServers": {
+    "waymark": {
+      "command": "waymark",
+      "args": ["--repo", "git@github.com:example/knowledge.git",
+               "--access", "read-write", "--no-delete", "--folders", "engineering/**"]
+    }
+  }
+}
+```
+
+The server clones the repository on first start. No separate init or setup command is needed.
+
+### Permission ceiling
+
+A ceiling is the most that the server ever allows. Layers, from loosest to strictest source:
+
+| Layer | Set by | Strength |
+|---|---|---|
+| MCP config of the user | The person | A safety default. An agent with file access could edit the file for the next session. |
+| Managed MCP config | IT, pushed to desktops | Stronger, if the agent tool supports managed config (to be verified) |
+| Shared file in the knowledge base (`.mkbase/waymark.toml`) | The team owner | The server refuses to change this file through its tools |
+| Server config (server mode) | The operator | Hard. The user cannot touch it. |
+
+**The strictest layer wins.** A layer can tighten a limit and never loosen it. In server mode the client config can never be the ceiling, because the user controls it. The server enforces limits by user or role.
+
+Possible ceilings: access mode (read-only or read-write), allowed tools (no delete, no move), allowed folders, result caps, size caps, and a read budget per session.
+
+### Credentials
+
+| Where | How |
+|---|---|
+| Local mode | Git's own login: an SSH key or a credential helper. waymark never sees the secret. |
+| Server mode | Stored in the secret store of the host, passed as an environment variable or a mounted file. Never in the image, the repository, or the MCP config. |
+| Server mode, later | A web page where the person connects a Git account with "Sign in with GitHub". The server then stores tokens encrypted at rest. |
+
+## What MCP can and cannot do
+
+**Can:** give every MCP client the same tools; run remotely for chat apps and phones; carry usage instructions to the model; ask the person through the client (elicitation, where supported).
+
+**Cannot:** force the agent to call a tool; prove that a human answered; run work without an open session; show windows or notifications of its own; stop an agent that has a shell from using raw Git in the repository.
+
+## Impact on the specs
+
+These specs describe the earlier design (CLI, skill, and macOS app). They must be reviewed and revised, one by one, with approval at each gate. Nothing is changed yet.
+
+- `foundation/cli-core`: becomes the core and the MCP server in one binary. The agent commands become tools. The decision "No MCP server first" is superseded.
+- `foundation/agent-skill` and `features/agent-tool-setup`: the skill is dropped. At most a documented MCP config snippet per tool remains.
+- `foundation/trust-model`: the read level and write level become ceilings that the server enforces. The confirm-in setting moves to client prompts, elicitation, and the web console.
+- `foundation/mac-app`, `foundation/app-link`, `features/approval-dialog`, `features/login-and-identity`, `features/pause-and-resume`: the app and its link are dropped. Their jobs go to the server, the web console, or Git's own login.
+- `features/session-start`, `features/project-binding`, `features/updates`, `features/activity-and-undo`, `features/notifications-and-review`, `features/maintenance`: review each against the MCP-only design.
+- `foundation/distribution`: no app to sign or notarize. A container image for server mode.
+- `specs/PROJECT.md` and the `README.md`: scope, principles, and the comparison table.
+- A new foundation item for the MCP server, and later one for server mode.
+
+## Open questions
+
+- How does the server find the knowledge base: the working folder, the MCP roots, or a flag?
+- A read budget per session needs state in the server. How does this fit the earlier "no server state" rule?
+- Do Claude Code, GitHub Copilot, and OpenAI Codex all support remote MCP servers, managed MCP config, and per-tool permission prompts? Verify against current documentation.
+- Are documents also offered as MCP resources, besides the tools?
+- Which Rust MCP library fits?
+- Which embedded Git approach avoids a dependency on the `git` binary, or is the dependency acceptable?
+- How big should the first tool set be, to keep the context cost low?

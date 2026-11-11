@@ -19,6 +19,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** A hard user constraint. The only shared part is the Git host that the owner already has.
 
+**Amended by:** MCP is the only interface for agents. The part "no servers that we operate" stays valid. The part "everything runs locally" is widened by a second mode that anyone can host. See "Two modes" below and [architecture-direction.md](architecture-direction.md).
+
 ## No cloud agents — 2026-11-06
 
 **Decision:** Every agent action happens in a local session that a person starts, with the person's own license. There is no background curator.
@@ -66,3 +68,50 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Decision:** MIT license. The copyright holder is IonPulse, the company behind the project's GitHub organization, not a person. The Unlicense and CC0 were rejected: the rights of an author cannot be fully waived in some countries (for example Austria and Germany), and the Unlicense has no fallback license.
 
 **Reason:** MIT is simple and permissive, and the holder should be the organization that owns the repositories.
+
+## MCP is the only interface for agents — 2026-11-11
+
+**Decision:** waymark is one binary that is an MCP server and holds all logic. Agents use it only through MCP. There is no CLI for agents. waymark does not ship or install a skill. Teams write the behavior they want in their own `AGENTS.md`, and the README gives examples.
+
+**Alternatives considered:**
+- CLI plus skill (the earlier design). The skill can fail to load, and it needs an installer for each agent tool.
+- A CLI and an MCP server as two interfaces. Two interfaces to keep in step.
+- MCP only for chat apps. Coding agents also support MCP, and tool descriptions are always in their context.
+
+**Reason:** One interface, one behavior to test, and a standard that the three target agent tools support (to be verified). The plain-Git rules of `waymark-trail` remain the fallback for agents without MCP.
+
+**Supersedes:** "No MCP server first" in `specs/foundation/cli-core/decisions.md` (to be marked there when `cli-core` is revised).
+
+## The server enforces, the team advises — 2026-11-11
+
+**Decision:** Hard rules live in the server as limits: format, size, secrets, duplicates, result caps, a read budget per session, access mode, and which tools exist. Behavior advice is not built in. There are no tools to change limits or credentials.
+
+**Reason:** Text can be ignored, code cannot. A limit makes the wrong action impossible, and a clear rejection message teaches the agent.
+
+## Two modes, one core — 2026-11-11
+
+**Decision:** The core is independent of the transport. Local mode uses MCP over stdio and the Git login of the person. Server mode uses MCP over HTTPS with OAuth and is multi-tenant by design. Build order: local mode, then a self-hosted server for one organization, then multi-tenant.
+
+**Alternatives considered:**
+- One server per person. It does not fit a shared company server.
+- Remote only. It breaks the quick start with no infrastructure.
+
+**Reason:** Local mode needs no infrastructure. Central limits, single sign-on, one Git credential for an organization, and audit need a shared server. One core serves both.
+
+## No macOS app — 2026-11-11
+
+**Decision:** The macOS app is dropped. Setup uses the MCP config and the Git login of the person. Approval uses client prompts, elicitation, and a web console in server mode.
+
+**Reason:** The app's real value was a channel that the agent cannot reach. A web console with a separate sign-in gives the same, on every OS. The app is a large cost for one OS.
+
+## The permission ceiling is layered — 2026-11-11
+
+**Decision:** Limits come from the user's MCP config, an optional managed config, the shared file in the knowledge base, and the server config. The strictest layer wins. A layer can only tighten. In server mode only the server config is a hard limit.
+
+**Reason:** In local mode a user controls their own machine, so a ceiling guards against mistakes only. In server mode the operator needs limits that the user cannot change.
+
+## Git credentials stay out of waymark and out of the agent — 2026-11-11
+
+**Decision:** In local mode, Git uses its own login (SSH key or credential helper). In server mode, the secret comes from the secret store of the host. The commit author is the person who used the agent. The push credential is separate.
+
+**Reason:** The agent and the MCP config must never hold a secret. Separating the push credential from the author keeps the commit history correct, whatever the credential is.

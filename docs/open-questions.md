@@ -8,6 +8,13 @@ Questions that need an answer before or during planning. Each spec also lists it
 - **CI on the Git host.** Is CI (for example GitHub Actions) allowed on the Git hosts of the target organizations? If yes, CI can run `lint`, index generation, and secret scans without a server that we operate.
 - **Contributions.** Is a contributor license agreement needed before the first outside pull request?
 
+## Architecture direction
+
+See [architecture-direction.md](architecture-direction.md) for the full list of open questions. The main ones:
+
+- Do Claude Code, GitHub Copilot, and OpenAI Codex support remote MCP servers, managed MCP config, and per-tool permission prompts?
+- How does the server find the knowledge base, and how does a read budget per session fit the rule "no server state"?
+
 ## Build environment
 
 - Minimum macOS version.
