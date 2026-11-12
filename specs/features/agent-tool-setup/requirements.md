@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-12
 requires:
   - mcp-server
 ---
@@ -23,7 +23,7 @@ requires:
 waymark does not install anything into agent tools. It ships **no skill** and **no instruction block**. It gives documentation in the README:
 
 1. **MCP entry for each tool.** A copy-paste entry for Claude Code, GitHub Copilot (VS Code and CLI), and OpenAI Codex, for user scope and for project scope. The formats differ (JSON for some tools, TOML for Codex).
-2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. Tool kind hints (read-only, write, destructive) support this.
+2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. The rules are in the permission settings of the tool, not in the MCP config. For Claude Code, they are `allow` and `ask` rules such as `mcp__waymark__search` in `settings.json`. Tool kind hints (read-only, write, destructive) support this. The README says that a mode without prompts ("YOLO") ignores `allow` rules, may still honor explicit `ask` rules (verify), and that the built-in approval through elicitation is the other way (see `write-approval`).
 3. **Example `AGENTS.md` snippets.** Short examples that a team may copy and change. They are suggestions only. waymark does not insert them and does not check them. Suggested examples:
    - *Manual:* use waymark only when asked.
    - *Balanced:* search at the start of a task, write only when asked or after the person says yes.
@@ -55,3 +55,4 @@ The README sections are the deliverable. Each snippet is tested before a release
 
 - What are the verified MCP config formats and locations of each tool?
 - Do all three tools show tool kind hints and ask before write tools?
+- What does each tool do with `ask` rules when it runs without permission prompts?

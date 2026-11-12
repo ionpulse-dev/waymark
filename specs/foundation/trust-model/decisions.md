@@ -93,3 +93,32 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - `read-only` as default, so that writes need an explicit step. This is listed as an open question.
 
 **Reason:** Behavior is the choice of the team. Writes are safe through checks, history, and undo. A layer can tighten at any time.
+
+## Reading is always allowed, autonomy is not a limit — 2026-11-12
+
+**Decision:** Limits do not switch reading off. They set where (`folders`) and how much (`max_results`, `max_tokens`, `max_documents_opened`) an agent reads. "Read on its own" or "read only when asked" is the choice of the team (`AGENTS.md`) and of the agent tool (permission prompts).
+
+**Alternatives considered:**
+- A read level on the server. The server sees a tool call and cannot tell whether the person asked for it.
+- Approval for every read. Unbearable as a default. It stays possible for sensitive folders later.
+
+**Reason:** The server can only enforce what it can see. The only levels left are for writes: not allowed, allowed after a yes, allowed.
+
+## Local mode: the simple config is the gate — 2026-11-12
+
+**Decision:** In local mode, limits come from the MCP entry and the shared file, and the docs say that this guards against mistakes only. The system config file stays an optional layer for companies. Hard permissions belong to server mode, where they come from the sign-in.
+
+**Alternatives considered:**
+- Make local mode hard with root-owned files and a locked MCP config. The setup is complex for private people and small teams. An agent can also start a second `waymark` process with other arguments, and an agent that has the Git login of the person can push without waymark.
+- Design the full server permission system now. Server mode only changes who sets the limits and how they are enforced. It does not change what a limit means.
+
+**Reason:** Keep the first product simple and honest. Keep three things so that later work is cheap: one set of limit names, the rule "the strictest layer wins", and all checks in one place in the core.
+
+## No separate MCP connections in local mode — 2026-11-12
+
+**Decision:** Local mode uses one MCP entry and one tool set. Separate connections for read and write are not built. For server mode, they stay an option (see `server-mode`).
+
+**Alternatives considered:**
+- A read entry and a write entry in local mode. The agent tools already set `allow`, `ask`, and `deny` for each tool name, so a second entry adds setup and context cost and no hard limit.
+
+**Reason:** One entry is the goal: a person adds one MCP entry and everything else works.

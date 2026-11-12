@@ -30,3 +30,14 @@
 ## Supersedes `approval-dialog` — 2026-11-11
 
 The spec `approval-dialog` described the native macOS dialog. It is superseded by this spec and by `web-console`.
+
+## Two ways in local mode, nothing built for the first — 2026-11-12
+
+**Decision:** In local mode, a yes comes from the agent tool (permission prompt on the write tools) or from waymark (elicitation). The first needs documentation and tool kind hints only. The second is the built-in channel.
+
+**Alternatives considered:**
+- A native operating system dialog from waymark. Different on every system, and it fails on machines without a screen.
+- Staging a write for a later publish (a branch or a pull request). It needs a second step and a Git host. It stays the idea `pull-request-gate`.
+- Separate MCP connections for read and write. Not needed, because the agent tools set permissions for each tool.
+
+**Reason:** Both ways use what the agent tools already offer, and both are honest about their strength. Only `console` on a server is enforced.

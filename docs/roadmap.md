@@ -22,6 +22,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 
 - [ ] Review and approve the requirements of every spec, foundation first.
 - [ ] Verify against the current documentation of Claude Code, GitHub Copilot, and OpenAI Codex: MCP config formats and locations, project entries overriding user entries, the approval prompt for project servers, per-tool permission prompts, elicitation, server instructions, managed MCP config, and remote MCP servers.
+- [ ] Test write approval in Claude Code, GitHub Copilot, and OpenAI Codex: does elicitation ask when the tool runs without permission prompts, can a client answer it automatically, and do explicit `ask` rules still prompt (`write-approval`, `agent-tool-setup`).
 - [ ] Verify the login flows that Claude and ChatGPT accept for a self-hosted MCP server (`server-mode`).
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
 - [ ] Write the `.mkbase/waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).

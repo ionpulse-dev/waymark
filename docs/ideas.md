@@ -54,10 +54,17 @@ Features that we want later, but not in the first release. When an idea moves in
 | Git hooks | `pre-commit` and `pre-push` in the clone reject unless `waymark` started them. | Stops accidents. `--no-verify` or editing the hooks gets around it. |
 | Signed commits plus branch protection | `waymark` signs every commit with a key that other programs cannot use. The Git host rejects unsigned pushes to `main`. Optional hard mode for companies. | Needs branch protection on the content repo. Verify the details per Git host. |
 
+## Permission levels on a server
+
+| Idea | What it does | Limit |
+|---|---|---|
+| Separate connections for read and write | A server offers one MCP connection or OAuth scope for each permission level. The sign-in carries the limit, so the agent cannot change it. The agent tool can allow the read connection and ask for the write one. | Server mode only. Local mode has no sign-in. Check which scopes the chat apps support. See `server-mode`. |
+
 ## Per-folder settings
 
 | Idea | What it does |
 |---|---|
+| Rules per folder | A different level (`read-only`, approval, `read-write`) for each folder, as ordered rules. The first release has a global `access` and the `folders` list. | A later layer can add these rules without changing the meaning of the limits. |
 | Approval per folder | Different approval rules for some folders. The `folders` limit already restricts where tools may act. Per-folder approval is too complex for the first release. |
 
 ## Access without waymark

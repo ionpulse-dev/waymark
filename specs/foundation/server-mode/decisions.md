@@ -38,3 +38,12 @@
 - A connect page at once. It needs encrypted storage, key handling, and a larger attack surface.
 
 **Reason:** Keep the first release small and the stored secrets at zero.
+
+## Separate connections for each permission level: postponed — 2026-11-12
+
+**Decision:** Not part of the first design. Recorded as an option: one connection and OAuth scope for each permission level, so that the sign-in carries a hard limit that the agent cannot change.
+
+**Alternatives considered:**
+- Roles only, which map to the tool list. Simpler, and already specified.
+
+**Reason:** The local product comes first. Server mode only adds who sets limits and how they are enforced. Revisit when `server-mode` is reviewed.

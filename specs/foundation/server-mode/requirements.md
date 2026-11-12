@@ -64,6 +64,8 @@ Run the same binary as a shared MCP server over HTTPS, so that a whole organizat
 
 The operator maps directory groups to roles for each knowledge base. The role limits the tool list. A tool that the role does not allow is not listed.
 
+**Option for later: separate connections for each permission level.** A server could offer more than one MCP connection, for example `read` and `write`, each with its own sign-in and its own OAuth scope. The person signs in to the level they want, in a browser, and the agent cannot change it. The agent tool can then also treat each connection differently (always allow the read one, ask for the write one). The hard limit comes from the sign-in and not from a file. This is not decided. It is recorded here so that it is not forgotten. Local mode does not need it (see `trust-model`).
+
 ### Git credentials of the server
 
 | Credential | Notes |
@@ -102,6 +104,7 @@ The server reads one config file and environment variables: public URL, OIDC pro
 
 ## Open Questions
 
+- Should the server offer separate connections or scopes for read and write, besides roles? What do the chat apps of Claude and ChatGPT support for scopes?
 - Which login flows do Claude and ChatGPT accept for a self-hosted MCP server today? Verify against their documentation.
 - SAML or OIDC only for the first release?
 - Does the server need its own small database for sessions and approvals, or is a file store enough?

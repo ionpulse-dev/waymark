@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-12
 ---
 
 # Trust model
@@ -36,6 +36,8 @@ Define who is responsible for what agents write, which limits the server enforce
 - A pull request gate where a second person approves a write. This is an idea for after the first release.
 - Hard enforcement against a person or agent who bypasses waymark.
 - Users and roles of a shared server (see `server-mode`).
+- Separate MCP connections for each permission level. This is an option for server mode only (see `server-mode`).
+- Rules for each folder with their own level. A global `access` and the `folders` list are enough for the first release.
 
 ## Constraints
 
@@ -54,6 +56,10 @@ Define who is responsible for what agents write, which limits the server enforce
 ### Limits
 
 A limit is the most that the server ever allows. A limit is not advice.
+
+**Reading is always allowed.** The limits do not switch reading on or off. They set where an agent may read (`folders`) and how much (`max_results`, `max_tokens`, `max_documents_opened`). Whether an agent reads on its own or only when the person asks is not a server limit. The server cannot tell the two apart. It is the choice of the team (its `AGENTS.md`) and of the agent tool (its permission prompts).
+
+**Writing has three states:** not allowed (`access = "read-only"` or `paused`), allowed after a yes (`approval.required_for`), and allowed (the default). These are the only "levels" of waymark. They are not a separate setting. They follow from the limits below.
 
 | Limit | Values | Built-in default |
 |---|---|---|
@@ -76,7 +82,7 @@ Limits come from layers. All layers use the same keys.
 
 | Layer | Set by | Read | Strength |
 |---|---|---|---|
-| System config file (`/Library/Application Support/waymark/config.toml` on macOS, `/etc/waymark/config.toml` on Linux) | IT. The file belongs to an administrator. | at every call | **Hard in local mode.** A normal user and their agent cannot change it. |
+| System config file (`/Library/Application Support/waymark/config.toml` on macOS, `/etc/waymark/config.toml` on Linux). Optional. | IT. The file belongs to an administrator. | at every call | **Hard in local mode**, where a company needs it. A normal user and their agent cannot change it. Most people do not use it. |
 | Server config | The operator of a server (see `server-mode`) | at every call | **Hard in server mode.** Users cannot touch it. |
 | Shared settings in the knowledge base (`.mkbase/waymark.toml`, section `[limits]`) | The team owner | at every sync | The server refuses to change this file through its tools. A person with Git access can still change it. |
 | Personal config (`~/.config/waymark/config.toml`) | The person | at every call | A safety default. An agent with file access could edit it. |
@@ -87,6 +93,8 @@ Limits come from layers. All layers use the same keys.
 In server mode, the client config is not a layer, because the user controls it. Limits per user or role come from the server (see `server-mode`).
 
 Only the person or the operator changes limits. No tool changes them.
+
+**Local mode is a safety default.** In local mode, the simple config is the gate: the MCP entry and the shared file. It guards against mistakes. A person, or an agent that can edit files, can change it. A hard limit needs a file that someone else owns (the system file) or a sign-in (server mode). Hard permission levels are a server-mode topic. See `server-mode` for the sign-in grants and for the option of separate connections for read and write.
 
 ### Disputed documents
 
@@ -116,5 +124,5 @@ Only the person or the operator changes limits. No tool changes them.
 
 ## Open Questions
 
-- Should the built-in default for `access` be `read-only`, so that writes need an explicit step?
+- Should the built-in default for `access` be `read-only`, so that writes need an explicit step? This is about writes. Reads are always allowed.
 - Which agent tools support a managed MCP config, and is the system config file enough for IT?

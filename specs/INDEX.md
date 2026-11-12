@@ -21,7 +21,7 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `draft` | 2026-11-11 |
-| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `draft` | 2026-11-11 |
+| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `draft` | 2026-11-12 |
 | [create-knowledge-base](features/create-knowledge-base/requirements.md) | `draft` | 2026-11-11 |
 | [join-knowledge-base](features/join-knowledge-base/requirements.md) | `draft` | 2026-11-11 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `draft` | 2026-11-11 |
@@ -38,7 +38,7 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 | [updates](features/updates/requirements.md) | `draft` | 2026-11-11 |
 | [verification](features/verification/requirements.md) | `draft` | 2026-11-11 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
-| [write-approval](features/write-approval/requirements.md) | `draft` | 2026-11-11 |
+| [write-approval](features/write-approval/requirements.md) | `draft` | 2026-11-12 |
 | [write-documents](features/write-documents/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
@@ -51,8 +51,8 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 | [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `draft` | 2026-11-11 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `draft` | 2026-11-11 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
-| [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
-| [trust-model](foundation/trust-model/requirements.md) | `draft` | 2026-11-11 |
+| [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-12 |
+| [trust-model](foundation/trust-model/requirements.md) | `draft` | 2026-11-12 |
 
 ## Superseded
 

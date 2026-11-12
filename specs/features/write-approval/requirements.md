@@ -2,7 +2,7 @@
 type: feature
 status: draft
 created: 2026-11-11
-updated: 2026-11-11
+updated: 2026-11-12
 requires:
   - mcp-server
 ---
@@ -28,6 +28,15 @@ The write flow of `git-sync` asks for approval after all checks passed and befor
 |---|---|---|
 | `elicitation` | The server asks the person through the MCP client (MCP elicitation). The person answers in the client. | Depends on the client. It guards against agent mistakes. |
 | `console` | The request goes to the web console (see `web-console`). The person signs in there on their own and answers. The agent cannot answer. | Enforced. Server mode only. |
+
+In local mode there are two ways to get a yes before a write:
+
+1. **The agent tool asks.** The person sets the write tools to `ask` in the permission settings of the agent tool. This is outside waymark, and waymark builds nothing for it. It needs correct tool kind hints (read-only, write, destructive) and a README section (see `agent-tool-setup`). The settings are not in the MCP config. In Claude Code they are the `permissions` rules in `settings.json`, for example `mcp__waymark__add`. A person who runs the tool in a mode that skips prompts gets no question from this way, except from explicit `ask` rules, which the current Claude Code documentation says still prompt. Verify this.
+2. **waymark asks** (`approval.via = "elicitation"`). Waymark runs all checks, then asks the person through the client, and then commits. This is the built-in way. It works the same in every client that supports elicitation.
+
+Server mode adds the `console` channel, which is the only enforced one.
+
+Client support (from the documentation and bug reports of 2026-11-12, not yet verified by a test): Claude Code CLI supports elicitation, and hooks can auto-answer it. The Claude Code VS Code extension and Claude Desktop do not show it, and some versions did not announce the capability. GitHub Copilot in VS Code lists elicitation as supported. Codex CLI supports it and controls it by an approval setting.
 
 Rules:
 
@@ -58,6 +67,8 @@ The tool call waits for the answer. While it waits, the server sends progress me
 
 ## Open Questions
 
+- Does elicitation still ask when the agent tool runs without permission prompts? Test with Claude Code in a mode that skips prompts.
+- Can a client answer elicitation automatically (a hook, or a setting)? If yes, say so in the docs.
 - Should the request show a diff for changes to existing documents?
 - Do Claude Code, Copilot, and Codex support elicitation today? Verify.
 - Is a wait of 2 minutes accepted by clients, or does the server need an asynchronous "pending" result?
