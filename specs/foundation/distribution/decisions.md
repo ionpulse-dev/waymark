@@ -31,3 +31,14 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Supersedes:** "One deliverable" and "Direct download".
 
 **Reason:** The app and the skill installer are dropped (see `docs/architecture-direction.md`).
+
+## Own Homebrew tap first, Homebrew core later — 2026-11-12
+
+**Decision:** The first release is installed through an own tap (`<account>/homebrew-tap`). A formula for Homebrew core comes after the project has users.
+
+**Alternatives considered:**
+- Homebrew core at once. A new project usually does not qualify, and every update needs a pull request.
+- A tap with another repository name and a long `brew tap` command. It breaks the one-line install.
+- A download page only. It works, but Homebrew is the usual way on macOS and handles updates.
+
+**Reason:** A tap needs no approval, it works from the first release, and it can serve more than one project of the account.

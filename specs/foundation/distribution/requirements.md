@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-12
 requires:
   - mcp-server
 ---
@@ -20,9 +20,19 @@ Define how waymark reaches people: one binary per platform, one container image 
 ## Deliverables
 
 - A static binary for macOS and Linux. Windows later.
-- A package for Homebrew and a download page with checksums.
+- A Homebrew tap and a download page with checksums (see "Homebrew").
 - A container image for server mode, with `git` inside.
 - The README sections: install, MCP entry for each agent tool, and example `AGENTS.md` snippets.
+
+### Homebrew
+
+- **Own tap first.** A public repository `homebrew-tap` in the GitHub account of the project holds one formula file for each program, in `Formula/`. People install with `brew install <account>/tap/waymark`. Homebrew finds the tap by its name. The tap repository is only for formulas.
+- **The formula** holds the URL of the release file, its checksum, and the install step. The URL points to the release of the `waymark` repository. The tap can hold formulas for other projects of the same account.
+- **Release flow.** CI builds the binaries, uploads them to the release, and updates the formula with the new URL and checksum. A tool such as `cargo-dist` may generate this. It is not decided.
+- **Prebuilt or from source.** The formula installs the signed prebuilt binary. While the signing identity is missing, a formula that builds from source on the person's machine is the fallback. Homebrew installs are not quarantined by macOS, so no Gatekeeper warning shows.
+- **Homebrew core later.** `brew install waymark` without a tap needs a pull request to `Homebrew/homebrew-core`. It needs a public repository, tagged releases, a build from source with Homebrew dependencies, and some real users. It is a goal after the first release, not part of it.
+- **Linux.** Homebrew also runs on Linux, so the same tap serves both systems. The download page stays as a backup.
+- The tap and the release files are public. They are created at the public release (see the roadmap, phase 5).
 
 ## Scope
 
@@ -44,7 +54,8 @@ Define how waymark reaches people: one binary per platform, one container image 
 
 ## Acceptance Criteria
 
-- **Given** a Mac with `git`, **When** the person installs with Homebrew, **Then** `waymark` is on the `PATH`.
+- **Given** a Mac with `git`, **When** the person runs `brew install <account>/tap/waymark`, **Then** `waymark` is on the `PATH`.
+- **Given** a new release, **When** CI finishes, **Then** the formula in the tap points to the new release file with the right checksum.
 - **Given** the README snippet for an agent tool, **When** the person adds it and starts a session, **Then** the tools of waymark show.
 - **Given** a release, **When** Gatekeeper checks it, **Then** it passes as notarized.
 - **Given** the container image, **When** it starts with the required settings, **Then** the server answers on HTTPS behind a proxy.
@@ -53,5 +64,7 @@ Define how waymark reaches people: one binary per platform, one container image 
 ## Open Questions
 
 - Is the developer account for signing in place?
-- Homebrew only, or also a download script for the first release?
+- Homebrew tap only, or also a download script for the first release?
+- Is `cargo-dist` used to build the release and the formula, or a hand-written CI workflow?
+- Is the name `waymark` free in Homebrew core?
 - Which registry hosts the container image?

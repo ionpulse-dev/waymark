@@ -45,7 +45,7 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 
 | Item | Status | Updated |
 |:-----|:-------|:--------|
-| [distribution](foundation/distribution/requirements.md) | `draft` | 2026-11-11 |
+| [distribution](foundation/distribution/requirements.md) | `draft` | 2026-11-12 |
 | [document-format](foundation/document-format/requirements.md) | `draft` | 2026-11-11 |
 | [git-sync](foundation/git-sync/requirements.md) | `draft` | 2026-11-11 |
 | [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `draft` | 2026-11-11 |
