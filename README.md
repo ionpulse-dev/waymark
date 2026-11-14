@@ -50,7 +50,7 @@ and the next one does not get lost on the same path.
 
 ## Where the idea came from
 
-The idea for waymark came from an incident in 2026, described in
+The idea for waymark came from a 2026 incident involving OpenAI agents, described in
 [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/).
 The incident was a failure of control, and we do not want to repeat it. But the
 agents' own strategy taught us something. They ran in isolated sandboxes, with
