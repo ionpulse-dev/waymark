@@ -239,9 +239,23 @@ impl Repo {
             return Ok(None);
         }
         let paths: Vec<&str> = change.paths.iter().map(String::as_str).collect();
-        let mut add = vec!["add", "-A", "--"];
-        add.extend(&paths);
-        run_ok(&self.dir, Some(&self.author), &add)?;
+        // A path that is gone from the disk and the index (a revert removed it) cannot be added.
+        let tracked = cmd::run(&self.dir, None, &{
+            let mut a = vec!["ls-files", "--"];
+            a.extend(&paths);
+            a
+        })?;
+        let tracked: Vec<&str> = tracked.stdout.lines().collect();
+        let to_add: Vec<&str> = paths
+            .iter()
+            .copied()
+            .filter(|p| self.dir.join(p).exists() || tracked.contains(p))
+            .collect();
+        if !to_add.is_empty() {
+            let mut add = vec!["add", "-A", "--"];
+            add.extend(&to_add);
+            run_ok(&self.dir, Some(&self.author), &add)?;
+        }
         let mut check = vec!["diff", "--cached", "--quiet", "--"];
         check.extend(&paths);
         let out = cmd::run(&self.dir, Some(&self.author), &check)?;

@@ -260,6 +260,7 @@ impl Tool for Move {
                 vec!["Links from outside this knowledge base are not checked.".to_string()];
             let docs = if total == 1 { "document" } else { "documents" };
             Ok(Plan {
+                revert: None,
                 first: Some(FirstCommit {
                     moves,
                     title: title.clone(),

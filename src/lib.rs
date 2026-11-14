@@ -2,6 +2,7 @@
 //!
 //! The library holds all logic. The binary only starts the server.
 
+pub mod activity;
 pub mod config;
 pub mod error;
 pub mod format;

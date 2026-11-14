@@ -258,3 +258,131 @@ impl Repo {
         })
     }
 }
+
+/// A commit with its message body and the files it changed (see `Repo::all_commits`).
+#[derive(Debug, Clone)]
+pub struct CommitInfo {
+    pub hash: String,
+    pub short: String,
+    pub email: String,
+    pub name: String,
+    pub time: String,
+    pub subject: String,
+    pub body: String,
+    /// (status letter, path). A rename is `R` with the new path, and the old path as `D`.
+    pub files: Vec<(char, String)>,
+}
+
+impl Repo {
+    /// All commits without merges, newest first, with message body and changed files.
+    pub fn all_commits(&self) -> Result<Vec<CommitInfo>> {
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &[
+                "log",
+                "--no-merges",
+                "-M",
+                "--name-status",
+                "--format=%x1e%H%x1f%h%x1f%ae%x1f%an%x1f%aI%x1f%s%x1f%b%x1f",
+            ],
+        )?;
+        if !out.ok {
+            return Ok(Vec::new());
+        }
+        let mut commits = Vec::new();
+        for chunk in out.stdout.split('\u{1e}').skip(1) {
+            let mut parts = chunk.splitn(8, '\u{1f}');
+            let (
+                Some(hash),
+                Some(short),
+                Some(email),
+                Some(name),
+                Some(time),
+                Some(subject),
+                Some(body),
+                Some(rest),
+            ) = (
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+                parts.next(),
+            )
+            else {
+                continue;
+            };
+            let mut files = Vec::new();
+            for line in rest.lines().filter(|l| !l.trim().is_empty()) {
+                let mut p = line.split('\t');
+                let status = p.next().unwrap_or("").chars().next().unwrap_or('M');
+                if status == 'R' || status == 'C' {
+                    if let (Some(old), Some(new)) = (p.next(), p.next()) {
+                        files.push(('D', old.to_string()));
+                        files.push(('A', new.to_string()));
+                    }
+                } else if let Some(path) = p.next() {
+                    files.push((status, path.to_string()));
+                }
+            }
+            commits.push(CommitInfo {
+                hash: hash.to_string(),
+                short: short.to_string(),
+                email: email.to_lowercase(),
+                name: name.to_string(),
+                time: time.to_string(),
+                subject: subject.to_string(),
+                body: body.trim().to_string(),
+                files,
+            });
+        }
+        Ok(commits)
+    }
+
+    /// Revert commits without committing. `hashes` are newest first. Returns the staged changes
+    /// (status letter, path), or the first line of the error if the revert conflicts. A conflict
+    /// leaves the working tree as it was.
+    pub fn revert_no_commit(
+        &self,
+        hashes: &[String],
+    ) -> Result<std::result::Result<Vec<(char, String)>, String>> {
+        let mut args = vec!["revert", "--no-commit"];
+        args.extend(hashes.iter().map(String::as_str));
+        let out = cmd::run(&self.dir, Some(&self.author), &args)?;
+        if !out.ok {
+            self.abort_revert();
+            return Ok(Err(cmd::first_line(&format!(
+                "{}\n{}",
+                out.stderr, out.stdout
+            ))));
+        }
+        let diff = cmd::run_ok(
+            &self.dir,
+            None,
+            &["diff", "--cached", "--name-status", "-M"],
+        )?;
+        let mut files = Vec::new();
+        for line in diff.stdout.lines() {
+            let mut p = line.split('\t');
+            let status = p.next().unwrap_or("").chars().next().unwrap_or('M');
+            if status == 'R' {
+                if let (Some(old), Some(new)) = (p.next(), p.next()) {
+                    files.push(('D', old.to_string()));
+                    files.push(('A', new.to_string()));
+                }
+            } else if let Some(path) = p.next() {
+                files.push((status, path.to_string()));
+            }
+        }
+        Ok(Ok(files))
+    }
+
+    /// Drop a revert that was started with `revert_no_commit`. Keeps unrelated local changes.
+    pub fn abort_revert(&self) {
+        let _ = cmd::run(&self.dir, None, &["revert", "--abort"]);
+        let _ = cmd::run(&self.dir, None, &["reset", "-q", "--merge"]);
+    }
+}

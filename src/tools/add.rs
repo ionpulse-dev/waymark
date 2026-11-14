@@ -176,6 +176,7 @@ impl Tool for Add {
             data.insert("deprecated".into(), json!(deprecated));
             Ok(Plan {
                 first: None,
+                revert: None,
                 changes,
                 verb: Verb::Add,
                 title: title.clone(),

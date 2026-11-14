@@ -266,6 +266,8 @@ pub struct FirstCommit {
 
 pub struct Plan {
     pub first: Option<FirstCommit>,
+    /// Commits to revert (newest first) in the working tree, before the commit (see `undo`).
+    pub revert: Option<Vec<String>>,
     pub changes: Vec<FileChange>,
     pub verb: Verb,
     pub title: String,
@@ -367,6 +369,24 @@ pub fn execute(
                 }
                 history_checked = true;
             }
+            if let Some(hashes) = &plan.revert {
+                match tx.repo().revert_no_commit(hashes)? {
+                    Ok(files) => {
+                        for (_, path) in files {
+                            if !paths.contains(&path) {
+                                paths.push(path);
+                            }
+                        }
+                    }
+                    Err(why) => {
+                        return Err(Error::new(
+                            Code::StaleBase,
+                            format!("The revert does not apply any more: {why}"),
+                        )
+                        .with_next("Change the document with `update_document` instead."))
+                    }
+                }
+            }
             for change in &plan.changes {
                 match change {
                     FileChange::Write { id, text, .. } => {
@@ -437,7 +457,9 @@ pub fn execute(
                 FileChange::Keep { .. } => None,
             })
             .collect();
-        data.insert("changes".into(), json!(changes));
+        if !data.contains_key("changes") {
+            data.insert("changes".into(), json!(changes));
+        }
         if let Some(t) = &plan.text {
             data.insert("text".into(), json!(t));
         }

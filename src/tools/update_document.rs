@@ -129,6 +129,7 @@ impl Tool for UpdateDocument {
                     data.insert("version".into(), json!(tx.last_commit(&rel)?));
                     return Ok(Plan {
                         first: None,
+                        revert: None,
                         changes: vec![FileChange::Keep { id: id.clone() }],
                         verb: Verb::Update,
                         title: old_title,
@@ -179,6 +180,7 @@ impl Tool for UpdateDocument {
                 data.insert("title".into(), json!(new_title));
                 Ok(Plan {
                     first: None,
+                    revert: None,
                     changes: vec![FileChange::Write {
                         id: id.clone(),
                         text: text.clone(),

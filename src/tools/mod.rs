@@ -1,5 +1,6 @@
 //! The tools. One tool is one file. Add a tool here and in `registry`.
 
+pub mod activity;
 pub mod add;
 pub mod delete;
 pub mod deprecate;
@@ -14,6 +15,7 @@ pub mod show;
 pub mod stats;
 pub mod status;
 pub mod sync;
+pub mod undo;
 pub mod update_document;
 
 use crate::mcp::tool::{Registry, Tool};
@@ -30,6 +32,8 @@ pub fn registry() -> Registry {
         Box::new(index::Index),
         Box::new(sync::Sync),
         Box::new(move_documents::Move),
+        Box::new(activity::Activity),
+        Box::new(undo::Undo),
         Box::new(add::Add),
         Box::new(update_document::UpdateDocument),
         Box::new(dispute::Dispute),

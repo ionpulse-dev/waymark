@@ -121,6 +121,7 @@ impl Tool for Delete {
             data.insert("links_fixed".into(), json!(links_fixed));
             Ok(Plan {
                 first: None,
+                revert: None,
                 changes,
                 verb: Verb::Delete,
                 title: title.clone(),

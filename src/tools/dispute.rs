@@ -128,6 +128,7 @@ impl Tool for Dispute {
             data.insert("disputed".into(), json!(reason.is_some()));
             Ok(Plan {
                 first: None,
+                revert: None,
                 changes: vec![FileChange::Write {
                     id: id.clone(),
                     text: text.clone(),
