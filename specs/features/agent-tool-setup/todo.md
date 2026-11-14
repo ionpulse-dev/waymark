@@ -21,3 +21,8 @@ Facts that the documentation did not state (they stay "unverified" until the `[m
 - Does a project entry override a user entry of the same name in Codex and in Copilot?
 - How does Copilot ask before a write tool, and where is the setting?
 - What is the exact key for MCP servers in the personal `settings.json` of VS Code?
+
+## Notes 2026-11-14
+
+- Remove `updates` and `init` from `NOT_YET_BUILT` in `tests/it_agent_tool_docs.rs` when `updates` and `create-knowledge-base` are implemented (the test tells you).
+- All snippets say "not yet tested" until the manual tests M1 to M6 ran.

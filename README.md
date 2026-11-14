@@ -156,6 +156,7 @@ yourself.
 4. A team adds the same entry to the project config, so everyone uses the same
    knowledge base.
 
+<!-- snippet: generic -->
 ```json
 {
   "mcpServers": {
@@ -167,9 +168,10 @@ yourself.
 }
 ```
 
-Entries for Claude Code, GitHub Copilot, and OpenAI Codex are in the
-[agent tool setup spec](specs/features/agent-tool-setup/requirements.md). They
-are verified against the tool versions before the first release.
+Entries for Claude Code, GitHub Copilot, and OpenAI Codex, with permission
+advice, are in the [install guide](docs/install.md#agent-tools). They are not yet
+tested in the real tools, and the guide marks every unverified statement. Claude
+Code asks you to approve a server from a project file on the first start.
 
 The first person of a company or team, or a person on their own, creates an
 empty private repository and calls the `init` tool once.
@@ -271,16 +273,20 @@ suggestions. waymark does not insert or check them.
 
 **Manual: use waymark only when asked**
 
+<!-- example: agents-md -->
 ```text
+Suggestion only. waymark does not insert or check this text.
 Use the waymark tools only when the person asks.
 Search first, then open at most 3 documents.
-Write only on request. Never write secrets, tokens, or personal data.
 Name the author and date when you use a document.
+Never write secrets, tokens, or personal data.
 ```
 
 **Balanced: read alone, write on request**
 
+<!-- example: agents-md -->
 ```text
+Suggestion only. waymark does not insert or check this text.
 At the start of a task, search waymark for the topic and open at most 3 documents.
 If a document is old or marked disputed, say so and check the facts.
 Write only when the person asks, or after you ask "Save this?" and they say yes.
@@ -290,7 +296,9 @@ Never write secrets, tokens, or personal data.
 
 **Proactive: the agent decides, undo is the safety net**
 
+<!-- example: agents-md -->
 ```text
+Suggestion only. waymark does not insert or check this text.
 Search waymark before you start work. Save decisions, pitfalls, and contracts that
 the next agent needs. Do not save what the code or the history already shows.
 Update a document that exists instead of adding a copy. If a document is wrong,

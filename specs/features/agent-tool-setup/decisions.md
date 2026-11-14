@@ -66,3 +66,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** `mcp__waymark__*` in `ask` (rejected: it asks for reads too). A glob such as `mcp__waymark__get_*` (rejected: the tool names have no common prefix).
 
 **Reason:** An allow rule accepts a glob only after the literal server prefix, and the read tools share no pattern. A test checks that every name in the advice is a tool of the registry.
+
+## Implementation notes — 2026-11-14
+
+- `docs/install.md` did not exist, so this spec created it with a short "Install the binary" part. `distribution` extends that part later. Decided autonomously.
+- The `AGENTS.md` examples live in `docs/install.md` and in the README. Test A3 checks that both copies are identical, so they cannot drift. Decided autonomously.
+- The advice names `updates` and `init`, which are built in later specs (`updates`, `create-knowledge-base`). Test A5 allows these two names through the list `NOT_YET_BUILT` and fails when one of them becomes a real tool, so that the list is cleaned. Decided autonomously.
+- Test A6 checks a fixed list of phrases that must sit on a line with the word "unverified". Add a phrase when a new unverified statement enters the guide. Decided autonomously.
+- The test for the generic entry starts the real binary with the `args` of the README entry. The clone starts lazily at the first tool use, so `tools/list` works without network.
