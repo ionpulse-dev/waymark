@@ -145,3 +145,17 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 - Keep it in `waymark-trail`. That repository is to be taken down.
 
 **Reason:** One repository, one spec workflow, and no second copy to keep in step. See `specs/foundation/document-format/decisions.md`.
+
+## Current scope: local mode on macOS, delivered by Homebrew — 2026-11-14
+
+**Decision:** The current task covers only local mode of the `waymark` binary on macOS, installed with Homebrew from an own tap. Out of scope for now: server mode, multi-tenancy, sign-in, the web console, and Linux. The specs for these stay `draft` and are not implemented. The affected specs get no new work until the scope changes.
+
+**Autonomous work:** The product owner asked on 2026-11-14 for all in-scope specs to be finished and implemented end to end, using the judgment of the AI, as `specs/WORKFLOW.md` allows under "Approval Gates". Decisions made this way are marked "decided autonomously" in the `decisions.md` of their spec, so they can be reviewed. The AI does not make these choices alone: publishing or releasing anything, creating the Homebrew tap, making this repository public, domains and accounts, licensing, and business or strategy questions in [open-questions.md](open-questions.md).
+
+**Done means implemented:** The product owner runs the `[manual]` tests at the end. A spec stops at `implemented`. Only the product owner moves it to `done`.
+
+**Release:** The Homebrew tap and the release files must be public. This repository is private today. It becomes public at the release, after a check for secrets and business details. The tap is created last, with the approval of the product owner.
+
+**Alternatives considered:** Build local and server mode together (rejected: server mode needs sign-in, tenancy, and a console, which delay a usable binary). Support Linux now (rejected: macOS is the only goal for the first release).
+
+**Reason:** The fastest path to a binary that people can install is local mode on one platform. Everything else builds on it.

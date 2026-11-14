@@ -7,7 +7,7 @@
 
 ## Next Up
 
-On 2026-11-11 the design changed to MCP only: one binary, local and server mode, no skill, no app (see [architecture direction](../docs/architecture-direction.md)). On 2026-11-14 `document-format` was approved and is `planned`. All other specs are `draft`. The next step is the review and approval of the requirements and plans, foundation first:
+On 2026-11-11 the design changed to MCP only: one binary, local and server mode, no skill, no app (see [architecture direction](../docs/architecture-direction.md)). On 2026-11-14 `document-format` was approved and is `planned`. All other specs are `draft`. The current scope is local mode on macOS only (see [project decisions](../docs/decisions.md)). Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now. The next step is the review and approval of the requirements and plans in scope, foundation first:
 
 1. `trust-model`, `knowledge-base-repo`
 2. `git-sync`, `mcp-server`
