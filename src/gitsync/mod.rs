@@ -27,6 +27,7 @@ pub struct Repo {
     pub(crate) dir: PathBuf,
     author: Mutex<Author>,
     pub(crate) last_fetch: Mutex<Option<Instant>>,
+    fetch_failed: std::sync::atomic::AtomicBool,
 }
 
 impl Repo {
@@ -44,6 +45,7 @@ impl Repo {
             dir: dir.to_path_buf(),
             author: Mutex::new(author),
             last_fetch: Mutex::new(None),
+            fetch_failed: std::sync::atomic::AtomicBool::new(false),
         })
     }
 
@@ -87,6 +89,16 @@ impl Repo {
     /// The author of the next commits (see `login-and-identity`: resolved at every write).
     pub fn author(&self) -> Author {
         self.author.lock().unwrap().clone()
+    }
+
+    /// Did the last fetch fail? (see `notifications-and-review`)
+    pub fn last_fetch_failed(&self) -> bool {
+        self.fetch_failed.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    pub(crate) fn set_fetch_failed(&self, failed: bool) {
+        self.fetch_failed
+            .store(failed, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub fn set_author(&self, author: Author) {

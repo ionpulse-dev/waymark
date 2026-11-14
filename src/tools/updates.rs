@@ -115,6 +115,7 @@ impl Tool for Updates {
             if let Err(e) = state.set("last_updates", json!(until_text)) {
                 extra.push(format!("The time of this call was not stored: {e}."));
             }
+            ctx.notices.invalidate();
         }
 
         let disputed_mine = changes

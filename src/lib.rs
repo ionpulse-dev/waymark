@@ -13,6 +13,7 @@ pub mod kb;
 pub mod lint;
 pub mod manual;
 pub mod mcp;
+pub mod notices;
 pub mod state;
 pub mod store;
 pub mod tools;

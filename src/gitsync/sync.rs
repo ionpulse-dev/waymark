@@ -123,6 +123,7 @@ impl Repo {
             ]);
         }
         let fetched = run(&self.dir, None, &["fetch", "--quiet"])?;
+        self.set_fetch_failed(!fetched.ok);
         if !fetched.ok {
             let msg = format!(
                 "Cannot reach the remote: {}",

@@ -40,6 +40,9 @@ pub struct Change {
     pub reason: Option<String>,
     pub from: Option<String>,
     pub trust: Option<String>,
+    /// A change that touched only `updated`, `updated_by`, and the dispute fields, and left the
+    /// content as it was (for example a dispute that was set and then cleared).
+    pub same_content: bool,
 }
 
 /// The email inside `Name <email>`.
@@ -144,7 +147,21 @@ pub fn changes_since(
                 }
             }
         };
+        let same_content = match (&before, &at_head) {
+            (Some(b), Some(h)) if status == 'M' => {
+                let strip = |d: &format::Document| {
+                    let mut d = d.clone();
+                    for k in ["updated", "updated_by", "disputed", "dispute_reason"] {
+                        d.frontmatter.remove(k);
+                    }
+                    d.render()
+                };
+                strip(b) == strip(h)
+            }
+            _ => false,
+        };
         out.push(Change {
+            same_content,
             title: fm.get_text("title").unwrap_or("").to_string(),
             mine: email_of(fm.get_text("created_by").unwrap_or("")) == own,
             by: format!("{} <{}>", latest.name, latest.email),

@@ -24,20 +24,20 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 All tests are in `tests/it_notifications.rs`, with a `World` of two clones. Person A runs the server. Person B commits. The harness sets `WAYMARK_FETCH_MAX_AGE=0` and `WAYMARK_STATE_DIR`.
 
-- [ ] [auto] T1: A's document is disputed by B and pushed. A's next `search` has one notice that names the document and says "disputed".
-- [ ] [auto] T2: B edits A's document and pushes. A's next `search` has a notice that says "changed".
-- [ ] [auto] T3: the remote path is broken. `search` has the notice "The last update from the remote failed. The clone may be behind."
-- [ ] [auto] T4: after T1, a second `search` and a `list` in the same session have no such notice.
-- [ ] [auto] T5: a clean world: `search` has no `notices` key.
-- [ ] [auto] T6: after T1, a new session runs `updates` without `since`. Its result has no notice about documents. A following `search` has none, and a third new session has none.
-- [ ] [auto] T7: the problem of T1 stays open. Sessions 1, 2, and 3 each show the notice once. Session 4 shows none.
-- [ ] [auto] T8: B disputes and then clears the dispute with a second commit. A's `search` has no notice.
-- [ ] [auto] T9: a personal config with `paused = true`. Two calls: only the first has "Writes are paused."
-- [ ] [auto] T10: A's own commit is the only change. No notice.
-- [ ] [auto] T11: after T1 and T4, `status` still lists the notice about the document.
-- [ ] [auto] T12: a notice with more than 3 documents names 3 and says "and N more".
-- [ ] [auto] T13: an error result (`not_found` from `show`) also carries a pending notice.
-- [ ] [auto] T14: a broken state file does not fail the call. The notice is skipped.
+- [x] [auto] T1: A's document is disputed by B and pushed. A's next `search` has one notice that names the document and says "disputed".
+- [x] [auto] T2: B edits A's document and pushes. A's next `search` has a notice that says "changed".
+- [x] [auto] T3: the remote path is broken. `search` has the notice "The last update from the remote failed. The clone may be behind."
+- [x] [auto] T4: after T1, a second `search` and a `list` in the same session have no such notice.
+- [x] [auto] T5: a clean world: `search` has no `notices` key.
+- [x] [auto] T6: after T1, a new session runs `updates` without `since`. Its result has no notice about documents. A following `search` has none, and a third new session has none.
+- [x] [auto] T7: the problem of T1 stays open. Sessions 1, 2, and 3 each show the notice once. Session 4 shows none.
+- [x] [auto] T8: B disputes and then clears the dispute with a second commit. A's `search` has no notice.
+- [x] [auto] T9: a personal config with `paused = true`. Two calls: only the first has "Writes are paused."
+- [x] [auto] T10: A's own commit is the only change. No notice.
+- [x] [auto] T11: after T1 and T4, `status` still lists the notice about the document.
+- [x] [auto] T12: a notice with more than 3 documents names 3 and says "and N more".
+- [x] [auto] T13: an error result (`not_found` from `show`) also carries a pending notice.
+- [x] [auto] T14: a broken state file does not fail the call. The notice is skipped.
 - [ ] [manual] T15: a real agent tool shows the notice to the person.
   - Setup: a knowledge base with a remote and a second clone. Install waymark. Add the MCP entry to Claude Code. Write a document `ops/deploy` with `add` through the agent. Push.
   - Steps: in the second clone, run `git pull`, then edit `ops/deploy.md` so that `disputed: true` and `dispute_reason: "Test"`, set the author fields, commit, and push. In Claude Code, start a new session in the project and ask "search the knowledge base for deploy".

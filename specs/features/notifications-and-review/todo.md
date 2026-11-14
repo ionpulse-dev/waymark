@@ -23,3 +23,9 @@ None.
 - `maintenance` and `session-start`: `status` must return `notices::open_items`.
 - `pause-and-resume`: use `notices::text::PAUSED`. Do not add a second "paused" notice.
 - `mcp-server`: the registry must call `notices::finalize` after every call.
+
+## Notes 2026-11-14
+
+- Use `notices::text::PAUSED` in the registry instead of the literal text.
+- `maintenance`: `status` already lists the open notices through `finalize`. Keep that when you add the other checks.
+- T15 (manual): check how Claude Code, Copilot, and Codex show `notices`.

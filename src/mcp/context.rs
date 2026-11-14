@@ -42,6 +42,8 @@ pub struct Context {
     /// The connection to the client for the current call (see `write-approval`).
     pub channel: Mutex<Option<super::approval::Channel>>,
     pub opened: Mutex<std::collections::HashSet<String>>,
+    /// The notices of this session (see `notifications-and-review`).
+    pub notices: crate::notices::NoticeBook,
 }
 
 /// The limits for one call, and the problem that stopped them from loading, if any.
@@ -64,6 +66,7 @@ impl Context {
             last_error: Mutex::new(None),
             channel: Mutex::new(None),
             opened: Mutex::new(std::collections::HashSet::new()),
+            notices: crate::notices::NoticeBook::default(),
         }
     }
 

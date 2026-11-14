@@ -101,9 +101,13 @@ impl Registry {
             notices.insert(0, "Writes are paused.".to_string());
         }
         let settings = env.effective.to_json();
-        let fail = |e: Error, notices: &[String]| Outcome {
-            json: error_json(&e, Some(settings.clone()), notices),
-            is_error: true,
+        let fail = |e: Error, notices: &[String]| {
+            // Every result, also an error, passes the filter of notices.
+            let all = crate::notices::finalize(ctx, tool.name(), notices.to_vec());
+            Outcome {
+                json: error_json(&e, Some(settings.clone()), &all),
+                is_error: true,
+            }
         };
         // A tool of verification is not listed when verification is off. A direct call is denied.
         if tool.needs_verification() && !verification {
@@ -151,8 +155,11 @@ impl Registry {
             return Ok(fail(e, &notices));
         }
         match tool.call(ctx, &env, args) {
-            Ok(out) => {
-                let json = out.to_json(settings, &std::mem::take(&mut notices));
+            Ok(mut out) => {
+                let mut all = std::mem::take(&mut out.notices);
+                all.extend(std::mem::take(&mut notices));
+                let all = crate::notices::finalize(ctx, tool.name(), all);
+                let json = out.to_json(settings, &all);
                 Ok(Outcome {
                     json,
                     is_error: false,

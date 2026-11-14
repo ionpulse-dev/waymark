@@ -69,3 +69,14 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `Repo` gets `last_fetch_failed()`. `Context` gets the `NoticeBook`. The registry calls `finalize`. `status` calls `open_items`.
 
 **Reason:** Reported to `git-sync`, `mcp-server`, and `maintenance`. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+- Files: `src/notices/mod.rs` (`NoticeBook`, `finalize`, `open_items`, `invalidate`) and `src/notices/text.rs`. The plan's `mine.rs` is part of `mod.rs` (`document_notices`). `Repo::last_fetch_failed` and `Context.notices` are added. The registry passes every result, also an error, through `finalize`. Decided autonomously.
+- Any notice that contains "may be behind" (the text that `refresh_if_stale` makes) is replaced by the fixed text `CLONE_BEHIND`, so that it appears once per session.
+- `status` is not filtered: `finalize` adds `open_items` (the clone notice and the notices about documents, with no cap) and does not mark them as seen.
+- The notices for documents use `changes_since` (see `updates`). A change that only touched `updated`, `updated_by`, and the dispute fields counts as no change (`Change.same_content`), so a dispute that was set and cleared gives no notice. `updates` itself still lists such a change. Decided autonomously.
+- A new document of the person is never a notice. The window is the stored `last_updates` time, or 7 days.
+- A session is one server process. The count of sessions is in the state file under `notice_sessions` (a key is the first 8 hex characters of the SHA-256 of the notice text). A key that is no longer open is removed at the next write.
+- `pause-and-resume` still inserts the literal text "Writes are paused." in the registry. It passes through `finalize`, so it appears once. The constant `notices::text::PAUSED` is not used by the registry yet.
+- No separate unit tests for `mine`. The end-to-end tests cover disputed, changed, own change, and cleared dispute.
