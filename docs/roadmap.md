@@ -34,12 +34,14 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 
 The portable Rust `waymark` binary with the conformance tests (fixture repo, tool call, expected result). stdio only.
 
-- [ ] `mcp-server`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
-- [ ] Setup: `create-knowledge-base`, `join-knowledge-base`, `login-and-identity`, `agent-tool-setup` (README snippets), `maintenance`.
-- [ ] Binding and start: `project-binding`, `session-start`.
-- [ ] Read: `search-and-read`, `updates`, `notifications-and-review` (notices).
-- [ ] Write: `write-documents`, `move-documents`, `quality-checks`, `manual-edits`, `activity-and-undo`, `pause-and-resume`, `write-approval` (elicitation).
-- [ ] `plain-git-access`.
+- [x] `mcp-server`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
+- [x] Setup: `create-knowledge-base`, `join-knowledge-base`, `login-and-identity`, `agent-tool-setup` (README snippets), `maintenance`.
+- [x] Binding and start: `project-binding`, `session-start`.
+- [x] Read: `search-and-read`, `updates`, `notifications-and-review` (notices).
+- [x] Write: `write-documents`, `move-documents`, `quality-checks`, `manual-edits`, `activity-and-undo`, `pause-and-resume`, `write-approval` (elicitation).
+- [x] `plain-git-access`.
+
+**Status 2026-11-14:** built for macOS on Apple silicon and tested with the real binary (all `[auto]` tests pass). The `[manual]` tests with real agent tools are in [manual-test-checklist.md](manual-test-checklist.md). The Homebrew formula works from a local tap. The tap, the release, and the public switch wait for the product owner ([release-checklist.md](release-checklist.md)).
 
 Result: an agent in Claude Code, Copilot, or Codex can search, read, write, and dispute documents in a real Git repo, within enforced limits.
 
@@ -79,7 +81,7 @@ Result: a list of fixes, and a go or no-go for the public release.
 
 ## Phase 5: Public release
 
-- [ ] Review the repository for private content, company names, and internal host names.
+- [x] Review the repository for private content, company names, and internal host names (`scripts/public-check.sh`, result in the local `tmp/`).
 - [ ] Check the trademark and the domains of the name.
 - [ ] Decide how to handle outside contributions (for example a contributor license agreement).
 - [ ] README, user docs, and a short demo.

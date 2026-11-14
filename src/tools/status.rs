@@ -126,7 +126,7 @@ impl Tool for Status {
             ));
         }
         for n in extra {
-            if n != "Writes are paused." && !n.contains("unknown key") {
+            if n != crate::notices::text::PAUSED && !n.contains("unknown key") {
                 out = out.notice(n);
             }
         }

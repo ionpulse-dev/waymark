@@ -112,11 +112,11 @@ yourself.
 - **Every change has a name.** Every change is made under the Git account
   of the person whose agent wrote it. Blame shows who changed what.
 - **Limits you can rely on.** In local mode, a personal file and the MCP entry
-  guard against mistakes. A system file that IT owns, or a server, gives limits that a
-  user cannot change.
+  guard against mistakes. A system file that IT owns gives limits that a
+  user cannot change (a server will do the same in server mode).
 - **Approval where you need it.** Choose which tools need a yes before they run.
-  Your agent tool can ask you, and on a server, a web console gives an approval
-  that the agent cannot answer.
+  Your agent tool can ask you. A web console for approvals that the agent
+  cannot answer is planned for server mode.
 - **Undo.** List what your agent wrote and revert any write. History stays.
 - **One switch to pause.** Stop all writes at once.
 - **Notices.** Results carry short notices, for example when someone disputes your document.
@@ -125,23 +125,23 @@ yourself.
 
 - **Local mode.** The agent tool starts waymark for one session. No server,
   no database, no app. Add one entry to your MCP config.
-- **Server mode.** The same binary runs as a shared MCP server over HTTPS, with
+- **Server mode (planned, not built yet).** The same binary runs as a shared MCP server over HTTPS, with
   single sign-on, roles, and an audit log, for one organization. Chat apps such
   as Claude and ChatGPT are target clients (their login flows are still to be
   verified). Anyone can host it, for example in a container on your own
   infrastructure.
-- **Many organizations.** A later stage serves separate organizations from one
+- **Many organizations (planned, later).** A later stage serves separate organizations from one
   server, with strict isolation.
 
 ### Yours, forever
 
 - **Plain Markdown in Git.** Read it on GitHub, in any editor, or with any
   tool. No database, no proprietary format.
-- **100% Obsidian compatible.** Your knowledge base is also an Obsidian
-  vault. Open it in Obsidian to browse documents, follow links, and explore
+- **Built for Obsidian.** Your knowledge base is also an Obsidian
+  vault (the check in the real app is still open). Open it in Obsidian to browse documents, follow links, and explore
   the graph. No plugin, no export.
 - **No vendor lock-in.** The content is a normal Git repo that you own. A server
-  holds only a cache of it.
+  (planned) holds only a cache of it.
 - **Your memory, not your AI vendor's.** Your AI tools remember what you
   taught them, across tools, in a repo that you own. Switch tools any time.
 - **Generic and open source.** Built for any company, team, or

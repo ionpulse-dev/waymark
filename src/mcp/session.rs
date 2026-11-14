@@ -36,7 +36,7 @@ fn local_notices(
 ) -> Vec<String> {
     let mut out = Vec::new();
     if effective.paused {
-        out.push("Writes are paused.".to_string());
+        out.push(crate::notices::text::PAUSED.to_string());
     }
     if has_remote == Some(false) {
         out.push("This repository has no remote.".to_string());
