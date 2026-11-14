@@ -34,6 +34,16 @@ else
   bad "the binary exists after cargo build"
 fi
 
+# public-check passes the repository and flags a planted secret
+bash scripts/public-check.sh >/dev/null 2>&1 && ok "public-check passes the repository" || bad "public-check passes the repository"
+plant=planted-secret.txt
+printf 'key = ghp_%s\n' "abcdefghijklmnopqrstuvwxyz0123456789" > "$plant"
+bash scripts/public-check.sh >/dev/null 2>&1 && bad "public-check flags a planted secret" || ok "public-check flags a planted secret"
+rm -f "$plant"
+
+# The formula template is valid Ruby and keeps its placeholders
+ruby -c packaging/homebrew/waymark.rb >/dev/null 2>&1 && grep -q 'sha256 "SHA256"' packaging/homebrew/waymark.rb && ok "the formula template parses and has placeholders" || bad "the formula template parses and has placeholders"
+
 # spec-check detects problems on a temporary copy
 tmp=$(mktemp -d)
 mkdir -p "$tmp/specs" && cp -R specs/features specs/foundation specs/INDEX.md specs/PROJECT.md specs/WORKFLOW.md "$tmp/specs/" && cp -R docs standard "$tmp/" && cp README.md AGENTS.md LICENSE "$tmp/" 2>/dev/null

@@ -1,0 +1,25 @@
+# Release workflow for macOS (Apple silicon). Written, not run. To enable: rename to release.yml.
+# A tag "vX.Y.Z" builds the archive, uploads it with its checksum, and prints the formula values.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and package
+        run: bash scripts/package.sh
+      - name: Check the tag matches the crate version
+        run: |
+          V=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          test "v$V" = "${GITHUB_REF_NAME}"
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/*.sha256 --generate-notes
+      # Updating Formula/waymark.rb in the tap needs a token for the tap repository
+      # (secret TAP_TOKEN). The product owner adds it. See docs/release-checklist.md.

@@ -13,11 +13,11 @@
 
 ## Test Cases
 
-- [ ] [auto] `scripts/make-formula.sh` fills URL and checksum for a local tarball (`scripts/tests/`)
-- [ ] [auto] `make brew-local` installs the formula from a local tap, `waymark --version` works from the `PATH`, and the server answers `tools/list` over stdio (`scripts/tests/`)
-- [ ] [auto] `brew audit --formula` and `brew style` pass on the formula in the local tap (`scripts/tests/`)
-- [ ] [auto] The release binary links only to system libraries (`scripts/tests/`)
-- [ ] [auto] `scripts/public-check.sh` flags a planted secret and passes the repository (`scripts/tests/`)
+- [x] [auto] `scripts/brew-local.sh` fills URL and checksum for a local tarball (`scripts/tests/`)
+- [x] [auto] `make brew-local` installs the formula from a local tap, `waymark --version` works from the `PATH`, and the server answers `tools/list` over stdio (`scripts/tests/`)
+- [x] [auto] `brew audit --formula` and `brew style` pass on the formula in the local tap (`scripts/tests/`)
+- [x] [auto] The release binary links only to system libraries (`scripts/tests/`)
+- [x] [auto] `scripts/public-check.sh` flags a planted secret and passes the repository (`scripts/tests/`)
 - [ ] [manual] After the tap is public: `brew install ionpulse-dev/tap/waymark` on a clean Mac, then `waymark --version`. Expected: the version of the tag.
 - [ ] [manual] Add the README snippet to Claude Code, GitHub Copilot, and OpenAI Codex. Start a session. Expected: the waymark tools show.
 

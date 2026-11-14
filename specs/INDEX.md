@@ -2,17 +2,17 @@
 
 ```
 📦 Features      ██████████████████████████████████████░░  19 / 20 active
-🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
+🏗️ Foundation    ████████████████████████████████░░░░░░░░  8 / 10 done+implemented
 ```
 
 ## Next Up
 
 Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously". The plan and state of the work are in `tmp/plan.md` (not in Git).
 
-1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
+1. All in-scope foundation specs are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, `plain-git-access`, and `create-knowledge-base`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features are implemented. Next: phase G (end-to-end checks, reviews) and H (distribution).
-4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
+3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, `plain-git-access`, and `create-knowledge-base`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features are implemented. Phase G (end-to-end checks, reviews) is done.
+4. `distribution` is `implemented` for the part that the AI can do: formula, local Homebrew install test, release workflow (disabled), release checklist (`docs/release-checklist.md`). The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
 ---
@@ -53,7 +53,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `implemented` | 2026-11-14 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
-| [distribution](foundation/distribution/requirements.md) | `planned` | 2026-11-14 |
+| [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-14 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

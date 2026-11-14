@@ -19,3 +19,7 @@
 **Decision:** Creating the tap repository, tagging, and making this repository public are not done by the AI. They are written in `docs/release-checklist.md` as exact steps.
 
 **Reason:** Public releases cannot be undone, and the product owner asked for it (see `docs/decisions.md`).
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously:** The formula installs the prebuilt archive and has no `depends_on "git"`, because `brew audit` refuses it (macOS always has `git`). `docs/install.md` says that `git` must work. `scripts/package.sh` and the `sed` step of `scripts/brew-local.sh` replace the planned `make-formula.sh`. The release workflow is `.github/workflows/release.yml.disabled` (not run). `brew audit --strict --new` reports only that the homepage is not reachable (the repository is private). The local install test ran and was removed again.
