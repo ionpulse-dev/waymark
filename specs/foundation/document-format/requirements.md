@@ -101,5 +101,4 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 
 ## Open Questions
 
-- How are changes to the standard versioned and announced, so that other tools can follow? (Version 1.0 is the baseline.)
 - Which Obsidian version is the baseline for the release check?

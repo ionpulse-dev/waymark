@@ -63,6 +63,15 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The person is responsible for each write, and the email identifies the person. Git history holds the same data, so the field adds no new exposure. One format keeps `lint` and the conformance fixtures simple.
 
+## The standard stays at 1.0 until the first release — 2026-11-14
+
+**Decision:** The MKBase Document Standard is version 1.0 and stays 1.0 until waymark is released. Before the release, the standard is changed in place: no new version number, no changelog, and no frozen copies. The version file name stays `standard/mkbase-1.0.md`. The first public release freezes 1.0. From then on, minor versions (1.1) add things that valid 1.x documents still pass. Major versions (2.0) break them and need a migration note. Each version is a frozen file with a changelog entry, and tools refuse a major version they do not know. The rules go into a "Versioning" section of the standard at the first release.
+
+**Alternatives considered:**
+- Version every change from now on — nobody uses the standard yet, so the numbers and the changelog would only record drafts.
+
+**Reason:** The project is not released, so no tool and no knowledge base depends on a version number. Versioning costs effort and gives no value before there are users.
+
 ## The unit is called a document — 2026-11-08
 
 **Decision:** The unit of a knowledge base is a "document", not a "note".
