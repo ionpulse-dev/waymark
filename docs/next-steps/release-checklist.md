@@ -1,6 +1,6 @@
 # Release checklist
 
-Release 0.1.0 and 0.1.1 are published (2026-11-14). 0.1.1 added `init` for a folder with the older `.mkbase` marker, and `--help` examples. `brew upgrade` to 0.1.1 works. The steps below show what is done and what is left.
+Releases 0.1.0, 0.1.1, and 0.1.2 are published (2026-11-14). 0.1.1 added `init` for a folder with the older `.mkbase` marker, and `--help` examples. 0.1.2 added the link rules (a write never creates a broken body link, `delete` refuses linked documents, `sync` applies the same rule) and the folder tools `folders`, `add_empty_folder`, and `remove_folder`. `brew upgrade` to 0.1.2 works. The steps below show what is done and what is left.
 
 ## Done
 
