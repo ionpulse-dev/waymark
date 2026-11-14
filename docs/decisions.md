@@ -148,9 +148,9 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 ## Current scope: local mode on macOS, delivered by Homebrew — 2026-11-14
 
-**Decision:** The current task covers only local mode of the `waymark` binary on macOS, installed with Homebrew from an own tap. Out of scope for now: server mode, multi-tenancy, sign-in, the web console, and Linux. The specs for these stay `draft` and are not implemented. The affected specs get no new work until the scope changes.
+**Decision:** The current task covers only local mode of the `waymark` binary on macOS on Apple silicon, installed with Homebrew from an own tap. Out of scope for now: server mode, multi-tenancy, sign-in, the web console, Linux, and Intel Macs. The specs for these stay `draft` and are not implemented. The affected specs get no new work until the scope changes.
 
-**Autonomous work:** The product owner asked on 2026-11-14 for all in-scope specs to be finished and implemented end to end, using the judgment of the AI, as `specs/WORKFLOW.md` allows under "Approval Gates". Decisions made this way are marked "decided autonomously" in the `decisions.md` of their spec, so they can be reviewed. The AI does not make these choices alone: publishing or releasing anything, creating the Homebrew tap, making this repository public, domains and accounts, licensing, and business or strategy questions in [open-questions.md](open-questions.md).
+**Autonomous work:** The product owner asked on 2026-11-14 for all in-scope specs to be finished and implemented end to end, using the judgment of the AI, as `specs/WORKFLOW.md` allows under "Approval Gates". Decisions made this way are marked "decided autonomously" in the `decisions.md` of their spec, so they can be reviewed. The AI does not stop for questions. It writes each open question into the spec it belongs to, or into the working plan, and decides with the best default. The AI never performs these outward actions on its own: publishing or releasing anything, creating the Homebrew tap, making this repository public, and creating accounts or domains. It prepares them and leaves them for the product owner.
 
 **Done means implemented:** The product owner runs the `[manual]` tests at the end. A spec stops at `implemented`. Only the product owner moves it to `done`.
 
