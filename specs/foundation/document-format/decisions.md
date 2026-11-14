@@ -54,6 +54,15 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The author must be visible in Obsidian. The person is responsible, so only the person is recorded.
 
+## Authors always have name and email — 2026-11-14
+
+**Decision:** `created_by` and `updated_by` always hold `"Name <email>"`. A knowledge base cannot choose "name only". This keeps the rule of the MKBase Document Standard and the decision "Author fields in the frontmatter".
+
+**Alternatives considered:**
+- A setting for "name only" — the email is public in a public repository, but it is already in the Git history. A setting would give two formats, and `lint` could no longer compare the field with Git history in one simple way.
+
+**Reason:** The person is responsible for each write, and the email identifies the person. Git history holds the same data, so the field adds no new exposure. One format keeps `lint` and the conformance fixtures simple.
+
 ## The unit is called a document — 2026-11-08
 
 **Decision:** The unit of a knowledge base is a "document", not a "note".

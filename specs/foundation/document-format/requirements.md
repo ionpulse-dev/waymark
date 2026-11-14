@@ -2,7 +2,7 @@
 type: foundation
 status: draft
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-14
 ---
 
 # Document format
@@ -103,4 +103,3 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 
 - How are changes to the standard versioned and announced, so that other tools can follow? (Version 1.0 is the baseline.)
 - Which Obsidian version is the baseline for the release check?
-- Should a knowledge base be able to choose "name only" for `created_by` and `updated_by`?
