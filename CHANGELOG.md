@@ -2,6 +2,18 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.2.0 (2026-11-14)
+
+waymark is now long-term agent memory, and the names follow. A Git repository that holds the memory is a memory repository, no longer a "knowledge base". This release renames what you can see, with no fallback for the old names, so it needs a few steps from you:
+
+- In each memory repository, rename the folder `.mkbase` to `.waymark` and the file `waymark.toml` in it to `settings.toml`.
+- In your MCP entry, rename the argument `--kb-id` to `--memory-repository-id`.
+- Agents that read the `status` result now find the key `memory_repository`, and the state `not_a_memory_repository`.
+- `init` now creates the content folder `agent-memory/` (it was `knowledge/`), and the default clone folder is `~/Projects/<name>-agent-memory`.
+- The plain-Git skills are now `personal-agent-memory` and `team-agent-memory`. The format is now called the Waymark Memory Standard.
+
+Update with `brew upgrade waymark` and restart your agent tool.
+
 ## 0.1.5 (2026-11-14)
 
 The settings file that `init` writes now explains every setting in a comment, and it no longer has a header that calls every key optional (`id` is required). When waymark adds the missing `schema` key to an older file, a header comment stays on top. Nothing to do: files you already have keep their text.
@@ -12,7 +24,7 @@ waymark now tells you when an update is needed, even when your MCP entry has to 
 
 ## 0.1.3 (2026-11-14)
 
-The settings file `.mkbase/waymark.toml` has a version number, `schema = 1`. A knowledge base with a higher number stops an older waymark and says that a newer one is needed, so a team cannot damage a shared file by mixing versions. waymark also repairs a settings file that lacks the key, at your next write, in its own commit (`waymark: repair "settings"`). It adds only what is missing and never changes your limits.
+The settings file `.waymark/settings.toml` has a version number, `schema = 1`. A knowledge base with a higher number stops an older waymark and says that a newer one is needed, so a team cannot damage a shared file by mixing versions. waymark also repairs a settings file that lacks the key, at your next write, in its own commit (`waymark: repair "settings"`). It adds only what is missing and never changes your limits.
 
 ## 0.1.2 (2026-11-14)
 
@@ -20,7 +32,7 @@ Links stay consistent. A write never creates a broken link to another document, 
 
 ## 0.1.1 (2026-11-14)
 
-`init` can now set up a knowledge base that was made for the older MKBase standard: it adds only `.mkbase/waymark.toml` and changes no document. `waymark --help` explains every option and shows examples. The standard now says that a value with a colon must be in quotes, because unquoted colons made documents unreadable.
+`init` can now set up a knowledge base that was made for the older MKBase standard: it adds only `.waymark/settings.toml` and changes no document. `waymark --help` explains every option and shows examples. The standard now says that a value with a colon must be in quotes, because unquoted colons made documents unreadable.
 
 ## 0.1.0 (2026-11-14)
 
