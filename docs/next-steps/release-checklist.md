@@ -1,6 +1,6 @@
 # Release checklist
 
-Release 0.1.0 is published (2026-11-14). The steps below show what is done and what is left.
+Release 0.1.0 and 0.1.1 are published (2026-11-14). 0.1.1 added `init` for a folder with the older `.mkbase` marker, and `--help` examples. `brew upgrade` to 0.1.1 works. The steps below show what is done and what is left.
 
 ## Done
 
