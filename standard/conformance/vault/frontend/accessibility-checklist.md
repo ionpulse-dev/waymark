@@ -1,5 +1,5 @@
 ---
-title: Accessibility checklist for every new screen: one hundred twenty checks
+title: "Accessibility checklist for every new screen: one hundred twenty checks"
 description: A checklist of one hundred twenty accessibility checks in twelve groups. Each check has a reason, a way to test it, and a pass rule. Read it before you call a screen done.
 status: active
 created: 2026-11-08

@@ -1,5 +1,5 @@
 ---
-title: Decision: use a double-entry ledger for all balances in the platform
+title: "Decision: use a double-entry ledger for all balances in the platform"
 description: Records why the platform replaced the single balance column with an append-only double-entry ledger, the options we weighed, the rules, the rollout plan, and the risks.
 status: active
 created: 2026-11-08

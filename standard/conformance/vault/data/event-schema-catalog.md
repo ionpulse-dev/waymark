@@ -1,5 +1,5 @@
 ---
-title: Event schema catalog: names, owners, fields, and quality rules
+title: "Event schema catalog: names, owners, fields, and quality rules"
 description: The list of all events in the data platform with their fields, owners, versions, and quality rules. Read it before you add a producer or build a report on events.
 status: active
 created: 2026-11-08

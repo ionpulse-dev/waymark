@@ -1,6 +1,6 @@
 ---
-title: Onboarding: what to read and do in your first week
-description: A short path for new people: which documents to read first, which tools to set up, and who to ask. Read it on your first day.
+title: "Onboarding: what to read and do in your first week"
+description: "A short path for new people: which documents to read first, which tools to set up, and who to ask. Read it on your first day."
 status: active
 created: 2026-11-08
 updated: 2026-11-08

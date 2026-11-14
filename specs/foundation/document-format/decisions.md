@@ -232,3 +232,29 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 - A separate `mkbase` crate in a workspace (rejected: more setup, and the standard is already open to other tools).
 
 **Reason:** The checks need the raw types, not a struct. `yaml-rust2` is pure Rust and follows YAML 1.2, so `yes` and `no` are not booleans, which removes one trap. It gets only basic maintenance, so the crate is used in one file (`src/format/frontmatter.rs`) and can be swapped for `saphyr` without a spec change. Source: web search on 2026-11-14, mostly secondary guides. Not checked on crates.io. Release dates are checked before the first implementation task (see `todo.md`).
+
+## The leading `>` of a quoted line is markup — 2026-11-14
+
+**Decision:** Section 9.1 of the standard removes the leading `>` of a quoted line before it counts words, because every callout is a quoted line. Without it, `> [!note] Text` would count one word more than `Text`.
+
+**Alternatives considered:** Count the `>` as a word (rejected: it breaks the rule that callout markup adds no words).
+
+**Reason:** The rule "markup does not add words" must hold for callouts. Decided autonomously.
+
+## An invalid fixture fails with a finding of any severity — 2026-11-14
+
+**Decision:** The conformance test requires, for each file of `invalid/`, a finding whose rule equals the file name. The severity may be `warning`. A file of `vault/` must have no finding of severity `error`. The fixture `broken-link.md` gives a warning, because a broken body link is a warning (see "Broken links: error in properties, warning in the body").
+
+**Reason:** The standard says a link SHOULD point to an existing document, so a body link is a warning in waymark, and the fixture still names the broken rule. Decided autonomously.
+
+## Fixture titles with a colon are quoted — 2026-11-14
+
+**Decision:** Seven titles in the sample vault held `: ` without quotes. This is not valid YAML, and Obsidian cannot read the property. The titles are now in double quotes. The standard (section 7) says frontmatter is YAML, so the fixtures had to follow it. The test `every_vault_document_passes_with_no_error` found this.
+
+**Reason:** A fixture that every conforming tool must accept cannot be invalid YAML. Decided autonomously.
+
+## Crate release dates checked — 2026-11-14
+
+**Decision:** `yaml-rust2` 0.13.0 (released 2026-09-11, about 75 million downloads) is used. `saphyr` 0.3.4 (2026-11-11) is its active successor and stays the planned replacement if `yaml-rust2` stops.
+
+**Reason:** The check required by `todo.md` and the first task. Source: crates.io on 2026-11-14. Decided autonomously.

@@ -1,5 +1,5 @@
 ---
-title: Payment API v3 contract: endpoints, errors, and webhook events
+title: "Payment API v3 contract: endpoints, errors, and webhook events"
 description: The full contract of payment API version 3 with conventions, authentication, errors, every endpoint, and webhook events. Read it before you build or change a client.
 status: active
 created: 2026-11-08

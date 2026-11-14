@@ -1,5 +1,5 @@
 ---
-title: How to refund a payment: twelve common cases and their steps
+title: "How to refund a payment: twelve common cases and their steps"
 description: A runbook for support and payment teams with a checklist and twelve refund cases, each with steps, checks, and typical errors. Read it before you create a refund.
 status: active
 created: 2026-11-08

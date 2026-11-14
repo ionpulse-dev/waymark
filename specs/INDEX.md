@@ -2,7 +2,7 @@
 
 ```
 📦 Features      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 20 active
-🏗️ Foundation    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 10 done+implemented
+🏗️ Foundation    ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  1 / 10 done+implemented
 ```
 
 ## Next Up
@@ -45,9 +45,9 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 
 | Item | Status | Updated |
 |:-----|:-------|:--------|
+| [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-14 |
 | [dev-environment](foundation/dev-environment/requirements.md) | `planned` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `planned` | 2026-11-14 |
-| [document-format](foundation/document-format/requirements.md) | `planned` | 2026-11-14 |
 | [git-sync](foundation/git-sync/requirements.md) | `planned` | 2026-11-14 |
 | [integration-testing](foundation/integration-testing/requirements.md) | `planned` | 2026-11-14 |
 | [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `planned` | 2026-11-14 |

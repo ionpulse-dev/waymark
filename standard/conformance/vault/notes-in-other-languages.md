@@ -1,6 +1,6 @@
 ---
-title: Notes with non-ASCII text: umlauts, accents, and symbols in one document
-description: Shows that documents are UTF-8: German umlauts, French accents, and symbols such as the euro sign. Read it when you test tools with international text.
+title: "Notes with non-ASCII text: umlauts, accents, and symbols in one document"
+description: "Shows that documents are UTF-8: German umlauts, French accents, and symbols such as the euro sign. Read it when you test tools with international text."
 status: active
 created: 2026-11-08
 updated: 2026-11-08

@@ -182,9 +182,9 @@ A producer and a consumer MUST count in the same way.
    space. A producer counts the words of a `title` or a `description` in the
    value of the property, without the quotes of YAML.
 3. **Markup.** Before it counts the words of a body, a consumer removes:
-   - the marker of a callout (`[!type]`), the markers of a highlight (`==`),
-     and the markers of an embed (`![[` and `]]`). The text inside stays and
-     counts.
+   - the marker of a callout (`[!type]`), the leading `>` of a quoted line, the
+     markers of a highlight (`==`), and the markers of an embed (`![[` and
+     `]]`). The text inside stays and counts.
    - a comment completely: the text from `%%` to the next `%%`. A `%%` with no
      closing `%%` starts a comment that runs to the end of the document.
 

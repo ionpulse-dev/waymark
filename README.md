@@ -335,6 +335,17 @@ Confluence page as its source, and a Confluence page can link to a document.
 - [Project decisions](docs/decisions.md) and [open questions](docs/open-questions.md).
 - [How this project is built](specs/WORKFLOW.md).
 
+## Development
+
+waymark is built on macOS with Apple silicon. On a new Mac, clone the repository and run:
+
+```bash
+make setup
+make check
+```
+
+`make help` lists every command: build, test, lint, run, and release preparation. The work follows the spec-driven process in [specs/WORKFLOW.md](specs/WORKFLOW.md).
+
 ## License
 
 [MIT](LICENSE).

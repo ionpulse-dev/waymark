@@ -16,7 +16,7 @@ A Makefile calls small shell scripts. The scripts do the work, so the Makefile s
 - `scripts/doctor.sh` — checks tools and versions.
 - `scripts/setup.sh` — installs what is missing.
 - `scripts/spec-check.sh` — checks the spec folders.
-- `.github/workflows/ci.yml` — build, test, and lint on a macOS runner on pushes to `main` and on pull requests.
+- `.github/workflows/ci.yml.disabled` — build (inert until renamed to `ci.yml`, so a push does not start macOS runners), test, and lint on a macOS runner on pushes to `main` and on pull requests.
 
 ## Technical Approach
 

@@ -19,3 +19,11 @@
 **Decision:** CI runs on a macOS runner on Apple silicon, on pushes to `main` and on pull requests. The workflow file is written, and it is pushed only when the plan says so.
 
 **Reason:** The scope is macOS on Apple silicon (see `docs/decisions.md`). Decided autonomously.
+
+## The CI file is shipped disabled — 2026-11-14
+
+**Decision:** The workflow is committed as `.github/workflows/ci.yml.disabled`. GitHub reads only `.yml` and `.yaml` files, so it does nothing until someone renames it to `ci.yml`.
+
+**Alternatives considered:** Commit `ci.yml` at once (rejected: it would start paid macOS runners on a private repository without the product owner's choice).
+
+**Reason:** The plan says CI minutes are the product owner's call. Decided autonomously.

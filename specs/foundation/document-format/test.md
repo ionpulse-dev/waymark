@@ -25,20 +25,20 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 ### Automated
 
-- [ ] [auto] Every document of `standard/conformance/vault/` passes with no error finding (`tests/format_conformance.rs`)
-- [ ] [auto] Every document of `standard/conformance/invalid/` fails, and the finding names the rule given by the file name (`tests/format_conformance.rs`)
-- [ ] [auto] `render(parse(doc))` equals `doc` for every vault document (`tests/format_conformance.rs`)
-- [ ] [auto] Words: titles of 15 and 16 words and descriptions of 50 and 51 words (`tests/format_counting.rs`)
-- [ ] [auto] Words: a callout, an embed, a highlight, and a comment add no markup words. The text inside a callout, embed, or highlight counts. A comment's text does not (`tests/format_counting.rs`)
-- [ ] [auto] Words: an unclosed `%%` hides the text to the end of the document (`tests/format_counting.rs`)
-- [ ] [auto] Words: non-ASCII text and tokens equal words times 1.5, rounded up (`tests/format_counting.rs`)
-- [ ] [auto] A generated document of 102400 bytes passes. One of 102401 bytes fails, and the message says to split the document or move details into a source (`tests/format_conformance.rs`)
-- [ ] [auto] File names: uppercase and each of `# ^ [ ] | : * " < > ? \ /` fail, for the file and for a folder. A valid name passes (`src/format/id.rs`)
-- [ ] [auto] The ID is the path without `.md` and does not depend on the title (`src/format/id.rs`)
-- [ ] [auto] A missing `related` or `supersedes` target is an error. A missing body target is a warning (`tests/format_conformance.rs`)
-- [ ] [auto] YAML traps: `yes` and `no` are not booleans, an unquoted date is read as a date, and a number as a title is a type finding (`src/format/frontmatter.rs`)
-- [ ] [auto] All findings are returned for a document with several problems, not only the first (`tests/format_conformance.rs`)
-- [ ] [auto] Unknown frontmatter fields are kept by `parse` and `render` (`src/format/fields.rs`)
+- [x] [auto] Every document of `standard/conformance/vault/` passes with no error finding (`tests/format_conformance.rs`)
+- [x] [auto] Every document of `standard/conformance/invalid/` fails, and the finding names the rule given by the file name (`tests/format_conformance.rs`)
+- [x] [auto] `render(parse(doc))` equals `doc` for every vault document (`tests/format_conformance.rs`)
+- [x] [auto] Words: titles of 15 and 16 words and descriptions of 50 and 51 words (`src/format/count.rs`)
+- [x] [auto] Words: a callout, an embed, a highlight, and a comment add no markup words. The text inside a callout, embed, or highlight counts. A comment's text does not (`src/format/count.rs`)
+- [x] [auto] Words: an unclosed `%%` hides the text to the end of the document (`src/format/count.rs`)
+- [x] [auto] Words: non-ASCII text and tokens equal words times 1.5, rounded up (`src/format/count.rs`)
+- [x] [auto] A generated document of 102400 bytes passes. One of 102401 bytes fails, and the message says to split the document or move details into a source (`tests/format_conformance.rs`)
+- [x] [auto] File names: uppercase and each of `# ^ [ ] | : * " < > ? \ /` fail, for the file and for a folder. A valid name passes (`src/format/id.rs`)
+- [x] [auto] The ID is the path without `.md` and does not depend on the title (`src/format/id.rs`)
+- [x] [auto] A missing `related` or `supersedes` target is an error. A missing body target is a warning (`tests/format_conformance.rs`)
+- [x] [auto] YAML traps: `yes` and `no` are not booleans, an unquoted date is read as a date, and a number as a title is a type finding (`src/format/frontmatter.rs`)
+- [x] [auto] All findings are returned for a document with several problems, not only the first (`tests/format_conformance.rs`)
+- [x] [auto] Unknown frontmatter fields are kept by `parse` and `render` (`src/format/fields.rs`)
 
 ### Manual
 

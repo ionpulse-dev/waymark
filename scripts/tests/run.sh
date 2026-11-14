@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Shell tests of the scripts. Each test prints ok or fails the run.
+set -u
+cd "$(dirname "$0")/../.." || exit 2
+fail=0
+ok() { echo "  ok   $1"; }
+bad() { echo "  FAIL $1"; fail=1; }
+
+# Makefile parses with the system make (GNU Make 3.81 on macOS)
+/usr/bin/make -n help build test lint check >/dev/null 2>&1 && ok "makefile parses with system make" || bad "makefile parses with system make"
+
+# make help lists every target
+out=$(make help 2>&1)
+for t in help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-kb brew-local clean; do
+  echo "$out" | grep -qE "^ +$t +" || bad "help lists $t"
+done
+[ "$fail" -eq 0 ] && ok "help lists every target"
+
+# doctor passes here and names a missing tool
+bash scripts/doctor.sh >/dev/null 2>&1 && ok "doctor passes on this machine" || bad "doctor passes on this machine"
+res=$(PATH=/usr/bin:/bin bash scripts/doctor.sh 2>&1) && bad "doctor fails without cargo" || {
+  echo "$res" | grep -q "MISSING cargo" && echo "$res" | grep -q "Fix:" && ok "doctor names a missing tool and its fix" || bad "doctor names a missing tool and its fix"
+}
+
+# setup is idempotent
+res=$(bash scripts/setup.sh 2>&1) && echo "$res" | grep -q "Nothing to install" && ok "setup changes nothing when ready" || bad "setup changes nothing when ready"
+
+# spec-check detects problems on a temporary copy
+tmp=$(mktemp -d)
+mkdir -p "$tmp/specs" && cp -R specs/features specs/foundation specs/INDEX.md "$tmp/specs/" && cp -R docs "$tmp/docs" 2>/dev/null
+if bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1; then
+  rm "$tmp/specs/foundation/document-format/tasks.md"
+  bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1 && bad "spec-check fails on a missing file" || ok "spec-check fails on a missing file"
+  cp specs/foundation/document-format/tasks.md "$tmp/specs/foundation/document-format/tasks.md"
+  sed -i '' 's/^status: planned/status: done/' "$tmp/specs/foundation/document-format/requirements.md"
+  bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1 && bad "spec-check fails on a status mismatch" || ok "spec-check fails on a status mismatch"
+else
+  echo "  skip spec-check tests: the repository does not pass spec-check yet"
+fi
+rm -rf "$tmp"
+exit "$fail"
