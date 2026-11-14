@@ -34,7 +34,6 @@ requires:
 - It reads Git history, after a fetch if the last good fetch is older than 3 minutes. It lists only committed changes.
 - The output is honest. The message says that waymark did not check the changes for truth. A document with a `trust` property shows it.
 - The same facts that matter most arrive as `notices` in other results (see `notifications-and-review`). When an agent runs `updates` is the choice of the team.
-- Generated index files are not listed.
 - The stored time is one small file for each person and memory repository. All agent tools of the person on this machine share it. The last call without `since` wins.
 
 ## Interfaces & Contracts

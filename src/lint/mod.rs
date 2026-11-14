@@ -4,13 +4,11 @@ pub mod authors;
 pub mod personal;
 pub mod secrets;
 
-use crate::config::Effective;
 use crate::error::Result;
 use crate::format::{self, Finding, Severity};
 use crate::gitsync::Repo;
-use crate::indexgen;
 use crate::memrepo::MemRepo;
-use crate::store::{Scope, Store};
+use crate::store::Store;
 use crate::writes::titles;
 use regex::Regex;
 use std::collections::{BTreeMap, HashSet};
@@ -77,13 +75,11 @@ fn sort(findings: &mut [Finding]) {
     });
 }
 
-/// Check the documents that `include` selects. `limit_scope` has only the `folders` limit: it decides what the
-/// index files must contain. `repo` is used for the author checks.
+/// Check the documents that `include` selects. `repo` is used for the author checks.
 pub fn run(
     memrepo: &MemRepo,
     store: &Store,
     include: &dyn Fn(&str) -> bool,
-    limit_scope: &Scope,
     repo: Option<&Repo>,
 ) -> Result<Report> {
     let custom = secrets::compile(&memrepo.settings.extra_secret_patterns)?;
@@ -183,30 +179,9 @@ pub fn run(
         }
     }
 
-    // Generated indexes that are out of date.
-    for d in store
-        .docs_with_index()
-        .filter(|d| d.is_index() && include(&d.id))
-    {
-        let folder = indexgen::folder_of_index(&d.id);
-        let expected = indexgen::expected_body(store, folder, limit_scope);
-        if d.body.trim() != expected.trim() {
-            findings.push(Finding::warning(
-                &format!("{}.md", d.id),
-                "index-stale",
-                "This index differs from what the index tool would write.",
-            ));
-        }
-    }
-
     for f in &mut findings {
         f.rule = rule_name(f.rule);
     }
     sort(&mut findings);
     Ok(Report { checked, findings })
-}
-
-/// The effective limits are not needed here, but a tool passes them to build scopes.
-pub fn limit_scope(effective: &Effective) -> Scope<'_> {
-    Scope::limit(effective)
 }

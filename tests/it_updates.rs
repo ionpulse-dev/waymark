@@ -244,7 +244,7 @@ fn t12_the_list_is_cut_at_50() {
 }
 
 #[test]
-fn t13_a_generated_index_is_not_listed() {
+fn t13_an_index_md_is_listed_like_any_document() {
     let w = World::new();
     let text = "---\ntitle: Index of ops\ndescription: All of ops.\nstatus: active\ncreated: 2026-11-01\nupdated: 2026-11-01\ncreated_by: \"Ben Example <ben@example.org>\"\nupdated_by: \"Ben Example <ben@example.org>\"\ntags:\n  - index\n---\n\nList.\n";
     common::memrepo::write_doc(&w.b, "ops/index", text);
@@ -265,7 +265,7 @@ fn t13_a_generated_index_is_not_listed() {
     git(&w.b, &["push", "-q"]);
     let mut a = client(&w, Person::A);
     let u = updates(&mut a, json!({"since": "2020-01-01"}));
-    assert_eq!(u["total"], 0);
+    assert_eq!(u["total"], 1);
 }
 
 #[test]

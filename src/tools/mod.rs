@@ -7,7 +7,6 @@ pub mod delete;
 pub mod deprecate;
 pub mod dispute;
 pub mod folders;
-pub mod index;
 pub mod init;
 pub mod lint;
 pub mod list;
@@ -39,7 +38,6 @@ pub fn registry() -> Registry {
         Box::new(stats::Stats),
         Box::new(updates::Updates),
         Box::new(lint::Lint),
-        Box::new(index::Index),
         Box::new(sync::Sync),
         Box::new(move_documents::Move),
         Box::new(activity::Activity),

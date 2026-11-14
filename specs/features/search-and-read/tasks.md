@@ -5,10 +5,10 @@ _Tasks are in prerequisite-first order._
 
 - [x] Add `mod store;` to `src/lib.rs`. No new dependency: `chrono` is used for dates (see `decisions.md`).
 - [x] `src/gitsync/log.rs`: add `renamed_to(path)`. `last_commit_info` is not needed: `Repo::log(1, None, &[path])` gives the author. Tested end to end (T16).
-- [x] `src/store/mod.rs`: `Store::load`, `Doc`, `docs()`, `all_docs()`, `get()`, and `is_index()`. Unit tests: skips dot paths and the `exclude` list, keeps parse findings.
+- [x] `src/store/mod.rs`: `Store::load`, `Doc`, `docs()`, `all_docs()`, `get()`. Unit tests: skips dot paths and the `exclude` list, keeps parse findings.
 - [x] `src/store/filter.rs`: `Scope` with limit globs and argument folders. Unit tests: a subfolder, an empty list, a limit plus an argument.
 - [x] `src/store/rank.rs`: matcher, score, sort, and snippet. Unit tests: AND of terms, weights, tie order, snippet cut.
-- [x] `src/store/backlinks.rs`: backlinks over body links and property wikilinks. Unit tests: both link forms, index files ignored.
+- [x] `src/store/backlinks.rs`: backlinks over body links and property wikilinks. Unit tests: both link forms.
 - [x] `src/store/stats.rs`: the four metrics and the two groupings. Unit tests.
 - [x] `src/mcp/context.rs`: add `opened` (the read budget). Unit test: same ID twice costs once.
 - [x] `src/tools/read_common.rs`: level rendering, caps, refresh and its notice. Unit tests: cap by count, cap by tokens, first entry always kept.

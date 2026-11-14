@@ -6,7 +6,7 @@ A Makefile calls small shell scripts. The scripts do the work, so the Makefile s
 
 ## Components Affected
 
-- `README.md` — a "Development" section.
+- `docs/development.md` — the development guide. The README links to it.
 - `.gitignore` — already ignores `tmp/`. Adds `target/`.
 
 ## New Files

@@ -73,8 +73,6 @@ impl Tool for RemoveFolder {
                         .with_next("Call folders to see the folders."));
                 }
                 let docs: Vec<String> = inside.iter().flat_map(|f| f.documents.clone()).collect();
-                let index_files: Vec<String> =
-                    inside.iter().flat_map(|f| f.index_files.clone()).collect();
                 if let Some(other) = inside.iter().flat_map(|f| f.other_files.iter()).next() {
                     return Err(Error::validation(format!(
                         "The folder holds a file that is not a document: {other}."
@@ -108,7 +106,7 @@ impl Tool for RemoveFolder {
                 }
 
                 // Links from outside the folder into it.
-                let inside_ids: BTreeSet<&String> = docs.iter().chain(index_files.iter()).collect();
+                let inside_ids: BTreeSet<&String> = docs.iter().collect();
                 let mut linked = Vec::new();
                 for id in &docs {
                     let title = memrepo
@@ -144,7 +142,7 @@ impl Tool for RemoveFolder {
                 }
 
                 let mut changes = Vec::new();
-                for id in docs.iter().chain(index_files.iter()) {
+                for id in docs.iter() {
                     changes.push(FileChange::Remove { id: id.clone() });
                 }
                 for f in &inside {

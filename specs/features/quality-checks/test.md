@@ -20,16 +20,11 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `personal-data`. | T10 |
 | **Given** the conformance fixtures, **When** `lint` runs, **Then** valid ones have no error and invalid ones the named rule. | T11 |
 | **Given** `people.email_domains` and an author with another domain, **When** `lint` runs, **Then** it reports `author-not-allowed`. | T12 |
-| **Given** a memory repository, **When** `index` runs, **Then** each folder gets an index file with links. | T13 |
-| **Given** an unchanged memory repository, **When** `index` runs twice, **Then** the second run makes no commit. | T14 |
-| **Given** a hand-written `index.md`, **When** `index` runs, **Then** it is unchanged and listed under `skipped`. | T15 |
-| **Given** `preview: true`, **When** `index` runs, **Then** nothing is written. | T16 |
-| **Given** `access = "read-only"`, **When** the client lists tools, **Then** `index` is hidden and `lint` is listed. | T17 |
-| **Given** a generated index that a new document makes stale, **When** `lint` runs, **Then** it warns `index-stale`. | T18 |
+| **Given** `access = "read-only"`, **When** the client lists tools, **Then** `lint` is listed, and there is no `index` tool and no `index-stale` (see `remove-index`). | T17 |
 
 ## Test Cases
 
-Unit tests are in the files of `src/lint/` and `src/indexgen/`. End-to-end tests are in `tests/it_quality_checks.rs` and use a `World` and an `McpClient`.
+Unit tests are in the files of `src/lint/`. End-to-end tests are in `tests/it_quality_checks.rs` and use a `World` and an `McpClient`.
 
 - [x] [auto] T1: a body link to a missing file gives `broken-link` with severity `warning` and the target in the message.
 - [x] [auto] T2: `related` with a missing document gives `broken-link` with severity `error`.
@@ -43,13 +38,7 @@ Unit tests are in the files of `src/lint/` and `src/indexgen/`. End-to-end tests
 - [x] [auto] T10: a body with `DE89 3704 0044 0532 0130 00` (a valid test IBAN) gives `personal-data`. A made-up number with a wrong check digit gives none.
 - [x] [auto] T11: `tests/lint_conformance.rs` over `vault/` and `invalid/`.
 - [x] [auto] T12: with `people.email_domains = ["example.org"]`, an author `Jo <jo@other.test>` gives `author-not-allowed`.
-- [x] [auto] T13: `index` creates `index.md` and `backend/index.md`. Each lists its documents with relative links that resolve, and the folder links to the subfolder index.
-- [x] [auto] T14: a second `index` run returns `written: []` and the commit count does not grow.
-- [x] [auto] T15: a document `ops/index.md` without the tag `index` is unchanged and listed under `skipped`.
-- [x] [auto] T16: `index` with `preview: true` changes no file and makes no commit, and `written` lists the planned files.
-- [x] [auto] T17: with `access = "read-only"`, `tools/list` has `lint` and not `index`.
-- [x] [auto] T18: after `index`, a new document is added. `lint` reports `index-stale` as a warning for the folder index.
-- [x] [auto] T19: `index` commits with the message `waymark: update "Index of backend"` for one folder.
+- [x] [auto] T17: `tools/list` has `lint` and no `index`, with `read-write` and with `read-only`. A call of `index` is a protocol error. `lint` never reports `index-stale`.
 - [x] [auto] T20: a placeholder `password = <password>` gives no finding. `password = hunter2hunter2` gives `secret`.
 - [x] [auto] T21: a bad extra pattern `[` makes `lint` fail with `setup_problem` and a `next` that names it.
 - [x] [auto] T22: 150 findings: the result has 100 and `truncated: true`, errors first.

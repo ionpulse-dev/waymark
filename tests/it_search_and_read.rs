@@ -331,7 +331,7 @@ fn t16_a_moved_document_is_followed() {
 }
 
 #[test]
-fn t17_generated_index_files_are_skipped() {
+fn t17_an_index_md_is_a_normal_document() {
     let w = World::new();
     commit_doc(&w.a, "ops/doc", "Normal document", "x");
     commit_text(
@@ -345,10 +345,10 @@ fn t17_generated_index_files_are_skipped() {
     );
     let mut c = client(&w);
     let r = c.call("search", json!({"query": "uniqueword"}));
-    assert_eq!(r.json["results"], json!([]));
+    assert_eq!(ids(&r.json), vec!["ops/index"]);
     assert!(!c.call("show", json!({"id": "ops/index"})).is_error);
     let l = c.call("list", json!({}));
-    assert_eq!(ids(&l.json), vec!["ops/doc"]);
+    assert_eq!(ids(&l.json), vec!["ops/doc", "ops/index"]);
 }
 
 #[test]

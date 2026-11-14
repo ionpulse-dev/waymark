@@ -23,7 +23,7 @@ One command sets up a new Mac for work on waymark, and a small set of commands c
 - `rust-toolchain.toml` that pins the Rust version and the components.
 - `scripts/doctor.sh`, `scripts/setup.sh`, and `scripts/spec-check.sh`.
 - `.github/workflows/ci.yml.disabled`: build, test, and lint on macOS.
-- A "Development" section in `README.md` that names `make setup` and `make help`.
+- A development guide, `docs/development.md`, linked from `README.md`, that names `make setup` and `make help`.
 
 ## Scope
 

@@ -23,7 +23,6 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** a clone more than 3 minutes behind, **When** `search` runs, **Then** it fetches first and finds the remote document. | T14 |
 | **Given** a failed fetch, **When** `search` runs, **Then** it answers locally with a notice. | T15 |
 | **Given** a document that moved, **When** `show` runs with the old ID, **Then** it returns the document and `moved_from`. | T16 |
-| **Given** a generated index file, **When** `search` runs, **Then** it is not in the results. | T17 |
 
 ## Test Cases
 
@@ -45,7 +44,7 @@ All tests are in `tests/it_search_and_read.rs`. Each starts a `World` and an `Mc
 - [x] [auto] T14: clone B commits a document and pushes. Clone A has a last fetch older than 3 minutes (the test sets the freshness clock back). `search` on A finds the document.
 - [x] [auto] T15: the remote path is broken. `search` still returns results and has a notice that the clone may be behind.
 - [x] [auto] T16: `git mv` a document and commit. `show` with the old ID returns the new document, `moved_from` is the old ID, and there is a notice.
-- [x] [auto] T17: a generated `index.md` exists. `search` for a word in it does not return it. `show index` works.
+- [x] [auto] T17: a document `ops/index.md` with the tag `index` is found by `search` and `list` like any document.
 - [x] [auto] T18: `stats` with `metric: "documents"` and `by: "folder"` counts match the files.
 - [x] [auto] T19: `list` with `offset` pages through 7 documents with `limit: 3` and returns all of them once.
 - [x] [auto] T20: a manual, uncommitted edit shows in `search`, and `show` has `pending_edit: true`.

@@ -69,10 +69,9 @@ mod tests {
     }
 
     #[test]
-    fn index_files_and_hidden_documents_are_ignored() {
+    fn hidden_documents_are_ignored() {
         let s = store(vec![
             doc("ops/target", "", "x"),
-            doc("index", "tags: [index]\n", "[[ops/target]]"),
             doc("secret/x", "", "[[ops/target]]"),
         ]);
         assert!(backlinks(&s, "ops/target", &|id| !id.starts_with("secret")).is_empty());

@@ -41,7 +41,7 @@ There is no tool and no code. The deliverables are text:
 
 | Where | What |
 |---|---|
-| `README.md`, section "Planned setup" | One generic entry, and a link to `docs/install.md`. |
+| `README.md`, section "Setup" | One generic entry, and a link to `docs/install.md`. |
 | `docs/install.md`, section "Agent tools" | For each tool: the entry (user scope and project scope), the permission advice, the `AGENTS.md` examples, and the removal step. `distribution` owns the file. This spec owns the section. |
 | `docs/agent-tools-research.md` | The facts and the sources behind each snippet, with `verified` or `unverified` for each. |
 
@@ -66,8 +66,8 @@ There is no tool and no code. The deliverables are text:
 
 - **Given** the snippet for a tool, **When** a person adds it and starts a session, **Then** the tool lists the tools of waymark.
 - **Given** each JSON and TOML snippet in the docs, **When** it is parsed, **Then** it is valid, uses the server name `waymark`, and names `command` `waymark`.
-- **Given** a tool that is not listed in the README, **When** it speaks MCP over stdio, **Then** the generic entry (command and arguments) works.
-- **Given** the README, **When** it is read, **Then** every `AGENTS.md` example is marked as a suggestion.
+- **Given** a tool that is not listed in the install guide, **When** it speaks MCP over stdio, **Then** the generic entry (command and arguments) works.
+- **Given** the install guide, **When** it is read, **Then** every `AGENTS.md` example is marked as a suggestion.
 - **Given** an installed waymark, **When** the home and project folders are inspected, **Then** waymark wrote no file into any agent tool folder.
 - **Given** a new release, **When** the snippets are checked, **Then** each one works with the current tool version.
 

@@ -449,7 +449,7 @@ pub fn execute(
         let (pending_notices, blocked) = if preview {
             (Vec::new(), Vec::new())
         } else {
-            crate::manual::commit_before_write(tx, &memrepo, &env.effective, &author, &today)?
+            crate::manual::commit_before_write(tx, &memrepo, &author, &today)?
         };
         let mut plan = build(tx, &memrepo)?;
         for change in &plan.changes {

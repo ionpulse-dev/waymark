@@ -39,7 +39,6 @@ All four are read tools. They work when writes are paused or `access` is `read-o
 - **Levels.** Level `0` returns only the `id`. Level `1` adds `title`, `status`, `updated`, and, for a disputed document, `disputed` and `dispute_reason`. Level `2` adds `description`. `search` returns a `snippet` at level 2.
 - **Pull before read.** If the last good fetch is older than 3 minutes, a read fetches first. If that fails, the result carries a notice that the clone may be behind. The read still works.
 - **No stored index.** Search reads the local files. It sees manual edits that are not committed yet.
-- **Generated index files are skipped.** `search`, `list`, `stats`, and backlinks ignore generated index files (see `quality-checks`). `show` opens them.
 
 The server does not decide when an agent reads. That is the choice of the team, in its `AGENTS.md`.
 
@@ -210,7 +209,6 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 - **Given** a clone that is more than 3 minutes behind, **When** `search` runs, **Then** it fetches first and finds a document from the remote.
 - **Given** a failed fetch, **When** `search` runs, **Then** it answers from the local clone with a notice that the clone may be behind.
 - **Given** a document that moved, **When** `show` runs with the old ID, **Then** it returns the document and `moved_from`.
-- **Given** a generated index file, **When** `search` runs, **Then** it is not in the results.
 
 ## Constraints & Edge Cases
 

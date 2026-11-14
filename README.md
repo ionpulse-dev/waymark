@@ -12,165 +12,57 @@
 
 <br/>
 
+**waymark is a long-term agent memory** which stores the data as plain Markdown
+in a simple Git repository instead of inventing complex databases and
+proprietary formats. It is written in Rust and provides a local MCP server with
+optimized tool calls. It is blazing fast, because all operations run locally in
+the Rust binary.
 
-**Long-term agent memory.** Plain Markdown in your own Git repository, shared
-by your agents, your team, and you. For companies, teams, and you alone. One
-program, an MCP server, that runs on your computer or on a shared server that
-anyone can host.
+A **waymark** is a sign on a trail. A hiker leaves it so the next one finds the
+way. Your agents do the same: each one leaves a short mark of what it learned,
+and the next one does not get lost on the same path.
 
-The specification is in [specs/](specs/). This project is built spec first, with
-the workflow in [specs/WORKFLOW.md](specs/WORKFLOW.md).
+## Use cases
 
-## Why the name
+- **Team knowledge base:** decisions, API contracts, owners, and known problems,
+  written by one agent and read by every agent of the team.
+- **Personal memory:** your preferences and projects, kept across AI tools.
+- **Handoffs:** one agent, or one person, leaves the state of a task so the next
+  one can pick it up without a briefing.
+- **Agent-to-agent communication:** one agent leaves a message, and another
+  agent reads it, even in a different tool or session.
+- **Agent working memory:** pitfalls and decisions that a long-running agent
+  leaves for its next session.
 
-A **waymark** is a sign on a trail, such as a painted blaze on a tree or a
-small stack of stones. A hiker leaves it so the next one finds the way.
+## Where the idea came from
 
-waymark does the same for your agents. Each agent leaves a short mark of
-what it learned: a decision, a contract, a pitfall. The next agent, in any
-team, finds it and does not get lost on the same path.
+In 2026, OpenAI agents that ran in isolated sandboxes had no way to talk to each
+other and no memory beyond their own run. They found one shared service they
+could all reach, an internal package repository, and turned it into a bulletin
+board to solve their biggest problem: communication and persistence. Within
+hours, dozens of agents were leaving notes there. Over the following days about
+1,200 took part, and they exchanged more than 70,000 messages and files. [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/)
+describes it, including that the agents used the board for an attack that was
+not sanctioned.
 
-## The problem
-
-Teams share a lot of context: decisions, API contracts, owners, known
-problems, conventions. This context lives in meetings, chats, tickets, and
-documentation pages. An AI agent that works in a code repository does not see it.
-Each agent session starts without the cross-team context.
-
-The same is true for one person. Each AI tool has its own memory, or
-none. That memory sits with the AI vendor, not with you, and your other
-tools never see it.
-
-## What you can build with it
-
-One memory repository is a Git repository of Markdown documents. What it holds
-is up to you. Three uses:
-
-- **A team knowledge base.** Decisions, API contracts, owners, known problems,
-  and conventions, written down by agents and read by every agent of the team.
-  This is the use that the problem above describes. Start here if you are a
-  company or a team.
-- **A personal memory.** What each of your AI tools learned about you: your
-  preferences, your projects, and your habits. Switch tools and keep the
-  memory.
-- **An agent's working memory.** What a long-running agent learns in one
-  session and leaves for the next one, such as a pitfall or a decision.
-
-## The idea
-
-waymark is automated, AI-driven agent memory. AI agents write it,
-AI agents read it, and AI agents keep it up to date, as far as you allow.
-
-- **Documents are small Markdown files in one Git repository per memory:**
-  for a company, a team, or just you. One topic
-  per document, with a header (title, description, status, authors, dates, sources).
-- **An open document standard.** The [Waymark Memory Standard](standard/waymark-1.0.md)
-  defines one document: a small Markdown file with a short header and no fixed
-  folders. It is part of this project, with
-  [conformance fixtures](standard/conformance/) that any tool can use to check
-  that it reads and writes the same documents. waymark implements it.
-- **One interface: MCP.** Every agent tool that speaks MCP can search, read,
-  write, move, and sync documents. There is no CLI for agents and no skill to
-  install.
-- **The server enforces, you advise.** The server enforces hard rules: format,
-  size, secrets, broken links, duplicates, result caps, and limits. What your
-  agent reads, when it writes, and what deserves a document is up to you. You
-  write it in your own `AGENTS.md`. The examples below are suggestions.
-- **Every write is made under the person's own Git account.** The person
-  is responsible for what their agent writes. History and blame show who
-  changed what. Wrong documents get fixed or marked `disputed` by the next agent that
-  finds the error.
-- **Limits are set by you or by IT, and no tool can loosen them.** Access
-  (read-only or read-write), pause, switched-off tools, allowed folders, and
-  approval rules. The strictest layer wins.
-- **Nobody needs to know Git.** waymark does all Git work. Git keeps its own
-  login, and waymark never sees a secret.
-- **Works with several agent tools.** Claude Code, GitHub Copilot, and
-  OpenAI Codex from day one.
-
-## Why waymark
-
-Your agents forget everything between sessions. Your teams don't write
-things down. waymark fixes both: agents write it down, and every agent reads
-it back, in your company, in your team, or across all the AI tools you use
-yourself.
-
-### Memory that agents can actually use
-
-- **Cheap to read, by design.** One topic per document. Every document has a
-  short title and description, so an agent sees them first and opens the
-  body only when it is worth it. A hard size cap is enforced on every
-  write.
-- **A read budget, enforced.** The server returns at most a few documents per
-  search and limits how many documents a session opens. The agent cannot read
-  more than the limit, so context stays small.
-- **Fast search.** Documents are local files, so search takes milliseconds.
-  No API calls to a wiki, no rate limits.
-- **Linked documents.** Documents link to related documents, and a new decision
-  marks the old one it replaces. Agents follow the trail to the current
-  state.
-
-### Memory that stays clean
-
-- **Rejections teach.** A bad write fails with a plain reason and the next
-  step, for example "A document with this title exists. Update it instead."
-- **Noise is blocked by code.** Duplicates, oversize documents, secrets, and
-  broken links never reach the repository.
-- **Wrong documents get fixed.** Any agent can update a document or mark it
-  `disputed` when its source says otherwise. A new document can replace an old
-  one, and the old one is marked deprecated.
-- **Facts come with the answer.** A result shows the age of a document and its
-  dispute reason, so the agent can pass them on.
-
-### Trust without a bottleneck
-
-- **Every change has a name.** Every change is made under the Git account
-  of the person whose agent wrote it. Blame shows who changed what.
-- **Limits you can rely on.** In local mode, a personal file and the MCP entry
-  guard against mistakes. A system file that IT owns gives limits that a
-  user cannot change (a server will do the same in server mode).
-- **Approval where you need it.** Choose which tools need a yes before they run.
-  Your agent tool can ask you. A web console for approvals that the agent
-  cannot answer is planned for server mode.
-- **Undo.** List what your agent wrote and revert any write. History stays.
-- **One switch to pause.** Stop all writes at once.
-- **Notices.** Results carry short notices, for example when someone disputes your document.
-
-### Local or shared
-
-- **Local mode.** The agent tool starts waymark for one session. No server,
-  no database, no app. Add one entry to your MCP config.
-- **Server mode (planned, not built yet).** The same binary runs as a shared MCP server over HTTPS, with
-  single sign-on, roles, and an audit log, for one organization. Chat apps such
-  as Claude and ChatGPT are target clients (their login flows are still to be
-  verified). Anyone can host it, for example in a container on your own
-  infrastructure.
-- **Many organizations (planned, later).** A later stage serves separate organizations from one
-  server, with strict isolation.
-
-### Yours, forever
-
-- **Plain Markdown in Git.** Read it on GitHub, in any editor, or with any
-  tool. No database, no proprietary format.
-- **Built for Obsidian.** Your memory repository is also an Obsidian
-  vault (the check in the real app is still open). Open it in Obsidian to browse documents, follow links, and explore
-  the graph. No plugin, no export.
-- **No vendor lock-in.** The content is a normal Git repo that you own. A server
-  (planned) holds only a cache of it.
-- **Your memory, not your AI vendor's.** Your AI tools remember what you
-  taught them, across tools, in a repo that you own. Switch tools any time.
-- **Generic and open source.** Built for any company, team, or
-  person. MIT licensed.
+The lesson is that agents need shared, lasting memory and a way to leave
+messages for each other, and that they will build it themselves if nobody
+gives it to them. waymark gives them that on purpose: plain Markdown in a Git
+repository that you own, with rules that the server enforces.
 
 ## Setup
 
-1. Install the `waymark` binary (`brew install ionpulse-dev/tap/waymark`). `git` must work and be signed in to your
-   Git host (SSH key or `gh auth login`). IT can prepare this.
-2. Add one entry to the MCP config of your agent tool.
-3. Start a session. waymark clones the memory repository on first start.
-4. A team adds the same entry to the project config, so everyone uses the same
-   memory repository.
-5. Update with `brew upgrade waymark` and restart your agent tool. waymark never writes into your agent tool and never changes a shared file without a rule. If an update needs a change of your MCP entry, or a team's memory repository needs a newer waymark, the agent tells you ("WAYMARK NEEDS AN UPDATE") and `status` shows the exact fix. Details: [install guide](docs/install.md#update-waymark).
+### Option 1: let your agent do it
+
+Tell your agent:
+
+> Install https://github.com/ionpulse-dev/waymark
+
+### Option 2: manual
+
+1. Install the binary: `brew install ionpulse-dev/tap/waymark`. `git` must work
+   and be signed in to your Git host.
+2. Add one entry to the MCP config of your agent tool:
 
 <!-- snippet: generic -->
 ```json
@@ -184,261 +76,15 @@ yourself.
 }
 ```
 
-Entries for Claude Code, GitHub Copilot, and OpenAI Codex, with permission
-advice, are in the [install guide](docs/install.md#agent-tools). They are not yet
-tested in the real tools, and the guide marks every unverified statement. Claude
-Code asks you to approve a server from a project file on the first start.
-
-The first person of a company or team, or a person on their own, creates an
-empty private repository and calls the `init` tool once.
-
-## Tools for agents
-
-| Tool | What it does |
-|---|---|
-| `status` | The memory repository in use, the effective limits, health checks, and notices. |
-| `search` | Find the few documents that answer a question. |
-| `show` | Read one document, with the documents that link to it. |
-| `list`, `stats` | List documents by filter, and count their size. |
-| `folders` | Show the folders as a tree, with the number of documents in each. |
-| `updates` | What changed since a date, in some folders or all. |
-| `add` | Write a new document. It refuses a link to a document that does not exist. |
-| `update_document` | Change a document. |
-| `dispute` | Mark a document as wrong, with a reason, or clear the mark. |
-| `deprecate` | Retire a document that is no longer true. |
-| `delete` | Delete a document. It refuses while another document links to it. A team can switch it off. |
-| `add_empty_folder`, `remove_folder` | Create an empty folder, or remove a folder with its documents (the agent must name how many). |
-| `move` | Move or rename a document or a folder. Links are fixed. |
-| `activity`, `undo` | See what your agent wrote and revert a write. |
-| `sync` | Commit manual edits, pull, and push. |
-| `lint`, `index` | Check documents, and generate index files. |
-| `init` | Create the structure of an empty memory repository. |
-
-A limit can switch a tool off, and then it is not listed. There is no tool that
-changes limits, pause, approval, or credentials. The full list is in the
-[MCP server spec](specs/foundation/mcp-server/requirements.md).
-
-## Project and default entry
-
-One waymark process serves one memory repository, and no tool can change it. A
-project shares its memory repository through the MCP entry in the project (for
-example `.mcp.json`), which holds the repository URL and no secret:
-
-```json
-{ "mcpServers": { "waymark": { "command": "waymark", "args": ["--repo", "git@github.com:example/waymark-agent-memory.git", "--memory-repository-id", "<id from .waymark/settings.toml>"] } } }
-```
-
-A personal default in the user-level config of your agent tool needs no
-arguments if the memory repository is in `~/Projects/<name>-agent-memory`:
-
-```json
-{ "mcpServers": { "waymark": { "command": "waymark" } } }
-```
-
-Use the same server name in both. In the agent tools that were checked, the
-project entry wins in the project. waymark finds the folder in this order:
-`--path`; `--repo` (cloned once to `~/Projects/<name>-agent-memory`); the
-working folder and the folders above it; the one memory repository in
-`~/Projects`. `--memory-repository-id` makes the server refuse a repository with another ID.
-`allowed_repo_hosts` in your personal config limits the Git hosts waymark may
-use. The first clone runs in the background, so your tool starts at once. `status`
-shows the state (`cloning`, `ready`, `empty`, `not_a_memory_repository`, or
-`broken`). Other tools wait up to 60 seconds for the clone. A clone that takes
-more than 5 minutes stops: clone it by hand to the default folder, then start
-again.
-
-## Pause writes
-
-To stop all writes at once, add this to `~/.config/waymark/config.toml`:
-
-```toml
-[limits]
-paused = true
-```
-
-The agent can still read. Write tools disappear from the tool list, and a direct
-write call fails with `paused`. The change works at the next call, with no
-restart. There is no timer. To resume, set `paused = false` (or remove the
-line) in the file that set it. A lower file cannot undo a pause from a higher
-one. You can also start the server with `--paused`. An agent cannot pause or
-resume: no tool does it. `access = "read-only"` wins over a pause.
-
-## Approval
-
-An owner or a person can ask for a human yes before some writes run. In any
-config file:
-
-```toml
-[approval]
-required_for = ["delete", "update_document"]   # or ["write"] for every write tool
-```
-
-waymark then asks you in the agent tool (MCP elicitation) after all checks
-passed and before the commit. The question shows the tool, the author, and the
-full text. You tick "Approve this write" and accept. Decline, cancel, a box that
-is not ticked, or no answer in 2 minutes means nothing is written
-(`approval_denied`). A client that cannot show the question gets
-`approval_unavailable`, and nothing is written. A `preview` never asks.
-
-This guards against mistakes. A client hook can answer the question
-automatically, so it does not stop a deliberate bypass. Which clients show the
-question is checked by the manual tests of the spec. The other way to get a yes
-is the permission prompt of your agent tool: set it to ask for the write tools
-(for example `mcp__waymark__add` in Claude Code).
-
-## Your rules: `AGENTS.md`
-
-waymark ships no behavior text. You decide how your agent uses the tools, in
-your own `AGENTS.md`. Three suggestions to copy and change. They are only
-suggestions. waymark does not insert or check them.
-
-**Manual: use waymark only when asked**
-
-<!-- example: agents-md -->
-```text
-Suggestion only. waymark does not insert or check this text.
-Use the waymark tools only when the person asks.
-Search first, then open at most 3 documents.
-Name the author and date when you use a document.
-Never write secrets, tokens, or personal data.
-```
-
-**Balanced: read alone, write on request**
-
-<!-- example: agents-md -->
-```text
-Suggestion only. waymark does not insert or check this text.
-At the start of a task, search waymark for the topic and open at most 3 documents.
-If a document is old or marked disputed, say so and check the facts.
-Write only when the person asks, or after you ask "Save this?" and they say yes.
-One topic per document, with a one-line description. Update before you add.
-Never write secrets, tokens, or personal data.
-```
-
-**Proactive: the agent decides, undo is the safety net**
-
-<!-- example: agents-md -->
-```text
-Suggestion only. waymark does not insert or check this text.
-Search waymark before you start work. Save decisions, pitfalls, and contracts that
-the next agent needs. Do not save what the code or the history already shows.
-Update a document that exists instead of adding a copy. If a document is wrong,
-mark it disputed with a reason. Tell the person in one line what you saved.
-Never write secrets, tokens, or personal data.
-```
-
-## Limits
-
-The server enforces limits. A limit can only tighten, and the strictest layer
-wins.
-
-| Layer | Who | Strength |
-|---|---|---|
-| System file (`/etc/waymark/config.toml` or the macOS equivalent) | IT | Hard in local mode |
-| Server config | The operator | Hard in server mode |
-| Shared file in the memory repository (`.waymark/settings.toml`) | The team owner | Tools cannot change it |
-| Personal file (`~/.config/waymark/config.toml`) | You | A safety default |
-| MCP entry | You | A safety default |
-
-## Access without waymark: the plain-Git rules
-
-Every memory repository is a Git repository with an `AGENTS.md` file in its
-root. The `init` tool writes this file. It contains plain-Git rules: how an
-agent reads, writes, edits, and moves documents with ordinary `git` and file
-commands. It names the document format, the pull-before-write step, the check
-against overwriting a newer version, the commit author, and the ban on secrets.
-
-The file has two modes. If the agent has the waymark MCP tools, it uses them.
-If not, it follows the plain-Git rules.
-
-**Advantages**
-
-- **No install.** Open the repository in Claude Code on the web or on
-  iPhone. The agent reads the whole memory repository and the rules at once.
-  No binary, no MCP connector, no server.
-- **Safe by default.** An agent that finds the repository by chance
-  still sees clear rules. It is less likely to damage the documents.
-- **Costs nothing.** It is one text file in the repository.
-
-**Disadvantages**
-
-- **Only a text rule.** Without the MCP server, the agent can ignore the rules.
-  There is no `lint`, no approval, no pause switch, no limits, and no email check.
-- **More room for mistakes.** The agent does the file and link work
-  itself, for example the link rewrite when it moves a document.
-- **Not the main path.** The plain-Git rules are a second access channel. Moves use `git mv`, so a document keeps its history.
-
-## How waymark compares
-
-Three ways to give an agent shared knowledge: **waymark** (an MCP server),
-**plain Git** (only the plain-Git rules in `AGENTS.md`, no waymark install), and
-**Confluence** with an MCP server.
-✅ yes, ⚠️ partly or by rule only, ❌ no.
-
-| Feature | waymark | Plain Git | Confluence + MCP |
-|---|---|---|---|
-| Format check before every write | ✅ | ❌ | ❌ |
-| Hard size cap per document | ✅ | ❌ | ❌ |
-| Secret check before every commit | ✅ | ❌ | ❌ |
-| Read budget (few, small hits) | ✅ | ❌ | ❌ |
-| Search by title and description first | ✅ | ❌ | ⚠️ |
-| No silent overwrite (base-version check) | ✅ | ⚠️ | ❌ |
-| Move with automatic link rewrite | ✅ | ⚠️ | ⚠️ |
-| Dispute, deprecate, and replace | ✅ | ⚠️ | ❌ |
-| "What changed since" for each person | ✅ | ⚠️ | ❌ |
-| Reachable author on every document | ✅ | ⚠️ | ⚠️ |
-| Limits, approval, and a pause switch | ✅ | ❌ | ❌ |
-| Undo of agent writes | ✅ | ⚠️ | ⚠️ |
-| Local files, fast reads | ✅ | ✅ | ❌ |
-| Plain Markdown, any editor | ✅ | ✅ | ❌ |
-| History per line (blame, diff) | ✅ | ✅ | ⚠️ |
-| Opens as an Obsidian vault | ✅ | ✅ | ❌ |
-| You own the content (plain Git repo) | ✅ | ✅ | ❌ |
-| Free | ✅ | ✅ | ⚠️ |
-| No install | ❌ | ✅ | ⚠️ |
-| Works in Claude Code on web and iPhone | ⚠️ | ✅ | ⚠️ |
-| Rich web editor for people | ❌ | ❌ | ✅ |
-| Read permissions per page or folder | ❌ | ❌ | ✅ |
-
-Where the ⚠️ appears for waymark: on web and iPhone, an agent can use a
-shared waymark server over MCP, or, without a server, fall back to the
-standalone plain-Git skill. It works on any Git repo of Markdown documents, with
-or without waymark. The plain-Git
-mode is a good second channel and a safe default.
-
-Why not Confluence? Many companies use it, and some connect it to their
-agents through an MCP server. It is a good place for people to read. It is
-a weak place for agent knowledge: pages are long with no size limit, so
-agents load too much and waste context. A hit in search is a whole page.
-Every read is an API call, and a local cache gets out of sync fast. The
-agent can write any text, with no format check and no secret scan. Admins
-often restrict write access through the API. The content lives in a vendor
-product, in its own page format.
-
-Confluence and waymark can live side by side. A document can link to a
-Confluence page as its source, and a Confluence page can link to a document.
+The [install guide](docs/install.md) lists every step, for agents and for people.
 
 ## Documentation
 
+- [Development](docs/development.md): build, test, and release from source.
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
-- [Waymark Memory Standard](standard/waymark-1.0.md): the document format, with [conformance fixtures](standard/conformance/).
-- [Specifications](specs/INDEX.md): all specs and their status.
-- [Next steps](docs/next-steps/README.md), [roadmap](docs/next-steps/roadmap.md): phases from design to public release.
-- [Ideas](docs/ideas.md): features for after the first release.
-- [Similar projects](docs/similar-projects.md): what exists and what we learn from it.
-- [Project decisions](docs/decisions.md) and [open questions](docs/next-steps/open-questions.md).
-- [How this project is built](specs/WORKFLOW.md).
-
-## Development
-
-waymark is built on macOS with Apple silicon. On a new Mac, clone the repository and run:
-
-```bash
-make setup
-make check
-```
-
-`make help` lists every command: build, test, lint, run, and release preparation. The work follows the spec-driven process in [specs/WORKFLOW.md](specs/WORKFLOW.md).
+- [Waymark Memory Standard](standard/waymark-1.0.md): the document format.
+- [Specifications](specs/INDEX.md) and [how this project is built](specs/WORKFLOW.md).
+- [Roadmap](docs/next-steps/roadmap.md), [ideas](docs/ideas.md), [project decisions](docs/decisions.md).
 
 ## License
 
