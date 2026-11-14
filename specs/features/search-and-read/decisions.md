@@ -143,3 +143,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **A file that cannot be parsed** is skipped by the read tools. `show` fails with `validation_failed` and names the first finding.
 - **A repository without a remote** gives the notice "This repository has no remote, so nothing is shared." on every read (from `Repo::refresh_if_stale`).
 - **Test hook.** `WAYMARK_FETCH_MAX_AGE` (seconds) sets the freshness window. The tests use `0`.
+
+## Index files are normal documents — 2026-11-14
+
+**Decision:** `search`, `list`, `stats`, and backlinks no longer skip a file named `index.md` with the tag `index`. It is a normal document. This replaces "Generated index files are not search results" above. See [remove-index](../../foundation/remove-index/decisions.md).

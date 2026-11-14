@@ -50,14 +50,7 @@ impl Tool for Lint {
         let notices = repo.refresh_if_stale();
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
-        let limit = lint::limit_scope(&env.effective);
-        let report = lint::run(
-            &memrepo,
-            &store,
-            &|id| scope.allows(id),
-            &limit,
-            Some(&repo),
-        )?;
+        let report = lint::run(&memrepo, &store, &|id| scope.allows(id), Some(&repo))?;
 
         let errors = report
             .findings

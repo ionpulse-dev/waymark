@@ -4,7 +4,6 @@
 //! empty folder, so an empty folder on disk is not a folder.
 
 use super::MemRepo;
-use crate::format;
 use std::fs;
 use std::path::Path;
 
@@ -18,23 +17,9 @@ pub struct Folder {
     pub path: String,
     /// The IDs of the documents in it, without generated index files.
     pub documents: Vec<String>,
-    /// The IDs of generated index files in it.
-    pub index_files: Vec<String>,
     /// Files that are not documents and not `.gitkeep`, as paths below the root.
     pub other_files: Vec<String>,
     pub gitkeep: bool,
-}
-
-fn is_index_file(path: &Path, id: &str) -> bool {
-    if id != "index" && !id.ends_with("/index") {
-        return false;
-    }
-    fs::read_to_string(path)
-        .ok()
-        .and_then(|t| format::parse(&t).ok())
-        .and_then(|d| d.frontmatter.get_list("tags").map(<[String]>::to_vec))
-        .map(|t| t.iter().any(|x| x == "index"))
-        .unwrap_or(false)
 }
 
 impl MemRepo {
@@ -99,11 +84,7 @@ fn walk(root: &Path, dir: &Path, rel: &str, exclude: &[String], out: &mut Vec<Fo
             }
         } else if let Some(id) = rel_p.strip_suffix(".md") {
             any = true;
-            if is_index_file(&p, id) {
-                f.index_files.push(id.to_string());
-            } else {
-                f.documents.push(id.to_string());
-            }
+            f.documents.push(id.to_string());
         } else {
             any = true;
             f.other_files.push(rel_p);

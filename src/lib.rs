@@ -8,7 +8,6 @@ pub mod error;
 pub mod format;
 pub mod gitsync;
 pub mod identity;
-pub mod indexgen;
 pub mod lint;
 pub mod maintenance;
 pub mod manual;

@@ -31,7 +31,7 @@ requires:
 - **The strictest layer wins.** Paused is true if any layer says so. A lower layer cannot clear a pause that a higher layer set.
 - **Resume** means setting `paused = false` or deleting the line, in the file that set the pause. The next call sees it.
 - **While paused:**
-  - Every write tool fails with `paused`. The write tools are `add`, `update_document`, `dispute`, `deprecate`, `delete`, `move`, `undo`, `sync`, `index`, `init`, `verify`, `review`, and `reject`.
+  - Every write tool fails with `paused`. The write tools are `add`, `update_document`, `dispute`, `deprecate`, `delete`, `move`, `undo`, `sync`, `init`, `verify`, `review`, and `reject`.
   - `tools/list` does not list the write tools. The server sends `notifications/tools/list_changed` after the first call that sees the change.
   - Read tools and `status` work. Reads still pull, so the clone stays current.
   - Every result carries the notice "Writes are paused." and `settings.paused` is `true`.

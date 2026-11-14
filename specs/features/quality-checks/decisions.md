@@ -125,3 +125,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Refresh the indexes of the changed folder and its parents in the same commit as every write. Rejected: waymark is mostly agent storage, and its own tools (`list`, `stats`, `search`) ignore index files, so the files would add commits and diff noise with no reader. A stale index is a `lint` warning, not a state to prevent.
 
 **Reason:** The consistency that matters for agents is in the documents and their links, and that is covered by the link rules of `write-documents`. An overview of the folders for agents belongs in a read tool (see the folder tree discussion in `todo.md`).
+
+## The `index` tool and `index-stale` are removed — 2026-11-14
+
+**Decision (decided with the product owner):** The tool `index` and the check `index-stale` do not exist any more. This replaces the decisions about generated indexes, the index commit verb, hidden index files, and manual index files above. The reasons and the alternatives are in [remove-index](../../foundation/remove-index/decisions.md).

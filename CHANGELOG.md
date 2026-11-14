@@ -2,6 +2,12 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.3.0 (2026-11-14)
+
+The `index` tool is gone, and so is the `index-stale` check of `lint`. waymark is long-term agent memory for agents, and `folders`, `list`, and `search` already give an agent the overview that index files gave. A file `index.md` is now a normal document: `search`, `list`, and `updates` show it, and `delete` refuses while it links to the target.
+
+What to do: nothing, unless a memory repository holds generated `index.md` files. They stay as documents. Delete them if you do not want them, and remove `mcp__waymark__index` from the allow list of your agent tool. Update with `brew upgrade waymark` and restart your agent tool.
+
 ## 0.2.0 (2026-11-14)
 
 waymark is now long-term agent memory, and the names follow. A Git repository that holds the memory is a memory repository, no longer a "knowledge base". This release renames what you can see, with no fallback for the old names, so it needs a few steps from you:

@@ -77,14 +77,6 @@ fn id_of(memrepo: &MemRepo, path: &str) -> Option<String> {
     Some(id.to_string())
 }
 
-fn is_index(id: &str, doc: &format::Document) -> bool {
-    (id == "index" || id.ends_with("/index"))
-        && doc
-            .frontmatter
-            .get_list("tags")
-            .is_some_and(|t| t.iter().any(|x| x == "index"))
-}
-
 /// Classify every changed document between `base` and `HEAD`. Changes that only the person made
 /// are dropped.
 pub fn changes_since(
@@ -118,9 +110,6 @@ pub fn changes_since(
         };
         let shown = at_head.as_ref().or(before.as_ref());
         let Some(shown) = shown else { continue };
-        if is_index(&id, shown) {
-            continue;
-        }
         let commits = repo.window_commits(base, &path)?;
         let Some(latest) = commits.iter().find(|c| c.email != own) else {
             continue;

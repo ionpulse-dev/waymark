@@ -2,7 +2,7 @@
 
 ```
 📦 Features      ██████████████████████████████████████░░  20 / 21 active
-🏗️ Foundation    █████████████████████████████████░░░░░░░  9 / 11 done+implemented
+🏗️ Foundation    █████████████████████████████████████░░░  10 / 12 done+implemented
 ```
 
 ## Next Up
@@ -56,6 +56,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-14 |
+| [remove-index](foundation/remove-index/requirements.md) | `implemented` | 2026-11-14 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

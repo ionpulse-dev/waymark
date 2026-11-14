@@ -123,7 +123,7 @@ impl Tool for Sync {
         // Preview: check, and change nothing. No pull, no push.
         if preview {
             let tx = crate::gitsync::Tx::new_for_sync(&repo);
-            let o = manual::prepare(&tx, &memrepo, &env.effective, &author, &today, false)?;
+            let o = manual::prepare(&tx, &memrepo, &author, &today, false)?;
             let committed: Vec<Value> = o
                 .passing
                 .iter()
@@ -145,7 +145,7 @@ impl Tool for Sync {
 
         let outcome: RefCell<Option<Outcome>> = RefCell::new(None);
         let result = repo.sync(|tx| {
-            let o = manual::prepare(tx, &memrepo, &env.effective, &author, &today, true)?;
+            let o = manual::prepare(tx, &memrepo, &author, &today, true)?;
             if o.change.is_none() && !o.blocked.is_empty() {
                 let first = &o.blocked[0];
                 let detail = first

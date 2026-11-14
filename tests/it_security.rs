@@ -233,7 +233,6 @@ fn s5_nothing_writes_while_paused_or_read_only() {
             ("delete", json!({"id": "ops/deploy", "base": "abc1234"})),
             ("move", json!({"from": "ops/deploy", "to": "ops/other"})),
             ("undo", json!({"commit": "abc1234"})),
-            ("index", json!({})),
             ("init", json!({"name": "X"})),
         ] {
             let r = c.call(tool, args);

@@ -408,14 +408,15 @@ fn delete_after_links_removed() {
 }
 
 #[test]
-fn delete_ignores_a_generated_index_file() {
+fn delete_refuses_while_an_index_md_links_to_the_document() {
     let w = World::new();
     let mut c = client(&w, Person::A);
     let a = add(&mut c, "ops", "Alpha", "A.");
-    assert!(!c.call("index", json!({})).is_error);
-    assert!(exists(&w.a, "ops/index"));
+    let body = format!("See [[{}]].", a["id"].as_str().unwrap());
+    let i = add(&mut c, "ops", "Index", &body);
+    assert!(i["id"].as_str().is_some());
     let d = c.call("delete", json!({"id": a["id"], "base": a["version"]}));
-    assert!(!d.is_error, "{}", d.json);
+    assert_eq!(d.code(), Some("validation_failed"), "{}", d.json);
 }
 
 #[test]

@@ -74,7 +74,6 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | `move` | Move or rename documents | write | `move-documents` |
 | `undo` | Revert one write | write | `activity-and-undo` |
 | `sync` | Commit pending manual edits, pull, push | write | `git-sync`, `manual-edits` |
-| `index` | Generate index files | write | `quality-checks` |
 | `init` | Create the structure of an empty memory repository repository | write | `create-memory-repository` |
 | `verify`, `review`, `reject` | Owner verification. Present only when verification is on. | write | `verification` |
 
