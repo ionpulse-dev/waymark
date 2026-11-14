@@ -2,17 +2,18 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
-## Unreleased
-
-The memory repository lives where you say. The entry must name it with `--repo`, `--path`, or both. `--repo` alone clones into `~/.waymark/<name>`, and `--path` sets the folder. The old default `~/Projects/<name>-agent-memory`, the scan of `~/Projects`, and the search of the working folder are gone, and so is the entry without arguments. A folder that holds another remote is an error that names the fix.
-
-What to do: if you used the old default folder, add `--path ~/Projects/<name>-agent-memory` to your entry, or move the clone to `~/.waymark/<name>`. If your entry had no arguments, add `--repo` or `--path`.
-
 ## 0.3.0 (2026-11-14)
 
-The `index` tool is gone, and so is the `index-stale` check of `lint`. waymark is long-term agent memory for agents, and `folders`, `list`, and `search` already give an agent the overview that index files gave. A file `index.md` is now a normal document: `search`, `list`, and `updates` show it, and `delete` refuses while it links to the target.
+Two changes. You must act on the first one if your entry has no `--repo` or `--path`, or if you relied on the old clone folder.
 
-What to do: nothing, unless a memory repository holds generated `index.md` files. They stay as documents. Delete them if you do not want them, and remove `mcp__waymark__index` from the allow list of your agent tool. Update with `brew upgrade waymark` and restart your agent tool.
+**The memory repository lives where you say.** Your MCP entry must name it with `--repo` (the Git URL), `--path` (a folder), or both. `--repo` alone clones into `~/.waymark/<name>`, where `<name>` is the repository name from the URL. `--path` sets the folder, and a missing or empty folder is cloned into. The old default `~/Projects/<name>-agent-memory`, the scan of `~/Projects`, and the search of the working folder are gone, and so is the entry without arguments. A folder that holds another remote is an error that names the fix.
+
+**The `index` tool is gone,** and so is the `index-stale` check of `lint`. `folders`, `list`, and `search` already give an agent the overview that index files gave. A file `index.md` is now a normal document: `search`, `list`, and `updates` show it, and `delete` refuses while it links to the target.
+
+What to do:
+- If you used the old default folder, add `--path ~/Projects/<name>-agent-memory` to your entry, or move the clone to `~/.waymark/<name>`. If your entry had no arguments, add `--repo` or `--path`.
+- If a memory repository holds generated `index.md` files, they stay as documents. Delete them if you do not want them, and remove `mcp__waymark__index` from the allow list of your agent tool.
+- Update with `brew upgrade waymark` and restart your agent tool.
 
 ## 0.2.0 (2026-11-14)
 
