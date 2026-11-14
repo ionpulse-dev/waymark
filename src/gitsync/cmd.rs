@@ -125,8 +125,23 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
         }
         std::thread::sleep(std::time::Duration::from_millis(20));
     };
-    let stdout = t_out.join().unwrap_or_default();
-    let stderr = t_err.join().unwrap_or_default();
+    // A grandchild may keep a pipe open after git exits. Wait a short time for the readers.
+    let (tx, rx) = std::sync::mpsc::channel();
+    let tx2 = tx.clone();
+    std::thread::spawn(move || {
+        let _ = tx.send((0, t_out.join().unwrap_or_default()));
+    });
+    std::thread::spawn(move || {
+        let _ = tx2.send((1, t_err.join().unwrap_or_default()));
+    });
+    let (mut stdout, mut stderr) = (String::new(), String::new());
+    for _ in 0..2 {
+        match rx.recv_timeout(std::time::Duration::from_secs(5)) {
+            Ok((0, s)) => stdout = s,
+            Ok((_, s)) => stderr = s,
+            Err(_) => break,
+        }
+    }
     Ok(status.map(|s| Output {
         stdout,
         stderr,

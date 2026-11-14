@@ -201,7 +201,8 @@ impl Tool for Init {
         let paths: Vec<String> = planned.iter().map(|(p, _)| p.clone()).collect();
 
         let (res, ()) = repo.write(preview, |tx| {
-            if crate::kb::layout::find_root(repo.dir()).is_ok() {
+            if repo.dir().join(".mkbase").is_dir() || repo.dir().join("knowledge/.mkbase").is_dir()
+            {
                 return Err(Error::validation(
                     "This repository is already a knowledge base. Nothing was changed.",
                 )

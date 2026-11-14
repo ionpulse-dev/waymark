@@ -70,7 +70,7 @@ impl Tool for Status {
                 problem = json!({"code": e.code.as_str(), "message": redact_text(&e.message), "next": e.next});
             }
             JoinState::Empty | JoinState::NotAKnowledgeBase => {
-                if let Ok(Some(repo)) = ctx.repo().map(Some) {
+                if let Ok(repo) = ctx.repo() {
                     kb_json["path"] = json!(repo.dir().display().to_string());
                 }
                 if let Err(e) = ctx.kb() {
@@ -86,7 +86,11 @@ impl Tool for Status {
         } else {
             format!("{} checks failed: {}.", failed.len(), failed.join(", "))
         };
-        let repo = ctx.repo().ok();
+        let repo = if ctx.is_cloning() {
+            None
+        } else {
+            ctx.repo().ok()
+        };
         let last_pull = repo
             .as_ref()
             .and_then(|r| r.last_pull())

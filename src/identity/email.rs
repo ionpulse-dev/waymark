@@ -62,7 +62,12 @@ pub fn check_email(address: &str, people: &People) -> Result<(), AuthorProblem> 
         .chain(extra)
         .filter(|p| !p.is_empty())
     {
-        if a.contains(&part) {
+        // A part that ends in "@" names a whole local part, so "test@" does not hit "contest@".
+        let hit = match part.strip_suffix('@') {
+            Some(name) => local == name,
+            None => a.contains(&part),
+        };
+        if hit {
             return Err(problem(
                 address,
                 &format!("cannot receive mail (it contains \"{part}\")"),
