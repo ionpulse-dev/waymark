@@ -23,3 +23,55 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `status` is a read-only tool with checks and fixes. Update and removal use the package manager and the README steps.
 
 **Reason:** waymark writes nothing into agent tools, so there is no manifest to remove.
+
+## Scope: health and diagnostics only — 2026-11-14
+
+**Decision:** This spec covers the `status` tool, the update by Homebrew, and the removal steps. `/health` and the server image are cut (see `todo.md`). `stats` belongs to `search-and-read` and is not used here.
+
+**Reason:** The scope is local mode, and the owner of `stats` is `search-and-read`. Decided autonomously.
+
+## Fixed check names and order — 2026-11-14
+
+**Decision:** The checks are `git`, `clone`, `working_tree`, `remote`, `git_login`, `kb_id`, `settings`, `author`, in this order. A check that cannot run is left out.
+
+**Alternatives considered:** Mark a skipped check as ok (rejected: it would claim something that was not checked). Mark it as not ok (rejected: the real problem is another check).
+
+**Reason:** Stable names let tests and agents rely on them. Honest output. Decided autonomously.
+
+## One network call for `remote` and `git_login` — 2026-11-14
+
+**Decision:** `git ls-remote origin` runs once with a 10 second time-out and `GIT_TERMINAL_PROMPT=0`. The output decides both checks: a login message (`Permission denied`, `Authentication failed`, `could not read Username`) fails `git_login` and passes `remote`. A host or time-out message fails `remote`.
+
+**Alternatives considered:** Two calls (rejected: twice the time-out). `git fetch` (rejected: `status` must not change the repository).
+
+**Reason:** Read-only, one wait, and the two causes have different fixes. The call goes into a new `gitsync::probe` function, which is an addition to `git-sync`. Decided autonomously.
+
+## `status` ignores `tools_denied` — 2026-11-14
+
+**Decision:** `status` is always listed and always runs. `tools_denied` cannot hide it.
+
+**Supersedes:** the rule of step 9 of the plan of `trust-model` (the registry filters tools by `tools_denied`) for this one tool.
+
+**Reason:** `status` is how a person finds out why other tools are missing. A broken setup must stay diagnosable. Decided autonomously.
+
+## `limit_sources` uses the layers separately — 2026-11-14
+
+**Decision:** `status` loads each layer through `config::layers` (public functions that return one `Limits` per layer) and compares the effective value with each layer. It does not need a change to `strictest`.
+
+**Alternatives considered:** Track the source inside `EffectiveSettings` (rejected: a change to `trust-model` for a diagnostic).
+
+**Reason:** No change to the merge code. Decided autonomously.
+
+## No `waymark doctor` command — 2026-11-14
+
+**Decision:** There is no command for people. A person without an agent can start the agent tool and ask it to call `status`.
+
+**Alternatives considered:** A `doctor` subcommand (rejected: `mcp-server` allows only `--version` and `--help`, and a second interface doubles the checks to maintain).
+
+**Reason:** MCP is the only interface. Decided autonomously.
+
+## The binary does not check for updates — 2026-11-14
+
+**Decision:** The update is `brew upgrade waymark`. The server makes no network call to find a new version.
+
+**Reason:** No telemetry and no call home. The Homebrew tap is the update channel.

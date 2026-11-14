@@ -31,3 +31,56 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The time of the last call is stored per person in the personal state folder, or on the server.
 
 **Reason:** MCP is the only interface.
+
+## The stored time is one file per person and knowledge base — 2026-11-14
+
+**Decision:** The time of the last `updates` call without `since` is stored in `<state dir>/<kb id>.json`, key `last_updates`. The state dir is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`, else `~/.local/state/waymark`. All agent tools of the person on the machine share it. The last call wins.
+
+**Alternatives considered:**
+- One file for each agent tool — rejected: the server cannot tell which tool started it, and the person wants one "since I last looked".
+- A file in `~/.config/waymark/` — rejected: that folder holds limit layers, and state is not config.
+- A file in the clone — rejected: it is per machine state, not part of the knowledge base.
+
+**Reason:** Answers the open question. Decided autonomously.
+
+## Only a call without `since` moves the time — 2026-11-14
+
+**Decision:** A call with `since` is a pure query. A call without it lists since the stored time and stores now.
+
+**Alternatives considered:** Every call moves the time (rejected: a look at an old date would hide newer changes from the next call).
+
+**Reason:** The person controls what "seen" means. Decided autonomously.
+
+## First call looks back 7 days — 2026-11-14
+
+**Decision:** With no stored time and no `since`, the window starts 7 days ago.
+
+**Alternatives considered:** The whole history (rejected: too long). The start of the session (rejected: always empty).
+
+**Reason:** A week is a usual gap between two looks. Decided autonomously.
+
+## Own changes are not listed — 2026-11-14
+
+**Decision:** A path whose commits in the window are all by the person's email is left out. A path with at least one commit by someone else stays, with that person as `by`.
+
+**Reason:** The person knows their own writes. `activity` lists them. Decided autonomously.
+
+## Net change between two commits — 2026-11-14
+
+**Decision:** `updates` compares the tree at the window start with `HEAD` and classifies the net change. It does not replay each commit.
+
+**Alternatives considered:** Walk each commit (rejected: slower, and many entries per document).
+
+**Reason:** One entry per document is what a reader needs. Decided autonomously.
+
+## At most 50 entries, no token cap — 2026-11-14
+
+**Decision:** The list is cut at 50 entries. The `max_results` and `max_tokens` caps of `search` do not apply.
+
+**Reason:** The caps are small and fit a search. An update list needs to be complete for the window, and an entry is short. Decided autonomously.
+
+## Foundation additions — 2026-11-14
+
+**Decision:** This spec adds `src/gitsync/diff.rs` and `src/state/mod.rs`, and the dependency on `search-and-read` for `Store`. `requires` becomes `search-and-read` (it was already so).
+
+**Reason:** Reported to `git-sync`, because the module `gitsync` gets a new file. Decided autonomously.

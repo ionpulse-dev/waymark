@@ -1,0 +1,399 @@
+//! Update from the remote, push, and the conflict rule.
+
+use super::cmd::{self, run, run_ok};
+use super::lock::Lock;
+use super::message::{commit_message, Verb};
+use super::write::{Change, Tx};
+use super::Repo;
+use crate::error::{Error, Result};
+use crate::format;
+use sha2::{Digest, Sha256};
+use std::time::{Duration, Instant};
+
+const FRESH_FOR: Duration = Duration::from_secs(180);
+
+#[derive(Debug, Clone, Default)]
+pub struct SyncResult {
+    pub commits: Vec<String>,
+    pub pushed: bool,
+    pub notices: Vec<String>,
+    /// Pairs (original path, conflict copy path) of documents that were edited at the same time.
+    pub conflicts: Vec<(String, String)>,
+}
+
+impl Repo {
+    /// Does the current branch have an upstream?
+    fn has_upstream(&self) -> bool {
+        run(
+            &self.dir,
+            None,
+            &["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+        )
+        .map(|o| o.ok)
+        .unwrap_or(false)
+    }
+
+    /// (ahead, behind) of the upstream.
+    fn ahead_behind(&self) -> Result<(usize, usize)> {
+        let out = run_ok(
+            &self.dir,
+            None,
+            &["rev-list", "--left-right", "--count", "HEAD...@{u}"],
+        )?;
+        let mut p = out.stdout.split_whitespace();
+        let a = p.next().and_then(|x| x.parse().ok()).unwrap_or(0);
+        let b = p.next().and_then(|x| x.parse().ok()).unwrap_or(0);
+        Ok((a, b))
+    }
+
+    /// Fetch and bring the clone up to date. In a write a failure is an error. In a read it is a notice.
+    /// Returns notices for the result.
+    pub(crate) fn update(&self, for_write: bool) -> Result<Vec<String>> {
+        if !self.has_remote() {
+            return Ok(vec![
+                "This repository has no remote, so nothing is shared.".to_string()
+            ]);
+        }
+        let fetched = run(&self.dir, None, &["fetch", "--quiet"])?;
+        if !fetched.ok {
+            let msg = format!(
+                "Cannot reach the remote: {}",
+                cmd::first_line(&fetched.stderr)
+            );
+            if for_write {
+                return Err(Error::sync(msg)
+                    .with_next("Check the network and your Git login, then try again."));
+            }
+            return Ok(vec![format!("{msg}. The local copy may be behind.")]);
+        }
+        *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        if !self.has_upstream() {
+            return Ok(Vec::new());
+        }
+        let (ahead, behind) = self.ahead_behind()?;
+        if behind == 0 {
+            return Ok(Vec::new());
+        }
+        let out = if ahead == 0 {
+            run(
+                &self.dir,
+                Some(&self.author),
+                &["merge", "--ff-only", "--quiet", "@{u}"],
+            )?
+        } else {
+            run(
+                &self.dir,
+                Some(&self.author),
+                &["pull", "--rebase", "--quiet"],
+            )?
+        };
+        if !out.ok {
+            if ahead > 0 {
+                let _ = run(&self.dir, None, &["rebase", "--abort"]);
+            }
+            let msg = format!(
+                "Cannot bring the local copy up to date: {}",
+                cmd::first_line(&out.stderr)
+            );
+            if for_write {
+                return Err(Error::sync(msg).with_next(
+                    "Run sync, or look at the local changes in the knowledge base folder.",
+                ));
+            }
+            return Ok(vec![format!("{msg}. The local copy may be behind.")]);
+        }
+        Ok(Vec::new())
+    }
+
+    /// Update before a read, if the last good fetch is older than a few minutes.
+    /// A failure never blocks a read. It gives a notice.
+    pub fn refresh_if_stale(&self) -> Vec<String> {
+        if !self.has_remote() {
+            return vec!["This repository has no remote, so nothing is shared.".to_string()];
+        }
+        let fresh = self
+            .last_fetch
+            .lock()
+            .unwrap()
+            .is_some_and(|t| t.elapsed() < FRESH_FOR);
+        if fresh {
+            return Vec::new();
+        }
+        match Lock::acquire(&self.git_dir().unwrap_or_default(), Duration::from_secs(5)) {
+            Ok(_lock) => self.update(false).unwrap_or_else(|e| vec![e.message]),
+            Err(_) => Vec::new(),
+        }
+    }
+
+    /// Push. Returns a notice instead of an error when there is no remote. A rejected push is `sync_failed`.
+    pub(crate) fn push(&self) -> Result<Option<String>> {
+        if !self.has_remote() {
+            return Ok(Some(
+                "This repository has no remote, so nothing is shared.".to_string(),
+            ));
+        }
+        let out = if self.has_upstream() {
+            run(&self.dir, None, &["push", "--quiet"])?
+        } else {
+            run(
+                &self.dir,
+                None,
+                &["push", "--quiet", "-u", "origin", "HEAD"],
+            )?
+        };
+        if out.ok {
+            return Ok(None);
+        }
+        Err(Error::sync(format!(
+            "The push was rejected: {}. The change is saved on this computer.",
+            cmd::first_line(&out.stderr)
+        ))
+        .with_next("Run sync to merge and push it, or try again later."))
+    }
+
+    /// The `sync` operation. First, `pending` may write files for edits made outside waymark and return
+    /// a change to commit. Then pull with rebase, apply the conflict rule, and push.
+    pub fn sync(&self, pending: impl FnOnce(&Tx) -> Result<Option<Change>>) -> Result<SyncResult> {
+        let _lock = Lock::acquire(&self.git_dir()?, Duration::from_secs(30))?;
+        let mut result = SyncResult::default();
+        let tx = Tx::new_for_sync(self);
+        if let Some(change) = pending(&tx)? {
+            if let Some(h) = self.commit_change(&change)? {
+                result.commits.push(h);
+            }
+        }
+        if !self.has_remote() {
+            result
+                .notices
+                .push("This repository has no remote, so nothing is shared.".to_string());
+            return Ok(result);
+        }
+        let fetched = run(&self.dir, None, &["fetch", "--quiet"])?;
+        if !fetched.ok {
+            return Err(Error::sync(format!(
+                "Cannot reach the remote: {}",
+                cmd::first_line(&fetched.stderr)
+            ))
+            .with_next("Check the network and your Git login, then try again."));
+        }
+        *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        if self.has_upstream() {
+            let (ahead, behind) = self.ahead_behind()?;
+            if behind > 0 {
+                let out = if ahead == 0 {
+                    run(
+                        &self.dir,
+                        Some(&self.author),
+                        &["merge", "--ff-only", "--quiet", "@{u}"],
+                    )?
+                } else {
+                    run(
+                        &self.dir,
+                        Some(&self.author),
+                        &["pull", "--rebase", "--quiet"],
+                    )?
+                };
+                if !out.ok {
+                    self.resolve_conflicts(&mut result)?;
+                }
+            }
+        }
+        if let Some(notice) = self.push()? {
+            result.notices.push(notice);
+        } else {
+            result.pushed = true;
+        }
+        Ok(result)
+    }
+
+    /// The conflict rule. The rebase failed. Abort it, then keep both versions of every document
+    /// that was edited on both sides: the remote version stays at the original path, and the local
+    /// version is saved next to it as a disputed copy. Then merge, which is clean now.
+    fn resolve_conflicts(&self, result: &mut SyncResult) -> Result<()> {
+        let conflicted = run(&self.dir, None, &["diff", "--name-only", "--diff-filter=U"])?;
+        let paths: Vec<String> = conflicted
+            .stdout
+            .lines()
+            .map(str::to_string)
+            .filter(|l| !l.is_empty())
+            .collect();
+        let _ = run(&self.dir, None, &["rebase", "--abort"]);
+        let _ = run(&self.dir, None, &["merge", "--abort"]);
+        if paths.is_empty() {
+            return Err(
+                Error::sync("The local copy and the remote cannot be joined.")
+                    .with_next("Look at the knowledge base folder, or ask someone who knows Git."),
+            );
+        }
+        if let Some(bad) = paths.iter().find(|p| !p.ends_with(".md")) {
+            return Err(Error::sync(format!(
+                "The file {bad} was changed on both sides and is not a document."
+            ))
+            .with_next("Join the two changes by hand in the knowledge base folder."));
+        }
+        let mut to_commit = Vec::new();
+        for p in &paths {
+            let local = run_ok(&self.dir, None, &["show", &format!("HEAD:{p}")])
+                .map(|o| o.stdout)
+                .ok();
+            let remote_exists =
+                run(&self.dir, None, &["cat-file", "-e", &format!("@{{u}}:{p}")])?.ok;
+            // Put the remote version at the original path.
+            if remote_exists {
+                run_ok(&self.dir, None, &["checkout", "@{u}", "--", p])?;
+            } else {
+                // The remote deleted it. The local version becomes the copy only.
+                let _ = run(&self.dir, None, &["rm", "-q", "-f", "--", p]);
+            }
+            to_commit.push(p.clone());
+            if let Some(local_text) = local {
+                let copy = conflict_copy(p, &local_text, &self.author, &today());
+                self.write_raw(&copy.0, &copy.1)?;
+                to_commit.push(copy.0.clone());
+                result.conflicts.push((p.clone(), copy.0));
+            }
+        }
+        let message = commit_message(Verb::Sync, &conflict_title(&paths));
+        if let Some(h) = self.commit_change(&Change {
+            paths: to_commit,
+            message,
+        })? {
+            result.commits.push(h);
+        }
+        let merged = run(
+            &self.dir,
+            Some(&self.author),
+            &["merge", "--no-edit", "--quiet", "@{u}"],
+        )?;
+        if !merged.ok {
+            let _ = run(&self.dir, None, &["merge", "--abort"]);
+            return Err(Error::sync(format!(
+                "The merge failed: {}",
+                cmd::first_line(&merged.stderr)
+            ))
+            .with_next("Look at the knowledge base folder, or ask someone who knows Git."));
+        }
+        for (orig, copy) in &result.conflicts {
+            result.notices.push(format!(
+                "Two people changed {orig} at the same time. Both versions are kept: the other version is in {orig}, yours is in {copy}. Merge the two."
+            ));
+        }
+        Ok(())
+    }
+
+    fn write_raw(&self, rel: &str, content: &str) -> Result<()> {
+        let p = self.dir.join(rel);
+        std::fs::write(&p, content).map_err(|e| Error::setup(format!("Cannot write {rel}: {e}")))
+    }
+}
+
+fn today() -> String {
+    chrono::Local::now().format("%Y-%m-%d").to_string()
+}
+
+fn conflict_title(paths: &[String]) -> String {
+    match paths.first() {
+        Some(p) if paths.len() == 1 => format!("Conflict in {}", p.trim_end_matches(".md")),
+        _ => format!("Conflicts in {} documents", paths.len()),
+    }
+}
+
+/// The name and the text of the conflict copy of a document.
+/// Name: `<name>-conflict-<7 hex>.md`, with the hex from the SHA-256 of the local text.
+/// The copy has a new title, `disputed: true`, and a reason.
+pub fn conflict_copy(
+    path: &str,
+    local_text: &str,
+    author: &cmd::Author,
+    today: &str,
+) -> (String, String) {
+    let mut hasher = Sha256::new();
+    hasher.update(local_text.as_bytes());
+    let hex: String = hasher
+        .finalize()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>()[..7]
+        .to_string();
+    let stem = path.trim_end_matches(".md");
+    let copy_path = format!("{stem}-conflict-{hex}.md");
+    let id = stem.to_string();
+    match format::parse(local_text) {
+        Ok(mut doc) => {
+            let limit = format::Limits::default().title_max_words;
+            let title = doc
+                .frontmatter
+                .get_text("title")
+                .unwrap_or("Untitled")
+                .to_string();
+            let words: Vec<&str> = title.split_whitespace().collect();
+            let keep = words.len().min(limit.saturating_sub(2));
+            let new_title = format!("{} [conflict {hex}]", words[..keep].join(" "));
+            doc.frontmatter.set_text("title", new_title.trim());
+            doc.frontmatter.set_bool("disputed", true);
+            doc.frontmatter.set_text(
+                "dispute_reason",
+                &format!("Edited at the same time as {id}. Merge the two."),
+            );
+            doc.frontmatter.set_date("updated", today);
+            doc.frontmatter
+                .set_text("updated_by", &format!("{} <{}>", author.name, author.email));
+            (copy_path, doc.render())
+        }
+        Err(_) => (copy_path, local_text.to_string()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn author() -> cmd::Author {
+        cmd::Author {
+            name: "Jane Doe".into(),
+            email: "jane@example.org".into(),
+        }
+    }
+
+    const DOC: &str = "---\ntitle: Deploy process\ndescription: How we deploy\nstatus: active\ncreated: 2026-11-01\nupdated: 2026-11-02\ncreated_by: \"A B <a@example.org>\"\nupdated_by: \"A B <a@example.org>\"\n---\nLocal text\n";
+
+    #[test]
+    fn the_conflict_copy_name_and_flags() {
+        let (path, text) = conflict_copy("ops/deploy.md", DOC, &author(), "2026-11-14");
+        assert!(path.starts_with("ops/deploy-conflict-") && path.ends_with(".md"));
+        assert_eq!(path.len(), "ops/deploy-conflict-".len() + 7 + 3);
+        assert!(format::id::check_path(&path).is_empty(), "{path}");
+        let d = format::parse(&text).unwrap();
+        assert!(d
+            .frontmatter
+            .get_text("title")
+            .unwrap()
+            .starts_with("Deploy process [conflict "));
+        assert_eq!(d.frontmatter.get_bool("disputed"), Some(true));
+        assert!(d
+            .frontmatter
+            .get_text("dispute_reason")
+            .unwrap()
+            .contains("ops/deploy"));
+        assert_eq!(d.frontmatter.get_text("updated"), Some("2026-11-14"));
+        assert!(d.body.contains("Local text"));
+        let findings = format::check(&path, &text, &format::Limits::default(), None);
+        assert!(!format::has_errors(&findings), "{findings:?}");
+    }
+
+    #[test]
+    fn the_copy_title_stays_within_the_word_limit() {
+        let long = vec!["word"; 15].join(" ");
+        let doc = DOC.replace("Deploy process", &long);
+        let (path, text) = conflict_copy("a.md", &doc, &author(), "2026-11-14");
+        let findings = format::check(&path, &text, &format::Limits::default(), None);
+        assert!(!format::has_errors(&findings), "{findings:?}");
+    }
+
+    #[test]
+    fn the_same_text_gives_the_same_name() {
+        let a = conflict_copy("a.md", DOC, &author(), "2026-11-14").0;
+        let b = conflict_copy("a.md", DOC, &author(), "2026-11-15").0;
+        assert_eq!(a, b);
+    }
+}

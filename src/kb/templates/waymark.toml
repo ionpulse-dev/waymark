@@ -1,0 +1,25 @@
+# Shared settings of this knowledge base. Every key in the sections below is optional.
+name = {name}
+id = "{id}"
+slug = "{slug}"
+verification = false
+
+[limits]
+# access = "read-write"        # read-only | read-write
+# tools_denied = []            # for example ["delete", "move"]
+# folders = []                 # allowed folders, empty means all
+# max_results = 5
+# max_tokens = 800
+# max_documents_opened = 20
+
+[approval]
+# required_for = []            # tool names, or "write"
+# via = "elicitation"
+
+[documents]
+# max_bytes = 102400
+# title_max_words = 15
+# description_max_words = 50
+
+[lint]
+# extra_secret_patterns = []   # regular expressions

@@ -7,12 +7,13 @@
 
 ## Next Up
 
-On 2026-11-11 the design changed to MCP only: one binary, local and server mode, no skill, no app (see [architecture direction](../docs/architecture-direction.md)). On 2026-11-14 `document-format` was approved and is `planned`. All other specs are `draft`. The current scope is local mode on macOS only (see [project decisions](../docs/decisions.md)). Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now. The next step is the review and approval of the requirements and plans in scope, foundation first:
+Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). Every in-scope spec is `planned`, written under autonomous approval. The decisions are tagged "decided autonomously". The plan and state of the work are in `tmp/plan.md` (not in Git).
 
-1. `trust-model`, `knowledge-base-repo`
-2. `git-sync`, `mcp-server`
-3. `distribution`, then `server-mode` and `multi-tenancy`
-4. The feature specs, starting with `write-documents` and `search-and-read`
+1. `trust-model`, `knowledge-base-repo`, `git-sync`: the code exists in `src/config`, `src/kb`, `src/gitsync` and passes its tests. The remaining tasks need `mcp-server` (end-to-end tests). Status stays `planned` until their `tasks.md` is fully checked off.
+2. `mcp-server`: next to implement (rmcp 3.10, tool registry, `status` tool, stdio). Then `integration-testing` MCP client.
+3. Features in dependency order: `write-documents`, `search-and-read`, `quality-checks`, then the rest.
+4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
+5. `dev-environment`: implemented except the spec-check shell tests and the manual test.
 
 ---
 
@@ -20,31 +21,31 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
-| [activity-and-undo](features/activity-and-undo/requirements.md) | `draft` | 2026-11-11 |
-| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `draft` | 2026-11-12 |
-| [create-knowledge-base](features/create-knowledge-base/requirements.md) | `draft` | 2026-11-11 |
-| [join-knowledge-base](features/join-knowledge-base/requirements.md) | `draft` | 2026-11-11 |
-| [login-and-identity](features/login-and-identity/requirements.md) | `draft` | 2026-11-11 |
-| [maintenance](features/maintenance/requirements.md) | `draft` | 2026-11-11 |
-| [manual-edits](features/manual-edits/requirements.md) | `draft` | 2026-11-11 |
-| [move-documents](features/move-documents/requirements.md) | `draft` | 2026-11-11 |
-| [notifications-and-review](features/notifications-and-review/requirements.md) | `draft` | 2026-11-11 |
-| [pause-and-resume](features/pause-and-resume/requirements.md) | `draft` | 2026-11-11 |
-| [plain-git-access](features/plain-git-access/requirements.md) | `draft` | 2026-11-11 |
-| [project-binding](features/project-binding/requirements.md) | `draft` | 2026-11-11 |
-| [quality-checks](features/quality-checks/requirements.md) | `draft` | 2026-11-11 |
-| [search-and-read](features/search-and-read/requirements.md) | `draft` | 2026-11-11 |
-| [session-start](features/session-start/requirements.md) | `draft` | 2026-11-11 |
-| [updates](features/updates/requirements.md) | `draft` | 2026-11-11 |
-| [verification](features/verification/requirements.md) | `draft` | 2026-11-11 |
+| [activity-and-undo](features/activity-and-undo/requirements.md) | `planned` | 2026-11-14 |
+| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `planned` | 2026-11-14 |
+| [create-knowledge-base](features/create-knowledge-base/requirements.md) | `planned` | 2026-11-14 |
+| [join-knowledge-base](features/join-knowledge-base/requirements.md) | `planned` | 2026-11-14 |
+| [login-and-identity](features/login-and-identity/requirements.md) | `planned` | 2026-11-14 |
+| [maintenance](features/maintenance/requirements.md) | `planned` | 2026-11-14 |
+| [manual-edits](features/manual-edits/requirements.md) | `planned` | 2026-11-14 |
+| [move-documents](features/move-documents/requirements.md) | `planned` | 2026-11-14 |
+| [notifications-and-review](features/notifications-and-review/requirements.md) | `planned` | 2026-11-14 |
+| [pause-and-resume](features/pause-and-resume/requirements.md) | `planned` | 2026-11-14 |
+| [plain-git-access](features/plain-git-access/requirements.md) | `planned` | 2026-11-14 |
+| [project-binding](features/project-binding/requirements.md) | `planned` | 2026-11-14 |
+| [quality-checks](features/quality-checks/requirements.md) | `planned` | 2026-11-14 |
+| [search-and-read](features/search-and-read/requirements.md) | `planned` | 2026-11-14 |
+| [session-start](features/session-start/requirements.md) | `planned` | 2026-11-14 |
+| [updates](features/updates/requirements.md) | `planned` | 2026-11-14 |
+| [verification](features/verification/requirements.md) | `planned` | 2026-11-14 |
+| [write-approval](features/write-approval/requirements.md) | `planned` | 2026-11-14 |
+| [write-documents](features/write-documents/requirements.md) | `planned` | 2026-11-14 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
-| [write-approval](features/write-approval/requirements.md) | `draft` | 2026-11-12 |
-| [write-documents](features/write-documents/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
 
 | Item | Status | Updated |
-|:-----|:-------|:--------|
+|:--------|:-------|:--------|
 | [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-14 |
 | [dev-environment](foundation/dev-environment/requirements.md) | `planned` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `planned` | 2026-11-14 |
@@ -54,7 +55,7 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 | [mcp-server](foundation/mcp-server/requirements.md) | `planned` | 2026-11-14 |
 | [trust-model](foundation/trust-model/requirements.md) | `planned` | 2026-11-14 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
-| [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-12 |
+| [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 
 ## Superseded
 

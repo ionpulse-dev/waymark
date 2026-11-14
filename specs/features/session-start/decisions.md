@@ -29,3 +29,54 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The server sends a short neutral summary as MCP instructions at connect. `status` returns the same facts. There is no `session` call and no behavior advice.
 
 **Reason:** no skill tells the agent to call a first command. Alternative considered: a first tool that an agent must call. Nothing can make it call it.
+
+## The exact text and the fields — 2026-11-14
+
+**Decision:** The instructions are five short lines in a fixed format (see `requirements.md`). The limits are the same as the `settings` object, in prose. The `status` result has `knowledge_base` (`name`, `id`, `slug`, `path`, `remote`, `found_by`) and `settings`. The `settings` object has these keys: `access`, `paused`, `tools_denied`, `folders`, `max_results`, `max_tokens`, `max_documents_opened`, and `approval` with `required_for` and `via`. This object is the shape for every result of every tool.
+
+**Alternatives considered:**
+- A list of all tools in the instructions (the old example). Rejected: `tools/list` has it already, and it costs context in every session.
+- `allowed_repo_hosts` in `settings`. Rejected: it matters to the setup, not to an agent.
+- A long text with the meaning of every limit. Rejected: context cost, and the descriptions of the tools carry the meaning.
+
+**Reason:** One shape for the facts, and a stable text that tests can compare. Decided autonomously. `mcp-server` has the short instructions text in its plan, item 9. This spec fills it in (see the report).
+
+## No behavior advice, and a test for it — 2026-11-14
+
+**Decision:** The text uses only statements of fact. A test fails if the text holds `should`, `must`, `always`, `never`, `please`, `prefer`, or `you`.
+
+**Alternatives considered:** Advice such as "read before you write". Rejected: it is the choice of each team in its `AGENTS.md`, and a server cannot enforce it.
+
+**Reason:** `mcp-server` says tool descriptions and instructions carry no behavior advice. A word list is a cheap guard. Decided autonomously.
+
+## Instructions use local data only — 2026-11-14
+
+**Decision:** `initialize` makes no network call. The instructions come from the arguments, the config files, and the shared file in the clone. A first clone happens before `initialize` and belongs to `project-binding`. The pull "at start" of `git-sync` happens at the first read, because a clone with no recorded good pull counts as stale.
+
+**Alternatives considered:** Pull before `initialize`. Rejected: a slow network would delay the start and the client could time out.
+
+**Reason:** A fast start matters more than the freshest limits. Limits in the shared file reach the session at the first call anyway. Decided autonomously.
+
+## The instructions are a snapshot — 2026-11-14
+
+**Decision:** The instructions are made once. The text says "at session start". The current facts are in `settings` and `notices` of every result and in `status`.
+
+**Alternatives considered:** Update the instructions during the session. MCP has no message for it.
+
+**Reason:** This follows the decision "Settings in every result" of 2026-11-07. Decided autonomously.
+
+## `status` without a knowledge base is a normal result — 2026-11-14
+
+**Decision:** `status` returns `knowledge_base: null` and a `problem` object, with no error flag.
+
+**Alternatives considered:** An error result. Rejected: `status` is the tool that tells what is wrong, so it must succeed.
+
+**Reason:** An agent or a person can always read the fix. Decided autonomously.
+
+## The knowledge base name is data, not text of the server — 2026-11-14
+
+**Decision:** The name and every other value from a file are cut at 80 characters and at the first line break before they go into the instructions.
+
+**Alternatives considered:** Insert the value as it is. Rejected: a document of a shared knowledge base could add lines (and so advice) to the instructions of every reader. This is a prompt-injection path.
+
+**Reason:** The instructions stay a fixed text with short values. Decided autonomously.

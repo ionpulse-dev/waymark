@@ -1,0 +1,34 @@
+# Tests: Verification
+
+_`[auto]` items are verified by running the automated test suite. `[manual]` items require human verification in a real environment._
+
+## Acceptance Criteria Coverage
+
+| Criterion | Test Case |
+|:----------|:----------|
+| Verification off: the three tools are not listed | `tools_hidden_when_off` |
+| Verification on: `add` sets `trust: unverified` | `add_sets_unverified` |
+| `verify` sets the fields and pushes one commit | `verify_sets_fields` |
+| A body change resets trust | `update_resets_trust` |
+| `verify` on a disputed document fails | `verify_disputed_fails` |
+| `reject` keeps the file as deprecated | `reject_keeps_file` |
+| Approval is asked for `verify` | `verify_asks_approval` |
+| `review` lists disputed first with the reason | `review_order_and_reason` |
+| A direct call with verification off gives `access_denied` | `direct_call_when_off` |
+
+## Test Cases
+
+- [ ] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_verification.rs`)
+- [ ] [auto] The `verify` commit is `waymark: update "<title>"` with the body line `Trust: verified` (`tests/it_verification.rs`)
+- [ ] [auto] The `reject` commit is `waymark: deprecate "<title>"` with `Reason:` and `Trust: rejected`, and `verified_by` and `verified` are gone (`tests/it_verification.rs`)
+- [ ] [auto] `verify` twice, on a deprecated document, and with an old `base` each fail with the right code (`tests/it_verification.rs`)
+- [ ] [auto] A document without `trust` shows in `review` as unverified (`tests/it_verification.rs`)
+- [ ] [auto] `review` respects `folder`, `limit`, `total`, and the `folders` limit (`tests/it_verification.rs`)
+- [ ] [auto] `dispute` and `deprecate` keep a verified mark (`tests/it_verification.rs`)
+- [ ] [auto] With verification turned off again, trust fields stay in the files and `add` stops setting `trust` (`tests/it_verification.rs`)
+- [ ] [auto] `undo` of a `verify` restores the document (`tests/it_verification.rs`, needs `activity-and-undo`; `#[ignore]` until then)
+- [ ] [manual] Obsidian shows the trust fields. Steps: turn verification on in `.mkbase/waymark.toml`, run `verify` through a real agent tool, open the document in Obsidian. Expected: the Properties panel shows `trust`, `verified_by`, and `verified` without errors.
+
+## Notes
+
+The approval case needs `write-approval` and is `#[ignore]` until that spec is implemented. The tests turn verification on by committing `verification = true` to `.mkbase/waymark.toml` in the `World`.

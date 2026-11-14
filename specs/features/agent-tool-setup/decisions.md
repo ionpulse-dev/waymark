@@ -34,3 +34,35 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - A helper command that writes the MCP entry. It would be a second interface and would write into files of other tools.
 
 **Reason:** No skill, no instruction block, and no installer.
+
+## Facts come from the official documentation, and unverified items are marked — 2026-11-14
+
+**Decision:** The formats and locations of the three tools were read from the current official documentation on 2026-11-14 and are in `docs/agent-tools-research.md`. Claude Code and Codex are verified for the entry, the scopes, and the permission rules. Copilot is verified for the VS Code project file and the CLI files. Every other statement (kind hints, `ask` rules without prompts, elicitation, server `instructions`, same-name precedence for Codex and Copilot, Copilot permission prompts) is marked "unverified" in the documents. No snippet has run in a real tool yet. Decided autonomously.
+
+**Alternatives considered:**
+- Write only what a real run proved (rejected: nothing can be run in this task, and the documentation is a good first source).
+- Leave unverified items out (rejected: the person should know what is not known).
+
+**Reason:** The product owner needs working snippets, and an honest mark where the proof is missing.
+
+## The docs live in `docs/install.md`, this spec owns the section — 2026-11-14
+
+**Decision:** `distribution` creates `docs/install.md`. This spec owns the section "Agent tools" in it. The README holds one generic entry and a link. `docs/agent-tools-research.md` holds the sources.
+
+**Alternatives considered:** A second file for the agent tools (rejected: two install guides drift apart).
+
+**Reason:** One install guide for the reader. Decided autonomously. Conflict to note: `distribution/plan.md` lists `docs/install.md` as its new file too. The task order decides who writes it first. The section is added by whoever comes second.
+
+## No automatic check against the real tools — 2026-11-14
+
+**Decision:** The snippets are checked in two ways. An `[auto]` test parses them and checks the rules of the requirements. A `[manual]` test runs each one in the real tool before a release.
+
+**Reason:** A real agent tool needs a person, a login, and a license, so it cannot run in CI.
+
+## Permission advice names tools one by one — 2026-11-14
+
+**Decision:** The Claude Code advice lists each tool as `mcp__waymark__<tool>`, not a wildcard for the read tools.
+
+**Alternatives considered:** `mcp__waymark__*` in `ask` (rejected: it asks for reads too). A glob such as `mcp__waymark__get_*` (rejected: the tool names have no common prefix).
+
+**Reason:** An allow rule accepts a glob only after the literal server prefix, and the read tools share no pattern. A test checks that every name in the advice is a tool of the registry.

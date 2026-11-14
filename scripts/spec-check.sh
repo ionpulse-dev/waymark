@@ -31,7 +31,7 @@ done
 # relative links in specs and docs
 for f in $(find specs docs -name '*.md' -not -path 'specs/templates/*'); do
   d=$(dirname "$f")
-  for link in $(grep -o '](\([^)#:]*\.md\)' "$f" | sed 's/](//'); do
+  for link in $(sed 's/`[^`]*`//g' "$f" | grep -o '](\([^)#:]*\.md\)' | sed 's/](//'); do
     case "$link" in http*|/*) continue ;; esac
     [ -e "$d/$link" ] || err "$f links to missing $link"
   done

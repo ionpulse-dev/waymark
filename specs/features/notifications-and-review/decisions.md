@@ -23,3 +23,49 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The server puts notices into tool results. The review list is in the console on a server.
 
 **Reason:** no app and no background process in local mode. Alternative considered: email or webhook messages. They are a later option.
+
+## Local mode has no review list tool — 2026-11-14
+
+**Decision:** The review list of the requirements is `updates` plus the open notices in `status`. The console list is deferred with server mode. No new tool.
+
+**Alternatives considered:** A `review_list` tool (rejected: the tool set stays small, and `updates` already lists disputes of the person with their reason).
+
+**Reason:** One place to look is already there. Decided autonomously.
+
+## A repeat rule: once per session, at most 3 sessions — 2026-11-14
+
+**Decision:** A notice appears once per session. A notice about documents appears in at most 3 sessions, or until the person runs `updates` without `since`. The count lives in the state file under `notice_sessions`.
+
+**Alternatives considered:**
+- Repeat until seen (rejected: a person who never runs `updates` gets noise forever).
+- Show once ever (rejected: an agent may ignore it in the first session).
+
+**Reason:** Answers the open question. Three sessions give the person enough chances. Decided autonomously.
+
+## Notices pass one filter after every call — 2026-11-14
+
+**Decision:** The registry calls `notices::finalize` after every call, also for errors. It adds system notices and drops repeats, including repeats of notices that other specs make.
+
+**Alternatives considered:** Each tool adds its own notices (rejected: no common once-per-session rule).
+
+**Reason:** One place keeps the rule and the wording. Decided autonomously.
+
+## "Of the person" means `created_by` — 2026-11-14
+
+**Decision:** A document is of the person when `created_by` has the email of the person. A document that the person only edited does not count.
+
+**Alternatives considered:** Anyone who ever committed to it (rejected: needs history for every document at every call, and creates noise).
+
+**Reason:** It is cheap, clear, and matches "documents I wrote". Decided autonomously.
+
+## Notices for documents are checked when `HEAD` changes — 2026-11-14
+
+**Decision:** The check runs at the first call of a session and whenever `HEAD` differs from the last checked commit. The result is cached.
+
+**Reason:** One `git diff` per new commit costs little. A check per call would cost more for no gain. Decided autonomously.
+
+## Foundation additions — 2026-11-14
+
+**Decision:** `Repo` gets `last_fetch_failed()`. `Context` gets the `NoticeBook`. The registry calls `finalize`. `status` calls `open_items`.
+
+**Reason:** Reported to `git-sync`, `mcp-server`, and `maintenance`. Decided autonomously.

@@ -33,3 +33,54 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The `AGENTS.md` of a content repository says: use the waymark tools if present, else the plain-Git rules.
 
 **Reason:** MCP is the only interface for agents. The plain-Git rules remain the fallback.
+
+## The standalone skills live in `plain-git/` of this repository — 2026-11-14
+
+**Decision:** After `waymark-trail` is retired, the folder `plain-git/` in this repository holds the two standalone skills as `plain-git/personal-knowledge-base/SKILL.md` and `plain-git/team-knowledge-base/SKILL.md`. waymark reads them at build time. They stay installable as skills, because each is a folder with a `SKILL.md`. Only the finished files move. The parts and the build script of `waymark-trail` do not move (see `todo.md`). A change to the text starts in this spec, as the workflow requires.
+
+**Alternatives considered:**
+- Another repository for the skills (rejected: a second repository to keep in step, and the standard is already here).
+- Keep them in `waymark-trail` (rejected: that repository is to be retired).
+- A folder under `standard/` (rejected: the standard defines the format, not the behavior of an agent).
+
+**Reason:** One repository, one spec workflow, and the skills ship with the binary that uses them. Decided autonomously. Answers the open question of this spec and of `docs/open-questions.md`.
+
+## The pin is the version in the file — 2026-11-14
+
+**Decision:** The pin is the `version` field in the frontmatter of the file in `plain-git/`. `init` repeats it in the marker line of `AGENTS.md`. A test checks that both are equal. The binary carries the text with `include_str!`.
+
+**Alternatives considered:** A Git tag or commit hash of another repository (rejected: no other repository now). A hash of the text (rejected: a person cannot read it).
+
+**Reason:** A version a person can read, and a copy in the binary that cannot drift from the file. Decided autonomously.
+
+## What the copy removes from the skill — 2026-11-14
+
+**Decision:** The copy in `AGENTS.md` drops the frontmatter and the section "Update of this skill". All other text stays as it is.
+
+**Alternatives considered:** Keep the update section (rejected: it points to a repository that is to be retired, and the agent would ask the person to update a copy that waymark owns). Rewrite parts of the skill for waymark (rejected: the skill must work without waymark).
+
+**Reason:** The version of the copy changes only with a new release of waymark. Decided autonomously.
+
+## One introduction, two skills — 2026-11-14
+
+**Decision:** `AGENTS.md` is built from a fixed introduction (`src/kb/templates/agents-intro.md`), an optional team part, the skill text, and a part for the team's rules. There are no two full templates.
+
+**Supersedes:** the single template file `src/kb/templates/AGENTS.md` in the plan of `knowledge-base-repo`. That file is replaced by `agents-intro.md`, and `kb::agents_file` builds the rest.
+
+**Alternatives considered:** Two full template files (rejected: the skill text would be copied twice into the repository, and a change would need two edits).
+
+**Reason:** One place for the introduction, and the skills stay the only source of the rules. Decided autonomously.
+
+## The skills may differ from the waymark checks — 2026-11-14
+
+**Decision:** The plain-Git rules keep their own text. Two differences stay: the commit prefix (`kb:` against `waymark:`) and the blocked example domains in the author email. They are listed in `todo.md`.
+
+**Reason:** The skill is independent of waymark. A fix of the skill is a later change. Decided autonomously.
+
+## An existing `AGENTS.md` is never changed — 2026-11-14
+
+**Decision:** No tool updates the rules in an existing `AGENTS.md`. A person who wants a newer version copies the text from the release.
+
+**Alternatives considered:** An update tool (rejected: the tool set stays small, and the file may hold the team's own text).
+
+**Reason:** The file belongs to the team. A check of the version in `status` is in `todo.md` of `maintenance`.

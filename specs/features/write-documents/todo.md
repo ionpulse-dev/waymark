@@ -1,0 +1,18 @@
+# Todo: Write documents
+
+## Bugs
+
+- [ ] None known.
+
+## Deferred
+
+- [ ] A tool or a field to make a deprecated document active again. Today a person edits the file, or runs `undo`.
+- [ ] Show the deprecation reason in `show` (it is in the commit message body). Belongs to `search-and-read`.
+- [ ] A secret scan with entropy checks and more patterns.
+- [ ] A link fix for `delete` that keeps the context better than the plain text.
+- [ ] Server mode: roles for write tools, and the web console for approval (see `server-mode` and `web-console`).
+
+## Open Questions
+
+- Conflict with `quality-checks`: `lint` has a rule for duplicate titles. The write tools ignore deprecated documents, so `lint` should do the same. `quality-checks` must reuse `src/writes/titles.rs` and `src/writes/secrets.rs`.
+- Needs from the foundation: `Repo::write` with a closure, message body lines, and link spans from `format::links`. The owners of `git-sync` and `document-format` must confirm.
