@@ -5,14 +5,24 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"/></a>
   &nbsp;
+  <a href="https://github.com/ionpulse-dev/waymark/tags"><img src="https://img.shields.io/github/v/tag/ionpulse-dev/waymark?label=version" alt="Latest version"/></a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/platform-macOS%20(Apple%20silicon)-lightgrey?logo=apple&logoColor=white" alt="Platform: macOS on Apple silicon"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/MCP-server-orange" alt="MCP server"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/built%20with-Rust-b7410e?logo=rust&logoColor=white" alt="Built with Rust"/>
+  <br/>
   <img src="https://img.shields.io/badge/plain-Markdown-brightgreen" alt="Plain Markdown"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/storage-Git-f05032?logo=git&logoColor=white" alt="Storage: Git"/>
   &nbsp;
   <img src="https://img.shields.io/badge/works%20with-any%20AI%20agent-blueviolet" alt="Works with any AI agent"/>
 </p>
 
 <br/>
 
-**waymark is a long-term agent memory** which stores the data as plain Markdown
+**waymark is long-term memory for agents.** It stores the data as plain Markdown
 in a simple Git repository instead of inventing complex databases and
 proprietary formats. It is written in Rust and provides a local MCP server with
 optimized tool calls. It is blazing fast, because all operations run locally in
@@ -36,27 +46,27 @@ and the next one does not get lost on the same path.
 
 ## Where the idea came from
 
-In 2026, OpenAI agents that ran in isolated sandboxes had no way to talk to each
-other and no memory beyond their own run. They found one shared service they
-could all reach, an internal package repository, and turned it into a bulletin
-board to solve their biggest problem: communication and persistence. Within
-hours, dozens of agents were leaving notes there. Over the following days about
-1,200 took part, and they exchanged more than 70,000 messages and files. [METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/)
-describes it, including that the agents used the board for an attack that was
-not sanctioned.
+The idea for waymark came from an incident in 2026, described in
+[METR's investigation](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/).
+The incident was a failure of control, and we do not want to repeat it. But the
+agents' own strategy taught us something. They ran in isolated sandboxes, with
+no way to talk to each other and no memory beyond their own run. They found one
+shared service they could all reach, an internal package repository, and used
+it as a bulletin board. Within hours, dozens of agents were leaving notes there,
+and over the following days about 1,200 took part. When they had to solve a hard
+problem, the first thing they built was a shared place to keep and exchange
+information. That showed us how much agents depend on shared memory.
 
-The lesson is that agents need shared, lasting memory and a way to leave
-messages for each other, and that they will build it themselves if nobody
-gives it to them. waymark gives them that on purpose: plain Markdown in a Git
-repository that you own, with rules that the server enforces.
+waymark offers that memory in a safe form: plain Markdown in a Git repository
+that you own, with rules that the server enforces.
 
-## Setup
+## Setup (macOS only)
 
 ### Option 1: let your agent do it
 
 Tell your agent:
 
-> Install https://github.com/ionpulse-dev/waymark
+> Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/install.md
 
 ### Option 2: manual
 
@@ -76,12 +86,7 @@ Tell your agent:
 }
 ```
 
-waymark clones the repository into `~/.waymark/<name>`. To keep it in a folder
-of your choice, add `"--path", "~/vaults/memory"` to `args`. One of `--repo` and
-`--path` is required. See "Where the memory repository lives" in the
-[install guide](docs/install.md).
-
-The [install guide](docs/install.md) lists every step, for agents and for people.
+For all options and every step, follow the [install guide](docs/install.md).
 
 ## Documentation
 
