@@ -14,3 +14,4 @@ _Prerequisite: `quality-checks` is `implemented` or `done`._
 - [x] `tests/it_manual_edits.rs`: the test cases of `test.md`.
 - [x] Check the size of `tools/list` against the budget of `mcp-server`.
 - [x] Run the full suite (`make check`).
+- [x] `src/manual/mod.rs`: a broken body link that an edit adds, and a deletion of a linked document, block the edit (2026-11-14).

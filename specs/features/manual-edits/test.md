@@ -56,6 +56,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
   - Steps: create a note in Obsidian with only text. Ask the agent to run `sync`.
   - Expected: the result lists the file under `blocked` with `no-frontmatter` and a clear message. The file is unchanged and nothing is pushed.
   - Teardown: delete the note.
+- [x] [auto] A new broken body link in a hand edit is blocked, an old one is not, and a linked document deleted by hand is blocked until the links are gone (`tests/it_manual_edits.rs`)
 
 ## Notes
 

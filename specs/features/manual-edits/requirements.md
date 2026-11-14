@@ -31,7 +31,7 @@ In local mode, the clone of the knowledge base is a normal folder. A person can 
 ### What `sync` does
 
 1. **Find pending edits.** Changed, new, and deleted `.md` documents below the root. Files that are not documents (images, `.mkbase/` files, files that start with `.`, entries of `.mkbase/exclude`) are never committed. They are listed under `skipped`.
-2. **Run `lint` first.** Every pending document goes through `lint` (see `quality-checks`). A document with an error is not committed. It is reported under `blocked` with its findings. It stays in the folder, unchanged. A document that passes later is committed by the next `sync`. Warnings do not block.
+2. **Run `lint` first.** Every pending document goes through `lint` (see `quality-checks`). A document with an error is not committed. It is reported under `blocked` with its findings. It stays in the folder, unchanged. A document that passes later is committed by the next `sync`. Warnings do not block, with one exception: a broken body link that the edit adds counts as an error, like in a write tool (see `write-documents`). A link that was already broken in the last commit stays a warning. A document that is deleted by hand while another document still links to it is blocked too, and the finding names the linking documents. If the links go in the same `sync`, both go together.
 3. **Set the author fields.** For a changed document that passed, waymark sets `updated` to today and `updated_by` to the author, if they differ. It touches nothing else.
 4. **Ask for approval** if the limits require it for `sync` or for writes (see `write-approval`). The request lists the documents. A refusal ends the call, and nothing is committed.
 5. **Commit** all passing documents in one commit under the author: `waymark: sync "<title>"` for one document, or `waymark: sync "<N> manual edits"` for several.
@@ -48,7 +48,7 @@ Every write tool commits pending manual edits first, in a separate commit, so th
 
 ### Moves and deletes by hand
 
-A document moved or renamed by hand (a delete and a new file) and a document deleted by hand are committed like any edit. Git detects the move. `show` with the old ID follows it (see `search-and-read`). Links in other documents that the move breaks are not checked by `sync`. `lint` finds them.
+A document moved or renamed by hand (a delete and a new file) and a document deleted by hand are committed like any edit. Git detects the move. `show` with the old ID follows it (see `search-and-read`). A deleted or moved-away document that another document still links to is blocked (see step 2). A moved document whose links are not fixed is therefore blocked until the links are fixed.
 
 ## Interfaces & Contracts
 
@@ -96,6 +96,8 @@ A document moved or renamed by hand (a delete and a new file) and a document del
 - **Given** an edit that fails `lint` and no other edit, **When** `sync` runs, **Then** it fails with `validation_failed`, names the problem, and pushes nothing. The file stays as it was.
 - **Given** one passing and one failing edit, **When** `sync` runs, **Then** the passing one is committed and pushed, and the failing one is listed under `blocked` and not committed.
 - **Given** pending manual edits, **When** an agent writes a document, **Then** the manual edits are committed first in their own commit.
+- **Given** a hand edit that adds a link to a document that does not exist, **When** `sync` runs, **Then** it is blocked with the rule `broken-link` and pushes nothing. A link that was broken in the last commit does not block.
+- **Given** a document deleted by hand that another document links to, **When** `sync` runs, **Then** the deletion is blocked and the finding names the linking document.
 - **Given** a pending edit that fails `lint`, **When** an agent writes another document, **Then** the write works and the result has a notice.
 - **Given** a pending edit that fails `lint`, **When** an agent writes the same document, **Then** the write fails with `stale_base`.
 - **Given** approval is required for writes, **When** manual edits are ready, **Then** the request opens before the commit.

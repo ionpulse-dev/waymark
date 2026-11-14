@@ -108,3 +108,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **`pulled`** is the number of commits that the pull brought in, as `git rev-list --left-right` counts them before the merge. A rebase of local commits is not counted twice.
 - **Hand moves** show as one `deleted` and one `new` in one commit. Git finds the rename, and `show` follows it.
 - **Approval** for `sync` uses `writes::approve`. It fails closed until `write-approval` exists. Test T7 waits for it.
+
+## `sync` applies the link rules — 2026-11-14
+
+**Decision (product owner):** `sync` runs the same checks as a write tool, links included. A broken body link that a hand edit adds blocks the edit. A document deleted by hand that others still link to is blocked. A link that was already broken in the last commit stays a warning.
+
+**Reason:** The knowledge base should stay consistent, also when someone edits in Obsidian or by hand. `lint` already blocked errors. The link rules of `write-documents` now hold for every way into the knowledge base.

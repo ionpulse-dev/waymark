@@ -396,3 +396,54 @@ fn t19_a_preview_write_does_not_commit_pending_edits() {
     assert_eq!(subjects(&w.a), before);
     assert!(git(&w.a, &["status", "--porcelain"]).contains("ops/deploy.md"));
 }
+
+#[test]
+fn a_new_broken_body_link_in_a_manual_edit_is_blocked() {
+    let w = World::new();
+    setup(&w);
+    edit_deploy(&w, "See [x](gone.md).");
+    let head = subjects(&w.remote);
+    let mut c = client(&w);
+    let r = c.call("sync", json!({}));
+    assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
+    assert!(r.message().contains("ops/gone.md"), "{}", r.message());
+    assert_eq!(subjects(&w.remote), head);
+    // The person fixes the link and the edit goes.
+    edit_deploy(&w, "No link now.");
+    let r = c.call("sync", json!({}));
+    assert_eq!(ids(&r.json, "committed"), vec!["ops/deploy"], "{}", r.json);
+}
+
+#[test]
+fn an_old_broken_link_does_not_block_a_manual_edit() {
+    let w = World::new();
+    commit_doc(&w.a, "ops/deploy", "How we deploy", "See [x](gone.md).");
+    edit_deploy(&w, "See [x](gone.md) and more text.");
+    let mut c = client(&w);
+    let r = c.call("sync", json!({}));
+    assert_eq!(ids(&r.json, "committed"), vec!["ops/deploy"], "{}", r.json);
+}
+
+#[test]
+fn deleting_a_linked_document_by_hand_waits_until_the_links_are_gone() {
+    let w = World::new();
+    commit_doc(&w.a, "ops/target", "Target", "T.");
+    commit_doc(&w.a, "ops/linker", "Linker", "See [t](target.md).");
+    std::fs::remove_file(w.a.join("knowledge/ops/target.md")).unwrap();
+    let mut c = client(&w);
+    let r = c.call("sync", json!({}));
+    assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
+    assert!(r.message().contains("ops/linker"), "{}", r.message());
+    // Both documents go together when the link goes too.
+    write_doc(
+        &w.a,
+        "ops/linker",
+        &text("Linker", "2020-01-02", "No link now."),
+    );
+    let r = c.call("sync", json!({}));
+    assert!(
+        ids(&r.json, "committed").contains(&"ops/target".to_string()),
+        "{}",
+        r.json
+    );
+}

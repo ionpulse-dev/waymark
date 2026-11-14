@@ -52,15 +52,38 @@ pub fn prepare(
         Some(lint::run(kb, &store, &|id| ids.contains(id), &limit, None)?)
     };
 
+    let all_ids = kb.id_set();
     let mut passing = Vec::new();
     let mut blocked = Vec::new();
     for edit in found.edits {
         if edit.kind == Kind::Deleted {
-            passing.push(edit);
+            // A deleted document that another document still links to would leave a broken
+            // link, so the deletion waits (see `write-documents`). Generated index files do not count.
+            let linked = crate::tools::delete::linked_from(kb, &edit.id, "");
+            if linked.is_empty() {
+                passing.push(edit);
+            } else {
+                let path = format!("{}.md", edit.id);
+                let from: Vec<String> = linked
+                    .iter()
+                    .filter_map(|l| l["id"].as_str().map(str::to_string))
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .into_iter()
+                    .collect();
+                let message = format!(
+                    "The deleted document is still linked from {}. Remove or replace those links first.",
+                    from.join(", ")
+                );
+                blocked.push(Blocked {
+                    id: edit.id,
+                    findings: vec![Finding::error(&path, "broken-link", message)],
+                    path,
+                });
+            }
             continue;
         }
         let path = format!("{}.md", edit.id);
-        let findings: Vec<Finding> = report
+        let mut findings: Vec<Finding> = report
             .as_ref()
             .map(|r| {
                 r.findings
@@ -70,6 +93,36 @@ pub fn prepare(
                     .collect()
             })
             .unwrap_or_default();
+        // A broken body link that the edit adds stops the publish, like in a write tool. A link that
+        // was broken in the last commit stays a warning.
+        let old_broken: Vec<String> = match edit.kind {
+            Kind::Changed => tx
+                .repo()
+                .show_at("HEAD", &edit.rel)
+                .ok()
+                .flatten()
+                .map(|old| {
+                    format::check(&path, &old, &kb.settings.documents, Some(&all_ids))
+                        .into_iter()
+                        .filter(|f| f.rule == "broken-link")
+                        .map(|f| f.message)
+                        .collect()
+                })
+                .unwrap_or_default(),
+            _ => Vec::new(),
+        };
+        for f in findings.iter_mut() {
+            if f.rule == "broken-link" && !f.is_error() && !old_broken.contains(&f.message) {
+                *f = Finding::error(
+                    &path,
+                    "broken-link",
+                    format!(
+                        "{} Write the linked document first, or remove the link.",
+                        f.message
+                    ),
+                );
+            }
+        }
         if findings.iter().any(Finding::is_error) {
             blocked.push(Blocked {
                 id: edit.id,
