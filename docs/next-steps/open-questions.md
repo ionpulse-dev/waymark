@@ -10,7 +10,7 @@ Questions that need an answer before or during planning. Each spec also lists it
 
 ## Architecture direction
 
-See [architecture-direction.md](architecture-direction.md) for the full list. The main ones:
+See [architecture-direction.md](../architecture-direction.md) for the full list. The main ones:
 
 - Do Claude Code, GitHub Copilot, and OpenAI Codex support remote MCP servers, managed MCP config, per-tool permission prompts, elicitation, and server instructions?
 - Does a project MCP entry override a user entry of the same name in all three tools, and do they ask before they start a project server?

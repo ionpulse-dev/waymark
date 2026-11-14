@@ -63,7 +63,7 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Decision:** The plain-Git rules for agents without the CLI are the `waymark-trail` skills, in their own repository. waymark depends on them, never the other way around.
 
-**Amended by:** "The MKBase standard lives in this repository" below. The standard moved here. The home of the skills after `waymark-trail` is retired is open (see [open-questions.md](open-questions.md)).
+**Amended by:** "The MKBase standard lives in this repository" below. The standard moved here. The home of the skills after `waymark-trail` is retired is open (see [open-questions.md](next-steps/open-questions.md)).
 
 **Reason:** They are useful without waymark and can spread on their own.
 

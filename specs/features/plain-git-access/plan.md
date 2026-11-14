@@ -8,7 +8,7 @@ The rules are text. The two standalone skills move into the folder `plain-git/` 
 
 - `knowledge-base-repo` — the template `src/kb/templates/AGENTS.md` is replaced by `src/kb/templates/agents-intro.md`. `kb::init` calls `kb::agents_file::render`.
 - `create-knowledge-base` — passes `audience` and `email_domains` to `render`.
-- `docs/open-questions.md` — the question about the home of the skills is answered (a later edit by the owner of that file, see the report).
+- `docs/next-steps/open-questions.md` — the question about the home of the skills is answered (a later edit by the owner of that file, see the report).
 
 ## New Files
 

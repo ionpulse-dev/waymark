@@ -2,9 +2,9 @@
 
 The order follows one idea: **prove the tools first, then add the shared server.** The server limits and the tool descriptions decide whether waymark is useful. Local mode proves them with one person and no infrastructure. Server mode then serves a whole organization.
 
-The design changed on 2026-11-11: MCP is the only interface, and there is no skill and no app. See [architecture-direction.md](architecture-direction.md).
+The design changed on 2026-11-11: MCP is the only interface, and there is no skill and no app. See [architecture-direction.md](../architecture-direction.md).
 
-No dates. Each phase ends with a clear result. The status of each spec is in [specs/INDEX.md](../specs/INDEX.md).
+No dates. Each phase ends with a clear result. The status of each spec is in [specs/INDEX.md](../../specs/INDEX.md).
 
 ## Overview
 
@@ -16,7 +16,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 | 3. Server mode | A shared server for one organization, with sign-in, roles, and a web console | Does it work for a team and for chat apps? |
 | 4. Pilot | A team and private users use it daily | Does it work beyond the author? |
 | 5. Public release | Open source release, signed binary, container image, docs | — |
-| After the first release | Multi-tenancy and the items from [ideas.md](ideas.md) | — |
+| After the first release | Multi-tenancy and the items from [ideas.md](../ideas.md) | — |
 
 ## Phase 0: Close the design
 
@@ -91,7 +91,7 @@ Result: a list of fixes, and a go or no-go for the public release.
 
 ## After the first release
 
-See [ideas.md](ideas.md). The largest items:
+See [ideas.md](../ideas.md). The largest items:
 
 - Multi-tenancy (`multi-tenancy`): separate organizations on one server.
 - A console page to connect a Git account.

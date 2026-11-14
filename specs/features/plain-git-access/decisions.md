@@ -43,7 +43,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - Keep them in `waymark-trail` (rejected: that repository is to be retired).
 - A folder under `standard/` (rejected: the standard defines the format, not the behavior of an agent).
 
-**Reason:** One repository, one spec workflow, and the skills ship with the binary that uses them. Decided autonomously. Answers the open question of this spec and of `docs/open-questions.md`.
+**Reason:** One repository, one spec workflow, and the skills ship with the binary that uses them. Decided autonomously. Answers the open question of this spec and of `docs/next-steps/open-questions.md`.
 
 ## The pin is the version in the file — 2026-11-14
 

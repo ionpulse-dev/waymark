@@ -16,7 +16,7 @@
 
 ## Outward steps are for the product owner — 2026-11-14
 
-**Decision:** Creating the tap repository, tagging, and making this repository public are not done by the AI. They are written in `docs/release-checklist.md` as exact steps.
+**Decision:** Creating the tap repository, tagging, and making this repository public are not done by the AI. They are written in `docs/next-steps/release-checklist.md` as exact steps.
 
 **Reason:** Public releases cannot be undone, and the product owner asked for it (see `docs/decisions.md`).
 

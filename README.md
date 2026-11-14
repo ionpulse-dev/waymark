@@ -405,10 +405,10 @@ Confluence page as its source, and a Confluence page can link to a document.
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
 - [MKBase Document Standard](standard/mkbase-1.0.md): the document format, with [conformance fixtures](standard/conformance/).
 - [Specifications](specs/INDEX.md): all specs and their status.
-- [Roadmap](docs/roadmap.md): phases from design to public release.
+- [Next steps](docs/next-steps/README.md), [roadmap](docs/next-steps/roadmap.md): phases from design to public release.
 - [Ideas](docs/ideas.md): features for after the first release.
 - [Similar projects](docs/similar-projects.md): what exists and what we learn from it.
-- [Project decisions](docs/decisions.md) and [open questions](docs/open-questions.md).
+- [Project decisions](docs/decisions.md) and [open questions](docs/next-steps/open-questions.md).
 - [How this project is built](specs/WORKFLOW.md).
 
 ## Development

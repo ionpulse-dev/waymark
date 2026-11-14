@@ -176,7 +176,7 @@ _Capabilities intentionally deferred. No specs exist yet — this section is a r
 ## Further reading
 
 - [Architecture direction](../docs/architecture-direction.md): why MCP only, and the two modes.
-- [Roadmap](../docs/roadmap.md): phases from design to public release.
+- [Roadmap](../docs/next-steps/roadmap.md): phases from design to public release.
 - [Ideas](../docs/ideas.md): the details of the post-MVP list.
 - [Similar projects](../docs/similar-projects.md): what exists and what we learn from it.
-- [Project decisions](../docs/decisions.md) and [open questions](../docs/open-questions.md).
+- [Project decisions](../docs/decisions.md) and [open questions](../docs/next-steps/open-questions.md).
