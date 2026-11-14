@@ -115,7 +115,9 @@ A claim of conformance MUST name the version, for example "conforms to MKBase
 
 Properties MUST be flat. A value MUST be text, a number, a checkbox (`true` or
 `false`), a date in the form `YYYY-MM-DD`, or a list of strings. A value MUST NOT
-be an object.
+be an object. The frontmatter MUST be valid YAML. A text value that contains a
+colon followed by a space (`: `), or a space followed by `#`, MUST be in double
+quotes. A producer SHOULD quote every `title` and `description`.
 
 | Field | Required | Meaning |
 |---|---|---|

@@ -258,3 +258,9 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 **Decision:** `yaml-rust2` 0.13.0 (released 2026-09-11, about 75 million downloads) is used. `saphyr` 0.3.4 (2026-11-11) is its active successor and stays the planned replacement if `yaml-rust2` stops.
 
 **Reason:** The check required by `todo.md` and the first task. Source: crates.io on 2026-11-14. Decided autonomously.
+
+## The standard says when to quote a value — 2026-11-14
+
+**Decision (decided autonomously):** Section 7 of the standard now says that the frontmatter MUST be valid YAML, that a text value with `: ` or ` #` MUST be in double quotes, and that a producer SHOULD quote every `title` and `description`. The conformance set has a new invalid document, `bad-yaml.md`, with an unquoted colon in the title. The rule `bad-yaml` already existed in `lint`.
+
+**Reason:** The first real use of waymark found 16 documents that a skill had written with unquoted colons. `lint` reported them as `bad-yaml`, but the standard did not say how to fix them.

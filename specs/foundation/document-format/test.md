@@ -27,6 +27,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 - [x] [auto] Every document of `standard/conformance/vault/` passes with no error finding (`tests/format_conformance.rs`)
 - [x] [auto] Every document of `standard/conformance/invalid/` fails, and the finding names the rule given by the file name (`tests/format_conformance.rs`)
+- [x] [auto] `invalid/bad-yaml.md` (an unquoted colon in the title) fails with the rule `bad-yaml` (`tests/format_conformance.rs`, `tests/lint_conformance.rs`)
 - [x] [auto] `render(parse(doc))` equals `doc` for every vault document (`tests/format_conformance.rs`)
 - [x] [auto] Words: titles of 15 and 16 words and descriptions of 50 and 51 words (`src/format/count.rs`)
 - [x] [auto] Words: a callout, an embed, a highlight, and a comment add no markup words. The text inside a callout, embed, or highlight counts. A comment's text does not (`src/format/count.rs`)
