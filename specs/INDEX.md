@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ████████████████████░░░░░░░░░░░░░░░░░░░░  10 / 20 active
+📦 Features      ██████████████████████░░░░░░░░░░░░░░░░░░  11 / 20 active
 🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding` are `implemented`. Next in dependency order: `session-start`, then the rest.
+3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start` are `implemented`. Next in dependency order: `agent-tool-setup`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -25,6 +25,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [pause-and-resume](features/pause-and-resume/requirements.md) | `implemented` | 2026-11-14 |
 | [write-approval](features/write-approval/requirements.md) | `implemented` | 2026-11-14 |
 | [project-binding](features/project-binding/requirements.md) | `implemented` | 2026-11-14 |
+| [session-start](features/session-start/requirements.md) | `implemented` | 2026-11-14 |
 | [manual-edits](features/manual-edits/requirements.md) | `implemented` | 2026-11-14 |
 | [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-14 |
 | [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-14 |
@@ -38,7 +39,6 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [maintenance](features/maintenance/requirements.md) | `planned` | 2026-11-14 |
 | [notifications-and-review](features/notifications-and-review/requirements.md) | `planned` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `planned` | 2026-11-14 |
-| [session-start](features/session-start/requirements.md) | `planned` | 2026-11-14 |
 | [updates](features/updates/requirements.md) | `planned` | 2026-11-14 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 

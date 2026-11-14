@@ -6,9 +6,11 @@ pub mod args;
 pub mod binding;
 pub mod context;
 pub mod error;
+pub mod instructions;
 pub mod repo_url;
 pub mod result;
 pub mod schema;
+pub mod session;
 pub mod tool;
 
 use crate::config::Kind;
@@ -22,8 +24,6 @@ use rmcp::{ErrorData as McpError, RoleServer, ServerHandler};
 use serde_json::Value;
 use std::sync::Arc;
 use tool::Registry;
-
-pub const INSTRUCTIONS: &str = "waymark is a knowledge base of Markdown documents in Git. Every result has a message and a settings field with the limits that apply. A notices field lists things to pass on to the person.";
 
 /// The server handler. It is cheap to clone.
 #[derive(Clone)]
@@ -88,7 +88,7 @@ impl ServerHandler for Server {
                 .enable_tool_list_changed()
                 .build(),
         )
-        .with_instructions(INSTRUCTIONS)
+        .with_instructions(instructions::build(&session::facts(&self.ctx, false)))
         .with_server_info(rmcp::model::Implementation::new(
             "waymark",
             env!("CARGO_PKG_VERSION"),

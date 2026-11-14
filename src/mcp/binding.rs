@@ -155,7 +155,7 @@ fn denied_host(url: &str, effective: &Effective) -> Option<Error> {
     )
 }
 
-fn origin_url(dir: &Path) -> Option<String> {
+pub fn origin_url(dir: &Path) -> Option<String> {
     let o = cmd::run(dir, None, &["remote", "get-url", "origin"]).ok()?;
     o.ok.then(|| o.stdout.trim().to_string())
 }

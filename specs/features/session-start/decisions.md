@@ -80,3 +80,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Insert the value as it is. Rejected: a document of a shared knowledge base could add lines (and so advice) to the instructions of every reader. This is a prompt-injection path.
 
 **Reason:** The instructions stay a fixed text with short values. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously:**
+- The folder is found at the first use (see `project-binding`). So `initialize` does not clone. If a clone is still missing, the instructions use the second form: "The knowledge base is cloned at the first tool call." An existing clone gives the full text.
+- `settings` no longer holds `allowed_repo_hosts` (the spec lists exactly eight keys). The limit still applies.
+- Each tool result keeps its notices as before (paused, settings-file notices, and the notices of the tool). `status` adds the notices "This repository has no remote." and the found-by notice, so `status` shows the same notices as the instructions. The no-remote and found-by notices are not added to every result.
+- `status` keeps `healthy` and `checks` (for `maintenance`). The `message` is `Knowledge base "<name>" is in use. Access is <access>.` when the setup is healthy.
+- The code is in `src/mcp/session.rs` and `src/mcp/instructions.rs`.

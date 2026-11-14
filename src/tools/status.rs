@@ -7,6 +7,7 @@ use crate::error::Error;
 use crate::gitsync::cmd;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
+use crate::mcp::session;
 use crate::mcp::tool::{Env, Tool};
 use serde_json::{json, Value};
 
@@ -43,6 +44,7 @@ impl Tool for Status {
 
     fn call(&self, ctx: &Context, env: &Env, _args: Value) -> Result<ToolOutput, Error> {
         let mut checks = Vec::new();
+        let mut extra: Vec<String> = Vec::new();
 
         match cmd::check_git() {
             Ok(v) => checks.push(check("git", true, v, None)),
@@ -65,6 +67,7 @@ impl Tool for Status {
         }
 
         let mut kb_json = Value::Null;
+        let mut problem = Value::Null;
         match ctx.repo() {
             Ok(repo) => {
                 checks.push(check("clone", true, repo.dir().display().to_string(), None));
@@ -76,30 +79,55 @@ impl Tool for Status {
                             kb.settings.name.clone(),
                             None,
                         ));
-                        kb_json = json!({
-                            "name": kb.settings.name,
-                            "id": kb.settings.id,
-                            "slug": kb.settings.slug,
-                            "path": repo.dir().display().to_string(),
-                            "verification": kb.settings.verification,
-                            "found_by": ctx.found_by().map(|f| f.name()),
-                        });
+                        let f = session::facts(ctx, true);
+                        if let Some(k) = &f.kb {
+                            kb_json = k.to_json();
+                            kb_json["verification"] = json!(kb.settings.verification);
+                        }
+                        extra = f.notices;
                     }
-                    Err(e) => checks.push(check("knowledge_base", false, e.message, e.next)),
+                    Err(e) => {
+                        problem =
+                            json!({"code": e.code.as_str(), "message": e.message, "next": e.next});
+                        checks.push(check("knowledge_base", false, e.message, e.next))
+                    }
                 }
             }
-            Err(e) => checks.push(check("clone", false, e.message, e.next)),
+            Err(e) => {
+                problem = json!({"code": e.code.as_str(), "message": e.message, "next": e.next});
+                checks.push(check("clone", false, e.message, e.next))
+            }
         }
 
         let healthy = checks.iter().all(|c| c["ok"] == json!(true));
-        let message = if healthy {
-            "The setup is healthy."
+        let message = if !problem.is_null() {
+            "No knowledge base is set up.".to_string()
+        } else if healthy {
+            format!(
+                "Knowledge base \"{}\" is in use. Access is {}.",
+                kb_json["name"].as_str().unwrap_or(""),
+                env.effective.to_json()["access"].as_str().unwrap_or("")
+            )
         } else {
-            "The setup has a problem. See the checks."
+            "The setup has a problem. See the checks.".to_string()
         };
-        Ok(ToolOutput::new(
-            message,
-            json!({ "healthy": healthy, "knowledge_base": kb_json, "checks": checks }),
-        ))
+        let mut data = json!({ "healthy": healthy, "knowledge_base": kb_json, "checks": checks });
+        if !problem.is_null() {
+            data["problem"] = problem;
+        }
+        // The registry adds the paused notice and the notices of the settings file. Here come
+        // the others, so that `status` shows the same notices as the instructions.
+        let mut out = ToolOutput::new(message, data);
+        for n in extra {
+            if n != "Writes are paused." && !env_notice(&n) {
+                out = out.notice(n);
+            }
+        }
+        Ok(out)
     }
+}
+
+/// Notices about the settings file already come from the registry.
+fn env_notice(n: &str) -> bool {
+    n.contains("unknown key")
 }

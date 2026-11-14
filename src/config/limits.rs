@@ -226,11 +226,6 @@ impl Effective {
             1 => json!(self.folder_layers[0]),
             _ => json!(self.folder_layers),
         };
-        let hosts = match self.host_layers.len() {
-            0 => json!([]),
-            1 => json!(self.host_layers[0]),
-            _ => json!(self.host_layers),
-        };
         json!({
             "access": match self.access { Access::ReadOnly => "read-only", Access::ReadWrite => "read-write" },
             "paused": self.paused,
@@ -239,7 +234,6 @@ impl Effective {
             "max_results": self.max_results,
             "max_tokens": self.max_tokens,
             "max_documents_opened": self.max_documents_opened,
-            "allowed_repo_hosts": hosts,
             "approval": {
                 "required_for": self.approval_required_for,
                 "via": match self.approval_via { ApprovalVia::Elicitation => "elicitation", ApprovalVia::Console => "console" },
