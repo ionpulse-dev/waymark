@@ -109,3 +109,64 @@ fn a_second_person_gets_the_same_knowledge_base_id() {
         rb.json["knowledge_base"]["id"]
     );
 }
+
+#[test]
+fn init_writes_the_schema() {
+    let w = World::new();
+    let text = std::fs::read_to_string(w.a.join("knowledge/.mkbase/waymark.toml")).unwrap();
+    assert!(text.lines().any(|l| l.trim() == "schema = 1"), "{text}");
+}
+
+#[test]
+fn a_higher_schema_blocks_every_tool_but_status() {
+    let w = World::new();
+    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let text = std::fs::read_to_string(&path).unwrap();
+    std::fs::write(&path, text.replace("schema = 1", "schema = 2")).unwrap();
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    for (tool, args) in [
+        ("list", json!({})),
+        ("search", json!({"query": "x"})),
+        (
+            "add",
+            json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
+        ),
+    ] {
+        let r = c.call(tool, args);
+        assert_eq!(r.code(), Some("setup_problem"), "{tool}: {}", r.json);
+        assert!(
+            r.message().contains("needs a newer waymark"),
+            "{tool}: {}",
+            r.json
+        );
+        assert!(r.json["next"]
+            .as_str()
+            .unwrap()
+            .contains("brew upgrade waymark"));
+    }
+    let s = c.call("status", json!({}));
+    assert!(!s.is_error, "{}", s.json);
+    assert_eq!(s.json["healthy"], false);
+    assert!(
+        s.json.to_string().contains("needs a newer waymark"),
+        "{}",
+        s.json
+    );
+    assert!(s.json.to_string().contains("brew upgrade waymark"));
+}
+
+#[test]
+fn a_file_without_schema_works_as_schema_1() {
+    let w = World::new();
+    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let text = std::fs::read_to_string(&path).unwrap();
+    let without: String = text
+        .lines()
+        .filter(|l| !l.starts_with("schema"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write(&path, without).unwrap();
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = c.call("list", json!({}));
+    assert!(!r.is_error, "{}", r.json);
+}

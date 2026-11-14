@@ -64,7 +64,7 @@ An unknown key, a wrong type, a bad slug, or a folder path with `..`, an absolut
    | `.obsidian/app.json` | `{ "useMarkdownLinks": true, "newLinkFormat": "relative" }` (as [MKBase 1.0 section 11](../../../standard/mkbase-1.0.md) recommends). |
    | `.gitignore` | The lines `.obsidian/*` and `!.obsidian/app.json`. |
    | `knowledge/.mkbase/version` | `1.0` and a final line end. |
-   | `knowledge/.mkbase/waymark.toml` | `name`, `id`, `slug`, `verification = false`, and the sections that the inputs set. |
+   | `knowledge/.mkbase/waymark.toml` | `schema = 1`, `name`, `id`, `slug`, `verification = false`, and the sections that the inputs set. |
    | `knowledge/.mkbase/exclude` | Empty. |
    | `knowledge/<folder>/.gitkeep` | One for each folder of `folders` (Git does not track empty folders). |
 

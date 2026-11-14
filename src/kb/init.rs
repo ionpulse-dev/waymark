@@ -73,6 +73,7 @@ pub fn settings_text(input: &InitInput, id: &str) -> Result<String> {
             .replace("{slug}", &input.slug));
     }
     let mut t = toml::Table::new();
+    t.insert("schema".into(), crate::kb::settings::SCHEMA_VERSION.into());
     t.insert("name".into(), input.name.clone().into());
     t.insert("id".into(), id.to_string().into());
     t.insert("slug".into(), input.slug.clone().into());

@@ -1,4 +1,5 @@
 # Shared settings of this knowledge base. Every key in the sections below is optional.
+schema = 1
 name = {name}
 id = "{id}"
 slug = "{slug}"

@@ -20,6 +20,9 @@
 - [x] [auto] Unknown keys give a notice and no error (`src/kb/settings.rs`)
 - [x] [auto] The root is found for the layout `knowledge/.mkbase` and fails with `setup_problem` when absent (`src/kb/layout.rs`)
 - [x] [auto] The files written by `init` pass the conformance check of `document-format` where they are documents (`tests/it_knowledge_base_repo.rs`)
+- [x] [auto] A file with a higher `schema` gives `setup_problem` and the message "needs a newer waymark"; a file without `schema` is schema 1; a `schema` of 0, -1, or "x" gives `setup_problem` (`src/kb/settings.rs`)
+- [x] [auto] With a higher `schema`, `list`, `add`, and `search` fail, and `status` reports the problem with the fix (`tests/it_knowledge_base_repo.rs`)
+- [x] [auto] `init` writes `schema = 1` (`tests/it_knowledge_base_repo.rs`)
 - [ ] [manual] A repository made by `init` opens in Obsidian as a vault. Steps: run `make sample-kb`, open the folder in Obsidian, create a link with the link dialog. Expected: the link is a relative Markdown link and `git status` shows only the new document.
 
 ## Notes

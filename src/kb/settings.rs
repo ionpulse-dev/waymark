@@ -4,6 +4,9 @@ use crate::config::{layers, Limits};
 use crate::error::{Error, Result};
 use crate::format;
 
+/// The highest schema of `waymark.toml` that this build supports (see `knowledge-base-repo`).
+pub const SCHEMA_VERSION: i64 = 1;
+
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct People {
     pub email_domains: Vec<String>,
@@ -12,6 +15,8 @@ pub struct People {
 
 #[derive(Debug, Clone)]
 pub struct Settings {
+    /// The schema of the file. A file without the key has schema 1.
+    pub schema: i64,
     pub name: String,
     /// The UUID that identifies the knowledge base.
     pub id: String,
@@ -26,7 +31,8 @@ pub struct Settings {
     pub notices: Vec<String>,
 }
 
-const TOP_KEYS: [&str; 9] = [
+const TOP_KEYS: [&str; 10] = [
+    "schema",
     "name",
     "id",
     "slug",
@@ -72,6 +78,27 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
         Error::setup(format!("{path_for_messages} is not valid TOML: {e}"))
             .with_next("Fix the file, or restore it from Git.")
     })?;
+    // The schema is checked first: a file of a newer schema may have keys that mean something else.
+    let schema = match table.get("schema") {
+        None => 1,
+        Some(v) => match v.as_integer() {
+            Some(n) if n >= 1 => n,
+            _ => {
+                return Err(Error::setup(format!(
+                    "The key schema in {path_for_messages} must be a whole number of 1 or more."
+                ))
+                .with_next("Fix the file, or restore it from Git."))
+            }
+        },
+    };
+    if schema > SCHEMA_VERSION {
+        return Err(Error::setup(format!(
+            "This knowledge base needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
+        ))
+        .with_next(
+            "Update waymark with `brew upgrade waymark`, then restart your agent tool.",
+        ));
+    }
     let limits = layers::parse_layer(text).map_err(|e| {
         Error::setup(format!(
             "{path_for_messages} has a wrong value in [limits] or [approval]: {e}"
@@ -149,6 +176,7 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
         .unwrap_or_default();
 
     Ok(Settings {
+        schema,
         name: table
             .get("name")
             .and_then(|v| v.as_str())
@@ -194,6 +222,29 @@ mod tests {
         assert_eq!(s.people.email_domains, vec!["example.org"]);
         assert_eq!(s.extra_secret_patterns, vec!["IBAN"]);
         assert!(s.notices.is_empty());
+    }
+
+    #[test]
+    fn the_schema_defaults_to_1_and_a_higher_one_is_refused() {
+        let t = format!("id = \"{ID}\"\n");
+        assert_eq!(parse(&t, "waymark.toml").unwrap().schema, 1);
+        let t = format!("schema = 1\nid = \"{ID}\"\n");
+        assert_eq!(parse(&t, "waymark.toml").unwrap().schema, 1);
+        let t = format!("schema = 2\nid = \"{ID}\"\n");
+        let e = parse(&t, "waymark.toml").unwrap_err();
+        assert_eq!(e.code, Code::SetupProblem);
+        assert!(e.message.contains("needs a newer waymark"), "{}", e.message);
+        assert!(e.message.contains("schema 2") && e.message.contains("schema 1"));
+        assert!(e.next.unwrap().contains("brew upgrade waymark"));
+    }
+
+    #[test]
+    fn a_bad_schema_is_a_setup_problem() {
+        for bad in ["0", "-1", "\"x\"", "1.5"] {
+            let t = format!("schema = {bad}\nid = \"{ID}\"\n");
+            let e = parse(&t, "waymark.toml").unwrap_err();
+            assert_eq!(e.code, Code::SetupProblem, "{bad}");
+        }
     }
 
     #[test]

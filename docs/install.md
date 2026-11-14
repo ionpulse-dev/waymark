@@ -244,6 +244,8 @@ brew upgrade waymark
 
 The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
 
+**When a team's knowledge base needs a newer waymark.** The settings file `.mkbase/waymark.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself.
+
 ## Check that waymark works
 
 Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.
