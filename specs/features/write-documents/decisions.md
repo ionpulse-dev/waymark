@@ -114,3 +114,13 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **`stale_base` next sentence** now says "Read the document again with show, then redo the change." (`git-sync` `Tx::check_base`).
 - **Excluded folders.** `KnowledgeBase::is_excluded(id)` is new. A write into a path of `.mkbase/exclude` fails with `validation_failed`.
 - **The `Reason:` of `deprecate`** is scanned for secrets, because it goes into the Git history.
+
+## A write never creates a broken link, and `delete` refuses linked documents — 2026-11-14
+
+**Supersedes:** "Delete fixes links as plain text" (2026-11-14), and the sentence of the earlier delete decision that `delete` fixes every link in the same commit.
+
+**Decision:** `add` and `update_document` fail with `validation_failed` when the body gets a link to a document that does not exist. For `update_document`, only new links count. `delete` fails with `validation_failed` while another document links to the target, and lists the linking documents in `data.linked_from`. It edits no other document. The agent removes the links with `update_document`, or uses `deprecate`. `move` keeps rewriting links, because a move keeps the target alive. The standard says the same in section 8.
+
+**Alternatives considered:** (1) Keep the automatic fix in `delete` (rejected: it silently edits other documents and loses the information that they were linked). (2) An opt-in switch to fix links in `delete` (rejected: it brings back the silent edit, and one more parameter costs context). (3) Keep body links as a warning (rejected: the knowledge base should hold a consistent state at all times).
+
+**Reason:** The product owner wants a consistent state, prevented at the write and not repaired later. Old broken links, and links broken by changes outside waymark, stay visible in `lint` as warnings. An agent that writes a document with links must write the linked document first. Concurrent writers are out of scope: a conflict is found at the next check.

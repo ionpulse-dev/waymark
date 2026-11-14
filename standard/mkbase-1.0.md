@@ -160,7 +160,7 @@ Rules for the fields:
    or a wikilink. A producer SHOULD write relative Markdown links.
 2. A link in a property MUST be a wikilink with the full path, in quotes, for
    example `"[[backend/payments/retry-policy]]"`.
-3. A link SHOULD point to an existing document.
+3. A link SHOULD point to an existing document. A producer MUST NOT write a link in the body to a document that does not exist, and MUST NOT delete a document while another document links to it.
 4. A document MUST NOT store its backlinks. A consumer computes them.
 
 ## 9 Size limits

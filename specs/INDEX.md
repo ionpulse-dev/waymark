@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All in-scope foundation specs are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, `plain-git-access`, and `create-knowledge-base`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features are implemented. Phase G (end-to-end checks, reviews) is done.
+3. `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, `plain-git-access`, and `create-knowledge-base`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features were implemented. Phase G (end-to-end checks, reviews) is done. `write-documents` is `in-progress` again since 2026-11-14: a write may not create a broken body link, and `delete` refuses linked documents. The spec is written, the code is not.
 4. `distribution` is `implemented` for the part that the AI can do: formula, local Homebrew install test, release workflow (disabled), release checklist (`docs/next-steps/release-checklist.md`). The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -31,7 +31,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-14 |
 | [verification](features/verification/requirements.md) | `implemented` | 2026-11-14 |
 | [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-14 |
-| [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
+| [write-documents](features/write-documents/requirements.md) | `in-progress` | 2026-11-14 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-14 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
 | [join-knowledge-base](features/join-knowledge-base/requirements.md) | `implemented` | 2026-11-14 |

@@ -28,3 +28,5 @@ None.
 
 - 17 of 18 `[auto]` cases pass in `tests/it_manual_edits.rs`. T7 (approval for `sync`) waits for `write-approval` and is `#[ignore]`.
 - The two `[manual]` Obsidian checks (T20, T21) are for the product owner.
+
+- `sync` and the new body link rule of `write-documents` (decided 2026-11-14): a hand-edited document with a new link to a missing document should fail the check like a tool write. Check the current behaviour, and decide.

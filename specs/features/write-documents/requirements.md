@@ -1,6 +1,6 @@
 ---
 type: feature
-status: implemented
+status: in-progress
 created: 2026-11-08
 updated: 2026-11-14
 requires:
@@ -30,7 +30,7 @@ requires:
 | `update_document` | write | Changes fields or the body of a document. Fields that are not sent stay as they are. |
 | `dispute` | write | Sets `disputed: true` and `dispute_reason`. With `clear: true` it ends the dispute. |
 | `deprecate` | write | Sets `status: deprecated` and keeps the file. |
-| `delete` | destructive | Deletes a document and fixes every link to it in the same commit. |
+| `delete` | destructive | Deletes a document. Refuses while another document links to it. |
 
 All five follow the write flow of `git-sync` (limits, lock, fetch, base check, checks, approval, commit under the author, push). All accept `preview: true`. A document in a result has the ID (path below the root without `.md`) and `version`, the short hash of the last commit of its file. A write that changes an existing document sends that value as `base`. A different value is `stale_base`.
 
@@ -55,13 +55,14 @@ Every write is checked before the commit, on the result of the change. A failed 
 | Duplicate | Another `active` document has the same title (lowercase words, same order) | "A document with this title exists: `ops/deploy`. Update it instead." |
 | Near-duplicate | The word overlap with another `active` title is at least 80 percent of the shorter title (see below) | "A document with a similar title exists: `ops/deploy`. Update it instead." |
 | Property links | A link in `related` or `supersedes` has no target | "The link to `ops/old` has no target." |
+| Body links | The write adds a link in the body to a document that does not exist | "The body links to `ops/old`. No such document. Write that document first, or remove the link." |
 | Secrets | A built-in or custom pattern matches the title, description, body, sources, tags, or a reason | "The text looks like it contains a secret (line 12). Remove it." |
 
 The server never prints the matched secret.
 
 **Near-duplicate rule.** A title is split into lowercase words: runs of letters and digits. The overlap is the number of distinct words that both titles share, divided by the number of distinct words of the shorter title. At 0.8 or more the title is a near-duplicate. If the shorter title has fewer than 3 words, only an exact match counts. The check ignores deprecated documents and the document named in `supersedes`, so a replacement can reuse a title. On `update_document`, the document itself is ignored.
 
-A broken link in the body is not an error. The write goes through and `notices` lists each such link.
+**Body links.** A write never creates a broken link. For `add`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute`, `deprecate`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning.
 
 Secret patterns (built in): `-----BEGIN ... PRIVATE KEY-----`, `AKIA` plus 16 letters or digits, `ghp_` or `github_pat_` plus a token, `sk-` plus 20 or more letters or digits, `password`, `passwd`, `secret`, `token`, or `api_key` followed by `=` or `:` and a value, and `://user:password@`. A knowledge base adds regular expressions in `lint.extra_secret_patterns`.
 
@@ -134,16 +135,9 @@ Result `data`: `{ "id", "title", "version", "commit", "pushed", "status": "depre
 
 Input: `id` (string, required), `base` (string, required), `preview` (boolean).
 
-Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links and wikilinks in bodies, and wikilinks in properties. It fixes them in the same commit and sets `updated` and `updated_by` in each document that it changes:
+Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document. `preview: true` runs the same check and fails the same way, so an agent can ask what would break without a risk.
 
-| Link | Fix |
-|---|---|
-| Markdown link to the document, with text `text` | Replaced by `text`. |
-| Wikilink `[[id]]` or `[[id\|alias]]` in the body | Replaced by the alias, or by the title of the deleted document. |
-| Embed `![[id]]` | Removed. |
-| Entry in a property list | Removed. An empty list removes the property. |
-
-If a document that needs a fix is outside the `folders` limit, the call fails with `access_denied` and `next` names it. If the deleted document has `supersedes`, a notice says that the older documents stay deprecated. The message says that the file stays in the Git history.
+The `folders` limit applies to the document that is deleted. If the deleted document has `supersedes`, a notice says that the older documents stay deprecated. The message says that the file stays in the Git history.
 
 Result `data`:
 
@@ -153,7 +147,6 @@ Result `data`:
   "title": "Old deploy process",
   "commit": "a1b2c3d",
   "pushed": true,
-  "links_fixed": [ { "id": "ops/deploy", "where": "body", "count": 2 }, { "id": "ops/runbook", "where": "property", "count": 1 } ],
   "preview": false
 }
 ```
@@ -186,11 +179,15 @@ With `preview: true` the tool runs all checks and returns the same `data` withou
 - **Given** `deprecate`, **When** it runs, **Then** the file still exists with `status: deprecated`.
 - **Given** `dispute` with `clear: true`, **When** it runs, **Then** `disputed` and `dispute_reason` are gone and `updated` is set.
 - **Given** `add` with `supersedes`, **When** it runs, **Then** one commit holds the new document and the old document with `status: deprecated`.
-- **Given** `delete` of a document that others link to, **When** it runs, **Then** the file is gone and no link to it is left.
+- **Given** `delete` of a document that others link to, **When** it runs, **Then** it fails with `validation_failed`, nothing changes, and `linked_from` lists the linking documents.
+- **Given** the links are removed with `update_document`, **When** `delete` runs again, **Then** the file is gone.
+- **Given** `delete` with `preview: true` of a linked document, **When** it runs, **Then** it fails the same way and lists the links.
 - **Given** `tools_denied = ["delete"]`, **When** the client lists tools, **Then** `delete` is not listed.
 - **Given** `access = "read-only"`, **When** any write tool runs, **Then** it fails with `access_denied` and no commit is made.
 - **Given** `approval.required_for = ["add"]`, **When** `add` runs, **Then** the approval is asked before the commit (see `write-approval`).
-- **Given** a body link to a missing document, **When** `add` runs, **Then** the write succeeds and a notice names the link.
+- **Given** a body link to a missing document, **When** `add` runs, **Then** it fails with `validation_failed`, names the link, and changes nothing.
+- **Given** a document with an old broken body link, **When** `update_document` changes only the title, **Then** the write succeeds.
+- **Given** `update_document` adds a body link to a missing document, **When** it runs, **Then** it fails with `validation_failed`.
 - **Given** `folders = ["engineering/**"]`, **When** `add` runs with another folder, **Then** it fails with `access_denied`.
 - **Given** a verified document and verification on, **When** `update_document` changes the body, **Then** `trust` is `unverified`.
 
