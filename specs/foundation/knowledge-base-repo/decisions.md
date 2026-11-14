@@ -19,3 +19,9 @@
 **Decision:** The root is the folder that contains `.mkbase/`. The default layout places it at `knowledge/`, but any depth works.
 
 **Reason:** This follows the MKBase standard and allows repositories that already have other content. Decided autonomously.
+
+## Where the code ended up — 2026-11-14
+
+**Decision:** `init` is the function `kb::init(repo_dir, name, slug)` and `KnowledgeBase::open(repo_dir)` opens a repository. The settings of the shared file are read again at every tool call (see `mcp-server`). End-to-end tests are in `tests/it_knowledge_base_repo.rs`.
+
+**Reason:** A free function is enough because `init` does not need an open knowledge base. Decided autonomously.

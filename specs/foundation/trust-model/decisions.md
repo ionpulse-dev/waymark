@@ -25,3 +25,9 @@ _Earlier decisions of this item are in the history of this file in Git and in `d
 **Alternatives considered:** A build flag for tests only (rejected: tests must run the release binary too).
 
 **Reason:** Tests cannot write to `/Library`. The variable is a layer under the control of the person, which is the same strength as the personal file, so it never loosens a stricter system file: if the real system file exists, both are read. Decided autonomously.
+
+## Where the code ended up — 2026-11-14
+
+**Decision:** The folder globs are in `src/config/limits.rs`, not in a file `src/config/glob.rs`. The function that merges layers is `Effective::from_layers`. The type is called `Effective`. `strictest` is not a function of its own. The end-to-end tests are in `tests/it_trust_model.rs` and read the limits from the `settings` field of `status`.
+
+**Reason:** The glob code is short and belongs to the type that uses it. Decided autonomously.

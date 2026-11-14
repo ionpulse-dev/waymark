@@ -7,3 +7,5 @@ pub mod error;
 pub mod format;
 pub mod gitsync;
 pub mod kb;
+pub mod mcp;
+pub mod tools;

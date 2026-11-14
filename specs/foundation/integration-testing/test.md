@@ -13,14 +13,14 @@
 
 ## Test Cases
 
-- [ ] [auto] A world has a bare remote and two clones with different authors (`tests/it_harness.rs`)
-- [ ] [auto] A commit in clone A pushed, then pulled in clone B shows author A (`tests/it_harness.rs`)
-- [ ] [auto] The world ignores `~/.gitconfig` and the real `HOME` (`tests/it_harness.rs`)
-- [ ] [auto] The client starts the stub binary, initializes, and lists tools (`tests/it_harness.rs`)
+- [x] [auto] A world has a bare remote and two clones with different authors (`tests/it_harness.rs`)
+- [x] [auto] A commit in clone A pushed, then pulled in clone B shows author A (`tests/it_harness.rs`)
+- [x] [auto] The world ignores `~/.gitconfig` and the real `HOME` (`tests/it_harness.rs`)
+- [x] [auto] The client starts the stub binary, initializes, and lists tools (`tests/it_harness.rs`)
 - [ ] [auto] The client times out with a clear message when the server does not answer (`tests/it_harness.rs`)
-- [ ] [auto] Eight worlds run in parallel with no interference (`tests/it_harness.rs`)
-- [ ] [auto] A panic inside a world keeps the folder (`tests/it_harness.rs`)
-- [ ] [auto] `make test-integration` exits 0 (`scripts/tests/`)
+- [x] [auto] Eight worlds run in parallel with no interference (`tests/it_harness.rs`)
+- [x] [auto] A panic inside a world keeps the folder (`tests/it_harness.rs`)
+- [x] [auto] `make test-integration` exits 0 (`scripts/tests/`)
 
 ## Notes
 

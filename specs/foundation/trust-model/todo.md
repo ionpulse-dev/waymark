@@ -13,3 +13,7 @@ None.
 ## Open Questions
 
 None.
+
+## Notes from the implementation (2026-11-14)
+
+- Two criteria need a write tool and are tested end to end in `write-documents`: "the commit author is the person" and "a denied or paused tool blocks a write". The registry unit tests in `src/mcp/tool.rs` cover the blocking rule with fake tools. The author rule is tested in `tests/it_git_sync.rs`.

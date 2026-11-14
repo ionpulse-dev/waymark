@@ -15,14 +15,14 @@
 
 ## Test Cases
 
-- [ ] [auto] All eight criteria above (`tests/it_git_sync.rs`)
-- [ ] [auto] The repository is never left in a rebase or merge state after any failure (`tests/it_git_sync.rs`)
-- [ ] [auto] The conflict copy has a unique title, `disputed: true`, and the name rule (`tests/it_git_sync.rs`)
-- [ ] [auto] The commit message has the format `waymark: <verb> "<title>"` and no agent tag (`src/gitsync/message.rs`)
-- [ ] [auto] A repository without a remote works for writes and shows a notice (`tests/it_git_sync.rs`)
-- [ ] [auto] A fresh clone from `--repo` happens once and is reused (`tests/it_git_sync.rs`)
-- [ ] [auto] A missing credential fails fast with no prompt (`tests/it_git_sync.rs`, remote path does not exist)
-- [ ] [auto] Two processes on one clone: the second waits for the lock, then succeeds (`src/gitsync/lock.rs`)
+- [x] [auto] All eight criteria above (`tests/it_git_sync.rs`)
+- [x] [auto] The repository is never left in a rebase or merge state after any failure (`tests/it_git_sync.rs`)
+- [x] [auto] The conflict copy has a unique title, `disputed: true`, and the name rule (`tests/it_git_sync.rs`)
+- [x] [auto] The commit message has the format `waymark: <verb> "<title>"` and no agent tag (`src/gitsync/message.rs`)
+- [x] [auto] A repository without a remote works for writes and shows a notice (`tests/it_git_sync.rs`)
+- [x] [auto] A fresh clone from `--repo` happens once and is reused (`tests/it_git_sync.rs`)
+- [x] [auto] A missing credential fails fast with no prompt (`tests/it_git_sync.rs`, remote path does not exist)
+- [x] [auto] Two processes on one clone: the second waits for the lock, then succeeds (`src/gitsync/lock.rs`)
 - [ ] [manual] A real Git host with the person's own login: write a document and see it on the host. Steps: configure the MCP entry with an SSH URL, write a document through an agent, open the repository on the host. Expected: one commit with the person's name and email.
 
 ## Notes

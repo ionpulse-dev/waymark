@@ -15,13 +15,13 @@
 
 ## Test Cases
 
-- [ ] [auto] `strictest` is commutative and idempotent, and never looser than an input (property test, `src/config/limits.rs`)
-- [ ] [auto] Each limit merges as the requirements say: access, paused, tools_denied, approval, hosts, folders, caps (`src/config/limits.rs`)
-- [ ] [auto] Folder globs: `engineering/**` allows `engineering/a/b`, blocks `ops/x` (`src/config/glob.rs`)
-- [ ] [auto] A syntax error in a layer file gives `setup_problem` with the path (`src/config/layers.rs`)
-- [ ] [auto] The effective settings change when the personal file changes between two calls (`tests/it_trust_model.rs`)
+- [x] [auto] `strictest` is commutative and idempotent, and never looser than an input (property test, `src/config/limits.rs`)
+- [x] [auto] Each limit merges as the requirements say: access, paused, tools_denied, approval, hosts, folders, caps (`src/config/limits.rs`)
+- [x] [auto] Folder globs: `engineering/**` allows `engineering/a/b`, blocks `ops/x` (`src/config/glob.rs`)
+- [x] [auto] A syntax error in a layer file gives `setup_problem` with the path (`src/config/layers.rs`)
+- [x] [auto] The effective settings change when the personal file changes between two calls (`tests/it_trust_model.rs`)
 - [ ] [auto] All eight criteria above, through the real binary (`tests/it_trust_model.rs`)
-- [ ] [auto] The `settings` field of every result shows the effective limits (`tests/it_trust_model.rs`)
+- [x] [auto] The `settings` field of every result shows the effective limits (`tests/it_trust_model.rs`)
 
 ## Notes
 

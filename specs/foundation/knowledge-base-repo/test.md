@@ -12,14 +12,14 @@
 
 ## Test Cases
 
-- [ ] [auto] `init` writes every file of the layout and a valid UUID (`src/kb/layout.rs`)
-- [ ] [auto] `init` refuses to overwrite an existing file (`src/kb/layout.rs`)
-- [ ] [auto] `.obsidian/app.json` has `useMarkdownLinks: true` and `newLinkFormat: relative` (`src/kb/layout.rs`)
-- [ ] [auto] In a repository with `.obsidian/workspace.json` created, `git status` shows no change (`tests/it_knowledge_base_repo.rs`)
-- [ ] [auto] Missing `id`, a bad UUID, and a syntax error give `setup_problem` (`src/kb/settings.rs`)
-- [ ] [auto] Unknown keys give a notice and no error (`src/kb/settings.rs`)
-- [ ] [auto] The root is found for the layout `knowledge/.mkbase` and fails with `setup_problem` when absent (`src/kb/layout.rs`)
-- [ ] [auto] The files written by `init` pass the conformance check of `document-format` where they are documents (`tests/it_knowledge_base_repo.rs`)
+- [x] [auto] `init` writes every file of the layout and a valid UUID (`src/kb/layout.rs`)
+- [x] [auto] `init` refuses to overwrite an existing file (`src/kb/layout.rs`)
+- [x] [auto] `.obsidian/app.json` has `useMarkdownLinks: true` and `newLinkFormat: relative` (`src/kb/layout.rs`)
+- [x] [auto] In a repository with `.obsidian/workspace.json` created, `git status` shows no change (`tests/it_knowledge_base_repo.rs`)
+- [x] [auto] Missing `id`, a bad UUID, and a syntax error give `setup_problem` (`src/kb/settings.rs`)
+- [x] [auto] Unknown keys give a notice and no error (`src/kb/settings.rs`)
+- [x] [auto] The root is found for the layout `knowledge/.mkbase` and fails with `setup_problem` when absent (`src/kb/layout.rs`)
+- [x] [auto] The files written by `init` pass the conformance check of `document-format` where they are documents (`tests/it_knowledge_base_repo.rs`)
 - [ ] [manual] A repository made by `init` opens in Obsidian as a vault. Steps: run `make sample-kb`, open the folder in Obsidian, create a link with the link dialog. Expected: the link is a relative Markdown link and `git status` shows only the new document.
 
 ## Notes

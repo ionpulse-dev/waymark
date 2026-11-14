@@ -25,14 +25,23 @@ res=$(PATH=/usr/bin:/bin bash scripts/doctor.sh 2>&1) && bad "doctor fails witho
 # setup is idempotent
 res=$(bash scripts/setup.sh 2>&1) && echo "$res" | grep -q "Nothing to install" && ok "setup changes nothing when ready" || bad "setup changes nothing when ready"
 
+# The binary links only to system libraries (needs only git at run time)
+cargo build -q 2>/dev/null
+if [ -x target/debug/waymark ]; then
+  extra=$(otool -L target/debug/waymark | tail -n +2 | awk '{print $1}' | grep -vE '^(/usr/lib/|/System/)' || true)
+  [ -z "$extra" ] && ok "the binary links only to system libraries" || bad "the binary links only to system libraries: $extra"
+else
+  bad "the binary exists after cargo build"
+fi
+
 # spec-check detects problems on a temporary copy
 tmp=$(mktemp -d)
-mkdir -p "$tmp/specs" && cp -R specs/features specs/foundation specs/INDEX.md "$tmp/specs/" && cp -R docs "$tmp/docs" 2>/dev/null
+mkdir -p "$tmp/specs" && cp -R specs/features specs/foundation specs/INDEX.md specs/PROJECT.md specs/WORKFLOW.md "$tmp/specs/" && cp -R docs standard "$tmp/" && cp README.md AGENTS.md LICENSE "$tmp/" 2>/dev/null
 if bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1; then
   rm "$tmp/specs/foundation/document-format/tasks.md"
   bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1 && bad "spec-check fails on a missing file" || ok "spec-check fails on a missing file"
   cp specs/foundation/document-format/tasks.md "$tmp/specs/foundation/document-format/tasks.md"
-  sed -i '' 's/^status: planned/status: done/' "$tmp/specs/foundation/document-format/requirements.md"
+  sed -i '' 's/^status: .*/status: blocked/' "$tmp/specs/foundation/document-format/requirements.md"
   bash scripts/spec-check.sh "$tmp" >/dev/null 2>&1 && bad "spec-check fails on a status mismatch" || ok "spec-check fails on a status mismatch"
 else
   echo "  skip spec-check tests: the repository does not pass spec-check yet"

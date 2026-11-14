@@ -2,6 +2,10 @@
 #![allow(dead_code)]
 
 pub mod git;
+pub mod kb;
+pub mod mcp;
 pub mod world;
 
+#[allow(unused_imports)]
+pub use mcp::{McpClient, Reply, Spawn};
 pub use world::{Person, World};

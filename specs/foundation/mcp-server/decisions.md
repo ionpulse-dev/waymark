@@ -47,3 +47,50 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Decision:** The server does not depend on the working folder. `--repo` and `--path` name the knowledge base. If neither is given, the server looks for a knowledge base in the working folder and above it, and in `~/Projects/*-knowledge-base` if exactly one exists (see `project-binding`).
 
 **Reason:** Answers the open question of the original spec. Decided autonomously.
+
+## What `rmcp` 3.10 looks like, and how we use it — 2026-11-14
+
+**Decision:** We use `rmcp` 3.10.0 with `default-features = false` and the features `server`, `macros`, and `transport-io`. All `rmcp` code is in `src/mcp/mod.rs`. We implement `ServerHandler` by hand: `get_info` returns a `ServerConfig` (an alias of `InitializeResult`), `list_tools` returns `ListToolsResult::with_all_items`, and `call_tool` returns a `CallToolResponse`. A success is `CallToolResult::structured`, a failure is `CallToolResult::structured_error`. A call to an unknown tool is a protocol error (`invalid_params`, code -32602). The transport is `rmcp::transport::stdio()`, started with `ServiceExt::serve`, and `waiting()` ends when the client closes stdin. The tool schemas are plain `serde_json` values, so we do not use the `#[tool]` macros and `schemars`.
+
+**Findings for later specs:**
+- The crate has a feature `elicitation` and the server `Peer` has `elicit`, `elicit_with_timeout`, and `elicit_url` (in `service/server.rs`). `write-approval` can use them. The feature must be turned on in `Cargo.toml` then. The client must announce `elicitation` in `initialize`. This is checked in `write-approval`.
+- The tool result carries the whole structured JSON also as a text block, because clients that ignore `structuredContent` would otherwise see nothing. The text copy costs context. If this is too much after dogfooding, the text can shrink to the `message`.
+- The client side of `rmcp` is not used. The test client in `tests/common/mcp.rs` speaks raw JSON-RPC lines, so a bug in the library cannot hide a bug in the server.
+
+**Alternatives considered:** the `#[tool]` macros (they generate schemas from Rust types, which makes the descriptions long and hard to keep short), and the `rmcp` client in tests (see above).
+
+**Reason:** Keeps the context cost of the tool list small and keeps the library behind one file. Decided autonomously.
+
+## The command line of the first version — 2026-11-14
+
+**Decision:** The arguments are `--repo`, `--kb-id`, `--path`, `--author-name`, `--author-email` (also the variables `WAYMARK_AUTHOR_NAME` and `WAYMARK_AUTHOR_EMAIL`), and the limits `--access`, `--no-delete`, `--tools-denied`, `--folders`, `--max-results`, `--max-tokens`, `--max-documents-opened`. They form the last config layer (the MCP entry). `--version` and `--help` are the only other commands. An unknown command or argument makes the process exit with an error.
+
+**Reason:** Covers the limits that the trust model lets an entry set today. More arguments come with the features that need them (for example `--approval-via`). Decided autonomously.
+
+## A broken config file makes the access read-only — 2026-11-14
+
+**Decision:** If a layer file or an argument value cannot be read, the effective limits are `read-only` and `status` reports the file and the problem. Every other tool returns `setup_problem` with the file path and the sentence "Fix or remove that file, then call status." The list of tools shows `status` and the read tools only.
+
+**Alternatives considered:** Ignore the broken file (a person could lose a limit without knowing), or refuse to start (the agent then has no way to see the cause).
+
+**Reason:** A limit that cannot be read must never loosen. `status` stays available so that the agent can tell the person what to fix. Decided autonomously.
+
+## One server process finds its knowledge base in a fixed order — 2026-11-14
+
+**Decision:** The folder of the clone is `--path`; else the default folder of `--repo` (`~/Projects/<slug>-knowledge-base`, where the slug comes from the last part of the URL without `.git` and without a trailing `-knowledge-base`); else the Git root of the working folder if it holds a knowledge base; else the only `~/Projects/*-knowledge-base` that is a Git repository. The server clones `--repo` on the first call that needs the repository, not at start, so a slow clone never delays `initialize`. The repository is opened once. The knowledge base files (`.mkbase/waymark.toml`) are read again at every call.
+
+**Reason:** Matches the decision "One knowledge base per process", and a change of the shared limits applies at once. Decided autonomously.
+
+## The conformance fixtures are the integration tests — 2026-11-14
+
+**Decision:** There is no separate folder `tests/fixtures/` with expected results. The integration tests of each spec (`tests/it_*.rs`) are the conformance suite: each starts the real binary over stdio, calls tools, and checks results and Git state. The HTTPS half of the criterion is out of scope.
+
+**Alternatives considered:** A JSON fixture format with expected results (more files, a second runner to maintain, and the same coverage).
+
+**Reason:** The suite already runs the real binary. A port of the server can copy the tests. Decided autonomously.
+
+## Unknown tool or hidden tool — 2026-11-14
+
+**Decision:** A tool that does not exist (and a verification tool when verification is off) is a protocol error "Unknown tool". A tool that exists but a limit hides gives a tool error with `access_denied` or `paused`, a message, and a `next` sentence. Both are tested.
+
+**Reason:** The agent learns why a tool is missing and cannot guess a hidden control tool. Decided autonomously.

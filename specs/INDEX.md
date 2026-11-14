@@ -2,18 +2,18 @@
 
 ```
 📦 Features      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 20 active
-🏗️ Foundation    ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  1 / 10 done+implemented
+🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
 ## Next Up
 
-Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). Every in-scope spec is `planned`, written under autonomous approval. The decisions are tagged "decided autonomously". The plan and state of the work are in `tmp/plan.md` (not in Git).
+Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously". The plan and state of the work are in `tmp/plan.md` (not in Git).
 
-1. `trust-model`, `knowledge-base-repo`, `git-sync`: the code exists in `src/config`, `src/kb`, `src/gitsync` and passes its tests. The remaining tasks need `mcp-server` (end-to-end tests). Status stays `planned` until their `tasks.md` is fully checked off.
-2. `mcp-server`: next to implement (rmcp 3.10, tool registry, `status` tool, stdio). Then `integration-testing` MCP client.
+1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
+2. Review the 19 feature specs together (consistency pass: tool names, error codes, config keys, `requires`). They were written in parallel and not yet reviewed.
 3. Features in dependency order: `write-documents`, `search-and-read`, `quality-checks`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
-5. `dev-environment`: implemented except the spec-check shell tests and the manual test.
+5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
 ---
 
@@ -46,14 +46,14 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 | Item | Status | Updated |
 |:--------|:-------|:--------|
+| [dev-environment](foundation/dev-environment/requirements.md) | `implemented` | 2026-11-14 |
 | [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-14 |
-| [dev-environment](foundation/dev-environment/requirements.md) | `planned` | 2026-11-14 |
+| [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-14 |
+| [integration-testing](foundation/integration-testing/requirements.md) | `implemented` | 2026-11-14 |
+| [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `implemented` | 2026-11-14 |
+| [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
+| [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `planned` | 2026-11-14 |
-| [git-sync](foundation/git-sync/requirements.md) | `planned` | 2026-11-14 |
-| [integration-testing](foundation/integration-testing/requirements.md) | `planned` | 2026-11-14 |
-| [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `planned` | 2026-11-14 |
-| [mcp-server](foundation/mcp-server/requirements.md) | `planned` | 2026-11-14 |
-| [trust-model](foundation/trust-model/requirements.md) | `planned` | 2026-11-14 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

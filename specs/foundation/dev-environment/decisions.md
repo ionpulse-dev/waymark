@@ -27,3 +27,9 @@
 **Alternatives considered:** Commit `ci.yml` at once (rejected: it would start paid macOS runners on a private repository without the product owner's choice).
 
 **Reason:** The plan says CI minutes are the product owner's call. Decided autonomously.
+
+## The shell tests check the binary and run spec-check on a full copy — 2026-11-14
+
+**Decision:** `scripts/tests/run.sh` builds the binary and checks with `otool -L` that it links only to `/usr/lib` and `/System`. Its spec-check tests work on a temporary copy of `specs/`, `docs/`, `standard/`, and the top files, so that the link check of `spec-check` passes on the copy. The test of a status mismatch sets any status to `blocked`.
+
+**Reason:** The first version copied too little and skipped its tests silently. Decided autonomously.
