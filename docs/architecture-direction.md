@@ -73,7 +73,7 @@ The MCP config entry of the agent tool starts the server and passes arguments an
   "mcpServers": {
     "waymark": {
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git",
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git",
                "--access", "read-write", "--no-delete", "--folders", "engineering/**"]
     }
   }
@@ -90,7 +90,7 @@ A ceiling is the most that the server ever allows. Layers, from loosest to stric
 |---|---|---|
 | MCP config of the user | The person | A safety default. An agent with file access could edit the file for the next session. |
 | Managed MCP config | IT, pushed to desktops | Stronger, if the agent tool supports managed config (to be verified) |
-| Shared file in the knowledge base (`.mkbase/waymark.toml`) | The team owner | The server refuses to change this file through its tools |
+| Shared file in the knowledge base (`.waymark/settings.toml`) | The team owner | The server refuses to change this file through its tools |
 | Server config (server mode) | The operator | Hard. The user cannot touch it. |
 
 **The strictest layer wins.** A layer can tighten a limit and never loosen it. In server mode the client config can never be the ceiling, because the user controls it. The server enforces limits by user or role.
@@ -131,7 +131,7 @@ Done on 2026-11-11. All specs are `draft`.
 
 **Rewritten or revised**
 - `foundation/trust-model`: limits and config layers replace the read level, write level, and the app.
-- `foundation/knowledge-base-repo`: the `waymark.toml` schema has `[limits]` and `[approval]`. No `.waymark/` folder.
+- `foundation/memory-repository`: the `settings.toml` schema has `[limits]` and `[approval]`. No `.waymark/` folder.
 - `foundation/git-sync`, `foundation/distribution`, `foundation/document-format`.
 - All feature specs that remain: the commands became tools, and behavior advice left the specs.
 - `specs/PROJECT.md`, `specs/INDEX.md`, `specs/WORKFLOW.md` (new status `superseded`), and the README.

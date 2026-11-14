@@ -10,9 +10,9 @@ fn conformance_dir() -> PathBuf {
 }
 
 /// All documents of a vault: (path below the root, text). Skips folders that start with `.`
-/// and the files named in `.mkbase/exclude`.
+/// and the files named in `.waymark/exclude`.
 fn vault_documents(root: &Path) -> Vec<(String, String)> {
-    let exclude: Vec<String> = fs::read_to_string(root.join(".mkbase/exclude"))
+    let exclude: Vec<String> = fs::read_to_string(root.join(".waymark/exclude"))
         .unwrap_or_default()
         .lines()
         .map(str::trim)

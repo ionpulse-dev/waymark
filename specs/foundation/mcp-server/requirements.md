@@ -75,7 +75,7 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | `undo` | Revert one write | write | `activity-and-undo` |
 | `sync` | Commit pending manual edits, pull, push | write | `git-sync`, `manual-edits` |
 | `index` | Generate index files | write | `quality-checks` |
-| `init` | Create the structure of an empty knowledge base repository | write | `create-knowledge-base` |
+| `init` | Create the structure of an empty knowledge base repository | write | `create-memory-repository` |
 | `verify`, `review`, `reject` | Owner verification. Present only when verification is on. | write | `verification` |
 
 Every tool has a JSON input schema and a kind hint (read-only, write, or destructive) so that clients can ask the person per tool. A tool that the limits switch off is not listed (see `trust-model`).
@@ -120,7 +120,7 @@ The agent tool starts the server from an entry in its MCP config. The entry pass
   "mcpServers": {
     "waymark": {
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git", "--access", "read-write"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git", "--access", "read-write"],
       "env": { "WAYMARK_AUTHOR_NAME": "Jane Doe", "WAYMARK_AUTHOR_EMAIL": "jane@example.org" }
     }
   }
@@ -130,8 +130,8 @@ The agent tool starts the server from an entry in its MCP config. The entry pass
 | Argument or variable | Meaning |
 |---|---|
 | `--repo` | Git URL of the knowledge base. The server clones it on first start. |
-| `--kb-id` | Optional. The ID that `.mkbase/waymark.toml` must have. A different ID is `setup_problem` (see `project-binding`). |
-| `--path` | Local folder of the clone. Default `~/Projects/<slug>-knowledge-base`. |
+| `--memory-repository-id` | Optional. The ID that `.waymark/settings.toml` must have. A different ID is `setup_problem` (see `project-binding`). |
+| `--path` | Local folder of the clone. Default `~/Projects/<slug>-agent-memory`. |
 | `--author-name`, `--author-email` (or `WAYMARK_AUTHOR_NAME`, `WAYMARK_AUTHOR_EMAIL`) | Commit author. Default: the Git settings of the person. |
 | Any limit of `trust-model` | For example `--access`, `--no-delete`, `--folders`. |
 
@@ -139,13 +139,13 @@ A secret is never an argument. In local mode, Git uses its own login. In server 
 
 ### Updates of the MCP entry
 
-The entry of the agent tool (the command and its arguments) belongs to the person. waymark never writes into an agent tool, so a change of the entry is always made by the person. This section says how waymark makes sure that the person learns about it. The whole path of updates (binary, settings schema, repairs, migrations) is in `knowledge-base-repo`, section "Versions and updates".
+The entry of the agent tool (the command and its arguments) belongs to the person. waymark never writes into an agent tool, so a change of the entry is always made by the person. This section says how waymark makes sure that the person learns about it. The whole path of updates (binary, settings schema, repairs, migrations) is in `memory-repository`, section "Versions and updates".
 
 - **The server does not exit on a bad argument.** An argument that this waymark does not know, or a wrong value, never stops the process. The server starts, answers `initialize`, and lists `status`. (`--help` and `--version` work as before.)
 - **Deprecated arguments.** The binary has a list of arguments that no longer have an effect (`DEPRECATED_FLAGS` in `src/mcp/args.rs`), each with a sentence. Such an argument is ignored, the tools work, and every result has a notice: "The MCP entry uses `--x`. <sentence>". `status` shows it in the check `entry` (ok). An argument is removed from the program only after it was in this list for at least one minor version.
 - **Any other unknown argument blocks the tools.** It may come from a newer waymark, and it may be a limit that this build would ignore. The server then needs an update: see below. The same holds for a wrong value of a known argument (for example `--max-results many`): the server must not guess a knowledge base, so it starts with no arguments at all.
 - **A new required argument** is handled like an unknown one from the other side: a build that needs an argument and does not find it starts with the same state and says what to add. A release must not add a required argument without this check.
-- **"Needs an update" state.** It exists for three causes: an unknown or wrong argument in the entry, a settings file of a higher schema (see `knowledge-base-repo`), and a required argument that is missing. In this state:
+- **"Needs an update" state.** It exists for three causes: an unknown or wrong argument in the entry, a settings file of a higher schema (see `memory-repository`), and a required argument that is missing. In this state:
   - `initialize` sends `instructions` that start with "WAYMARK NEEDS AN UPDATE:", then the message and the fix, and then "Tool "status" returns the fix."
   - `tools/list` lists only `status`. Its description carries the same text ("WAYMARK NEEDS AN UPDATE: ... Call this tool for the fix."), up to 600 characters. A tool description is in the context of the agent from the start, so the agent knows without a call.
   - Every other tool fails with `setup_problem`, the message, and a `next` sentence. For an argument of the entry the `next` sentence names `brew upgrade waymark` (if the entry was made for a newer waymark), and the two commands that replace the entry of Claude Code: `claude mcp remove waymark`, then `claude mcp add --transport stdio --scope user waymark -- waymark <the arguments that remain>`. Then it says to restart the agent tool.

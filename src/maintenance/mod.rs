@@ -6,7 +6,7 @@ use crate::config::{self, Limits};
 use crate::gitsync::cmd;
 use crate::gitsync::probe::Probe;
 use crate::identity::{self, redact_text, LOGIN_NEXT};
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use crate::mcp::context::{Context, JoinState};
 use serde_json::{json, Value};
 use sources::Layer;
@@ -52,7 +52,7 @@ impl Check {
 pub struct Report {
     pub checks: Vec<Check>,
     pub state: JoinState,
-    pub kb: Option<KnowledgeBase>,
+    pub memrepo: Option<MemRepo>,
     pub author: Option<identity::Resolved>,
 }
 
@@ -81,7 +81,7 @@ fn clone_check(state: &JoinState) -> Check {
         ),
         JoinState::Ready => Check::ok("clone", "ready"),
         JoinState::Empty => Check::ok("clone", "The repository is empty. Call `init`."),
-        JoinState::NotAKnowledgeBase => Check::ok("clone", "not_a_knowledge_base"),
+        JoinState::NotAMemRepo => Check::ok("clone", "not_a_memory_repository"),
         JoinState::Broken(e) => Check::bad(
             "clone",
             e.message.clone(),
@@ -119,7 +119,7 @@ fn working_tree_check(repo: &crate::gitsync::Repo) -> Check {
     }
 }
 
-fn settings_check(ctx: &Context, kb: Option<&KnowledgeBase>) -> Check {
+fn settings_check(ctx: &Context, memrepo: Option<&MemRepo>) -> Check {
     let mut read = 0;
     let mut files: Vec<std::path::PathBuf> = ctx.paths.system.clone();
     files.push(ctx.paths.personal.clone());
@@ -139,7 +139,7 @@ fn settings_check(ctx: &Context, kb: Option<&KnowledgeBase>) -> Check {
             }
         }
     }
-    if kb.is_some() {
+    if memrepo.is_some() {
         read += 1;
     }
     Check::ok("settings", format!("{read} files read"))
@@ -162,7 +162,7 @@ pub fn run_checks(ctx: &Context) -> Report {
     let mut report = Report {
         checks: Vec::new(),
         state: state.clone(),
-        kb: None,
+        memrepo: None,
         author: None,
     };
     if !git_ok {
@@ -206,27 +206,27 @@ pub fn run_checks(ctx: &Context) -> Report {
         }
     }
 
-    let kb = KnowledgeBase::open(repo.dir()).ok();
-    if let Some(k) = &kb {
-        match &ctx.args.kb_id {
-            None => checks.push(Check::ok("kb_id", "no ID expected")),
+    let memrepo = MemRepo::open(repo.dir()).ok();
+    if let Some(k) = &memrepo {
+        match &ctx.args.memory_repository_id {
+            None => checks.push(Check::ok("memory_repository_id", "no ID expected")),
             Some(want) if want.eq_ignore_ascii_case(&k.settings.id) => {
-                checks.push(Check::ok("kb_id", k.settings.id.clone()))
+                checks.push(Check::ok("memory_repository_id", k.settings.id.clone()))
             }
             Some(want) => checks.push(Check::bad(
-                "kb_id",
+                "memory_repository_id",
                 format!("The ID is {}.", k.settings.id),
                 format!(
-                    "This repository has the ID `{}`, and the entry expects `{want}`. Check `--repo` and `--kb-id`.",
+                    "This repository has the ID `{}`, and the entry expects `{want}`. Check `--repo` and `--memory-repository-id`.",
                     k.settings.id
                 ),
             )),
         }
     }
-    checks.push(settings_check(ctx, kb.as_ref()));
+    checks.push(settings_check(ctx, memrepo.as_ref()));
     match ctx.resolve_author(repo.dir()) {
         Ok(a) => {
-            let people = kb
+            let people = memrepo
                 .as_ref()
                 .map(|k| k.settings.people.clone())
                 .unwrap_or_default();
@@ -238,13 +238,13 @@ pub fn run_checks(ctx: &Context) -> Report {
         }
         Err(p) => checks.push(Check::bad("author", p.message, p.next)),
     }
-    report.kb = kb;
+    report.memrepo = memrepo;
     report.checks = checks;
     report
 }
 
 /// The layers in the order system, shared, personal, entry, for `limit_sources`.
-pub fn limit_sources(ctx: &Context, kb: Option<&KnowledgeBase>) -> Value {
+pub fn limit_sources(ctx: &Context, memrepo: Option<&MemRepo>) -> Value {
     let mut system: Vec<Limits> = Vec::new();
     for p in &ctx.paths.system {
         if let Ok(Some(l)) = config::read_layer(p) {
@@ -252,7 +252,7 @@ pub fn limit_sources(ctx: &Context, kb: Option<&KnowledgeBase>) -> Value {
         }
     }
     let personal = config::read_layer(&ctx.paths.personal).ok().flatten();
-    let shared = kb.map(|k| k.settings.limits.clone());
+    let shared = memrepo.map(|k| k.settings.limits.clone());
     let entry = ctx.args.entry_layer().unwrap_or_default();
     let mut layers: Vec<Layer> = system
         .iter()
@@ -277,6 +277,6 @@ pub fn limit_sources(ctx: &Context, kb: Option<&KnowledgeBase>) -> Value {
         name: "entry",
         limits: &entry,
     });
-    let effective = ctx.limits(kb).effective;
+    let effective = ctx.limits(memrepo).effective;
     sources::limit_sources(&layers, &effective)
 }

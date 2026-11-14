@@ -36,7 +36,7 @@ fn author_of(c: &mut McpClient) -> Value {
 }
 
 fn set_shared(w: &World, extra: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&path).unwrap();
     std::fs::write(&path, format!("{old}\n{extra}\n")).unwrap();
     git(&w.a, &["add", "-A"]);

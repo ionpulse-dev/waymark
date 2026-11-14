@@ -3,7 +3,7 @@
 use crate::config::Kind;
 use crate::error::{Code, Error};
 use crate::format;
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
@@ -19,8 +19,8 @@ fn not_found(id: &str) -> Error {
 }
 
 /// The ID of a path below the repository folder, if it lies below the root.
-fn id_of_rel(kb: &KnowledgeBase, rel: &str) -> Option<String> {
-    let prefix = kb.root.strip_prefix(&kb.repo_dir).ok()?;
+fn id_of_rel(memrepo: &MemRepo, rel: &str) -> Option<String> {
+    let prefix = memrepo.root.strip_prefix(&memrepo.repo_dir).ok()?;
     let prefix = prefix.to_string_lossy();
     let below = if prefix.is_empty() {
         rel
@@ -61,11 +61,11 @@ impl Tool for Show {
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let asked = args["id"].as_str().unwrap_or("").to_string();
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         // An invalid ID is `invalid_arguments`.
-        kb.path_of(&asked)?;
+        memrepo.path_of(&asked)?;
         let mut notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let limit_scope = Scope::limit(&env.effective);
         if !limit_scope.allows(&asked) {
             return Err(not_found(&asked));
@@ -74,10 +74,10 @@ impl Tool for Show {
         let mut id = asked.clone();
         let mut moved_from = None;
         if store.get(&id).is_none() {
-            let rel = kb.repo_relative(&id)?;
+            let rel = memrepo.repo_relative(&id)?;
             let new_rel = repo.renamed_to(&rel)?;
             let new_id = new_rel
-                .and_then(|r| id_of_rel(&kb, &r))
+                .and_then(|r| id_of_rel(&memrepo, &r))
                 .filter(|n| store.get(n).is_some() && limit_scope.allows(n));
             match new_id {
                 Some(n) => {
@@ -93,7 +93,7 @@ impl Tool for Show {
             let first = format::check_bytes(
                 &format!("{id}.md"),
                 doc.raw.as_bytes(),
-                &kb.settings.documents,
+                &memrepo.settings.documents,
                 None,
             )
             .into_iter()
@@ -125,7 +125,7 @@ impl Tool for Show {
             }
         }
 
-        let rel = kb.repo_relative(&id)?;
+        let rel = memrepo.repo_relative(&id)?;
         let version = repo.last_commit(&rel)?;
         let last_editor = repo
             .log(1, None, &[rel.as_str()])?

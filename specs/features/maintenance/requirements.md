@@ -5,7 +5,7 @@ created: 2026-11-08
 updated: 2026-11-14
 requires:
   - login-and-identity
-  - join-knowledge-base
+  - join-memory-repository
   - agent-tool-setup
 ---
 
@@ -35,11 +35,11 @@ Checks, in this fixed order and with these fixed names:
 | Name | `ok` when | `fix` when not ok (examples) |
 |---|---|---|
 | `git` | `git --version` works (the `git` binary on macOS can be a stub) | "Install the Xcode command line tools: run `xcode-select --install`, or install Git with Homebrew." |
-| `clone` | the state is `ready`, `empty`, or `not_a_knowledge_base` and the folder is a repository | While cloning: "The first clone is still running. Call `status` again in a minute." For `broken`: the fix of the reason (see `join-knowledge-base`). For `empty`: this check is ok and the `detail` says "The repository is empty. Call `init`." |
+| `clone` | the state is `ready`, `empty`, or `not_a_memory_repository` and the folder is a repository | While cloning: "The first clone is still running. Call `status` again in a minute." For `broken`: the fix of the reason (see `join-memory-repository`). For `empty`: this check is ok and the `detail` says "The repository is empty. Call `init`." |
 | `working_tree` | no Git operation is half done (no rebase or merge in progress). `detail` names the number of files with pending changes. | "A previous Git operation did not finish. Open the folder `<path>` in a terminal, run `git status`, and finish or abort it." |
 | `remote` | the remote answers a read call within 10 seconds, or there is no remote (`detail`: "no remote") | "The remote is not reachable. Check the network and the URL `<url without password>`." |
 | `git_login` | the same read call was not refused for a login reason | "Git cannot sign in to this repository. Sign in with Git first, for example with `gh auth login`, or set up an SSH key." |
-| `kb_id` | `--kb-id` is not given, or it equals `id` of `.mkbase/waymark.toml` | "This repository has the ID `<id>`, and the entry expects `<expected>`. Check `--repo` and `--kb-id`." |
+| `memory_repository_id` | `--memory-repository-id` is not given, or it equals `id` of `.waymark/settings.toml` | "This repository has the ID `<id>`, and the entry expects `<expected>`. Check `--repo` and `--memory-repository-id`." |
 | `settings` | every config layer file (system, personal, shared) parses | "The file `<path>` has a syntax error. Fix it. waymark does not ignore a broken file, because that would loosen a limit." |
 | `author` | the author resolves and passes the email check (see `login-and-identity`) | The `next` sentence of `login-and-identity`. |
 
@@ -55,14 +55,14 @@ The network call (`remote` and `git_login`) is one read call to the remote with 
 {
   "healthy": false,
   "version": "0.1.0",
-  "knowledge_base": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/Projects/knowledge", "root": "knowledge" },
+  "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/Projects/knowledge", "root": "knowledge" },
   "checks": [
     { "name": "git", "ok": true, "detail": "git version 2.50.1", "fix": null },
     { "name": "clone", "ok": true, "detail": "ready", "fix": null },
     { "name": "working_tree", "ok": true, "detail": "0 files with pending changes", "fix": null },
     { "name": "remote", "ok": true, "detail": "reachable", "fix": null },
     { "name": "git_login", "ok": false, "detail": "Permission denied", "fix": "Git cannot sign in to this repository. Sign in with Git first, for example with `gh auth login`, or set up an SSH key." },
-    { "name": "kb_id", "ok": true, "detail": "no ID expected", "fix": null },
+    { "name": "memory_repository_id", "ok": true, "detail": "no ID expected", "fix": null },
     { "name": "settings", "ok": true, "detail": "3 files read", "fix": null },
     { "name": "author", "ok": true, "detail": "Jane Doe <jane@example.org>", "fix": null }
   ],
@@ -73,7 +73,7 @@ The network call (`remote` and `git_login`) is one read call to the remote with 
 }
 ```
 
-- `knowledge_base.state` is one of `cloning`, `ready`, `empty`, `not_a_knowledge_base`, `broken`. `name`, `id`, `slug`, and `root` are `null` if unknown.
+- `memory_repository.state` is one of `cloning`, `ready`, `empty`, `not_a_memory_repository`, `broken`. `name`, `id`, `slug`, and `root` are `null` if unknown.
 - `limit_sources` names, for each limit in `settings`, the layers that set the effective value: `default`, `system`, `personal`, `shared`, `entry`. A list limit names all layers that add to the union.
 - `last_pull` is the time of the last good fetch in this session, or `null`. `last_error` is the last error text of this session (without secrets), or `null`.
 - `healthy` is true when every check that ran is ok.

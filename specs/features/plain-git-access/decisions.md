@@ -36,7 +36,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The standalone skills live in `plain-git/` of this repository — 2026-11-14
 
-**Decision:** After `waymark-trail` is retired, the folder `plain-git/` in this repository holds the two standalone skills as `plain-git/personal-knowledge-base/SKILL.md` and `plain-git/team-knowledge-base/SKILL.md`. waymark reads them at build time. They stay installable as skills, because each is a folder with a `SKILL.md`. Only the finished files move. The parts and the build script of `waymark-trail` do not move (see `todo.md`). A change to the text starts in this spec, as the workflow requires.
+**Decision:** After `waymark-trail` is retired, the folder `plain-git/` in this repository holds the two standalone skills as `plain-git/personal-agent-memory/SKILL.md` and `plain-git/team-agent-memory/SKILL.md`. waymark reads them at build time. They stay installable as skills, because each is a folder with a `SKILL.md`. Only the finished files move. The parts and the build script of `waymark-trail` do not move (see `todo.md`). A change to the text starts in this spec, as the workflow requires.
 
 **Alternatives considered:**
 - Another repository for the skills (rejected: a second repository to keep in step, and the standard is already here).
@@ -65,7 +65,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** `AGENTS.md` is built from a fixed introduction (`src/kb/templates/agents-intro.md`), an optional team part, the skill text, and a part for the team's rules. There are no two full templates.
 
-**Supersedes:** the single template file `src/kb/templates/AGENTS.md` in the plan of `knowledge-base-repo`. That file is replaced by `agents-intro.md`, and `kb::agents_file` builds the rest.
+**Supersedes:** the single template file `src/kb/templates/AGENTS.md` in the plan of `memory-repository`. That file is replaced by `agents-intro.md`, and `kb::agents_file` builds the rest.
 
 **Alternatives considered:** Two full template files (rejected: the skill text would be copied twice into the repository, and a change would need two edits).
 
@@ -87,9 +87,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Implementation notes — 2026-11-14
 
-- The two skill files were copied from `waymark-trail` (version 1.5.1) to `plain-git/`. The personal copy is byte-equal to `~/.claude/skills/personal-knowledge-base/SKILL.md`. Decided autonomously.
-- `kb::agents_file` has `Audience`, `render`, `strip`, `skill_version`, and `frontmatter_value`. `kb::init_with(dir, name, slug, audience, email_domains)` writes `AGENTS.md` through `render`. `kb::init` keeps its signature and uses `Audience::Personal`. The tool `init` (create-knowledge-base) calls `init_with`.
-- A1, A4, and A5 call `kb::init_with` directly, because the `init` tool does not exist yet. `create-knowledge-base` adds the tool test that goes through the tool.
+- The two skill files were copied from `waymark-trail` (version 1.5.1) to `plain-git/`. The personal copy is byte-equal to `~/.claude/skills/personal-agent-memory/SKILL.md`. Decided autonomously.
+- `kb::agents_file` has `Audience`, `render`, `strip`, `skill_version`, and `frontmatter_value`. `kb::init_with(dir, name, slug, audience, email_domains)` writes `AGENTS.md` through `render`. `kb::init` keeps its signature and uses `Audience::Personal`. The tool `init` (create-memory-repository) calls `init_with`.
+- A1, A4, and A5 call `kb::init_with` directly, because the `init` tool does not exist yet. `create-memory-repository` adds the tool test that goes through the tool.
 - The text of both skills says "as the section \"Update of this skill\" says". The copy drops that section, so the sentence points to nothing. The test A6 checks the heading only. See `todo.md`.
 - The old template `src/kb/templates/AGENTS.md` is removed. `agents-intro.md` replaces it.
 - A10 skips itself in a folder that is not a Git checkout, and when `plain-git/` is not yet tracked.

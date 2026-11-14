@@ -17,7 +17,7 @@ Define how waymark reaches people: one binary per platform, one container image 
 
 ## Dependents
 
-- `join-knowledge-base`, `agent-tool-setup`, `maintenance`, `server-mode`.
+- `join-memory-repository`, `agent-tool-setup`, `maintenance`, `server-mode`.
 
 ## Deliverables
 

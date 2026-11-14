@@ -23,7 +23,7 @@ A `manual` module finds pending edits in the working tree, checks them with `lin
 
 ## Technical Approach
 
-1. **Pending.** Parse `git status` output. Keep `.md` paths below the root that are documents (no dot path, not in `exclude`). `??` and `A` are `new`, `M` is `changed`, `D` is `deleted`. Other paths are skipped with the reason "Not a document." or "Excluded.". The file `.mkbase/waymark.toml` and other files in `.mkbase/` are skipped and never committed.
+1. **Pending.** Parse `git status` output. Keep `.md` paths below the root that are documents (no dot path, not in `exclude`). `??` and `A` are `new`, `M` is `changed`, `D` is `deleted`. Other paths are skipped with the reason "Not a document." or "Excluded.". The file `.waymark/settings.toml` and other files in `.waymark/` are skipped and never committed.
 2. **Lint.** Load the `Store` from the working tree. Run `lint::run_on` for the pending `new` and `changed` documents. An error finding blocks the document. A deleted document has nothing to check and is committed.
 3. **Touch.** For each passing `changed` document, if `updated` is not today or `updated_by` is not the author, call `format::render` with the new values and write the file. Nothing else changes. A `new` document keeps what the person wrote.
 4. **Approval.** Call the approval step of `gitsync` (see `write-approval`) with the tool name `sync` and the list of IDs. A refusal returns `approval_denied` or `approval_unavailable` before anything is committed.

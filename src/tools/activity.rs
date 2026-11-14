@@ -55,10 +55,10 @@ impl Tool for Activity {
         let before = writes::get_str(&args, "before");
 
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
         let commits = repo.all_commits()?;
-        let mut entries = activity::entries(&kb, &commits, &repo.author().email);
+        let mut entries = activity::entries(&memrepo, &commits, &repo.author().email);
         entries.retain(|e| e.ids.iter().any(|id| env.effective.allows_folder(id)));
         if let Some(s) = since {
             entries.retain(|e| e.time.get(..10).unwrap_or("") >= s);

@@ -38,11 +38,11 @@ fn lint(w: &World) -> Value {
 #[test]
 fn the_sample_vault_has_no_error_in_the_binary() {
     let w = World::new();
-    let root = w.a.join("knowledge");
+    let root = w.a.join("agent-memory");
     copy_tree(&conformance_dir().join("vault"), &root);
     fs::copy(
-        conformance_dir().join("vault/.mkbase/exclude"),
-        root.join(".mkbase/exclude"),
+        conformance_dir().join("vault/.waymark/exclude"),
+        root.join(".waymark/exclude"),
     )
     .unwrap();
     let r = lint(&w);
@@ -66,7 +66,7 @@ fn every_invalid_document_has_the_rule_of_its_file_name_in_the_binary() {
         }
         let rule = p.file_stem().unwrap().to_string_lossy().to_string();
         let w = World::new();
-        fs::copy(&p, w.a.join("knowledge").join(p.file_name().unwrap())).unwrap();
+        fs::copy(&p, w.a.join("agent-memory").join(p.file_name().unwrap())).unwrap();
         let r = lint(&w);
         let rules: Vec<String> = r["findings"]
             .as_array()

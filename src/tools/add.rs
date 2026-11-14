@@ -65,8 +65,8 @@ impl Tool for Add {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "add", Kind::Write, preview, |tx, kb| {
-            let ids = kb.id_set();
+        writes::execute(ctx, env, "add", Kind::Write, preview, |tx, memrepo| {
+            let ids = memrepo.id_set();
             let taken: std::collections::HashSet<String> =
                 ids.iter().map(|i| i.to_lowercase()).collect();
             let id = writes::slug::new_id(&folder, &title, &|i| taken.contains(&i.to_lowercase()))
@@ -81,7 +81,7 @@ impl Tool for Add {
                 )
                 .with_next("Choose a folder that the limits allow."));
             }
-            if kb.is_excluded(&id) {
+            if memrepo.is_excluded(&id) {
                 return Err(
                     Error::validation("This folder is excluded from the knowledge base.")
                         .with_next("Choose another folder."),
@@ -110,7 +110,7 @@ impl Tool for Add {
             if !anchors.is_empty() {
                 fm.set_list("anchors", &anchors);
             }
-            if kb.settings.verification {
+            if memrepo.settings.verification {
                 fm.set_text("trust", "unverified");
             }
 
@@ -119,7 +119,7 @@ impl Tool for Add {
             let mut skip: Vec<String> = Vec::new();
             if let Some(old_id) = &supersedes {
                 writes::require_visible(env, old_id)?;
-                let (_, mut old) = writes::read_doc(tx, kb, old_id)?;
+                let (_, mut old) = writes::read_doc(tx, memrepo, old_id)?;
                 doc.frontmatter
                     .set_list("supersedes", &[writes::wikilink(old_id)]);
                 skip.push(old_id.clone());
@@ -149,7 +149,7 @@ impl Tool for Add {
             secret_fields.push(("tags", tags.join("\n")));
             let skip_refs: Vec<&str> = skip.iter().map(String::as_str).collect();
             writes::check_document_links(
-                kb,
+                memrepo,
                 &id,
                 &text,
                 &ids_after,

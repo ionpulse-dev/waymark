@@ -4,7 +4,7 @@ status: superseded
 created: 2026-11-08
 updated: 2026-11-11
 requires:
-  - knowledge-base-repo
+  - memory-repository
   - trust-model
 superseded_by:
   - mcp-server
@@ -84,7 +84,7 @@ waymark → output (JSON + message) → agent → person in the chat
 
 | Group | Commands | Specified in |
 |---|---|---|
-| Setup | `init`, `setup`, `login`, `credential` | `create-knowledge-base`, `join-knowledge-base`, `login-and-identity` |
+| Setup | `init`, `setup`, `login`, `credential` | `create-memory-repository`, `join-memory-repository`, `login-and-identity` |
 | Maintenance | `doctor`, `status`, `update`, `uninstall` | `maintenance` |
 | Binding | `link`, `unlink`, `--kb <uuid>` | `project-binding` |
 | Session | `session` | `session-start` |

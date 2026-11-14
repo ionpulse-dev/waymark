@@ -74,9 +74,9 @@ impl Tool for Updates {
         let explicit_when = explicit.map(parse_since).transpose()?;
 
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let state = State::for_kb(&kb.settings.id);
+        let state = State::for_memrepo(&memrepo.settings.id);
         let now = Utc::now();
         let since = match explicit_when {
             Some(w) => w,
@@ -95,7 +95,7 @@ impl Tool for Updates {
             .unwrap_or_default();
         let base = repo.base_commit_before(&since_text);
         let scope = Scope::new(&env.effective, &folders);
-        let mut changes: Vec<Change> = changes_since(&repo, &kb, &base, &own)?
+        let mut changes: Vec<Change> = changes_since(&repo, &memrepo, &base, &own)?
             .into_iter()
             .filter(|c| scope.allows(&c.id) || c.from.as_deref().is_some_and(|f| scope.allows(f)))
             .collect();

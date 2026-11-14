@@ -45,7 +45,7 @@ impl Tool for Status {
         let healthy = failed.is_empty();
 
         // The facts of the knowledge base, when it is ready.
-        let mut kb_json = json!({
+        let mut memrepo_json = json!({
             "state": report.state.name(),
             "name": null, "id": null, "slug": null, "path": null, "root": null,
         });
@@ -54,26 +54,26 @@ impl Tool for Status {
         match &report.state {
             JoinState::Ready => {
                 let f = session::facts(ctx, true);
-                if let Some(k) = &f.kb {
-                    kb_json = k.to_json();
-                    kb_json["state"] = json!("ready");
-                    if let Some(kb) = &report.kb {
-                        kb_json["verification"] = json!(kb.settings.verification);
-                        let root = kb.root.strip_prefix(&kb.repo_dir).unwrap_or(&kb.root);
-                        kb_json["root"] = json!(root.to_string_lossy());
+                if let Some(k) = &f.memrepo {
+                    memrepo_json = k.to_json();
+                    memrepo_json["state"] = json!("ready");
+                    if let Some(memrepo) = &report.memrepo {
+                        memrepo_json["verification"] = json!(memrepo.settings.verification);
+                        let root = memrepo.root.strip_prefix(&memrepo.repo_dir).unwrap_or(&memrepo.root);
+                        memrepo_json["root"] = json!(root.to_string_lossy());
                     }
                 }
                 extra = f.notices;
             }
             JoinState::Broken(e) => {
-                kb_json["reason"] = json!(redact_text(&e.message));
+                memrepo_json["reason"] = json!(redact_text(&e.message));
                 problem = json!({"code": e.code.as_str(), "message": redact_text(&e.message), "next": e.next});
             }
-            JoinState::Empty | JoinState::NotAKnowledgeBase => {
+            JoinState::Empty | JoinState::NotAMemRepo => {
                 if let Ok(repo) = ctx.repo() {
-                    kb_json["path"] = json!(repo.dir().display().to_string());
+                    memrepo_json["path"] = json!(repo.dir().display().to_string());
                 }
-                if let Err(e) = ctx.kb() {
+                if let Err(e) = ctx.memrepo() {
                     problem =
                         json!({"code": e.code.as_str(), "message": e.message, "next": e.next});
                 }
@@ -104,9 +104,9 @@ impl Tool for Status {
         let mut data = json!({
             "healthy": healthy,
             "version": env!("CARGO_PKG_VERSION"),
-            "knowledge_base": kb_json,
+            "memory_repository": memrepo_json,
             "checks": report.checks.iter().map(|c| c.to_json()).collect::<Vec<_>>(),
-            "limit_sources": limit_sources(ctx, report.kb.as_ref()),
+            "limit_sources": limit_sources(ctx, report.memrepo.as_ref()),
             "last_pull": last_pull,
             "last_error": ctx.last_session_error().map(|e| redact_text(&e)),
         });

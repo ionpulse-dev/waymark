@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::Path;
@@ -21,11 +21,11 @@ fn add(c: &mut McpClient, folder: &str, title: &str, body: &str) -> Value {
 }
 
 fn file(dir: &Path, id: &str) -> String {
-    std::fs::read_to_string(dir.join("knowledge").join(format!("{id}.md"))).unwrap()
+    std::fs::read_to_string(dir.join("agent-memory").join(format!("{id}.md"))).unwrap()
 }
 
 fn exists(dir: &Path, id: &str) -> bool {
-    dir.join("knowledge").join(format!("{id}.md")).exists()
+    dir.join("agent-memory").join(format!("{id}.md")).exists()
 }
 
 fn remote_log(w: &World) -> Vec<String> {
@@ -34,7 +34,7 @@ fn remote_log(w: &World) -> Vec<String> {
 
 /// Change the shared settings file: replace `from` with `to`, then commit and push.
 fn set_shared(w: &World, from: &str, to: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&path).unwrap();
     assert!(old.contains(from), "{from} not found");
     std::fs::write(&path, old.replacen(from, to, 1)).unwrap();
@@ -555,7 +555,7 @@ fn delete_outside_folders_for_a_linking_document_is_denied() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--folders", "eng/**"]));
     let version = git(
         &w.a,
-        &["log", "-1", "--format=%h", "--", "knowledge/eng/target.md"],
+        &["log", "-1", "--format=%h", "--", "agent-memory/eng/target.md"],
     );
     let r = c.call(
         "delete",
@@ -580,7 +580,7 @@ fn update_resets_trust() {
         "trust: unverified",
         "trust: verified\nverified_by: \"Ben Example <ben@example.org>\"\nverified: 2026-11-14",
     );
-    std::fs::write(w.a.join("knowledge").join(format!("{id}.md")), text).unwrap();
+    std::fs::write(w.a.join("agent-memory").join(format!("{id}.md")), text).unwrap();
     git(&w.a, &["add", "-A"]);
     git(&w.a, &["commit", "-q", "-m", "test: verify"]);
     git(&w.a, &["push", "-q"]);
@@ -591,7 +591,7 @@ fn update_resets_trust() {
             "-1",
             "--format=%h",
             "--",
-            &format!("knowledge/{id}.md"),
+            &format!("agent-memory/{id}.md"),
         ],
     );
     let u = c.call(
@@ -659,7 +659,7 @@ fn a_write_needing_approval_fails_closed_until_write_approval_exists() {
 fn invalid_input_is_reported_before_anything_is_written() {
     let w = World::new();
     let mut c = client(&w, Person::A);
-    for folder in ["../x", "/abs", ".mkbase"] {
+    for folder in ["../x", "/abs", ".waymark"] {
         let r = c.call(
             "add",
             json!({"folder": folder, "title": "T", "description": "D.", "body": "B."}),

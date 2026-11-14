@@ -43,10 +43,10 @@ fn skipped_json(o: &Outcome) -> Vec<Value> {
 }
 
 /// The ID of a path below the repository folder.
-fn rel_to_id(kb: &crate::kb::KnowledgeBase, rel: &str) -> String {
-    let prefix = kb
+fn rel_to_id(memrepo: &crate::memrepo::MemRepo, rel: &str) -> String {
+    let prefix = memrepo
         .root
-        .strip_prefix(&kb.repo_dir)
+        .strip_prefix(&memrepo.repo_dir)
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_default();
     let below = if prefix.is_empty() {
@@ -101,7 +101,7 @@ impl Tool for Sync {
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let preview = writes::get_bool(&args, "preview");
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();
         let can_write = env.effective.check_tool("sync", Kind::Write).is_ok();
@@ -123,7 +123,7 @@ impl Tool for Sync {
         // Preview: check, and change nothing. No pull, no push.
         if preview {
             let tx = crate::gitsync::Tx::new_for_sync(&repo);
-            let o = manual::prepare(&tx, &kb, &env.effective, &author, &today, false)?;
+            let o = manual::prepare(&tx, &memrepo, &env.effective, &author, &today, false)?;
             let committed: Vec<Value> = o
                 .passing
                 .iter()
@@ -145,7 +145,7 @@ impl Tool for Sync {
 
         let outcome: RefCell<Option<Outcome>> = RefCell::new(None);
         let result = repo.sync(|tx| {
-            let o = manual::prepare(tx, &kb, &env.effective, &author, &today, true)?;
+            let o = manual::prepare(tx, &memrepo, &env.effective, &author, &today, true)?;
             if o.change.is_none() && !o.blocked.is_empty() {
                 let first = &o.blocked[0];
                 let detail = first
@@ -164,7 +164,7 @@ impl Tool for Sync {
                 writes::approve(
                     ctx,
                     env,
-                    &kb,
+                    &memrepo,
                     "sync",
                     Kind::Write,
                     "Publish manual edits.",
@@ -185,7 +185,7 @@ impl Tool for Sync {
         let conflicts: Vec<Value> = result
             .conflicts
             .iter()
-            .map(|(orig, copy)| json!({"id": rel_to_id(&kb, orig), "copy": rel_to_id(&kb, copy)}))
+            .map(|(orig, copy)| json!({"id": rel_to_id(&memrepo, orig), "copy": rel_to_id(&memrepo, copy)}))
             .collect();
         let mut out = ToolOutput::new(
             summary(committed.len(), o.blocked.len()),

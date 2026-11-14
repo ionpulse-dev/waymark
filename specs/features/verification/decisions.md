@@ -23,7 +23,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Verification tools in local mode — 2026-11-14
 
-**Decision:** `verify`, `review`, and `reject` are normal tools in local mode. They are listed only when `verification = true` is in `.mkbase/waymark.toml`. A direct call with verification off is `access_denied`. A team can ask for approval with `approval.required_for`.
+**Decision:** `verify`, `review`, and `reject` are normal tools in local mode. They are listed only when `verification = true` is in `.waymark/settings.toml`. A direct call with verification off is `access_denied`. A team can ask for approval with `approval.required_for`.
 
 **Alternatives considered:** Always list the tools (rejected: they cost context in every session of every team that does not use verification). Block verification of your own document (rejected: in a one-person knowledge base nobody could verify).
 

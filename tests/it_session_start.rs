@@ -25,7 +25,7 @@ fn instructions(c: &McpClient) -> String {
 }
 
 fn set_shared(w: &World, from: &str, to: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&path).unwrap();
     assert!(old.contains(from), "{from}");
     std::fs::write(&path, old.replacen(from, to, 1)).unwrap();
@@ -107,7 +107,7 @@ fn unbound_instructions_and_status() {
     );
     let s = c.call("status", json!({}));
     assert!(!s.is_error);
-    assert_eq!(s.json["knowledge_base"]["state"], "broken");
+    assert_eq!(s.json["memory_repository"]["state"], "broken");
     assert_eq!(s.json["problem"]["code"], "setup_problem");
     assert!(s.json["problem"]["next"]
         .as_str()
@@ -159,7 +159,7 @@ fn initialize_does_not_wait_for_a_clone() {
             "a@example.org",
         ]),
     );
-    // The clone runs in the background (see `join-knowledge-base`). `initialize` does not wait.
+    // The clone runs in the background (see `join-memory-repository`). `initialize` does not wait.
     let t = instructions(&c);
     assert!(
         t.contains("No knowledge base is set up") || t.contains("Knowledge base:"),
@@ -170,7 +170,7 @@ fn initialize_does_not_wait_for_a_clone() {
 #[test]
 fn a_name_with_a_line_break_adds_no_line() {
     let w = World::new();
-    let f = w.a.join("knowledge/.mkbase/waymark.toml");
+    let f = w.a.join("agent-memory/.waymark/settings.toml");
     let text = std::fs::read_to_string(&f).unwrap();
     let text: Vec<String> = text
         .lines()
@@ -197,11 +197,11 @@ fn status_matches_instructions_and_shows_found_by_and_remote() {
     let s: Value = c.call("status", json!({})).json;
     assert!(t.contains(&format!(
         "\"{}\"",
-        s["knowledge_base"]["name"].as_str().unwrap()
+        s["memory_repository"]["name"].as_str().unwrap()
     )));
     assert!(t.contains(&format!(
         "(id {})",
-        s["knowledge_base"]["id"].as_str().unwrap()
+        s["memory_repository"]["id"].as_str().unwrap()
     )));
     assert!(t.contains(&format!(
         "access {}",
@@ -209,8 +209,8 @@ fn status_matches_instructions_and_shows_found_by_and_remote() {
     )));
     assert!(t.contains("search returns at most 4 documents"));
     assert_eq!(s["settings"]["max_results"], 4);
-    assert_eq!(s["knowledge_base"]["found_by"], "path_argument");
-    assert!(s["knowledge_base"]["remote"]
+    assert_eq!(s["memory_repository"]["found_by"], "path_argument");
+    assert!(s["memory_repository"]["remote"]
         .as_str()
         .unwrap()
         .ends_with("remote.git"));
@@ -232,7 +232,7 @@ fn the_remote_url_has_no_password() {
     let mut c = client(&w);
     let s = c.call("status", json!({}));
     assert_eq!(
-        s.json["knowledge_base"]["remote"],
+        s.json["memory_repository"]["remote"],
         "https://example.org/x/k.git"
     );
     assert!(!s.json.to_string().contains("secret"));
@@ -280,6 +280,6 @@ fn no_remote_gives_a_notice_in_instructions_and_status() {
     assert!(s.json["notices"]
         .to_string()
         .contains("This repository has no remote."));
-    assert!(s.json["knowledge_base"]["remote"].is_null());
+    assert!(s.json["memory_repository"]["remote"].is_null());
     let _: &Path = &w.a;
 }

@@ -187,7 +187,7 @@ fn t10_a_change_on_the_remote_is_fetched_first() {
     let mut b = client(&w, Person::B);
     add(&mut b, "ops", "From the remote");
     // A has not fetched yet.
-    assert!(!w.a.join("knowledge/ops/from-the-remote.md").exists());
+    assert!(!w.a.join("agent-memory/ops/from-the-remote.md").exists());
     let u = updates(&mut a, json!({"since": "2020-01-01"}));
     assert_eq!(ids(&u), vec!["ops/from-the-remote"]);
 }
@@ -219,7 +219,7 @@ fn t12_the_list_is_cut_at_50() {
         let text = format!(
             "---\ntitle: Doc {i}\ndescription: About {i}.\nstatus: active\ncreated: 2026-11-01\nupdated: 2026-11-01\ncreated_by: \"Ben Example <ben@example.org>\"\nupdated_by: \"Ben Example <ben@example.org>\"\n---\n\nText.\n"
         );
-        common::kb::write_doc(&w.b, &format!("bulk/doc-{i}"), &text);
+        common::memrepo::write_doc(&w.b, &format!("bulk/doc-{i}"), &text);
     }
     git(&w.b, &["add", "-A"]);
     git(
@@ -247,7 +247,7 @@ fn t12_the_list_is_cut_at_50() {
 fn t13_a_generated_index_is_not_listed() {
     let w = World::new();
     let text = "---\ntitle: Index of ops\ndescription: All of ops.\nstatus: active\ncreated: 2026-11-01\nupdated: 2026-11-01\ncreated_by: \"Ben Example <ben@example.org>\"\nupdated_by: \"Ben Example <ben@example.org>\"\ntags:\n  - index\n---\n\nList.\n";
-    common::kb::write_doc(&w.b, "ops/index", text);
+    common::memrepo::write_doc(&w.b, "ops/index", text);
     git(&w.b, &["add", "-A"]);
     git(
         &w.b,
@@ -272,11 +272,11 @@ fn t13_a_generated_index_is_not_listed() {
 fn t14_the_state_file_keeps_other_keys() {
     let w = World::new();
     let mut a = client(&w, Person::A);
-    let kb_id = {
+    let memory_repository_id = {
         let s = a.call("status", json!({}));
-        s.json["knowledge_base"]["id"].as_str().unwrap().to_string()
+        s.json["memory_repository"]["id"].as_str().unwrap().to_string()
     };
-    let file = w.root.join("home-a/state").join(format!("{kb_id}.json"));
+    let file = w.root.join("home-a/state").join(format!("{memory_repository_id}.json"));
     std::fs::create_dir_all(file.parent().unwrap()).unwrap();
     std::fs::write(&file, "{\"other\": \"stays\"}").unwrap();
     updates(&mut a, json!({}));

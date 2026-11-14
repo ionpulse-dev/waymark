@@ -4,7 +4,7 @@ status: implemented
 created: 2026-11-08
 updated: 2026-11-14
 requires:
-  - knowledge-base-repo
+  - memory-repository
 ---
 
 # Plain-Git access
@@ -22,7 +22,7 @@ requires:
 
 ## Behaviour
 
-Every content repository has an `AGENTS.md` in its root. The `init` tool writes it (see `create-knowledge-base`). It always contains the plain-Git rules. These are a copy of a standalone skill. The skills live in the folder `plain-git/` of this repository (see `decisions.md`). `init` copies `personal-knowledge-base` for `audience: personal` and `team-knowledge-base` for `audience: team`. The skill works on any Git repository of Markdown documents. It does not need `.mkbase/waymark.toml` or the waymark program.
+Every content repository has an `AGENTS.md` in its root. The `init` tool writes it (see `create-memory-repository`). It always contains the plain-Git rules. These are a copy of a standalone skill. The skills live in the folder `plain-git/` of this repository (see `decisions.md`). `init` copies `personal-agent-memory` for `audience: personal` and `team-agent-memory` for `audience: team`. The skill works on any Git repository of Markdown documents. It does not need `.waymark/settings.toml` or the waymark program.
 
 The file has two modes:
 
@@ -42,7 +42,7 @@ The file has four parts: an introduction, an optional team part, the plain-Git r
 ```markdown
 # Rules for agents
 
-This repository is a knowledge base: Markdown documents for people and AI agents. The documents are in the folder `knowledge/`.
+This repository is a knowledge base: Markdown documents for people and AI agents. The documents are in the folder `agent-memory/`.
 
 ## Which rules apply
 
@@ -56,8 +56,8 @@ For `audience: team` with `email_domains`, a part follows: `## Team settings`, a
 ```markdown
 ## Plain-Git rules
 
-<!-- plain-git-rules begin: team-knowledge-base 1.5.1 -->
-(the text of plain-git/team-knowledge-base/SKILL.md, without its frontmatter and without its section "Update of this skill")
+<!-- plain-git-rules begin: team-agent-memory 1.5.1 -->
+(the text of plain-git/team-agent-memory/SKILL.md, without its frontmatter and without its section "Update of this skill")
 <!-- plain-git-rules end -->
 
 ## Rules of this team

@@ -24,5 +24,5 @@ Facts that the documentation did not state (they stay "unverified" until the `[m
 
 ## Notes 2026-11-14
 
-- Remove `updates` and `init` from `NOT_YET_BUILT` in `tests/it_agent_tool_docs.rs` when `updates` and `create-knowledge-base` are implemented (the test tells you).
+- Remove `updates` and `init` from `NOT_YET_BUILT` in `tests/it_agent_tool_docs.rs` when `updates` and `create-memory-repository` are implemented (the test tells you).
 - All snippets say "not yet tested" until the manual tests M1 to M6 ran.

@@ -52,7 +52,7 @@ fn cut(mut s: String) -> String {
 }
 
 pub fn build(f: &Facts) -> String {
-    let Some(kb) = &f.kb else {
+    let Some(memrepo) = &f.memrepo else {
         if let Some(e) = f.problem.as_ref().filter(|p| p.is_update_needed()) {
             return cut(format!(
                 "{INTRO}\nWAYMARK NEEDS AN UPDATE: {} {}\nTool \"status\" returns the fix.",
@@ -82,8 +82,8 @@ pub fn build(f: &Facts) -> String {
     };
     let mut text = format!(
         "{INTRO} A document is one Markdown file. A folder groups documents. The ID of a document is its path below the knowledge base root, without \".md\".\nKnowledge base: \"{}\" (id {}).\nLimits at session start: access {}; writes paused: {}; search returns at most {} documents and {} tokens; show opens at most {} documents per session; folders: {}; tools switched off: {}; approval required for: {}.\n",
-        sanitize(&kb.name),
-        sanitize(&kb.id),
+        sanitize(&memrepo.name),
+        sanitize(&memrepo.id),
         s["access"].as_str().unwrap_or(""),
         if s["paused"] == true { "yes" } else { "no" },
         s["max_results"],
@@ -122,7 +122,7 @@ mod tests {
     fn facts(name: &str, limits: Limits, notices: Vec<String>) -> Facts {
         let e = Effective::from_layers(&[limits]);
         Facts {
-            kb: Some(KbFacts {
+            memrepo: Some(KbFacts {
                 name: name.into(),
                 id: "6f1c2a9e-3b7d-4c55-9a0e-1d2f3a4b5c6d".into(),
                 slug: "x".into(),
@@ -211,7 +211,7 @@ mod tests {
     fn the_unbound_form() {
         let e = Effective::from_layers(&[Limits::default()]);
         let f = Facts {
-            kb: None,
+            memrepo: None,
             problem: Some(crate::error::Error::setup("No knowledge base is set up.")),
             settings: settings_json(&e),
             notices: vec![],

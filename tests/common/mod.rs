@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 
 pub mod git;
-pub mod kb;
+pub mod memrepo;
 pub mod mcp;
 pub mod world;
 

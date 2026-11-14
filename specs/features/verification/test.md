@@ -27,8 +27,8 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] `dispute` and `deprecate` keep a verified mark (`tests/it_verification.rs`)
 - [x] [auto] With verification turned off again, trust fields stay in the files and `add` stops setting `trust` (`tests/it_verification.rs`)
 - [x] [auto] `undo` of a `verify` restores the document (`tests/it_verification.rs`)
-- [ ] [manual] Obsidian shows the trust fields. Steps: turn verification on in `.mkbase/waymark.toml`, run `verify` through a real agent tool, open the document in Obsidian. Expected: the Properties panel shows `trust`, `verified_by`, and `verified` without errors.
+- [ ] [manual] Obsidian shows the trust fields. Steps: turn verification on in `.waymark/settings.toml`, run `verify` through a real agent tool, open the document in Obsidian. Expected: the Properties panel shows `trust`, `verified_by`, and `verified` without errors.
 
 ## Notes
 
-The approval case needs `write-approval` and is `#[ignore]` until that spec is implemented. The tests turn verification on by committing `verification = true` to `.mkbase/waymark.toml` in the `World`.
+The approval case needs `write-approval` and is `#[ignore]` until that spec is implemented. The tests turn verification on by committing `verification = true` to `.waymark/settings.toml` in the `World`.

@@ -30,7 +30,7 @@ In local mode, the clone of the knowledge base is a normal folder. A person can 
 
 ### What `sync` does
 
-1. **Find pending edits.** Changed, new, and deleted `.md` documents below the root. Files that are not documents (images, `.mkbase/` files, files that start with `.`, entries of `.mkbase/exclude`) are never committed. They are listed under `skipped`.
+1. **Find pending edits.** Changed, new, and deleted `.md` documents below the root. Files that are not documents (images, `.waymark/` files, files that start with `.`, entries of `.waymark/exclude`) are never committed. They are listed under `skipped`.
 2. **Run `lint` first.** Every pending document goes through `lint` (see `quality-checks`). A document with an error is not committed. It is reported under `blocked` with its findings. It stays in the folder, unchanged. A document that passes later is committed by the next `sync`. Warnings do not block, with one exception: a broken body link that the edit adds counts as an error, like in a write tool (see `write-documents`). A link that was already broken in the last commit stays a warning. A document that is deleted by hand while another document still links to it is blocked too, and the finding names the linking documents. If the links go in the same `sync`, both go together.
 3. **Set the author fields.** For a changed document that passed, waymark sets `updated` to today and `updated_by` to the author, if they differ. It touches nothing else.
 4. **Ask for approval** if the limits require it for `sync` or for writes (see `write-approval`). The request lists the documents. A refusal ends the call, and nothing is committed.
@@ -106,13 +106,13 @@ A document moved or renamed by hand (a delete and a new file) and a document del
 - **Given** a document moved by hand, **When** `sync` runs and then `show` runs with the old ID, **Then** `show` returns the document at the new ID.
 - **Given** a file that is not a document, **When** `sync` runs, **Then** it is not committed and is listed under `skipped`.
 - **Given** `preview: true`, **When** `sync` runs, **Then** nothing is committed, pulled, or pushed.
-- **Given** an edit to `.mkbase/waymark.toml`, **When** `sync` runs, **Then** the file is not committed.
+- **Given** an edit to `.waymark/settings.toml`, **When** `sync` runs, **Then** the file is not committed.
 - **Given** a remote with a change to the same document as a pending edit, **When** `sync` runs, **Then** both versions are kept and a notice says so.
 
 ## Constraints & Edge Cases
 
 - Edits made in Obsidian bypass the write checks until they are committed. `lint` is the safety net.
-- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of [MKBase 1.0 section 11](../../../standard/mkbase-1.0.md), is kept.
+- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of [MKBase 1.0 section 11](../../../standard/waymark-1.0.md), is kept.
 - A person who edits and never runs a session leaves edits unpublished. This is a known limit of having no background job. waymark does not commit on a timer.
 - A new file from Obsidian has no frontmatter. It is blocked with `no-frontmatter` until the person adds the required fields.
 - A repository without a remote commits locally and skips pull and push, with a notice (see `git-sync`).

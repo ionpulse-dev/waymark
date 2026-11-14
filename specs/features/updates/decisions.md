@@ -34,7 +34,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The stored time is one file per person and knowledge base — 2026-11-14
 
-**Decision:** The time of the last `updates` call without `since` is stored in `<state dir>/<kb id>.json`, key `last_updates`. The state dir is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`, else `~/.local/state/waymark`. All agent tools of the person on the machine share it. The last call wins.
+**Decision:** The time of the last `updates` call without `since` is stored in `<state dir>/<memory repository id>.json`, key `last_updates`. The state dir is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`, else `~/.local/state/waymark`. All agent tools of the person on the machine share it. The last call wins.
 
 **Alternatives considered:**
 - One file for each agent tool — rejected: the server cannot tell which tool started it, and the person wants one "since I last looked".

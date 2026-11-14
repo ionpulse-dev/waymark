@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::subjects;
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::PathBuf;
@@ -56,7 +56,7 @@ fn add(c: &mut McpClient, title: &str) -> common::Reply {
 }
 
 fn exists(w: &World, id: &str) -> bool {
-    w.a.join("knowledge").join(format!("{id}.md")).exists()
+    w.a.join("agent-memory").join(format!("{id}.md")).exists()
 }
 
 fn requests(seen: &Seen) -> usize {
@@ -104,7 +104,7 @@ fn delete_asks_before_commit() {
     let mut c = asking(&w, yes(), 0, &seen);
     let version = common::git::git(
         &w.a,
-        &["log", "-1", "--format=%h", "--", "knowledge/ops/old.md"],
+        &["log", "-1", "--format=%h", "--", "agent-memory/ops/old.md"],
     );
     let r = c.call("delete", json!({"id": "ops/old", "base": version.trim()}));
     assert!(!r.is_error, "{}", r.json);
@@ -376,7 +376,7 @@ fn pause_during_approval() {
 #[test]
 fn the_shared_and_personal_rules_are_a_union() {
     let w = World::new();
-    let shared = w.a.join("knowledge/.mkbase/waymark.toml");
+    let shared = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&shared).unwrap();
     std::fs::write(
         &shared,
@@ -419,7 +419,7 @@ fn sync_asks_before_it_commits_manual_edits() {
     require(&w, "[\"sync\"]");
     let seen: Seen = Default::default();
     let mut c = asking(&w, yes(), 0, &seen);
-    common::kb::write_doc(&w.a, "ops/manual", &common::kb::doc("Manual", "Hand made."));
+    common::memrepo::write_doc(&w.a, "ops/manual", &common::memrepo::doc("Manual", "Hand made."));
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
     assert_eq!(requests(&seen), 1);
@@ -433,7 +433,7 @@ fn sync_asks_before_it_commits_manual_edits() {
 #[test]
 fn verify_asks_approval() {
     let w = World::new();
-    let shared = w.a.join("knowledge/.mkbase/waymark.toml");
+    let shared = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&shared).unwrap();
     std::fs::write(
         &shared,

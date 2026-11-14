@@ -4,7 +4,7 @@ use crate::error::Result;
 use crate::format;
 use crate::gitsync::diff::PathChange;
 use crate::gitsync::Repo;
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Kind {
@@ -54,21 +54,21 @@ pub fn email_of(person: &str) -> String {
         .unwrap_or_default()
 }
 
-fn root_prefix(kb: &KnowledgeBase) -> String {
-    let rel = kb.root.strip_prefix(&kb.repo_dir).unwrap_or(&kb.root);
+fn root_prefix(memrepo: &MemRepo) -> String {
+    let rel = memrepo.root.strip_prefix(&memrepo.repo_dir).unwrap_or(&memrepo.root);
     rel.to_string_lossy().trim_matches('/').to_string()
 }
 
 /// The document ID of a repository path, or `None` if the path is not a document.
-fn id_of(kb: &KnowledgeBase, path: &str) -> Option<String> {
-    let prefix = root_prefix(kb);
+fn id_of(memrepo: &MemRepo, path: &str) -> Option<String> {
+    let prefix = root_prefix(memrepo);
     let below = if prefix.is_empty() {
         path
     } else {
         path.strip_prefix(&format!("{prefix}/"))?
     };
     let id = below.strip_suffix(".md")?;
-    if id.split('/').any(|s| s.starts_with('.')) || kb.is_excluded(id) {
+    if id.split('/').any(|s| s.starts_with('.')) || memrepo.is_excluded(id) {
         return None;
     }
     Some(id.to_string())
@@ -86,16 +86,16 @@ fn is_index(id: &str, doc: &format::Document) -> bool {
 /// are dropped.
 pub fn changes_since(
     repo: &Repo,
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     base: &str,
     own_email: &str,
 ) -> Result<Vec<Change>> {
-    let prefix = root_prefix(kb);
+    let prefix = root_prefix(memrepo);
     let own = own_email.to_lowercase();
     let mut out = Vec::new();
     for pc in repo.changed_paths(base, &prefix)? {
         let PathChange { status, path, from } = pc;
-        let Some(id) = id_of(kb, &path) else { continue };
+        let Some(id) = id_of(memrepo, &path) else { continue };
         let at_head = repo
             .show_at("HEAD", &path)?
             .and_then(|t| format::parse(&t).ok());
@@ -167,7 +167,7 @@ pub fn changes_since(
             by: format!("{} <{}>", latest.name, latest.email),
             date: latest.date.clone(),
             reason,
-            from: from.as_deref().and_then(|f| id_of(kb, f)),
+            from: from.as_deref().and_then(|f| id_of(memrepo, f)),
             trust: fm.get_text("trust").map(String::from),
             kind,
             id,

@@ -48,10 +48,10 @@ pub fn slug(url: &str) -> String {
         }
     }
     let out = out.trim_matches('-');
-    let out = out.strip_suffix("-knowledge-base").unwrap_or(out);
+    let out = out.strip_suffix("-agent-memory").unwrap_or(out);
     let out = out.trim_matches('-').to_string();
     if out.is_empty() {
-        "knowledge".to_string()
+        "memory".to_string()
     } else {
         out
     }
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn hosts() {
-        assert_eq!(host("git@github.com:example/knowledge.git"), "github.com");
+        assert_eq!(host("git@github.com:example/waymark-agent-memory.git"), "github.com");
         assert_eq!(host("ssh://git@example.org:2222/team/k.git"), "example.org");
         assert_eq!(
             host("https://user:secret@Git.Example.org/a/b.git"),
@@ -111,13 +111,13 @@ mod tests {
     #[test]
     fn slugs() {
         assert_eq!(
-            slug("git@example.org:team/Example_Knowledge-Base.git"),
+            slug("git@example.org:team/Example_Agent-Memory.git"),
             "example"
         );
         assert_eq!(slug("https://example.org/acme/notes.git/"), "notes");
         assert_eq!(slug("https://example.org/acme/My  Notes!.git"), "my-notes");
-        assert_eq!(slug("https://example.org/.git"), "knowledge");
-        assert_eq!(slug("/tmp/team-knowledge-base"), "team");
+        assert_eq!(slug("https://example.org/.git"), "memory");
+        assert_eq!(slug("/tmp/team-agent-memory"), "team");
     }
 
     #[test]

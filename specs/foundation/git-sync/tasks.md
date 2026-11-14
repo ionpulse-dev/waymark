@@ -1,6 +1,6 @@
 # Tasks: Git sync
 
-`requires`: `knowledge-base-repo`.
+`requires`: `memory-repository`.
 
 - [x] `src/gitsync/cmd.rs`: isolated `git` runs and error mapping.
 - [x] `src/gitsync/message.rs`: commit message format.

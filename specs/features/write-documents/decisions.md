@@ -112,7 +112,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **The knowledge base is read again inside the lock**, after the fetch, so settings and documents are current.
 - **Secret rule for assignments.** `password`, `passwd`, `secret`, `token`, and `api_key` followed by `=` or `:` match only when the value is at least 4 characters and does not start with `<`, `$`, `{`, `[`, `*`, or `.`. This keeps placeholders such as `password: <your password>` out of the findings.
 - **`stale_base` next sentence** now says "Read the document again with show, then redo the change." (`git-sync` `Tx::check_base`).
-- **Excluded folders.** `KnowledgeBase::is_excluded(id)` is new. A write into a path of `.mkbase/exclude` fails with `validation_failed`.
+- **Excluded folders.** `KnowledgeBase::is_excluded(id)` is new. A write into a path of `.waymark/exclude` fails with `validation_failed`.
 - **The `Reason:` of `deprecate`** is scanned for secrets, because it goes into the Git history.
 
 ## A write never creates a broken link, and `delete` refuses linked documents — 2026-11-14

@@ -62,7 +62,7 @@ A notice is a string in the `notices` list of a result, after the notices that t
 }
 ```
 
-The state is the file of `updates` (`<state dir>/<kb id>.json`). This spec adds the key `notice_sessions`: an object from a short hash of the notice text to the number of sessions that showed it.
+The state is the file of `updates` (`<state dir>/<memory repository id>.json`). This spec adds the key `notice_sessions`: an object from a short hash of the notice text to the number of sessions that showed it.
 
 ## Acceptance Criteria
 

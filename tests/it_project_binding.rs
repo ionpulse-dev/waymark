@@ -36,11 +36,11 @@ fn url(w: &World) -> String {
     format!("file://{}", w.remote.display())
 }
 
-/// `status`, after the first clone (it runs in the background, see `join-knowledge-base`).
+/// `status`, after the first clone (it runs in the background, see `join-memory-repository`).
 fn status(c: &mut McpClient) -> Value {
     for _ in 0..100 {
         let s = c.call("status", json!({})).json;
-        if s["knowledge_base"]["state"] != "cloning" {
+        if s["memory_repository"]["state"] != "cloning" {
             return s;
         }
         std::thread::sleep(std::time::Duration::from_millis(100));
@@ -48,8 +48,8 @@ fn status(c: &mut McpClient) -> Value {
     panic!("the clone did not end");
 }
 
-fn kb_id(w: &World) -> String {
-    let text = std::fs::read_to_string(w.a.join("knowledge/.mkbase/waymark.toml")).unwrap();
+fn memory_repository_id(w: &World) -> String {
+    let text = std::fs::read_to_string(w.a.join("agent-memory/.waymark/settings.toml")).unwrap();
     text.lines()
         .find_map(|l| l.strip_prefix("id = "))
         .unwrap()
@@ -77,15 +77,15 @@ fn repo_argument_clones_to_the_default_folder_once() {
     let u = url(&w);
     let mut c = start(&h, &["--repo", &u], None);
     let s = status(&mut c);
-    assert_eq!(s["knowledge_base"]["found_by"], "repo_argument");
-    assert_eq!(s["knowledge_base"]["id"], kb_id(&w));
-    let dir = h.join("Projects/remote-knowledge-base");
+    assert_eq!(s["memory_repository"]["found_by"], "repo_argument");
+    assert_eq!(s["memory_repository"]["id"], memory_repository_id(&w));
+    let dir = h.join("Projects/remote-agent-memory");
     assert!(dir.join(".git").is_dir());
     drop(c);
     // A second start reuses the clone: a marker file in it survives.
     std::fs::write(dir.join("marker.txt"), "x").unwrap();
     let mut c = start(&h, &["--repo", &u], None);
-    assert_eq!(status(&mut c)["knowledge_base"]["state"], "ready");
+    assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
     assert!(dir.join("marker.txt").exists());
 }
 
@@ -101,17 +101,17 @@ fn repo_and_path_clone_into_the_path() {
         None,
     );
     let s = status(&mut c);
-    assert_eq!(s["knowledge_base"]["found_by"], "path_argument");
+    assert_eq!(s["memory_repository"]["found_by"], "path_argument");
     assert!(target.join(".git").is_dir());
 }
 
 #[test]
-fn kb_id_equal_works_and_different_serves_nothing() {
+fn memrepo_id_equal_works_and_different_serves_nothing() {
     let w = World::new();
     let h = home(&w, "h3");
     let p = w.a.to_str().unwrap();
-    let id = kb_id(&w);
-    let mut c = start(&h, &["--path", p, "--kb-id", &id], None);
+    let id = memory_repository_id(&w);
+    let mut c = start(&h, &["--path", p, "--memory-repository-id", &id], None);
     assert!(!add(&mut c).is_error);
     drop(c);
     let before = subjects(&w.a);
@@ -120,7 +120,7 @@ fn kb_id_equal_works_and_different_serves_nothing() {
         &[
             "--path",
             p,
-            "--kb-id",
+            "--memory-repository-id",
             "00000000-0000-4000-8000-000000000000",
         ],
         None,
@@ -143,7 +143,7 @@ fn kb_id_equal_works_and_different_serves_nothing() {
 fn a_missing_id_is_a_setup_problem() {
     let w = World::new();
     let h = home(&w, "h4");
-    let f = w.a.join("knowledge/.mkbase/waymark.toml");
+    let f = w.a.join("agent-memory/.waymark/settings.toml");
     let t = std::fs::read_to_string(&f).unwrap();
     let t: String = t
         .lines()
@@ -159,10 +159,10 @@ fn a_missing_id_is_a_setup_problem() {
 fn an_id_that_changes_after_a_pull_stops_the_tools() {
     let w = World::new();
     let h = home(&w, "h5");
-    let id = kb_id(&w);
-    let mut c = start(&h, &["--path", w.a.to_str().unwrap(), "--kb-id", &id], None);
+    let id = memory_repository_id(&w);
+    let mut c = start(&h, &["--path", w.a.to_str().unwrap(), "--memory-repository-id", &id], None);
     assert!(!c.call("list", json!({})).is_error);
-    let f = w.a.join("knowledge/.mkbase/waymark.toml");
+    let f = w.a.join("agent-memory/.waymark/settings.toml");
     let t = std::fs::read_to_string(&f)
         .unwrap()
         .replace(&id, "00000000-0000-4000-8000-000000000001");
@@ -178,10 +178,10 @@ fn allowed_hosts_refuse_a_clone_and_allow_localhost() {
     let u = url(&w);
     let mut c = start(&h, &["--repo", &u], None);
     assert_eq!(c.call("list", json!({})).code(), Some("access_denied"));
-    let dir = h.join("Projects/remote-knowledge-base");
+    let dir = h.join("Projects/remote-agent-memory");
     assert!(!dir.exists());
     assert!(!h
-        .join("Projects/remote-knowledge-base.waymark-clone")
+        .join("Projects/remote-agent-memory.waymark-clone")
         .exists());
     drop(c);
     personal(&h, "[limits]\nallowed_repo_hosts = [\"localhost\"]\n");
@@ -209,7 +209,7 @@ fn tools_take_no_repository_argument() {
     for t in c.list_tools() {
         let schema = &t["inputSchema"];
         assert_eq!(schema["additionalProperties"], false, "{}", t["name"]);
-        for bad in ["repo", "path", "kb", "kb_id"] {
+        for bad in ["repo", "path", "memrepo", "memory_repository_id"] {
             assert!(
                 schema["properties"].get(bad).is_none(),
                 "{} {bad}",
@@ -226,13 +226,13 @@ fn working_folder_is_found_from_the_root_a_subfolder_and_the_parent() {
     let w = World::new();
     let h = home(&w, "h8");
     for cwd in [
-        w.a.join("knowledge"),
-        w.a.join("knowledge/.mkbase"),
+        w.a.join("agent-memory"),
+        w.a.join("agent-memory/.waymark"),
         w.a.clone(),
     ] {
         let mut c = start(&h, &[], Some(cwd));
         let s = status(&mut c);
-        assert_eq!(s["knowledge_base"]["found_by"], "working_folder");
+        assert_eq!(s["memory_repository"]["found_by"], "working_folder");
     }
 }
 
@@ -246,12 +246,12 @@ fn single_default_folder_is_used() {
             "clone",
             "-q",
             w.remote.to_str().unwrap(),
-            h.join("Projects/a-knowledge-base").to_str().unwrap(),
+            h.join("Projects/a-agent-memory").to_str().unwrap(),
         ],
     );
     let mut c = start(&h, &[], None);
     let s = status(&mut c);
-    assert_eq!(s["knowledge_base"]["found_by"], "default_folder");
+    assert_eq!(s["memory_repository"]["found_by"], "default_folder");
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn two_default_folders_and_nothing_found() {
                 "clone",
                 "-q",
                 w.remote.to_str().unwrap(),
-                h.join(format!("Projects/{n}-knowledge-base"))
+                h.join(format!("Projects/{n}-agent-memory"))
                     .to_str()
                     .unwrap(),
             ],
@@ -281,7 +281,7 @@ fn two_default_folders_and_nothing_found() {
     assert!(status(&mut c).is_object());
     let r = c.call("list", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
-    assert!(r.message().contains("a-knowledge-base") && r.message().contains("b-knowledge-base"));
+    assert!(r.message().contains("a-agent-memory") && r.message().contains("b-agent-memory"));
     assert!(r.json["next"].as_str().unwrap().contains("--path"));
 }
 
@@ -343,14 +343,14 @@ fn a_failed_clone_leaves_no_temporary_folder() {
     let w = World::new();
     let h = home(&w, "h14");
     // A leftover from an earlier start.
-    let tmp = h.join("Projects/nothing-knowledge-base.waymark-clone");
+    let tmp = h.join("Projects/nothing-agent-memory.waymark-clone");
     std::fs::create_dir_all(&tmp).unwrap();
     std::fs::write(tmp.join("junk"), "x").unwrap();
     let mut c = start(&h, &["--repo", "file:///does/not/exist/nothing.git"], None);
     let r = c.call("list", json!({}));
     assert_eq!(r.code(), Some("sync_failed"), "{}", r.json);
     assert!(!tmp.exists());
-    assert!(!h.join("Projects/nothing-knowledge-base").exists());
+    assert!(!h.join("Projects/nothing-agent-memory").exists());
 }
 
 #[test]

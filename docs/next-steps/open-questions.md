@@ -18,7 +18,7 @@ See [architecture-direction.md](../architecture-direction.md) for the full list.
 - How does a read budget per session fit a stateless server, and how does the server find the knowledge base?
 - Should the built-in default of the limit `access` be `read-only`?
 
-- **Home of the plain-Git skills.** The standard now lives in `standard/`. Where do the standalone plain-Git skills (`personal-knowledge-base`, `team-knowledge-base`) live once `waymark-trail` is retired? Options: a folder in this repository, or another repository.
+- **Home of the plain-Git skills.** The standard now lives in `standard/`. Where do the standalone plain-Git skills (`personal-agent-memory`, `team-agent-memory`) live once `waymark-trail` is retired? Options: a folder in this repository, or another repository.
 
 ## Build environment
 

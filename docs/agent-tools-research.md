@@ -34,7 +34,7 @@ Minimal entry (`.mcp.json`, project scope):
     "waymark": {
       "type": "stdio",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": { "WAYMARK_AUTHOR_NAME": "Jane Doe", "WAYMARK_AUTHOR_EMAIL": "jane@example.org" }
     }
   }
@@ -72,7 +72,7 @@ Entry (`~/.codex/config.toml`):
 ```toml
 [mcp_servers.waymark]
 command = "waymark"
-args = ["--repo", "git@github.com:example/knowledge.git"]
+args = ["--repo", "git@github.com:example/waymark-agent-memory.git"]
 default_tools_approval_mode = "writes"
 
 [mcp_servers.waymark.env]
@@ -80,7 +80,7 @@ WAYMARK_AUTHOR_NAME = "Jane Doe"
 WAYMARK_AUTHOR_EMAIL = "jane@example.org"
 ```
 
-The first clone runs in the background, so the default start time-out of 10 seconds is enough (see `specs/features/join-knowledge-base`).
+The first clone runs in the background, so the default start time-out of 10 seconds is enough (see `specs/features/join-memory-repository`).
 
 ## GitHub Copilot
 
@@ -107,7 +107,7 @@ VS Code entry (`.vscode/mcp.json`):
     "waymark": {
       "type": "stdio",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": { "WAYMARK_AUTHOR_NAME": "Jane Doe", "WAYMARK_AUTHOR_EMAIL": "jane@example.org" }
     }
   }
@@ -122,7 +122,7 @@ CLI entry (`~/.copilot/mcp-config.json`):
     "waymark": {
       "type": "local",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": { "WAYMARK_AUTHOR_NAME": "Jane Doe", "WAYMARK_AUTHOR_EMAIL": "jane@example.org" },
       "tools": ["*"]
     }

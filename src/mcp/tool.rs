@@ -63,13 +63,13 @@ impl Registry {
     }
 
     fn env(&self, ctx: &Context) -> (Env, bool, Vec<String>) {
-        let kb = ctx.kb_if_ready();
-        let limit = ctx.limits(kb.as_ref());
-        let verification = kb
+        let memrepo = ctx.memrepo_if_ready();
+        let limit = ctx.limits(memrepo.as_ref());
+        let verification = memrepo
             .as_ref()
             .map(|k| k.settings.verification)
             .unwrap_or(false);
-        let mut notices = kb.map(|k| k.settings.notices).unwrap_or_default();
+        let mut notices = memrepo.map(|k| k.settings.notices).unwrap_or_default();
         notices.extend(ctx.args.entry_notices());
         (
             Env {
@@ -130,7 +130,7 @@ impl Registry {
                     "Verification is off in this knowledge base.",
                 )
                 .with_next(
-                    "The owner turns it on with verification = true in .mkbase/waymark.toml.",
+                    "The owner turns it on with verification = true in .waymark/settings.toml.",
                 ),
                 &notices,
             ));

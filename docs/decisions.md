@@ -138,7 +138,7 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 ## The MKBase standard lives in this repository — 2026-11-11
 
-**Decision:** The MKBase Document Standard 1.0, with its conformance fixtures, is part of waymark. It lives in `standard/` and is maintained here. The `waymark-trail` repository is to be retired when this repository goes public. Until then, both hold the same text, and changes are made here only.
+**Decision:** The Waymark Memory Standard 1.0, with its conformance fixtures, is part of waymark. It lives in `standard/` and is maintained here. The `waymark-trail` repository is to be retired when this repository goes public. Until then, both hold the same text, and changes are made here only.
 
 **Alternatives considered:**
 - A separate repository for the standard. It adds a repository for a file that this project owns.
@@ -162,8 +162,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 ## Feature spec consistency pass (C20) — 2026-11-14
 
-**Decision (decided autonomously):** The 19 in-scope feature specs were checked together. Tool names, error codes, and `requires` agree with each other and with `src/error.rs` and `trust-model`. No cycle exists in `requires`. One order fix: `create-knowledge-base` requires `plain-git-access`, so `plain-git-access` is implemented first. The `console` value of `approval.via` is out of scope. `write-approval` returns `approval_unavailable` for it. `create-knowledge-base` still accepts the value in its input, and its tool must pass it on to that error path.
+**Decision (decided autonomously):** The 19 in-scope feature specs were checked together. Tool names, error codes, and `requires` agree with each other and with `src/error.rs` and `trust-model`. No cycle exists in `requires`. One order fix: `create-memory-repository` requires `plain-git-access`, so `plain-git-access` is implemented first. The `console` value of `approval.via` is out of scope. `write-approval` returns `approval_unavailable` for it. `create-memory-repository` still accepts the value in its input, and its tool must pass it on to that error path.
 
-**Implementation order:** write-documents, search-and-read, quality-checks, manual-edits, move-documents, activity-and-undo, verification, pause-and-resume, write-approval, project-binding, session-start, agent-tool-setup, login-and-identity, join-knowledge-base, plain-git-access, create-knowledge-base, updates, notifications-and-review, maintenance.
+**Implementation order:** write-documents, search-and-read, quality-checks, manual-edits, move-documents, activity-and-undo, verification, pause-and-resume, write-approval, project-binding, session-start, agent-tool-setup, login-and-identity, join-memory-repository, plain-git-access, create-memory-repository, updates, notifications-and-review, maintenance.
 
 **Reason:** `requires` says a spec may start only when its prerequisites are `implemented`.

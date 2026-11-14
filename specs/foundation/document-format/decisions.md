@@ -56,7 +56,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Authors always have name and email — 2026-11-14
 
-**Decision:** `created_by` and `updated_by` always hold `"Name <email>"`. A knowledge base cannot choose "name only". This keeps the rule of the MKBase Document Standard and the decision "Author fields in the frontmatter".
+**Decision:** `created_by` and `updated_by` always hold `"Name <email>"`. A knowledge base cannot choose "name only". This keeps the rule of the Waymark Memory Standard and the decision "Author fields in the frontmatter".
 
 **Alternatives considered:**
 - A setting for "name only" — the email is public in a public repository, but it is already in the Git history. A setting would give two formats, and `lint` could no longer compare the field with Git history in one simple way.
@@ -65,7 +65,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The standard stays at 1.0 until the first release — 2026-11-14
 
-**Decision:** The MKBase Document Standard is version 1.0 and stays 1.0 until waymark is released. Before the release, the standard is changed in place: no new version number, no changelog, and no frozen copies. The version file name stays `standard/mkbase-1.0.md`. The first public release freezes 1.0. From then on, minor versions (1.1) add things that valid 1.x documents still pass. Major versions (2.0) break them and need a migration note. Each version is a frozen file with a changelog entry, and tools refuse a major version they do not know. The rules go into a "Versioning" section of the standard at the first release.
+**Decision:** The Waymark Memory Standard is version 1.0 and stays 1.0 until waymark is released. Before the release, the standard is changed in place: no new version number, no changelog, and no frozen copies. The version file name stays `standard/waymark-1.0.md`. The first public release freezes 1.0. From then on, minor versions (1.1) add things that valid 1.x documents still pass. Major versions (2.0) break them and need a migration note. Each version is a frozen file with a changelog entry, and tools refuse a major version they do not know. The rules go into a "Versioning" section of the standard at the first release.
 
 **Alternatives considered:**
 - Version every change from now on — nobody uses the standard yet, so the numbers and the changelog would only record drafts.
@@ -81,7 +81,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **Minor (1.1.0):** an addition that valid 1.x documents still pass, such as a new optional field.
 - **Major (2.0.0):** a change that makes a valid document invalid, or changes what a field means. It needs a migration note.
 
-A claim of conformance and the `version` file in `.mkbase` name only major.minor ("MKBase 1.0"), because a patch never changes what is valid. The patch number shows in the header of the standard and in its changelog. The file name stays `mkbase-<major>.<minor>.md`, and a patch edits that file in place. Until the first release, the standard stays "1.0" as decided above.
+A claim of conformance and the `version` file in `.waymark` name only major.minor ("MKBase 1.0"), because a patch never changes what is valid. The patch number shows in the header of the standard and in its changelog. The file name stays `mkbase-<major>.<minor>.md`, and a patch edits that file in place. Until the first release, the standard stays "1.0" as decided above.
 
 **Alternatives considered:**
 - Two numbers only — a typo fix would need a new minor version, or would have no version at all.
@@ -112,7 +112,7 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 
 ## The format follows MKBase — 2026-11-08
 
-**Decision:** The document format is defined in the MKBase Document Standard 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
+**Decision:** The document format is defined in the Waymark Memory Standard 1.0, in the `waymark-trail` repository. This item implements it and links to it. A format change is made in the standard first.
 
 **Superseded by:** The standard lives in this repository (the location changed, the rule "a format change is made in the standard first" stays).
 
@@ -125,7 +125,7 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 
 **Superseded by:** No `type` field
 
-**Decision:** The default list of `type` has six values: `fact`, `decision`, `contract`, `howto`, `glossary`, and `gotcha`. The value `team` was removed, because the `_team.md` convention was rejected (see `knowledge-base-repo`). This follows the MKBase Document Standard.
+**Decision:** The default list of `type` has six values: `fact`, `decision`, `contract`, `howto`, `glossary`, and `gotcha`. The value `team` was removed, because the `_team.md` convention was rejected (see `memory-repository`). This follows the Waymark Memory Standard.
 
 **Alternatives considered:**
 - Keep `team` as an unused value — it invites a convention that nobody wants.
@@ -136,7 +136,7 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 
 **Supersedes:** Six document types, no `team` type
 
-**Decision:** Documents have no `type` field and there is no list of document types. The list was never reviewed, and agents had no rule for choosing a type. This follows the MKBase Document Standard. The commands lose the `--type` option, `init` loses `--types`, and the settings file loses `types`.
+**Decision:** Documents have no `type` field and there is no list of document types. The list was never reviewed, and agents had no rule for choosing a type. This follows the Waymark Memory Standard. The commands lose the `--type` option, `init` loses `--types`, and the settings file loses `types`.
 
 **Alternatives considered:**
 - Make `type` optional — it keeps an unreviewed list.
@@ -154,7 +154,7 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 
 ## A verbatim copy of the standard lives in `standard/` — 2026-11-11
 
-**Decision:** The folder `standard/` holds a verbatim copy of the MKBase Document Standard and its conformance fixtures from `waymark-trail` (commit `e0761d6`). It is never edited in this repository. When the standard changes in `waymark-trail`, the whole folder is replaced and the commit is noted here.
+**Decision:** The folder `standard/` holds a verbatim copy of the Waymark Memory Standard and its conformance fixtures from `waymark-trail` (commit `e0761d6`). It is never edited in this repository. When the standard changes in `waymark-trail`, the whole folder is replaced and the commit is noted here.
 
 **Alternatives considered:**
 - Link to the other repository only. The specs and the conformance tests then depend on a remote file.
@@ -166,7 +166,7 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 
 ## The standard lives in this repository — 2026-11-11
 
-**Decision:** The MKBase Document Standard is part of waymark. It lives in `standard/` in this repository, with its conformance fixtures, and it is maintained here. The copy is no longer verbatim and read-only: a change to the standard is made here, in the standard first, and then in this spec. The same text exists in the `waymark-trail` repository until that repository is retired when this one goes public. That copy is not updated after the retirement is decided.
+**Decision:** The Waymark Memory Standard is part of waymark. It lives in `standard/` in this repository, with its conformance fixtures, and it is maintained here. The copy is no longer verbatim and read-only: a change to the standard is made here, in the standard first, and then in this spec. The same text exists in the `waymark-trail` repository until that repository is retired when this one goes public. That copy is not updated after the retirement is decided.
 
 **Supersedes:** "The format follows MKBase" (the location only) and "A verbatim copy of the standard lives in `standard/`".
 

@@ -11,11 +11,11 @@ updated: 2026-11-14
 
 Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
 
-The format is defined by the [MKBase Document Standard 1.0](../../../standard/mkbase-1.0.md). The standard is part of this project. It lives in `standard/` in this repository, together with its conformance fixtures, and it is maintained here. Any other tool may use it. This item implements the standard. If the two differ, the standard wins, and this item changes to match. A format change is made in the standard first.
+The format is defined by the [Waymark Memory Standard 1.0](../../../standard/waymark-1.0.md). The standard is part of this project. It lives in `standard/` in this repository, together with its conformance fixtures, and it is maintained here. Any other tool may use it. This item implements the standard. If the two differ, the standard wins, and this item changes to match. A format change is made in the standard first.
 
 ## Dependents
 
-- `knowledge-base-repo` — the repository layout holds these documents.
+- `memory-repository` — the repository layout holds these documents.
 - `mcp-server` — every read and write tool uses this format.
 - `quality-checks` — `lint` checks documents against this format.
 - `plain-git-access` — the plain-Git rules teach the same format to agents without waymark.
@@ -26,7 +26,7 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 - The rules for document IDs, file names, and links.
 - The size limits and the counting rules.
 - The Obsidian compatibility rules.
-- The MKBase Document Standard 1.0 and its conformance fixtures in `standard/` (see [standard/mkbase-1.0.md](../../../standard/mkbase-1.0.md)).
+- The Waymark Memory Standard 1.0 and its conformance fixtures in `standard/` (see [standard/waymark-1.0.md](../../../standard/waymark-1.0.md)).
 - A sample vault used by tests and by the check in Obsidian before each release.
 
 ## Scope
@@ -36,7 +36,7 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 - The meaning of status, disputed, and trust fields.
 
 **Out of scope:**
-- The folder layout of a repository (see `knowledge-base-repo`).
+- The folder layout of a repository (see `memory-repository`).
 - Binary data. A document describes it and links to it.
 
 ## Constraints
@@ -67,7 +67,7 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 
 ### Document ID and links
 
-- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbase` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
+- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.waymark` (in a waymark repository: `agent-memory/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - A link to a document that does not exist is a finding. In a property (`related`, `supersedes`) it is an error, and a write through waymark fails. In the body it is a warning, and the write goes through. The standard only says a link SHOULD point to an existing document, so this severity is a waymark rule.

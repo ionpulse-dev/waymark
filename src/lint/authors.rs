@@ -1,6 +1,6 @@
 //! Author checks: `author-not-allowed` (settings) and `author-mismatch` (Git history).
 
-use crate::kb::settings::People;
+use crate::memrepo::settings::People;
 
 /// The email of `Name <email>`, in lowercase.
 pub fn email_of(author: &str) -> Option<String> {

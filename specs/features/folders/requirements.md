@@ -93,7 +93,7 @@ Removes a folder with everything in it: all documents in it and below it, and al
 - **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), `count`, and `to` (the document inside that it links to). `next`: "Remove or replace the links with update_document, then call remove_folder again." Links between documents inside the folder are no problem, because they go away together.
 - **Limits.** The `folders` limit applies to every document inside. If a limit does not allow one, the call fails with `access_denied` and names the first document.
 - **Other files.** If the folder holds a file that is not a document and not a `.gitkeep`, the call fails with `validation_failed` and names the file.
-- **Protected.** The root and `.mkbase` are not valid folder names (`invalid_arguments`). A path that is not a folder is `not_found`.
+- **Protected.** The root and `.waymark` are not valid folder names (`invalid_arguments`). A path that is not a folder is `not_found`.
 - **Approval.** The question shows the path, the number, and the list of IDs (at most 50, then "and N more").
 - **Commit.** `waymark: remove-folder "<folder>"`. The body of the message lists the number of documents. The files stay in the Git history, and `undo` reverts the whole commit.
 - **Preview.** `preview: true` runs all checks, writes nothing, and returns `data.documents` (the IDs) and `data.folders`.
@@ -124,7 +124,7 @@ Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit"
 - **Given** a document outside the folder that links to one inside, **When** `remove_folder` runs, **Then** it fails with `validation_failed` and `linked_from` lists the linking document.
 - **Given** documents that link only to each other inside the folder, **When** `remove_folder` runs, **Then** it succeeds.
 - **Given** a document inside that the `folders` limit does not allow, **When** `remove_folder` runs, **Then** it fails with `access_denied` and nothing changes.
-- **Given** the root or `.mkbase`, **When** `remove_folder` runs, **Then** it fails with `invalid_arguments`.
+- **Given** the root or `.waymark`, **When** `remove_folder` runs, **Then** it fails with `invalid_arguments`.
 - **Given** `preview: true`, **When** `remove_folder` runs, **Then** nothing is written and the result lists the documents.
 - **Given** `tools_denied = ["remove_folder"]`, **When** the client lists tools, **Then** `remove_folder` is not listed and `add_empty_folder` is.
 - **Given** `remove_folder`, **When** the client lists tools, **Then** it has `destructiveHint: true`, and `folders` has `readOnlyHint: true`.

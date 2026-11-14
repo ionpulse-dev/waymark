@@ -5,7 +5,7 @@ use crate::config::Kind;
 use crate::error::{Code, Error};
 use crate::format;
 use crate::gitsync::Verb;
-use crate::kb::folders::GITKEEP;
+use crate::memrepo::folders::GITKEEP;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
@@ -61,9 +61,9 @@ impl Tool for RemoveFolder {
             "remove_folder",
             Kind::Destructive,
             preview,
-            |_tx, kb| {
+            |_tx, memrepo| {
                 let prefix = format!("{path}/");
-                let inside: Vec<_> = kb
+                let inside: Vec<_> = memrepo
                     .folders()
                     .into_iter()
                     .filter(|f| f.path == path || f.path.starts_with(&prefix))
@@ -111,13 +111,13 @@ impl Tool for RemoveFolder {
                 let inside_ids: BTreeSet<&String> = docs.iter().chain(index_files.iter()).collect();
                 let mut linked = Vec::new();
                 for id in &docs {
-                    let title = kb
+                    let title = memrepo
                         .read(id)
                         .ok()
                         .and_then(|t| format::parse(&t).ok())
                         .and_then(|d| d.frontmatter.get_text("title").map(str::to_string))
                         .unwrap_or_default();
-                    for l in super::delete::linked_from(kb, id, &title) {
+                    for l in super::delete::linked_from(memrepo, id, &title) {
                         let from = l["id"].as_str().unwrap_or("").to_string();
                         if !inside_ids.contains(&from) {
                             let mut l = l;

@@ -26,9 +26,9 @@ fn state_dir() -> PathBuf {
 
 impl State {
     /// The state of one knowledge base, by its ID.
-    pub fn for_kb(kb_id: &str) -> State {
+    pub fn for_memrepo(memory_repository_id: &str) -> State {
         State {
-            path: state_dir().join(format!("{kb_id}.json")),
+            path: state_dir().join(format!("{memory_repository_id}.json")),
         }
     }
 
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn a_missing_file_is_empty_and_other_keys_stay() {
         let dir = tempfile::tempdir().unwrap();
-        let s = State::at(dir.path().join("sub/kb.json"));
+        let s = State::at(dir.path().join("sub/memrepo.json"));
         assert!(s.get("a").is_none());
         s.set("a", json!("1")).unwrap();
         s.set("b", json!("2")).unwrap();
@@ -87,7 +87,7 @@ mod tests {
     #[test]
     fn a_broken_file_reads_as_empty() {
         let dir = tempfile::tempdir().unwrap();
-        let p = dir.path().join("kb.json");
+        let p = dir.path().join("memrepo.json");
         std::fs::write(&p, "not json").unwrap();
         let s = State::at(p);
         assert!(s.get("a").is_none());

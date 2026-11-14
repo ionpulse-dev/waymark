@@ -12,7 +12,7 @@ fn world_with_verification() -> World {
 }
 
 fn set_shared(w: &World, from: &str, to: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&path).unwrap();
     assert!(old.contains(from), "{from}");
     std::fs::write(&path, old.replacen(from, to, 1)).unwrap();
@@ -35,7 +35,7 @@ fn add(c: &mut McpClient, title: &str) -> Value {
 }
 
 fn file(w: &World, id: &str) -> String {
-    std::fs::read_to_string(w.a.join("knowledge").join(format!("{id}.md"))).unwrap()
+    std::fs::read_to_string(w.a.join("agent-memory").join(format!("{id}.md"))).unwrap()
 }
 
 #[test]
@@ -207,15 +207,15 @@ fn review_lists_disputed_first_then_oldest() {
 fn a_document_without_trust_is_in_review_and_the_folder_limit_applies() {
     let w = World::new();
     // A document that was written before verification: no trust field.
-    std::fs::create_dir_all(w.a.join("knowledge/eng")).unwrap();
+    std::fs::create_dir_all(w.a.join("agent-memory/eng")).unwrap();
     std::fs::write(
-        w.a.join("knowledge/eng/old.md"),
+        w.a.join("agent-memory/eng/old.md"),
         "---\ntitle: Old one\ndescription: About old.\nstatus: active\ncreated: 2020-01-01\nupdated: 2020-01-01\ncreated_by: \"A <a@example.org>\"\nupdated_by: \"A <a@example.org>\"\n---\n\nx\n",
     )
     .unwrap();
-    std::fs::create_dir_all(w.a.join("knowledge/ops")).unwrap();
+    std::fs::create_dir_all(w.a.join("agent-memory/ops")).unwrap();
     std::fs::write(
-        w.a.join("knowledge/ops/other.md"),
+        w.a.join("agent-memory/ops/other.md"),
         "---\ntitle: Other one\ndescription: About other.\nstatus: active\ncreated: 2020-01-01\nupdated: 2020-01-01\ncreated_by: \"A <a@example.org>\"\nupdated_by: \"A <a@example.org>\"\n---\n\nx\n",
     )
     .unwrap();

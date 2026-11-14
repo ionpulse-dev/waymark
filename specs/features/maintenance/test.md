@@ -23,7 +23,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A2: `World` with a knowledge base and an author: every check is ok, `healthy` is true, the check names and order match the requirements, and `version` equals the crate version (`tests/it_maintenance.rs`)
 - [x] [auto] A3: personal `access = "read-only"`, then `paused = true`: `status` works, `settings` shows the state, and a notice says writes are paused (`tests/it_maintenance.rs`)
 - [x] [auto] A4: `tools_denied = ["status"]`: `tools/list` holds `status` and a call works (`tests/it_maintenance.rs`)
-- [x] [auto] A5: `--kb-id` with a different UUID: `kb_id` is not ok and the `fix` names both IDs (`tests/it_maintenance.rs`)
+- [x] [auto] A5: `--memory-repository-id` with a different UUID: `memory_repository_id` is not ok and the `fix` names both IDs (`tests/it_maintenance.rs`)
 - [x] [auto] A6: a fake `GIT_SSH_COMMAND` that sleeps 60 seconds: `status` returns in under 12 seconds with `remote` not ok, "not reachable" in the detail, and the process is killed (`tests/it_maintenance.rs`)
 - [x] [auto] A7: a syntax error in the personal config: `settings` is not ok and names the file, `status` still returns, and `search` fails with `setup_problem` (`tests/it_maintenance.rs`)
 - [x] [auto] A8: shared `max_results = 3` and personal `max_results = 5`: `limit_sources.max_results` is `["shared"]`. A limit set nowhere gives `["default"]`. `tools_denied` in two layers lists both (`tests/it_maintenance.rs`, `src/maintenance/sources.rs`)

@@ -46,7 +46,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## How the server finds the knowledge base — 2026-11-14
 
-**Decision:** The order is: `--path`, then `--repo` (default folder `~/Projects/<slug>-knowledge-base`), then the working folder and its parents, then exactly one `~/Projects/*-knowledge-base`. This fills in the decision "One knowledge base per process" of `specs/foundation/mcp-server/decisions.md`. The first match wins. No match is not a crash: the server starts without a knowledge base, `status` works, and every other tool gives `setup_problem` with a `next` sentence.
+**Decision:** The order is: `--path`, then `--repo` (default folder `~/Projects/<slug>-agent-memory`), then the working folder and its parents, then exactly one `~/Projects/*-agent-memory`. This fills in the decision "One knowledge base per process" of `specs/foundation/mcp-server/decisions.md`. The first match wins. No match is not a crash: the server starts without a knowledge base, `status` works, and every other tool gives `setup_problem` with a `next` sentence.
 
 **Alternatives considered:**
 - Exit with an error. Rejected: the agent tool shows a dead server with no hint, and `status` is the place that tells what to fix.
@@ -57,7 +57,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The slug of a URL — 2026-11-14
 
-**Decision:** The default folder name comes from the last part of the URL, by the rule in `requirements.md`. The `slug` in `waymark.toml` is not used before the first clone, because the file does not exist yet.
+**Decision:** The default folder name comes from the last part of the URL, by the rule in `requirements.md`. The `slug` in `settings.toml` is not used before the first clone, because the file does not exist yet.
 
 **Alternatives considered:** Clone to a temporary folder, read the slug, and move it. Rejected: more steps, and a path that depends on file content is harder to predict.
 
@@ -75,7 +75,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** `allowed_repo_hosts` is checked for the `--repo` URL before a clone, and for the `origin` of an existing folder (also when the folder was found by the working folder rule). A folder with no `origin` passes.
 
-**Alternatives considered:** Check only before a clone (the original text). Rejected: a poisoned project that contains a `.mkbase/` folder would be used without a check.
+**Alternatives considered:** Check only before a clone (the original text). Rejected: a poisoned project that contains a `.waymark/` folder would be used without a check.
 
 **Reason:** The working-folder rule would otherwise bypass the limit. Decided autonomously.
 

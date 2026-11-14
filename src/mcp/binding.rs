@@ -2,14 +2,14 @@
 //!
 //! One process serves one knowledge base. The folder is found at the first use and then kept.
 //! The rules, in order: `--path`, `--repo` (default folder), the working folder and its parents,
-//! and the one folder `~/Projects/*-knowledge-base` that holds a knowledge base.
+//! and the one folder `~/Projects/*-agent-memory` that holds a knowledge base.
 
 use super::args::Args;
 use super::repo_url;
 use crate::config::Effective;
 use crate::error::{Code, Error, Result};
 use crate::gitsync::cmd;
-use crate::kb::layout::MARKER;
+use crate::memrepo::layout::MARKER;
 use std::path::{Path, PathBuf};
 
 /// How the folder was found. `status` shows it as `found_by`.
@@ -43,16 +43,16 @@ fn home() -> Option<PathBuf> {
     std::env::var_os("HOME").map(PathBuf::from)
 }
 
-/// `~/Projects/<slug>-knowledge-base` for a repository URL.
+/// `~/Projects/<slug>-agent-memory` for a repository URL.
 pub fn default_clone_dir(url: &str) -> PathBuf {
     home()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("Projects")
-        .join(format!("{}-knowledge-base", repo_url::slug(url)))
+        .join(format!("{}-agent-memory", repo_url::slug(url)))
 }
 
 fn has_marker(dir: &Path) -> bool {
-    dir.join(MARKER).is_dir() || dir.join("knowledge").join(MARKER).is_dir()
+    dir.join(MARKER).is_dir() || dir.join("agent-memory").join(MARKER).is_dir()
 }
 
 fn git_root(dir: &Path) -> PathBuf {
@@ -114,7 +114,7 @@ pub fn locate(args: &Args) -> Result<Found> {
         .map(|e| e.path())
         .filter(|p| {
             p.file_name()
-                .map(|n| n.to_string_lossy().ends_with("-knowledge-base"))
+                .map(|n| n.to_string_lossy().ends_with("-agent-memory"))
                 .unwrap_or(false)
                 && has_marker(p)
         })

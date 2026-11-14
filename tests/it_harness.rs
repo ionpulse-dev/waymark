@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::git;
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 
 #[test]
@@ -27,7 +27,7 @@ fn a_commit_of_a_shows_author_a_in_b() {
         "Body.",
     );
     git(&w.b, &["pull", "-q"]);
-    assert!(w.b.join("knowledge/ops/deploy.md").exists());
+    assert!(w.b.join("agent-memory/ops/deploy.md").exists());
     let _ = repo;
 }
 

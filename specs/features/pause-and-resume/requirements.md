@@ -27,7 +27,7 @@ requires:
 - Two states only: running and paused. There is no automatic resume after a time.
 - **Pause is the limit `paused`** (see `trust-model`). It is a key in the section `[limits]` of a config layer. There is no agent tool and no command to set it. The person edits a file.
 - **The switch of the person** is the personal config file `~/.config/waymark/config.toml`. If `XDG_CONFIG_HOME` is set, the file is `$XDG_CONFIG_HOME/waymark/config.toml`. The person sets `paused = true` under `[limits]`. The server reads the file at every call, so the next call sees it. No restart is needed.
-- **Other layers.** IT sets `paused = true` in the system file (`/Library/Application Support/waymark/config.toml`). The owner sets it in `[limits]` of `.mkbase/waymark.toml` (it takes effect after the next pull). The person can also pass `--paused` in the MCP entry. This takes effect at the next start of the server.
+- **Other layers.** IT sets `paused = true` in the system file (`/Library/Application Support/waymark/config.toml`). The owner sets it in `[limits]` of `.waymark/settings.toml` (it takes effect after the next pull). The person can also pass `--paused` in the MCP entry. This takes effect at the next start of the server.
 - **The strictest layer wins.** Paused is true if any layer says so. A lower layer cannot clear a pause that a higher layer set.
 - **Resume** means setting `paused = false` or deleting the line, in the file that set the pause. The next call sees it.
 - **While paused:**

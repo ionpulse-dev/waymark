@@ -47,10 +47,10 @@ impl Tool for Undo {
                 .with_next("Send a commit from activity: 7 to 40 hex characters."));
         }
 
-        writes::execute(ctx, env, "undo", Kind::Write, preview, |tx, kb| {
+        writes::execute(ctx, env, "undo", Kind::Write, preview, |tx, memrepo| {
             let repo = tx.repo();
             let commits = repo.all_commits()?;
-            let entries = activity::entries(kb, &commits, &repo.author().email);
+            let entries = activity::entries(memrepo, &commits, &repo.author().email);
             let entry = entries
                 .iter()
                 .find(|e| {
@@ -116,7 +116,7 @@ impl Tool for Undo {
             let changes: Vec<Value> = files
                 .iter()
                 .filter_map(|(status, path)| {
-                    let id = activity::id_of(kb, path)?;
+                    let id = activity::id_of(memrepo, path)?;
                     let action = match status {
                         'A' => "restored",
                         'D' => "removed",

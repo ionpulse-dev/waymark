@@ -65,7 +65,7 @@ impl Repo {
     }
 
     /// A clone of an empty repository has no commit. If the remote got commits since, check out
-    /// its branch, so that a second person's `init` sees them (see `create-knowledge-base`).
+    /// its branch, so that a second person's `init` sees them (see `create-memory-repository`).
     fn join_remote_branch_if_unborn(&self) -> Result<()> {
         if self.head().is_some() {
             return Ok(());

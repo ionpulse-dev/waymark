@@ -12,7 +12,7 @@ use crate::config::Kind;
 use crate::error::{Code, Error, Result};
 use crate::format::{self, Document};
 use crate::gitsync::{commit_message, Change, Tx, Verb};
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::Env;
@@ -92,8 +92,8 @@ pub fn not_found(id: &str) -> Error {
 }
 
 /// Read and parse a document inside a write. `not_found` if the file does not exist.
-pub fn read_doc(tx: &Tx, kb: &KnowledgeBase, id: &str) -> Result<(String, Document)> {
-    let rel = kb.repo_relative(id)?;
+pub fn read_doc(tx: &Tx, memrepo: &MemRepo, id: &str) -> Result<(String, Document)> {
+    let rel = memrepo.repo_relative(id)?;
     let text = tx.read(&rel)?.ok_or_else(|| not_found(id))?;
     // A document with a manual edit that is not published cannot be changed (see `manual-edits`).
     if tx.repo().dirty_paths()?.contains(&rel) {
@@ -111,11 +111,11 @@ pub fn read_doc(tx: &Tx, kb: &KnowledgeBase, id: &str) -> Result<(String, Docume
 }
 
 /// The ID and title of every active document.
-pub fn active_titles(kb: &KnowledgeBase) -> Vec<(String, String)> {
-    kb.documents()
+pub fn active_titles(memrepo: &MemRepo) -> Vec<(String, String)> {
+    memrepo.documents()
         .into_iter()
         .filter_map(|d| {
-            let text = kb.read(&d.id).ok()?;
+            let text = memrepo.read(&d.id).ok()?;
             let doc = format::parse(&text).ok()?;
             let fm = &doc.frontmatter;
             if fm.get_text("status") == Some("active") {
@@ -183,7 +183,7 @@ pub enum NewLinks<'a> {
 /// secrets and personal data. Warnings go to `notices`.
 #[allow(clippy::too_many_arguments)]
 pub fn check_document(
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     id: &str,
     text: &str,
     ids_after: &HashSet<String>,
@@ -193,7 +193,7 @@ pub fn check_document(
     notices: &mut Vec<String>,
 ) -> Result<()> {
     check_document_links(
-        kb,
+        memrepo,
         id,
         text,
         ids_after,
@@ -208,7 +208,7 @@ pub fn check_document(
 /// `check_document`, with the rule for broken body links of the write.
 #[allow(clippy::too_many_arguments)]
 pub fn check_document_links(
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     id: &str,
     text: &str,
     ids_after: &HashSet<String>,
@@ -219,16 +219,16 @@ pub fn check_document_links(
     notices: &mut Vec<String>,
 ) -> Result<()> {
     let path = format!("{id}.md");
-    let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
+    let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
     let old_broken: Vec<String> = match new_links {
-        NewLinks::Since(old) => format::check(&path, old, &kb.settings.documents, Some(ids_after))
+        NewLinks::Since(old) => format::check(&path, old, &memrepo.settings.documents, Some(ids_after))
             .into_iter()
             .filter(|f| f.rule == "broken-link")
             .map(|f| f.message)
             .collect(),
         _ => Vec::new(),
     };
-    for f in format::check(&path, text, &kb.settings.documents, Some(ids_after)) {
+    for f in format::check(&path, text, &memrepo.settings.documents, Some(ids_after)) {
         if f.is_error() {
             problems.add(f.message, crate::lint::next_for(f.rule));
         } else if f.rule == "broken-link"
@@ -266,7 +266,7 @@ pub fn check_document_links(
     if let Ok(doc) = format::parse(text) {
         for field in ["created_by", "updated_by"] {
             if let Some(a) = doc.frontmatter.get_text(field) {
-                if let Some(why) = crate::lint::authors::not_allowed(a, &kb.settings.people) {
+                if let Some(why) = crate::lint::authors::not_allowed(a, &memrepo.settings.people) {
                     problems.add(
                         format!("The author in {field} is not allowed. {why}"),
                         "Set another author email in your Git settings.",
@@ -275,7 +275,7 @@ pub fn check_document_links(
             }
         }
         if let (Some(tc), Some(title)) = (title_check, doc.frontmatter.get_text("title")) {
-            for clash in titles::clashes(title, &active_titles(kb), tc.skip) {
+            for clash in titles::clashes(title, &active_titles(memrepo), tc.skip) {
                 match clash {
                     titles::Clash::Exact(other) => problems.add(
                         format!("A document with this title exists: `{other}`."),
@@ -353,7 +353,7 @@ pub struct Plan {
 pub(crate) fn approve(
     ctx: &Context,
     env: &Env,
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     tool: &str,
     kind: Kind,
     summary: &str,
@@ -362,8 +362,8 @@ pub(crate) fn approve(
     approve_named(
         ctx,
         env,
-        &kb.settings.name,
-        Some(kb),
+        &memrepo.settings.name,
+        Some(memrepo),
         tool,
         kind,
         summary,
@@ -376,8 +376,8 @@ pub(crate) fn approve(
 pub(crate) fn approve_named(
     ctx: &Context,
     env: &Env,
-    kb_name: &str,
-    kb: Option<&KnowledgeBase>,
+    memrepo_name: &str,
+    memrepo: Option<&MemRepo>,
     tool: &str,
     kind: Kind,
     summary: &str,
@@ -396,14 +396,14 @@ pub(crate) fn approve_named(
     let author = author_string(ctx)?;
     let message = crate::mcp::approval_text::render(&crate::mcp::approval_text::Request {
         tool,
-        kb_name,
+        memrepo_name,
         author: &author,
         summary,
         paths,
     });
     let channel = ctx.channel.lock().unwrap().clone();
     crate::mcp::approval::ask(channel.as_ref(), message)?;
-    let now = ctx.limits(kb);
+    let now = ctx.limits(memrepo);
     if let Some(p) = now.problem {
         return Err(Error::new(
             Code::SetupProblem,
@@ -434,21 +434,21 @@ pub fn execute(
     tool: &str,
     kind: Kind,
     preview: bool,
-    build: impl FnOnce(&Tx, &KnowledgeBase) -> Result<Plan>,
+    build: impl FnOnce(&Tx, &MemRepo) -> Result<Plan>,
 ) -> Result<ToolOutput> {
     let repo = ctx.repo()?;
-    ctx.kb()?;
+    ctx.memrepo()?;
     let author = author_string(ctx)?;
     let today = today();
     let (res, plan) = repo.write(preview, |tx| {
-        let kb = KnowledgeBase::open(repo.dir())?;
+        let memrepo = MemRepo::open(repo.dir())?;
         // Manual edits go first, in their own commit (see `manual-edits`).
         let (pending_notices, blocked) = if preview {
             (Vec::new(), Vec::new())
         } else {
-            crate::manual::commit_before_write(tx, &kb, &env.effective, &author, &today)?
+            crate::manual::commit_before_write(tx, &memrepo, &env.effective, &author, &today)?
         };
-        let mut plan = build(tx, &kb)?;
+        let mut plan = build(tx, &memrepo)?;
         for change in &plan.changes {
             let id = match change {
                 FileChange::Write { id, .. }
@@ -456,7 +456,7 @@ pub fn execute(
                 | FileChange::Keep { id } => id,
                 FileChange::WriteFile { .. } | FileChange::RemoveFile { .. } => continue,
             };
-            if blocked.contains(&kb.repo_relative(id)?) {
+            if blocked.contains(&memrepo.repo_relative(id)?) {
                 return Err(Error::new(
                     Code::StaleBase,
                     format!("The document \"{id}\" has manual edits that are not published."),
@@ -479,7 +479,7 @@ pub fn execute(
                     }
                 })
                 .collect();
-            approved = approve(ctx, env, &kb, tool, kind, &plan.summary, &paths)?;
+            approved = approve(ctx, env, &memrepo, tool, kind, &plan.summary, &paths)?;
         }
         if approved {
             plan.data.insert("approval".into(), Value::String("approved".into()));
@@ -488,15 +488,15 @@ pub fn execute(
         }
         // A repair of the settings file goes in its own commit, before the change of the caller.
         if !preview {
-            let rel = kb
+            let rel = memrepo
                 .root
-                .join(crate::kb::layout::MARKER)
-                .join(crate::kb::layout::SETTINGS_FILE)
-                .strip_prefix(&kb.repo_dir)
+                .join(crate::memrepo::layout::MARKER)
+                .join(crate::memrepo::layout::SETTINGS_FILE)
+                .strip_prefix(&memrepo.repo_dir)
                 .map(|p| p.to_string_lossy().to_string())
                 .unwrap_or_default();
             if let Some(text) = tx.read(&rel)? {
-                if let Some((fixed, done)) = crate::kb::repairs::repair(&text) {
+                if let Some((fixed, done)) = crate::memrepo::repairs::repair(&text) {
                     tx.write_file(&rel, &fixed)?;
                     tx.repo().commit_change(&Change {
                         paths: vec![rel],
@@ -559,23 +559,23 @@ pub fn execute(
             for change in &plan.changes {
                 match change {
                     FileChange::Write { id, text, .. } => {
-                        let rel = kb.repo_relative(id)?;
+                        let rel = memrepo.repo_relative(id)?;
                         tx.write_file(&rel, text)?;
                         paths.push(rel);
                     }
                     FileChange::Remove { id } => {
-                        let rel = kb.repo_relative(id)?;
+                        let rel = memrepo.repo_relative(id)?;
                         tx.remove_file(&rel)?;
                         paths.push(rel);
                     }
-                    FileChange::Keep { id } => paths.push(kb.repo_relative(id)?),
+                    FileChange::Keep { id } => paths.push(memrepo.repo_relative(id)?),
                     FileChange::WriteFile { path, text, .. } => {
-                        let rel = kb.repo_relative_file(path);
+                        let rel = memrepo.repo_relative_file(path);
                         tx.write_file(&rel, text)?;
                         paths.push(rel);
                     }
                     FileChange::RemoveFile { path } => {
-                        let rel = kb.repo_relative_file(path);
+                        let rel = memrepo.repo_relative_file(path);
                         tx.remove_file(&rel)?;
                         paths.push(rel);
                     }
@@ -741,7 +741,7 @@ mod tests {
             "a b",
             "-a",
             "a//b",
-            ".mkbase",
+            ".waymark",
             "a/b/c/d/e/f/g/h/i",
         ] {
             assert!(check_folder_path(bad).is_err(), "{bad}");
@@ -758,7 +758,7 @@ mod tests {
     fn folders_are_checked() {
         assert_eq!(clean_folder("").unwrap(), "");
         assert_eq!(clean_folder("a/b/").unwrap(), "a/b");
-        for bad in ["/a", "a/../b", "..", ".mkbase", "a/.hidden", "a//b"] {
+        for bad in ["/a", "a/../b", "..", ".waymark", "a/.hidden", "a//b"] {
             assert!(clean_folder(bad).is_err(), "{bad}");
         }
     }

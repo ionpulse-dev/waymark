@@ -3,7 +3,7 @@
 use crate::error::Result;
 use crate::gitsync::cmd;
 use crate::gitsync::Repo;
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Kind {
@@ -43,15 +43,15 @@ pub struct Pending {
 }
 
 /// The changes in the working tree, sorted into documents and other files.
-pub fn find(repo: &Repo, kb: &KnowledgeBase) -> Result<Pending> {
+pub fn find(repo: &Repo, memrepo: &MemRepo) -> Result<Pending> {
     let out = cmd::run_ok(
         repo.dir(),
         None,
         &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
     )?;
-    let prefix = kb
+    let prefix = memrepo
         .root
-        .strip_prefix(&kb.repo_dir)
+        .strip_prefix(&memrepo.repo_dir)
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_default();
     let mut entries: Vec<(String, Kind)> = Vec::new();
@@ -103,7 +103,7 @@ pub fn find(repo: &Repo, kb: &KnowledgeBase) -> Result<Pending> {
             skip("Not a document.", &mut pending);
             continue;
         }
-        if kb.is_excluded(id) {
+        if memrepo.is_excluded(id) {
             skip("Excluded.", &mut pending);
             continue;
         }

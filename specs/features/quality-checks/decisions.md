@@ -95,7 +95,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** `author-mismatch` is a warning. `author-not-allowed` is an error, from `people.email_domains` and `people.email_blocklist` of the shared file.
 
-**Reason:** The `people` settings are in `knowledge-base-repo` and had no owner. They guard against a wrong or fake author. Decided autonomously.
+**Reason:** The `people` settings are in `memory-repository` and had no owner. They guard against a wrong or fake author. Decided autonomously.
 
 ## Foundation additions and a changed `requires` — 2026-11-14
 

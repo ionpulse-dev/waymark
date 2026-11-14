@@ -14,7 +14,7 @@ A new `store` module loads the documents of the knowledge base from the working 
 
 ## New Files
 
-- `src/store/mod.rs` — `Store`: loads every `.md` file below the root (skips dot paths and `.mkbase/exclude` entries), parses it with `format::parse`, and keeps `Doc { id, path, front, body, raw_bytes, parse_findings }`. Methods: `docs()` (without index files), `all_docs()`, `get(id)`.
+- `src/store/mod.rs` — `Store`: loads every `.md` file below the root (skips dot paths and `.waymark/exclude` entries), parses it with `format::parse`, and keeps `Doc { id, path, front, body, raw_bytes, parse_findings }`. Methods: `docs()` (without index files), `all_docs()`, `get(id)`.
 - `src/store/filter.rs` — `Scope`: the `folders` limit plus the `folders` argument. `Scope::allows(id)`.
 - `src/store/rank.rs` — the matcher and the score.
 - `src/store/backlinks.rs` — backlinks of one ID over all documents (body links and property wikilinks, index files ignored).

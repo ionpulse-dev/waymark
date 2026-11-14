@@ -63,7 +63,7 @@ pub fn compile(patterns: &[String]) -> Result<Vec<Regex>> {
                 Error::setup(format!(
                     "The entry \"{p}\" in lint.extra_secret_patterns is not a valid regular expression."
                 ))
-                .with_next("Fix or remove that entry in .mkbase/waymark.toml.")
+                .with_next("Fix or remove that entry in .waymark/settings.toml.")
             })
         })
         .collect()

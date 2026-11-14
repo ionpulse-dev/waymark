@@ -21,7 +21,7 @@ fn system(w: &World, text: &str) {
 }
 
 fn shared(w: &World, limits: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let text = std::fs::read_to_string(&path).unwrap();
     write(&path, &format!("{text}\n{limits}\n"));
 }
@@ -46,7 +46,7 @@ fn defaults_apply() {
 fn shared_read_only_wins() {
     let w = World::new();
     // The template has a [limits] section already: add the key below it.
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let text = std::fs::read_to_string(&path).unwrap();
     write(
         &path,
@@ -62,7 +62,7 @@ fn shared_read_only_wins() {
 #[test]
 fn numeric_caps_take_smallest() {
     let w = World::new();
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let text = std::fs::read_to_string(&path).unwrap();
     write(
         &path,

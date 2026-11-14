@@ -49,7 +49,7 @@ AI agents read it, and AI agents keep it up to date, as far as you allow.
 - **Documents are small Markdown files in one Git repo per knowledge base:**
   for a company, a team, or just you. One topic
   per document, with a header (title, description, status, authors, dates, sources).
-- **An open document standard.** The [MKBase Document Standard](standard/mkbase-1.0.md)
+- **An open document standard.** The [Waymark Memory Standard](standard/waymark-1.0.md)
   defines one document: a small Markdown file with a short header and no fixed
   folders. It is part of this project, with
   [conformance fixtures](standard/conformance/) that any tool can use to check
@@ -163,7 +163,7 @@ yourself.
   "mcpServers": {
     "waymark": {
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"]
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"]
     }
   }
 }
@@ -210,11 +210,11 @@ project shares its knowledge base through the MCP entry in the project (for
 example `.mcp.json`), which holds the repository URL and no secret:
 
 ```json
-{ "mcpServers": { "waymark": { "command": "waymark", "args": ["--repo", "git@github.com:example/knowledge.git", "--kb-id", "<id from .mkbase/waymark.toml>"] } } }
+{ "mcpServers": { "waymark": { "command": "waymark", "args": ["--repo", "git@github.com:example/waymark-agent-memory.git", "--memory-repository-id", "<id from .waymark/settings.toml>"] } } }
 ```
 
 A personal default in the user-level config of your agent tool needs no
-arguments if the knowledge base is in `~/Projects/<name>-knowledge-base`:
+arguments if the knowledge base is in `~/Projects/<name>-agent-memory`:
 
 ```json
 { "mcpServers": { "waymark": { "command": "waymark" } } }
@@ -222,12 +222,12 @@ arguments if the knowledge base is in `~/Projects/<name>-knowledge-base`:
 
 Use the same server name in both. In the agent tools that were checked, the
 project entry wins in the project. waymark finds the folder in this order:
-`--path`; `--repo` (cloned once to `~/Projects/<name>-knowledge-base`); the
+`--path`; `--repo` (cloned once to `~/Projects/<name>-agent-memory`); the
 working folder and the folders above it; the one knowledge base in
-`~/Projects`. `--kb-id` makes the server refuse a repository with another ID.
+`~/Projects`. `--memory-repository-id` makes the server refuse a repository with another ID.
 `allowed_repo_hosts` in your personal config limits the Git hosts waymark may
 use. The first clone runs in the background, so your tool starts at once. `status`
-shows the state (`cloning`, `ready`, `empty`, `not_a_knowledge_base`, or
+shows the state (`cloning`, `ready`, `empty`, `not_a_memory_repository`, or
 `broken`). Other tools wait up to 60 seconds for the clone. A clone that takes
 more than 5 minutes stops: clone it by hand to the default folder, then start
 again.
@@ -321,7 +321,7 @@ wins.
 |---|---|---|
 | System file (`/etc/waymark/config.toml` or the macOS equivalent) | IT | Hard in local mode |
 | Server config | The operator | Hard in server mode |
-| Shared file in the knowledge base (`.mkbase/waymark.toml`) | The team owner | Tools cannot change it |
+| Shared file in the knowledge base (`.waymark/settings.toml`) | The team owner | Tools cannot change it |
 | Personal file (`~/.config/waymark/config.toml`) | You | A safety default |
 | MCP entry | You | A safety default |
 
@@ -406,7 +406,7 @@ Confluence page as its source, and a Confluence page can link to a document.
 ## Documentation
 
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
-- [MKBase Document Standard](standard/mkbase-1.0.md): the document format, with [conformance fixtures](standard/conformance/).
+- [Waymark Memory Standard](standard/waymark-1.0.md): the document format, with [conformance fixtures](standard/conformance/).
 - [Specifications](specs/INDEX.md): all specs and their status.
 - [Next steps](docs/next-steps/README.md), [roadmap](docs/next-steps/roadmap.md): phases from design to public release.
 - [Ideas](docs/ideas.md): features for after the first release.

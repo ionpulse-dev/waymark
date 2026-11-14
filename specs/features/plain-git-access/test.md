@@ -18,14 +18,14 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 - [x] [auto] A1: `init` on `World::empty()`: the pushed `AGENTS.md` equals `render(audience, domains)`, starts with the introduction, has the begin and end markers, and ends with the section "Rules of this team" (`tests/it_plain_git_access.rs`)
 - [x] [auto] A2: the version in the marker equals the `version` of the file in `plain-git/` for both skills (`tests/it_plain_git_access.rs`)
-- [x] [auto] A3: the skill bodies have no `waymark.toml`, no `.waymark`, and the word `waymark` only in `waymark-trail` (`src/kb/agents_file.rs`)
+- [x] [auto] A3: the skill bodies have no `settings.toml`, no `.waymark`, and the word `waymark` only in `waymark-trail` (`src/kb/agents_file.rs`)
 - [x] [auto] A4: `personal` gives the personal skill name in the marker and no "Team settings" part (`tests/it_plain_git_access.rs`)
 - [x] [auto] A5: `team` with `email_domains = ["example.org", "example.net"]` gives the team skill name and the line `Allowed email domains for commits: example.org, example.net.`. `team` without domains has no such part (`tests/it_plain_git_access.rs`)
 - [x] [auto] A6: the text between the markers has no `---` frontmatter at its start, no `name:` line, and no heading "Update of this skill" (`src/kb/agents_file.rs`)
 - [x] [auto] A7: every `###` heading of the personal skill is in the team skill, in the same order (`src/kb/agents_file.rs`)
 - [x] [auto] A8: `AGENTS.md` is under 40 KB and uses LF line ends and one final newline (`src/kb/agents_file.rs`)
 - [x] [auto] A9: both skill files in `plain-git/` start with a frontmatter that has `name`, `description`, and `version` (`src/kb/agents_file.rs`)
-- [x] [auto] A10: `git archive HEAD` of a clean checkout holds `plain-git/personal-knowledge-base/SKILL.md` (`tests/it_plain_git_access.rs`)
+- [x] [auto] A10: `git archive HEAD` of a clean checkout holds `plain-git/personal-agent-memory/SKILL.md` (`tests/it_plain_git_access.rs`)
 - [ ] [manual] M1: Claude Code on the web. Steps: create a private repository with the `init` tool of waymark. Open it in Claude Code on the web (no MCP, no install). Ask the agent: "Save a note about X as a document." Expected: the agent reads `AGENTS.md`, asks before it writes (the skill starts in manual mode), writes a document with the required properties, commits `kb: add "<title>"`, and pushes. Then start a waymark server on a clone and call `lint`. Expected: no finding for the new document.
 - [ ] [manual] M2: Claude Code on a Mac with the waymark entry. Steps: open the knowledge base clone as the working folder. Ask the agent to find a document. Expected: it uses the `search` tool and does not run `git` or `grep` on the repository.
 - [ ] [manual] M3: Claude Code on iPhone or the web with a team repository (`audience: team`). Steps: ask the agent to write a document with a no-reply email in the Git config. Expected: the agent stops and asks for a real address.

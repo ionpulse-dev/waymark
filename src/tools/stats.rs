@@ -44,9 +44,9 @@ impl Tool for Stats {
         let folders = folders_arg(&args);
 
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders);
         let docs: Vec<_> = store.docs().filter(|d| scope.allows(&d.id)).collect();
         let total: usize = docs.iter().map(|d| metric.of(d)).sum();

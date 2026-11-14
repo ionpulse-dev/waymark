@@ -44,7 +44,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Only `.md` documents are committed — 2026-11-14
 
-**Decision:** `sync` commits only `.md` documents below the root. Other files are listed under `skipped`. Files in `.mkbase/` are never committed by `sync`, so an edit to `.mkbase/waymark.toml` cannot loosen a shared limit through waymark.
+**Decision:** `sync` commits only `.md` documents below the root. Other files are listed under `skipped`. Files in `.waymark/` are never committed by `sync`, so an edit to `.waymark/settings.toml` cannot loosen a shared limit through waymark.
 
 **Alternatives considered:** Commit everything below the root (rejected: attachments belong outside the knowledge base, and the shared settings file must not change through the tools).
 

@@ -39,7 +39,7 @@ The `move` tool moves or renames a document or a folder and rewrites all links t
 - Every segment of `to` follows the file name rules of `document-format`. New folders are created.
 - `to` must not exist. A folder is never merged into an existing folder.
 - A folder cannot move into itself.
-- The root folder and `.mkbase/` cannot move.
+- The root folder and `.waymark/` cannot move.
 - `from` and `to` (and the old and new ID of every moved document) must match the `folders` limit, or the call fails with `access_denied`. This holds for every document that needs a link fix too.
 
 ### Steps

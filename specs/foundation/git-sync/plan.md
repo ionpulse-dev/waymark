@@ -38,7 +38,7 @@ A `gitsync` module wraps the `git` binary. It gives the rest of the code one typ
 
 ## Dependencies on Other Foundation Items
 
-- `knowledge-base-repo` — the root and the repository path.
+- `memory-repository` — the root and the repository path.
 - `document-format` — the conflict copy edits frontmatter through the `format` module.
 
 ## Risks

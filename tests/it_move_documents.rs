@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::write_doc;
+use common::memrepo::write_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 
@@ -46,9 +46,9 @@ fn setup(w: &World) {
         "ops/unrelated",
         &doc("Unrelated", "", "No links here."),
     );
-    std::fs::create_dir_all(w.a.join("knowledge/backend/payments/img")).unwrap();
+    std::fs::create_dir_all(w.a.join("agent-memory/backend/payments/img")).unwrap();
     std::fs::write(
-        w.a.join("knowledge/backend/payments/img/diagram.png"),
+        w.a.join("agent-memory/backend/payments/img/diagram.png"),
         b"png",
     )
     .unwrap();
@@ -56,7 +56,7 @@ fn setup(w: &World) {
 }
 
 fn file(w: &World, id: &str) -> String {
-    std::fs::read_to_string(w.a.join("knowledge").join(format!("{id}.md"))).unwrap()
+    std::fs::read_to_string(w.a.join("agent-memory").join(format!("{id}.md"))).unwrap()
 }
 
 #[test]
@@ -79,12 +79,12 @@ fn a_folder_move_keeps_links_and_history_in_two_commits() {
     let commits = r.json["commits"].as_array().unwrap();
     assert_eq!(commits.len(), 2);
     // The files moved, including the image.
-    assert!(w.a.join("knowledge/platform/payments/keys.md").exists());
+    assert!(w.a.join("agent-memory/platform/payments/keys.md").exists());
     assert!(w
         .a
-        .join("knowledge/platform/payments/img/diagram.png")
+        .join("agent-memory/platform/payments/img/diagram.png")
         .exists());
-    assert!(!w.a.join("knowledge/backend/payments").exists());
+    assert!(!w.a.join("agent-memory/backend/payments").exists());
     // Commit 1: renames only (R100). Commit 2: link rewrites, with the Move line.
     let log = subjects(&w.remote);
     assert_eq!(log[1], "waymark: move \"platform/payments/\"");
@@ -115,7 +115,7 @@ fn a_folder_move_keeps_links_and_history_in_two_commits() {
             "--follow",
             "--format=%s",
             "--",
-            "knowledge/platform/payments/keys.md",
+            "agent-memory/platform/payments/keys.md",
         ],
     );
     assert!(follow.contains("test: setup"), "{follow}");
@@ -231,7 +231,7 @@ fn a_move_that_cannot_happen_fails_clearly() {
         Some("validation_failed")
     );
     assert_eq!(
-        code(&mut c, ".mkbase/", "x/").as_deref(),
+        code(&mut c, ".waymark/", "x/").as_deref(),
         Some("invalid_arguments")
     );
     assert_eq!(
@@ -259,8 +259,8 @@ fn preview_changes_nothing() {
     assert_eq!(r.json["moved_total"], 2);
     assert!(r.json["commits"].is_null() && r.json["history_checked"].is_null());
     assert!(!r.json["links_updated"].as_array().unwrap().is_empty());
-    assert!(w.a.join("knowledge/backend/payments/keys.md").exists());
-    assert!(!w.a.join("knowledge/platform").exists());
+    assert!(w.a.join("agent-memory/backend/payments/keys.md").exists());
+    assert!(!w.a.join("agent-memory/platform").exists());
     assert_eq!(subjects(&w.remote), before);
     assert!(git(&w.a, &["status", "--porcelain"]).trim().is_empty());
 }
@@ -277,7 +277,7 @@ fn tools_denied_hides_move_and_folders_limit_blocks_it() {
         json!({"from": "backend/payments/", "to": "platform/payments/"}),
     );
     assert_eq!(r.code(), Some("access_denied"));
-    assert!(w.a.join("knowledge/backend/payments/keys.md").exists());
+    assert!(w.a.join("agent-memory/backend/payments/keys.md").exists());
     // A linking document outside the limit blocks the move too.
     let r = c.call(
         "move",
@@ -308,8 +308,8 @@ fn a_failed_history_check_removes_the_commit_and_pushes_nothing() {
     assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
     assert_eq!(subjects(&w.remote), before);
     assert_eq!(subjects(&w.a), local_before);
-    assert!(w.a.join("knowledge/backend/payments/keys.md").exists());
-    assert!(!w.a.join("knowledge/platform").exists());
+    assert!(w.a.join("agent-memory/backend/payments/keys.md").exists());
+    assert!(!w.a.join("agent-memory/platform").exists());
     assert!(git(&w.a, &["status", "--porcelain"]).trim().is_empty());
 }
 
@@ -326,7 +326,7 @@ fn the_other_clone_sees_the_new_layout_and_a_second_move_is_not_found() {
         .is_error
     );
     git(&w.b, &["pull", "-q"]);
-    assert!(w.b.join("knowledge/platform/payments/keys.md").exists());
+    assert!(w.b.join("agent-memory/platform/payments/keys.md").exists());
     let again = c.call(
         "move",
         json!({"from": "backend/payments/", "to": "platform/payments/"}),
@@ -338,7 +338,7 @@ fn the_other_clone_sees_the_new_layout_and_a_second_move_is_not_found() {
 fn a_document_with_a_blocked_manual_edit_cannot_move() {
     let w = World::new();
     setup(&w);
-    std::fs::write(w.a.join("knowledge/ops/unrelated.md"), "no frontmatter\n").unwrap();
+    std::fs::write(w.a.join("agent-memory/ops/unrelated.md"), "no frontmatter\n").unwrap();
     let mut c = client(&w);
     let r = c.call(
         "move",

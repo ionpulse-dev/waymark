@@ -4,17 +4,17 @@ use super::args::Args;
 use crate::config::{self, Access, ConfigError, Effective, Limits, Paths};
 use crate::error::{Error, Result};
 use crate::gitsync::{Author, Repo};
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-/// The state of the server after the start (see `join-knowledge-base`).
+/// The state of the server after the start (see `join-memory-repository`).
 #[derive(Debug, Clone)]
 pub enum JoinState {
     Cloning,
     Ready,
     Empty,
-    NotAKnowledgeBase,
+    NotAMemRepo,
     Broken(Error),
 }
 
@@ -24,7 +24,7 @@ impl JoinState {
             JoinState::Cloning => "cloning",
             JoinState::Ready => "ready",
             JoinState::Empty => "empty",
-            JoinState::NotAKnowledgeBase => "not_a_knowledge_base",
+            JoinState::NotAMemRepo => "not_a_memory_repository",
             JoinState::Broken(_) => "broken",
         }
     }
@@ -36,7 +36,7 @@ pub struct Context {
     pub paths: Paths,
     repo: Mutex<Option<Arc<Repo>>>,
     found_by: Mutex<Option<super::binding::FoundBy>>,
-    /// The last failure of the start, and when it happened (see `join-knowledge-base`).
+    /// The last failure of the start, and when it happened (see `join-memory-repository`).
     last_error: Mutex<Option<(Error, std::time::Instant)>>,
     /// The documents that `show` opened in this session: the read budget (see `search-and-read`).
     /// The connection to the client for the current call (see `write-approval`).
@@ -75,7 +75,7 @@ impl Context {
 
     /// The effective limits. They load at every call, so an edit of a file applies at once.
     /// A broken layer file makes the access read-only and is reported in `problem`.
-    pub fn limits(&self, kb: Option<&KnowledgeBase>) -> Limit {
+    pub fn limits(&self, memrepo: Option<&MemRepo>) -> Limit {
         let entry = match self.args.entry_layer() {
             Ok(l) => l,
             Err(message) => {
@@ -90,7 +90,7 @@ impl Context {
         };
         match config::load_file_layers(&self.paths) {
             Ok(files) => Limit {
-                effective: config::effective(&files, kb.map(|k| &k.settings.limits), Some(&entry)),
+                effective: config::effective(&files, memrepo.map(|k| &k.settings.limits), Some(&entry)),
                 problem: None,
             },
             Err(e) => Limit {
@@ -164,7 +164,7 @@ impl Context {
         )
     }
 
-    /// The state of the knowledge base, without waiting (see `join-knowledge-base`).
+    /// The state of the knowledge base, without waiting (see `join-memory-repository`).
     pub fn join_state(&self) -> JoinState {
         if self.is_cloning() {
             return JoinState::Cloning;
@@ -173,10 +173,10 @@ impl Context {
             Ok(r) => r,
             Err(e) => return JoinState::Broken(e),
         };
-        match crate::kb::layout::find_root(repo.dir()) {
-            Err(_) if crate::kb::layout::repo_is_empty(repo.dir()) => JoinState::Empty,
-            Err(_) => JoinState::NotAKnowledgeBase,
-            Ok(_) => match self.kb() {
+        match crate::memrepo::layout::find_root(repo.dir()) {
+            Err(_) if crate::memrepo::layout::repo_is_empty(repo.dir()) => JoinState::Empty,
+            Err(_) => JoinState::NotAMemRepo,
+            Ok(_) => match self.memrepo() {
                 Ok(_) => JoinState::Ready,
                 Err(e) => JoinState::Broken(e),
             },
@@ -245,7 +245,7 @@ impl Context {
     pub fn checked_author(&self) -> Result<crate::identity::Resolved> {
         let repo = self.repo()?;
         let resolved = self.resolve_author(repo.dir())?;
-        let people = KnowledgeBase::open(repo.dir())
+        let people = MemRepo::open(repo.dir())
             .map(|k| k.settings.people)
             .unwrap_or_default();
         crate::identity::check_email(&resolved.email, &people)?;
@@ -254,11 +254,11 @@ impl Context {
     }
 
     /// The knowledge base if it is ready now. It never waits for a clone.
-    pub fn kb_if_ready(&self) -> Option<KnowledgeBase> {
+    pub fn memrepo_if_ready(&self) -> Option<MemRepo> {
         if self.is_cloning() {
             None
         } else {
-            self.kb().ok()
+            self.memrepo().ok()
         }
     }
 
@@ -271,36 +271,36 @@ impl Context {
         if self.is_cloning() {
             return None;
         }
-        match self.kb() {
+        match self.memrepo() {
             Err(e) if e.is_update_needed() => Some(e),
             _ => None,
         }
     }
 
     /// The knowledge base in the repository, read from disk at every call.
-    /// A different ID than `--kb-id` is a `setup_problem`.
-    pub fn kb(&self) -> Result<KnowledgeBase> {
+    /// A different ID than `--memory-repository-id` is a `setup_problem`.
+    pub fn memrepo(&self) -> Result<MemRepo> {
         let repo = self.repo()?;
-        if crate::kb::layout::find_root(repo.dir()).is_err() {
+        if crate::memrepo::layout::find_root(repo.dir()).is_err() {
             // The remote may have got its first commit since the clone.
             repo.refresh_if_unborn();
         }
-        if crate::kb::layout::find_root(repo.dir()).is_err()
-            && crate::kb::layout::repo_is_empty(repo.dir())
+        if crate::memrepo::layout::find_root(repo.dir()).is_err()
+            && crate::memrepo::layout::repo_is_empty(repo.dir())
         {
             return Err(Error::setup("This repository is empty.")
                 .with_next("This repository is empty. Call `init`."));
         }
-        let kb = KnowledgeBase::open(repo.dir())?;
-        if let Some(want) = &self.args.kb_id {
-            if !want.eq_ignore_ascii_case(&kb.settings.id) {
+        let memrepo = MemRepo::open(repo.dir())?;
+        if let Some(want) = &self.args.memory_repository_id {
+            if !want.eq_ignore_ascii_case(&memrepo.settings.id) {
                 return Err(Error::setup(
                     "This repository is not the knowledge base that the entry names.",
                 )
-                .with_next("Check --kb-id and --repo in the MCP entry."));
+                .with_next("Check --memory-repository-id and --repo in the MCP entry."));
             }
         }
-        Ok(kb)
+        Ok(memrepo)
     }
 }
 

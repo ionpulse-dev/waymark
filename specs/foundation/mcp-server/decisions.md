@@ -44,7 +44,7 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 ## One knowledge base per process, found by `--repo` and `--path` — 2026-11-14
 
-**Decision:** The server does not depend on the working folder. `--repo` and `--path` name the knowledge base. If neither is given, the server looks for a knowledge base in the working folder and above it, and in `~/Projects/*-knowledge-base` if exactly one exists (see `project-binding`).
+**Decision:** The server does not depend on the working folder. `--repo` and `--path` name the knowledge base. If neither is given, the server looks for a knowledge base in the working folder and above it, and in `~/Projects/*-agent-memory` if exactly one exists (see `project-binding`).
 
 **Reason:** Answers the open question of the original spec. Decided autonomously.
 
@@ -63,7 +63,7 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 ## The command line of the first version — 2026-11-14
 
-**Decision:** The arguments are `--repo`, `--kb-id`, `--path`, `--author-name`, `--author-email` (also the variables `WAYMARK_AUTHOR_NAME` and `WAYMARK_AUTHOR_EMAIL`), and the limits `--access`, `--no-delete`, `--tools-denied`, `--folders`, `--max-results`, `--max-tokens`, `--max-documents-opened`. They form the last config layer (the MCP entry). `--version` and `--help` are the only other commands. An unknown command or argument makes the process exit with an error.
+**Decision:** The arguments are `--repo`, `--memory-repository-id`, `--path`, `--author-name`, `--author-email` (also the variables `WAYMARK_AUTHOR_NAME` and `WAYMARK_AUTHOR_EMAIL`), and the limits `--access`, `--no-delete`, `--tools-denied`, `--folders`, `--max-results`, `--max-tokens`, `--max-documents-opened`. They form the last config layer (the MCP entry). `--version` and `--help` are the only other commands. An unknown command or argument makes the process exit with an error.
 
 **Reason:** Covers the limits that the trust model lets an entry set today. More arguments come with the features that need them (for example `--approval-via`). Decided autonomously.
 
@@ -77,7 +77,7 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 ## One server process finds its knowledge base in a fixed order — 2026-11-14
 
-**Decision:** The folder of the clone is `--path`; else the default folder of `--repo` (`~/Projects/<slug>-knowledge-base`, where the slug comes from the last part of the URL without `.git` and without a trailing `-knowledge-base`); else the Git root of the working folder if it holds a knowledge base; else the only `~/Projects/*-knowledge-base` that is a Git repository. The server clones `--repo` on the first call that needs the repository, not at start, so a slow clone never delays `initialize`. The repository is opened once. The knowledge base files (`.mkbase/waymark.toml`) are read again at every call.
+**Decision:** The folder of the clone is `--path`; else the default folder of `--repo` (`~/Projects/<slug>-agent-memory`, where the slug comes from the last part of the URL without `.git` and without a trailing `-agent-memory`); else the Git root of the working folder if it holds a knowledge base; else the only `~/Projects/*-agent-memory` that is a Git repository. The server clones `--repo` on the first call that needs the repository, not at start, so a slow clone never delays `initialize`. The repository is opened once. The knowledge base files (`.waymark/settings.toml`) are read again at every call.
 
 **Reason:** Matches the decision "One knowledge base per process", and a change of the shared limits applies at once. Decided autonomously.
 
@@ -97,7 +97,7 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 ## A direct call of a verification tool is `access_denied` — 2026-11-14
 
-**Decision (decided autonomously):** When verification is off, `verify`, `review`, and `reject` are not listed, and a direct call returns `access_denied` with the `next` sentence "The owner turns it on with verification = true in .mkbase/waymark.toml." This replaces the earlier choice that such a call is an unknown tool (code -32602). The tools that the limits hide (`tools_denied`, read-only) are unchanged.
+**Decision (decided autonomously):** When verification is off, `verify`, `review`, and `reject` are not listed, and a direct call returns `access_denied` with the `next` sentence "The owner turns it on with verification = true in .waymark/settings.toml." This replaces the earlier choice that such a call is an unknown tool (code -32602). The tools that the limits hide (`tools_denied`, read-only) are unchanged.
 
 **Reason:** The `verification` spec says a direct call gives `access_denied`. A tool-level error tells the agent more than a protocol error. Found while implementing `verification`.
 

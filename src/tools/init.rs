@@ -1,13 +1,13 @@
 //! The `init` tool: set up an empty repository as a knowledge base, or add the settings file to a
-//! folder that has the marker `.mkbase` but no `waymark.toml`
-//! (see `specs/features/create-knowledge-base`).
+//! folder that has the marker `.waymark` but no `settings.toml`
+//! (see `specs/features/create-memory-repository`).
 
 use crate::config::Kind;
 use crate::error::Error;
 use crate::gitsync::{commit_message, Change, Verb};
-use crate::kb::agents_file::Audience;
-use crate::kb::init::{derive_slug, files, settings_text, InitInput};
-use crate::kb::layout::{MARKER, SETTINGS_FILE};
+use crate::memrepo::agents_file::Audience;
+use crate::memrepo::init::{derive_slug, files, settings_text, InitInput};
+use crate::memrepo::layout::{MARKER, SETTINGS_FILE};
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
@@ -50,7 +50,7 @@ fn is_domain(s: &str) -> bool {
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-' || c == '.')
 }
 
-/// A folder below `knowledge/`: parts of lowercase letters, digits, and `-`, joined by `/`.
+/// A folder below `agent-memory/`: parts of lowercase letters, digits, and `-`, joined by `/`.
 fn check_folder(f: &str) -> Result<(), Error> {
     let ok = !f.is_empty()
         && f.split('/').all(|seg| {
@@ -167,7 +167,7 @@ impl Tool for Init {
     }
 
     fn description(&self) -> &'static str {
-        "Set up an empty repository as a knowledge base. Also adds the settings file to a folder that has the older `.mkbase` marker but no settings file."
+        "Set up an empty repository as a knowledge base. Also adds the settings file to a folder that has the older `.waymark` marker but no settings file."
     }
 
     fn kind(&self) -> Kind {
@@ -202,8 +202,8 @@ impl Tool for Init {
         let planned_new = files(&input, &id)?;
 
         let (res, (planned, adopted)) = repo.write(preview, |tx| {
-            // The marker is at the repository root or in `knowledge/`.
-            let marker_base = ["", "knowledge/"]
+            // The marker is at the repository root or in `agent-memory/`.
+            let marker_base = ["", "agent-memory/"]
                 .into_iter()
                 .find(|b| repo.dir().join(format!("{b}{MARKER}")).is_dir());
             let (planned, adopted) = match marker_base {
@@ -217,7 +217,7 @@ impl Tool for Init {
                     // A folder with the marker and no settings file: add only that file.
                     if args.get("folders").is_some() || args.get("audience").is_some() {
                         return Err(Error::invalid(
-                            "The fields `folders` and `audience` do not apply to a folder that has the `.mkbase` marker. init only adds the settings file there.",
+                            "The fields `folders` and `audience` do not apply to a folder that has the `.waymark` marker. init only adds the settings file there.",
                         )
                         .with_next("Call init again without `folders` and `audience`."));
                     }
@@ -225,9 +225,9 @@ impl Tool for Init {
                     (vec![(path, settings_text(&input, &id)?)], true)
                 }
                 None => {
-                    if !crate::kb::layout::repo_is_empty(repo.dir()) {
+                    if !crate::memrepo::layout::repo_is_empty(repo.dir()) {
                         return Err(Error::validation(
-                            "This repository is not empty. init works only on an empty repository, or on a folder that has the `.mkbase` marker and no settings file.",
+                            "This repository is not empty. init works only on an empty repository, or on a folder that has the `.waymark` marker and no settings file.",
                         )
                         .with_next("Create a new empty repository, or remove the files and commits."));
                     }
@@ -296,7 +296,7 @@ impl Tool for Init {
                 "name": input.name,
                 "slug": input.slug,
                 "audience": audience,
-                "root": "knowledge",
+                "root": "agent-memory",
                 "files": paths,
                 "commit": res.commit,
                 "pushed": !preview && res.pushed,

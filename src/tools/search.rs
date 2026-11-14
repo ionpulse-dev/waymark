@@ -59,9 +59,9 @@ impl Tool for Search {
         let limit = limit_arg(&args, env.effective.max_results)?;
 
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
 
         let mut hits: Vec<_> = store

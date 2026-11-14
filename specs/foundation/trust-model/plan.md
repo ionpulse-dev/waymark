@@ -7,7 +7,7 @@ A `config` module loads the limit layers, merges them with the rule "the stricte
 ## Components Affected
 
 - `mcp-server` — builds `EffectiveSettings` per call and puts a copy in every result as `settings`.
-- `knowledge-base-repo` — owns the file `.mkbase/waymark.toml` that holds the shared layer. This module reads its `[limits]` and `[approval]` sections.
+- `memory-repository` — owns the file `.waymark/settings.toml` that holds the shared layer. This module reads its `[limits]` and `[approval]` sections.
 
 ## New Files
 
@@ -31,7 +31,7 @@ A `config` module loads the limit layers, merges them with the rule "the stricte
 
 ## Dependencies on Other Foundation Items
 
-- `knowledge-base-repo` — the shared file schema.
+- `memory-repository` — the shared file schema.
 - `mcp-server` — calls this module. This module has no dependency on the MCP library.
 
 ## Risks

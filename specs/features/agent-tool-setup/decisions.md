@@ -14,7 +14,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## A static block, found by id — 2026-11-07
 
-**Decision:** The block and the skill hold no path. The agent finds the knowledge base by the id in `.waymark/id`. The first design used a fixed path in the block, `~/Projects/<slug>-knowledge-base`; the id binding replaced it.
+**Decision:** The block and the skill hold no path. The agent finds the knowledge base by the id in `.waymark/id`. The first design used a fixed path in the block, `~/Projects/<slug>-agent-memory`; the id binding replaced it.
 
 **Reason:** The text stays static and version-matched, and several knowledge bases can coexist. A known location of the id still lets agents in other repositories find the knowledge base without an MCP server.
 
@@ -71,6 +71,6 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 - `docs/install.md` did not exist, so this spec created it with a short "Install the binary" part. `distribution` extends that part later. Decided autonomously.
 - The `AGENTS.md` examples live in `docs/install.md` and in the README. Test A3 checks that both copies are identical, so they cannot drift. Decided autonomously.
-- The advice names `updates` and `init`, which are built in later specs (`updates`, `create-knowledge-base`). Test A5 allows these two names through the list `NOT_YET_BUILT` and fails when one of them becomes a real tool, so that the list is cleaned. Decided autonomously.
+- The advice names `updates` and `init`, which are built in later specs (`updates`, `create-memory-repository`). Test A5 allows these two names through the list `NOT_YET_BUILT` and fails when one of them becomes a real tool, so that the list is cleaned. Decided autonomously.
 - Test A6 checks a fixed list of phrases that must sit on a line with the word "unverified". Add a phrase when a new unverified statement enters the guide. Decided autonomously.
 - The test for the generic entry starts the real binary with the `args` of the README entry. The clone starts lazily at the first tool use, so `tools/list` works without network.

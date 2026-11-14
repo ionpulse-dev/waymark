@@ -3,7 +3,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::json;
 
@@ -21,7 +21,7 @@ const BAD_IDS: &[&str] = &[
     "../outside",
     "/etc/passwd",
     "ops/../../outside",
-    ".mkbase/waymark",
+    ".waymark/waymark",
     "ops/.hidden",
     "ops\\x",
     "ops//x",
@@ -85,12 +85,12 @@ fn s2_symbolic_links_are_never_read_or_written() {
         "---\ntitle: Secret\n---\nTOPSECRET\n",
     )
     .unwrap();
-    let kb = w.a.join("knowledge");
-    std::fs::create_dir_all(kb.join("ops")).unwrap();
+    let memrepo = w.a.join("agent-memory");
+    std::fs::create_dir_all(memrepo.join("ops")).unwrap();
     // A file link to an existing file, a dangling file link, and a folder link.
-    std::os::unix::fs::symlink(outside.join("secret.md"), kb.join("ops/linked.md")).unwrap();
-    std::os::unix::fs::symlink(outside.join("new-file.md"), kb.join("ops/dangling.md")).unwrap();
-    std::os::unix::fs::symlink(&outside, kb.join("escape")).unwrap();
+    std::os::unix::fs::symlink(outside.join("secret.md"), memrepo.join("ops/linked.md")).unwrap();
+    std::os::unix::fs::symlink(outside.join("new-file.md"), memrepo.join("ops/dangling.md")).unwrap();
+    std::os::unix::fs::symlink(&outside, memrepo.join("escape")).unwrap();
     let mut c = client(&w);
     let r = c.call("show", json!({"id": "ops/linked"}));
     assert!(
@@ -239,7 +239,7 @@ fn s5_nothing_writes_while_paused_or_read_only() {
             assert_eq!(r.code(), Some(code), "{tool} with {limit}: {}", r.json);
         }
         // `sync` only pulls: a manual edit is not committed.
-        let file = w.a.join("knowledge/ops/deploy.md");
+        let file = w.a.join("agent-memory/ops/deploy.md");
         let text = std::fs::read_to_string(&file).unwrap();
         std::fs::write(&file, text.replace("Text.", "Edited by hand.")).unwrap();
         let r = c.call("sync", json!({}));
@@ -252,7 +252,7 @@ fn s5_nothing_writes_while_paused_or_read_only() {
 #[test]
 fn s6_no_layer_can_loosen_another() {
     let w = World::new();
-    let toml = w.a.join("knowledge/.mkbase/waymark.toml");
+    let toml = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&toml).unwrap();
     std::fs::write(
         &toml,
@@ -311,7 +311,7 @@ fn s7_an_author_name_with_a_line_break_does_not_forge_a_header() {
         let log = git(&w.remote, &["log", "-1", "--format=%an|%ae", "main"]);
         assert!(log.trim().ends_with("eve@example.org"), "{log}");
         assert!(!log.contains("\nAuthor:"));
-        let doc = std::fs::read_to_string(w.a.join("knowledge/ops/t.md")).unwrap();
+        let doc = std::fs::read_to_string(w.a.join("agent-memory/ops/t.md")).unwrap();
         assert!(!doc.lines().any(|l| l.starts_with("Author:")), "{doc}");
     }
 }

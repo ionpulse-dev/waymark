@@ -11,13 +11,13 @@ The `status` tool is built in two steps. `mcp-server` creates `src/tools/status.
 - `git-sync` — new function `gitsync::probe_remote(timeout)` and the fields `last_pull` and `last_error` in `Repo`.
 - `trust-model` — `config::layers` functions must be public so that `status` can load each layer (no change of the merge).
 - `login-and-identity` — `identity::Author` and `check_email` for the `author` check.
-- `join-knowledge-base` — `Startup::state()` without waiting.
+- `join-memory-repository` — `Startup::state()` without waiting.
 - `docs/install.md` — the section "Remove waymark" (the file is created by `distribution`).
 
 ## New Files
 
 - `src/maintenance/mod.rs` — `run_checks(&Context) -> Vec<Check>` and the `Check` type (`name`, `ok`, `detail`, `fix`).
-- `src/maintenance/checks.rs` — one function for each check: `git`, `clone`, `working_tree`, `remote_and_login`, `kb_id`, `settings`, `author`.
+- `src/maintenance/checks.rs` — one function for each check: `git`, `clone`, `working_tree`, `remote_and_login`, `memory_repository_id`, `settings`, `author`.
 - `src/maintenance/sources.rs` — `limit_sources(layers, effective)`.
 - `src/gitsync/probe.rs` — `probe_remote(timeout) -> Probe` (`Reachable`, `NoRemote`, `LoginRefused(text)`, `Unreachable(text)`).
 - `tests/it_maintenance.rs` — end-to-end tests.
@@ -29,7 +29,7 @@ The `status` tool is built in two steps. `mcp-server` creates `src/tools/status.
 3. **`clone`.** Reads the state of `Startup` without waiting. Maps the state to `ok`, `detail`, and `fix`.
 4. **`working_tree`.** Checks for `.git/rebase-merge`, `.git/rebase-apply`, and `.git/MERGE_HEAD`. Counts files with `git status --porcelain` (a read call).
 5. **`remote` and `git_login`.** `gitsync::probe_remote(10 s)` runs `git ls-remote origin` with the isolated environment and a poll loop (`try_wait`, kill at the time-out). Classification of the output as in `decisions.md`. If there is no `origin`, `remote` is ok with the detail "no remote".
-6. **`kb_id`.** Compares `--kb-id` with `id` of the settings.
+6. **`memory_repository_id`.** Compares `--memory-repository-id` with `id` of the settings.
 7. **`settings`.** Parses each layer file separately with the loader of `config::layers`. The first error names the file and stops the list of layers. The same error makes every other tool fail with `setup_problem` (see `trust-model`), but `status` still runs and reports it. For that, `status` builds its own `Settings` view and falls back to the defaults of the strictest allowed state for the `settings` field of the result (`access = read-only`) when a layer is broken.
 8. **`author`.** `identity::resolve` and `check_email`.
 9. **Sources.** `limit_sources` compares the effective value of each limit with the value of each layer, in the order system, shared, personal, entry. A scalar limit lists the layers whose value equals the effective one. A list limit lists the layers that contribute. If no layer set it, the source is `default`.

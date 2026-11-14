@@ -46,12 +46,12 @@ impl Tool for Lint {
 
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
         let limit = lint::limit_scope(&env.effective);
-        let report = lint::run(&kb, &store, &|id| scope.allows(id), &limit, Some(&repo))?;
+        let report = lint::run(&memrepo, &store, &|id| scope.allows(id), &limit, Some(&repo))?;
 
         let errors = report
             .findings

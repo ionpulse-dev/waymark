@@ -34,7 +34,7 @@ A tool that starts an MCP server over stdio needs only a command and arguments.
   "mcpServers": {
     "waymark": {
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"]
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"]
     }
   }
 }
@@ -47,7 +47,7 @@ Tested with: not yet tested.
 Add the entry from the command line (scope `user` for all projects, `project` to write `.mcp.json` that the team shares through Git):
 
 ```bash
-claude mcp add --transport stdio --scope project waymark -- waymark --repo git@github.com:example/knowledge.git
+claude mcp add --transport stdio --scope project waymark -- waymark --repo git@github.com:example/waymark-agent-memory.git
 ```
 
 Or write the file `.mcp.json` in the project root by hand:
@@ -59,7 +59,7 @@ Or write the file `.mcp.json` in the project root by hand:
     "waymark": {
       "type": "stdio",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": {
         "WAYMARK_AUTHOR_NAME": "Jane Doe",
         "WAYMARK_AUTHOR_EMAIL": "jane@example.org"
@@ -116,13 +116,13 @@ To remove the entry: `claude mcp remove waymark`.
 
 ### OpenAI Codex
 
-Add the table to `~/.codex/config.toml` (user). A trusted project may use `.codex/config.toml` in the project root. Or run `codex mcp add waymark -- waymark --repo git@github.com:example/knowledge.git`.
+Add the table to `~/.codex/config.toml` (user). A trusted project may use `.codex/config.toml` in the project root. Or run `codex mcp add waymark -- waymark --repo git@github.com:example/waymark-agent-memory.git`.
 
 <!-- snippet: codex -->
 ```toml
 [mcp_servers.waymark]
 command = "waymark"
-args = ["--repo", "git@github.com:example/knowledge.git"]
+args = ["--repo", "git@github.com:example/waymark-agent-memory.git"]
 default_tools_approval_mode = "writes"
 
 [mcp_servers.waymark.env]
@@ -147,7 +147,7 @@ Write `.vscode/mcp.json` in the project. Click **Start** above the entry, open C
     "waymark": {
       "type": "stdio",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": {
         "WAYMARK_AUTHOR_NAME": "Jane Doe",
         "WAYMARK_AUTHOR_EMAIL": "jane@example.org"
@@ -165,7 +165,7 @@ To remove the entry: delete the `waymark` entry in `.vscode/mcp.json`.
 
 ### GitHub Copilot CLI
 
-Run `copilot mcp add waymark -- waymark --repo git@github.com:example/knowledge.git`, or write `~/.copilot/mcp-config.json` (user). A project may use `.mcp.json` or `.github/mcp.json`. The CLI loads project servers only after you confirm folder trust at the first start.
+Run `copilot mcp add waymark -- waymark --repo git@github.com:example/waymark-agent-memory.git`, or write `~/.copilot/mcp-config.json` (user). A project may use `.mcp.json` or `.github/mcp.json`. The CLI loads project servers only after you confirm folder trust at the first start.
 
 <!-- snippet: copilot-cli -->
 ```json
@@ -174,7 +174,7 @@ Run `copilot mcp add waymark -- waymark --repo git@github.com:example/knowledge.
     "waymark": {
       "type": "local",
       "command": "waymark",
-      "args": ["--repo", "git@github.com:example/knowledge.git"],
+      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"],
       "env": {
         "WAYMARK_AUTHOR_NAME": "Jane Doe",
         "WAYMARK_AUTHOR_EMAIL": "jane@example.org"
@@ -232,7 +232,7 @@ Never write secrets, tokens, or personal data.
 
 ### Tighten the limits
 
-Limits come from layers, and the strictest layer wins. Your personal file is `~/.config/waymark/config.toml`. The team's shared file is `.mkbase/waymark.toml` in the knowledge base. IT owns the system file. See the README, section "Limits", and the `trust-model` spec.
+Limits come from layers, and the strictest layer wins. Your personal file is `~/.config/waymark/config.toml`. The team's shared file is `.waymark/settings.toml` in the knowledge base. IT owns the system file. See the README, section "Limits", and the `trust-model` spec.
 
 ## Update waymark
 
@@ -244,7 +244,7 @@ brew upgrade waymark
 
 The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
 
-**When a team's knowledge base needs a newer waymark.** The settings file `.mkbase/waymark.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [knowledge-base-repo spec](../specs/foundation/knowledge-base-repo/requirements.md).
+**When a team's knowledge base needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
 
 **When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
 

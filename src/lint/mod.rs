@@ -9,7 +9,7 @@ use crate::error::Result;
 use crate::format::{self, Finding, Severity};
 use crate::gitsync::Repo;
 use crate::indexgen;
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use crate::store::{Scope, Store};
 use crate::writes::titles;
 use regex::Regex;
@@ -80,15 +80,15 @@ fn sort(findings: &mut [Finding]) {
 /// Check the documents that `include` selects. `limit_scope` has only the `folders` limit: it decides what the
 /// index files must contain. `repo` is used for the author checks.
 pub fn run(
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     store: &Store,
     include: &dyn Fn(&str) -> bool,
     limit_scope: &Scope,
     repo: Option<&Repo>,
 ) -> Result<Report> {
-    let custom = secrets::compile(&kb.settings.extra_secret_patterns)?;
-    let ids: HashSet<String> = kb.id_set();
-    let limits = &kb.settings.documents;
+    let custom = secrets::compile(&memrepo.settings.extra_secret_patterns)?;
+    let ids: HashSet<String> = memrepo.id_set();
+    let limits = &memrepo.settings.documents;
     let mut findings: Vec<Finding> = Vec::new();
     let mut checked = 0;
 
@@ -103,7 +103,7 @@ pub fn run(
                 findings.extend(text_findings(&path, &doc.raw, &custom));
                 for field in ["created_by", "updated_by"] {
                     if let Some(a) = doc.text(field) {
-                        if let Some(why) = authors::not_allowed(a, &kb.settings.people) {
+                        if let Some(why) = authors::not_allowed(a, &memrepo.settings.people) {
                             findings.push(Finding::error(
                                 &path,
                                 "author-not-allowed",
@@ -115,7 +115,7 @@ pub fn run(
             }
             None => {
                 // A file that is not UTF-8 text.
-                if let Ok(bytes) = kb.path_of(id).and_then(|p| {
+                if let Ok(bytes) = memrepo.path_of(id).and_then(|p| {
                     std::fs::read(&p).map_err(|e| crate::error::Error::setup(e.to_string()))
                 }) {
                     findings.extend(format::check_bytes(&path, &bytes, limits, Some(&ids)));
@@ -154,7 +154,7 @@ pub fn run(
         let history = repo.path_authors()?;
         let dirty: HashSet<String> = repo.dirty_paths()?.into_iter().collect();
         for d in store.docs().filter(|d| include(&d.id)) {
-            let Ok(rel) = kb.repo_relative(&d.id) else {
+            let Ok(rel) = memrepo.repo_relative(&d.id) else {
                 continue;
             };
             if dirty.contains(&rel) {

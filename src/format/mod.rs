@@ -1,4 +1,4 @@
-//! Document format: the MKBase Document Standard (see `standard/mkbase-1.0.md`).
+//! Document format: the Waymark Memory Standard (see `standard/waymark-1.0.md`).
 //!
 //! This module has no I/O. A caller gives it text and gets findings back.
 

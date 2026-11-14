@@ -20,7 +20,7 @@
 
 ## Technical Approach
 
-1. **Parse input.** A trailing `/` means a folder. Check the kind rules, the names, and `to` against the existing paths. Reject a move into itself and a move of the root or `.mkbase/`.
+1. **Parse input.** A trailing `/` means a folder. Check the kind rules, the names, and `to` against the existing paths. Reject a move into itself and a move of the root or `.waymark/`.
 2. **List documents.** For a folder, all `.md` files below it that are documents (not excluded). Other files move with them by `git mv` and are not listed.
 3. **Plan** (`moveplan.rs`). A map from old ID to new ID. A function that gives the new relative path from document X (at its new place) to document Y (at its new place).
 4. **Links.** `linkfix` scans all documents (moved and not moved), using `format::links` spans. It computes the rewrites of the table in the requirements. Rewrites of documents that move are applied at their new path in commit 2.

@@ -7,7 +7,7 @@ Five tools, one file each in `src/tools/`. Each tool builds a plan of file chang
 ## Components Affected
 
 - `format` (`document-format`) — `parse`, `render`, `check`, `Limits`, `Finding`. This feature never writes frontmatter by hand.
-- `kb` (`knowledge-base-repo`) — the root, `documents.*` settings, `lint.extra_secret_patterns`, `verification`.
+- `kb` (`memory-repository`) — the root, `documents.*` settings, `lint.extra_secret_patterns`, `verification`.
 - `config` (`trust-model`) — `EffectiveSettings`: `folders`, `approval`. Folder globs use `config::glob`.
 - `gitsync` (`git-sync`) — `Repo::write`. See "What this feature needs from `git-sync`".
 - `mcp` (`mcp-server`) — the `Tool` trait, `ToolOutput`, `ToolError`, and the registry.

@@ -49,7 +49,7 @@ Built-in secret patterns: a private key block, an AWS access key ID, a GitHub to
 
 A knowledge base adds patterns as regular expressions in `lint.extra_secret_patterns`, for example for customer ID formats. An invalid expression makes `lint` fail with `setup_problem` and names the entry.
 
-`lint` accepts callouts, embeds, highlights, and comments that people wrote. It does not check files that are not documents: files that start with `.`, entries of `.mkbase/exclude`, and files that do not end in `.md`.
+`lint` accepts callouts, embeds, highlights, and comments that people wrote. It does not check files that are not documents: files that start with `.`, entries of `.waymark/exclude`, and files that do not end in `.md`.
 
 ### `index`
 

@@ -32,7 +32,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Fixed check names and order — 2026-11-14
 
-**Decision:** The checks are `git`, `clone`, `working_tree`, `remote`, `git_login`, `kb_id`, `settings`, `author`, in this order. A check that cannot run is left out.
+**Decision:** The checks are `git`, `clone`, `working_tree`, `remote`, `git_login`, `memory_repository_id`, `settings`, `author`, in this order. A check that cannot run is left out.
 
 **Alternatives considered:** Mark a skipped check as ok (rejected: it would claim something that was not checked). Mark it as not ok (rejected: the real problem is another check).
 
@@ -79,11 +79,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 ## Implementation notes — 2026-11-14
 
 - Files: `src/maintenance/mod.rs` (`run_checks`, `limit_sources`), `src/maintenance/sources.rs`, `src/gitsync/probe.rs` (`probe_remote`), and the new `src/tools/status.rs`. The checks are in one file, not in a `checks.rs`. Decided autonomously.
-- The check `knowledge_base` of the first `status` is gone. The state goes into `clone` (ok for `ready`, `empty`, and `not_a_knowledge_base`) and into `knowledge_base.state`. A broken knowledge base fails `clone`, with the fix of the reason.
+- The check `memory_repository` of the first `status` is gone. The state goes into `clone` (ok for `ready`, `empty`, and `not_a_memory_repository`) and into `memory_repository.state`. A broken knowledge base fails `clone`, with the fix of the reason.
 - When `git` fails only `git` runs. While the state is `cloning` only `git` and `clone` run. If no repository is open, the rest is left out.
 - `gitsync::cmd::run_timeout` now starts git in its own process group and kills the whole group at the time-out, because `git` starts `ssh`, and `ssh` holds the pipes. It does not wait for the readers after a kill.
 - `limit_sources` reads each layer file again with `config::read_layer`. The names are `system`, `shared`, `personal`, `entry`, and `default`. Duplicates (two system files) are shown once.
 - `last_error` is the last error text of any other tool in this session (kept in `Context`). `last_pull` is the time of the last good fetch (`Repo::mark_fetched`).
 - The message is "All checks are ok." or "N checks failed: names.". Each failed check adds the notice "Check `name` failed. <fix>".
 - `docs/install.md` has the sections "Update waymark", "Check that waymark works", and "Remove waymark". `distribution` keeps the section "Install the binary".
-- The old test of `knowledge-base-repo` and `session-start` were changed to the new shape (`clone` check, the new message).
+- The old test of `memory-repository` and `session-start` were changed to the new shape (`clone` check, the new message).

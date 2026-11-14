@@ -50,9 +50,9 @@ impl Tool for Folders {
             }
         };
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let all = kb.folders();
+        let all = memrepo.folders();
         if !start.is_empty() && !all.iter().any(|f| f.path == start) {
             return Err(
                 crate::error::Error::not_found(format!("There is no folder \"{start}\"."))
@@ -91,7 +91,7 @@ impl Tool for Folders {
                 })
         };
 
-        let candidates: Vec<&crate::kb::folders::Folder> = all
+        let candidates: Vec<&crate::memrepo::folders::Folder> = all
             .iter()
             .filter(|f| f.path != start && under(&f.path) && visible(&f.path))
             .collect();

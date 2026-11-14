@@ -101,14 +101,14 @@ fn a2_a_healthy_setup_has_all_checks_ok_in_order() {
             "working_tree",
             "remote",
             "git_login",
-            "kb_id",
+            "memory_repository_id",
             "settings",
             "author"
         ]
     );
     assert_eq!(s["version"], env!("CARGO_PKG_VERSION"));
-    assert_eq!(s["knowledge_base"]["state"], "ready");
-    assert_eq!(s["knowledge_base"]["root"], "knowledge");
+    assert_eq!(s["memory_repository"]["state"], "ready");
+    assert_eq!(s["memory_repository"]["root"], "agent-memory");
     assert!(s["last_error"].is_null());
     assert!(s["limit_sources"].is_object());
 }
@@ -142,15 +142,15 @@ fn a4_status_cannot_be_hidden() {
 }
 
 #[test]
-fn a5_another_kb_id_is_reported() {
+fn a5_another_memory_repository_id_is_reported() {
     let w = World::new();
     let other = "123e4567-e89b-42d3-a456-426614174000";
-    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--kb-id", other]));
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--memory-repository-id", other]));
     let s = status(&mut c);
-    let k = check(&s, "kb_id");
+    let k = check(&s, "memory_repository_id");
     assert_eq!(k["ok"], false);
     let fix = k["fix"].as_str().unwrap();
-    assert!(fix.contains(other) && fix.contains("--kb-id"));
+    assert!(fix.contains(other) && fix.contains("--memory-repository-id"));
 }
 
 #[test]
@@ -192,7 +192,7 @@ fn a7_a_broken_config_file_is_named() {
 #[test]
 fn a8_limit_sources_name_the_layers() {
     let w = World::new();
-    let toml = w.a.join("knowledge/.mkbase/waymark.toml");
+    let toml = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&toml).unwrap();
     std::fs::write(
         &toml,

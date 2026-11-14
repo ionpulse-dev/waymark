@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::PathBuf;

@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::commit_doc;
+use common::memrepo::commit_doc;
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::Path;
@@ -35,7 +35,7 @@ fn entry<'a>(v: &'a Value, path: &str) -> &'a Value {
 }
 
 fn on_disk(dir: &Path, rel: &str) -> bool {
-    dir.join("knowledge").join(rel).exists()
+    dir.join("agent-memory").join(rel).exists()
 }
 
 fn personal(w: &World, text: &str) {
@@ -112,7 +112,7 @@ fn the_folders_limit_hides_other_folders() {
 fn more_than_200_folders_are_truncated() {
     let w = World::new();
     for i in 0..205 {
-        let dir = w.a.join(format!("knowledge/f{i:03}"));
+        let dir = w.a.join(format!("agent-memory/f{i:03}"));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join(".gitkeep"), "").unwrap();
     }
@@ -328,7 +328,7 @@ fn remove_folder_follows_the_limits_and_protects_the_root() {
     assert_eq!(
         c.call(
             "remove_folder",
-            json!({"folder": ".mkbase", "expect_documents": 0})
+            json!({"folder": ".waymark", "expect_documents": 0})
         )
         .code(),
         Some("invalid_arguments")

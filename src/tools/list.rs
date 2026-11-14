@@ -54,9 +54,9 @@ impl Tool for List {
         let offset = offset as usize;
 
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
 
         let mut docs: Vec<_> = store

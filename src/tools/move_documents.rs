@@ -96,8 +96,8 @@ impl Tool for Move {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "move", Kind::Write, preview, |tx, kb| {
-            let all = kb.documents();
+        writes::execute(ctx, env, "move", Kind::Write, preview, |tx, memrepo| {
+            let all = memrepo.documents();
             let old_ids: HashSet<String> = all.iter().map(|d| d.id.clone()).collect();
 
             // What moves: (old ID, new ID) for documents.
@@ -109,9 +109,9 @@ impl Tool for Move {
                     let new_id = format!("{to_key}/{}", &d.id[prefix.len()..]);
                     pairs.push((d.id.clone(), new_id));
                 }
-                let dir = kb.root.join(&from_key);
+                let dir = memrepo.root.join(&from_key);
                 let mut files = Vec::new();
-                files_below(&dir, &kb.root, &mut files);
+                files_below(&dir, &memrepo.root, &mut files);
                 for f in files {
                     let new_f = format!("{to_key}/{}", &f[from_key.len() + 1..]);
                     file_moves.push((f, new_f));
@@ -121,7 +121,7 @@ impl Tool for Move {
                     return Err(Error::not_found(format!("There is no folder \"{from}\"."))
                         .with_next("Use folders to see the folders."));
                 }
-                if kb.root.join(&to_key).exists() {
+                if memrepo.root.join(&to_key).exists() {
                     return Err(
                         Error::validation(format!("The folder \"{to}\" exists already."))
                             .with_next(
@@ -133,7 +133,7 @@ impl Tool for Move {
                 if !old_ids.contains(&from_key) {
                     return Err(writes::not_found(&from_key));
                 }
-                if kb.root.join(format!("{to_key}.md")).exists() {
+                if memrepo.root.join(format!("{to_key}.md")).exists() {
                     return Err(Error::validation(format!(
                         "The document \"{to_key}\" exists already."
                     ))
@@ -163,7 +163,7 @@ impl Tool for Move {
                         .with_next("Choose locations that the limits allow."));
                     }
                 }
-                if dirty.contains(&kb.repo_relative(old)?) {
+                if dirty.contains(&memrepo.repo_relative(old)?) {
                     return Err(Error::new(
                         Code::StaleBase,
                         format!("The document \"{old}\" has manual edits that are not published."),
@@ -182,7 +182,7 @@ impl Tool for Move {
             for d in &all {
                 let old_id = &d.id;
                 let new_id = remap.new_id(old_id).to_string();
-                let Ok(text) = kb.read(old_id) else { continue };
+                let Ok(text) = memrepo.read(old_id) else { continue };
                 let Ok(mut doc) = format::parse(&text) else {
                     continue;
                 };
@@ -212,14 +212,14 @@ impl Tool for Move {
             // The history check: each moved document must be followable.
             let mut history = Vec::new();
             for (old, new) in &pairs {
-                if let Some(c) = tx.repo().last_commit(&kb.repo_relative(old)?)? {
-                    history.push((kb.repo_relative(new)?, c));
+                if let Some(c) = tx.repo().last_commit(&memrepo.repo_relative(old)?)? {
+                    history.push((memrepo.repo_relative(new)?, c));
                 }
             }
             let rel = |p: &str| -> Result<String, Error> {
-                let prefix = kb
+                let prefix = memrepo
                     .root
-                    .strip_prefix(&kb.repo_dir)
+                    .strip_prefix(&memrepo.repo_dir)
                     .map(|p| p.to_string_lossy().to_string())
                     .unwrap_or_default();
                 Ok(if prefix.is_empty() {
@@ -236,7 +236,7 @@ impl Tool for Move {
             let title = if is_folder {
                 format!("{to_key}/")
             } else {
-                text_title(kb, &from_key)
+                text_title(memrepo, &from_key)
             };
             let total = pairs.len();
             let shown: Vec<Value> = pairs
@@ -280,8 +280,8 @@ impl Tool for Move {
 }
 
 /// The title of a document, for the commit message. The ID if it has none.
-fn text_title(kb: &crate::kb::KnowledgeBase, id: &str) -> String {
-    kb.read(id)
+fn text_title(memrepo: &crate::memrepo::MemRepo, id: &str) -> String {
+    memrepo.read(id)
         .ok()
         .and_then(|t| format::parse(&t).ok())
         .and_then(|d| d.frontmatter.get_text("title").map(str::to_string))

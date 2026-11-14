@@ -72,7 +72,7 @@ impl World {
         git(&remote, &["init", "--bare", "--initial-branch=main", "-q"]);
         git(&root, &["clone", "-q", remote.to_str().unwrap(), "a"]);
         git(&a, &["checkout", "-q", "-b", "main"]);
-        waymark::kb::init(&a, "Test", "test").unwrap();
+        waymark::memrepo::init(&a, "Test", "test").unwrap();
         git(&a, &["add", "-A"]);
         git(&a, &["commit", "-q", "-m", "Initial"]);
         git(&a, &["push", "-q", "-u", "origin", "main"]);

@@ -73,18 +73,18 @@ fn errors_have_code_and_next() {
 }
 
 #[test]
-fn status_reports_the_knowledge_base() {
+fn status_reports_the_memory_repository() {
     let w = World::new();
     let mut c = client(&w);
     let r = c.call("status", json!({}));
     assert_eq!(r.json["healthy"], true);
-    assert_eq!(r.json["knowledge_base"]["name"], "Test");
+    assert_eq!(r.json["memory_repository"]["name"], "Test");
     let checks = r.json["checks"].as_array().unwrap();
     assert!(checks.iter().all(|c| c["ok"] == true));
 }
 
 #[test]
-fn status_reports_a_path_that_is_not_a_knowledge_base() {
+fn status_reports_a_path_that_is_not_a_memory_repository() {
     let dir = tempfile::tempdir().unwrap();
     let mut c = McpClient::start(
         &dir.path().join("home"),
@@ -196,12 +196,12 @@ fn clones_once_and_reuses() {
 }
 
 #[test]
-fn a_wrong_kb_id_is_a_setup_problem() {
+fn a_wrong_memory_repository_id_is_a_setup_problem() {
     let w = World::new();
     let mut c = McpClient::for_person(
         &w,
         Person::A,
-        Spawn::args(&["--kb-id", "00000000-0000-4000-8000-000000000000"]),
+        Spawn::args(&["--memory-repository-id", "00000000-0000-4000-8000-000000000000"]),
     );
     let r = c.call("status", json!({}));
     assert_eq!(r.json["healthy"], false);

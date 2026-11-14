@@ -25,7 +25,7 @@ fn entries(c: &mut McpClient, args: Value) -> Vec<Value> {
 }
 
 fn file(w: &World, id: &str) -> String {
-    std::fs::read_to_string(w.a.join("knowledge").join(format!("{id}.md"))).unwrap()
+    std::fs::read_to_string(w.a.join("agent-memory").join(format!("{id}.md"))).unwrap()
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn activity_lists_newest_first_and_only_my_writes() {
     add(&mut b, "ops", "Ben document", "x");
     add(&mut a, "ops", "Second document", "x");
     // A plain Git commit does not show.
-    std::fs::write(w.a.join("knowledge/ops/plain.md"), "---\ntitle: P\n---\n").unwrap();
+    std::fs::write(w.a.join("agent-memory/ops/plain.md"), "---\ntitle: P\n---\n").unwrap();
     git(&w.a, &["add", "-A"]);
     git(&w.a, &["commit", "-q", "-m", "plain commit"]);
     let e = entries(&mut a, json!({}));
@@ -63,7 +63,7 @@ fn undo_reverts_and_pushes() {
         json!([{"id": "ops/doc-one", "action": "removed"}])
     );
     assert_eq!(r.json["pushed"], true);
-    assert!(!w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(!w.a.join("agent-memory/ops/doc-one.md").exists());
     let log = subjects(&w.remote);
     assert_eq!(log[0], "waymark: undo \"Doc one\"");
     let body = git(&w.remote, &["log", "-1", "--format=%b"]);
@@ -124,7 +124,7 @@ fn undo_restores_the_text_of_update_dispute_deprecate_and_delete() {
 
     let base = a.call("show", json!({"id": id})).json["version"].clone();
     let del = a.call("delete", json!({"id": id, "base": base}));
-    assert!(!w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(!w.a.join("agent-memory/ops/doc-one.md").exists());
     let r = a.call("undo", json!({"commit": del.json["commit"]}));
     assert_eq!(r.json["changes"], json!([{"id": id, "action": "restored"}]));
     assert_eq!(file(&w, id), original);
@@ -136,10 +136,10 @@ fn undo_of_an_undo_is_a_redo() {
     let mut a = client(&w, Person::A);
     let added = add(&mut a, "ops", "Doc one", "x");
     let u = a.call("undo", json!({"commit": added["commit"]}));
-    assert!(!w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(!w.a.join("agent-memory/ops/doc-one.md").exists());
     let redo = a.call("undo", json!({"commit": u.json["commit"]}));
     assert!(!redo.is_error, "{}", redo.json);
-    assert!(w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(w.a.join("agent-memory/ops/doc-one.md").exists());
     let e = entries(&mut a, json!({}));
     let first = e.iter().find(|x| x["commit"] == added["commit"]).unwrap();
     assert_eq!(first["undone"], false);
@@ -249,8 +249,8 @@ fn undo_of_a_move_is_one_commit() {
     let r = a.call("undo", json!({"commit": e[0]["commit"]}));
     assert!(!r.is_error, "{}", r.json);
     assert_eq!(subjects(&w.remote).len(), before + 1);
-    assert!(w.a.join("knowledge/ops/target-doc.md").exists());
-    assert!(!w.a.join("knowledge/archive/target-doc.md").exists());
+    assert!(w.a.join("agent-memory/ops/target-doc.md").exists());
+    assert!(!w.a.join("agent-memory/archive/target-doc.md").exists());
     assert!(file(&w, "dev/linker").contains("[[ops/target-doc]]"));
     let body = git(&w.remote, &["log", "-1", "--format=%b"]);
     assert_eq!(
@@ -313,7 +313,7 @@ fn undo_preview_commits_nothing() {
         json!([{"id": "ops/doc-one", "action": "removed"}])
     );
     assert!(r.json["commit"].is_null() && r.json["pushed"].is_null());
-    assert!(w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(w.a.join("agent-memory/ops/doc-one.md").exists());
     assert_eq!(subjects(&w.remote), before);
     assert!(git(&w.a, &["status", "--porcelain"]).trim().is_empty());
 }
@@ -324,7 +324,7 @@ fn pending_manual_edits_on_the_same_file_give_stale_base() {
     let mut a = client(&w, Person::A);
     let added = add(&mut a, "ops", "Doc one", "x");
     // A manual edit that the checks block (no frontmatter) stays pending.
-    std::fs::write(w.a.join("knowledge/ops/doc-one.md"), "no frontmatter\n").unwrap();
+    std::fs::write(w.a.join("agent-memory/ops/doc-one.md"), "no frontmatter\n").unwrap();
     let r = a.call("undo", json!({"commit": added["commit"]}));
     assert_eq!(r.code(), Some("stale_base"), "{}", r.json);
     assert!(r.json["next"].as_str().unwrap().contains("sync"));
@@ -343,5 +343,5 @@ fn undo_outside_the_folders_limit_is_denied() {
         "{}",
         r.json
     );
-    assert!(w.a.join("knowledge/ops/doc-one.md").exists());
+    assert!(w.a.join("agent-memory/ops/doc-one.md").exists());
 }

@@ -25,7 +25,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 - [ ] Test write approval in Claude Code, GitHub Copilot, and OpenAI Codex: does elicitation ask when the tool runs without permission prompts, can a client answer it automatically, and do explicit `ask` rules still prompt (`write-approval`, `agent-tool-setup`).
 - [ ] Verify the login flows that Claude and ChatGPT accept for a self-hosted MCP server (`server-mode`).
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
-- [ ] Write the `.mkbase/waymark.toml` schema and the templates for a content repository (`knowledge-base-repo`).
+- [ ] Write the `.waymark/settings.toml` schema and the templates for a content repository (`memory-repository`).
 - [ ] Decide where the standalone plain-Git skills live after `waymark-trail` is retired, pin a version, and test it in Claude Code on the web (`plain-git-access`).
 - [ ] Decide the build environment: Rust toolchain version, MCP library, and the signing identity.
 - [ ] Install Obsidian on a test machine for the sample vault check.
@@ -34,8 +34,8 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 
 The portable Rust `waymark` binary with the conformance tests (fixture repo, tool call, expected result). stdio only.
 
-- [x] `mcp-server`, `document-format`, `knowledge-base-repo`, `trust-model`, `git-sync`.
-- [x] Setup: `create-knowledge-base`, `join-knowledge-base`, `login-and-identity`, `agent-tool-setup` (README snippets), `maintenance`.
+- [x] `mcp-server`, `document-format`, `memory-repository`, `trust-model`, `git-sync`.
+- [x] Setup: `create-memory-repository`, `join-memory-repository`, `login-and-identity`, `agent-tool-setup` (README snippets), `maintenance`.
 - [x] Binding and start: `project-binding`, `session-start`.
 - [x] Read: `search-and-read`, `updates`, `notifications-and-review` (notices).
 - [x] Write: `write-documents`, `move-documents`, `quality-checks`, `manual-edits`, `activity-and-undo`, `pause-and-resume`, `write-approval` (elicitation).

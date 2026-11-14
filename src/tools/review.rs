@@ -52,9 +52,9 @@ impl Tool for Review {
             .map(|f| vec![f.to_string()])
             .unwrap_or_default();
         let repo = ctx.repo()?;
-        let kb = ctx.kb()?;
+        let memrepo = ctx.memrepo()?;
         let notices = repo.refresh_if_stale();
-        let store = Store::load(&kb);
+        let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders);
         let mut docs: Vec<_> = store
             .docs()
@@ -70,7 +70,7 @@ impl Tool for Review {
         let total = docs.len();
         let mut entries = Vec::new();
         for d in docs.into_iter().take(limit) {
-            let rel = kb.repo_relative(&d.id)?;
+            let rel = memrepo.repo_relative(&d.id)?;
             entries.push(json!({
                 "id": d.id,
                 "title": d.title(),

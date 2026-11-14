@@ -1,7 +1,7 @@
 //! The writes of a person, read from Git history (see `specs/features/activity-and-undo`).
 
 use crate::gitsync::{parse_subject, CommitInfo, Verb};
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]
@@ -25,10 +25,10 @@ pub struct Entry {
 }
 
 /// The ID of a document path, if it is a document below the root.
-pub fn id_of(kb: &KnowledgeBase, rel: &str) -> Option<String> {
-    let prefix = kb
+pub fn id_of(memrepo: &MemRepo, rel: &str) -> Option<String> {
+    let prefix = memrepo
         .root
-        .strip_prefix(&kb.repo_dir)
+        .strip_prefix(&memrepo.repo_dir)
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_default();
     let below = if prefix.is_empty() {
@@ -62,7 +62,7 @@ fn same(a: &str, b: &str) -> bool {
 }
 
 /// The entries of one person, newest first. `commits` is newest first.
-pub fn entries(kb: &KnowledgeBase, commits: &[CommitInfo], email: &str) -> Vec<Entry> {
+pub fn entries(memrepo: &MemRepo, commits: &[CommitInfo], email: &str) -> Vec<Entry> {
     let email = email.to_lowercase();
     let mine =
         |c: &CommitInfo| c.email == email && c.subject.starts_with(crate::gitsync::message::PREFIX);
@@ -128,7 +128,7 @@ pub fn entries(kb: &KnowledgeBase, commits: &[CommitInfo], email: &str) -> Vec<E
             }
         }
         for (_, p) in &files {
-            if let Some(id) = id_of(kb, p) {
+            if let Some(id) = id_of(memrepo, p) {
                 if !ids.contains(&id) {
                     ids.push(id);
                 }
@@ -213,47 +213,47 @@ mod tests {
         }
     }
 
-    fn kb() -> (tempfile::TempDir, KnowledgeBase) {
+    fn memrepo() -> (tempfile::TempDir, MemRepo) {
         let d = tempfile::tempdir().unwrap();
-        crate::kb::init(d.path(), "T", "t").unwrap();
-        let kb = KnowledgeBase::open(d.path()).unwrap();
-        (d, kb)
+        crate::memrepo::init(d.path(), "T", "t").unwrap();
+        let memrepo = MemRepo::open(d.path()).unwrap();
+        (d, memrepo)
     }
 
     #[test]
     fn only_my_waymark_commits_with_documents_show() {
-        let (_d, kb) = kb();
+        let (_d, memrepo) = memrepo();
         let commits = vec![
             commit(
                 "a1",
                 "me@x.org",
                 "waymark: add \"A\"",
                 "",
-                &[('A', "knowledge/ops/a.md")],
+                &[('A', "agent-memory/ops/a.md")],
             ),
             commit(
                 "b1",
                 "other@x.org",
                 "waymark: add \"B\"",
                 "",
-                &[('A', "knowledge/ops/b.md")],
+                &[('A', "agent-memory/ops/b.md")],
             ),
             commit(
                 "c1",
                 "me@x.org",
                 "plain commit",
                 "",
-                &[('A', "knowledge/ops/c.md")],
+                &[('A', "agent-memory/ops/c.md")],
             ),
             commit(
                 "d1",
                 "me@x.org",
                 "waymark: update \"S\"",
                 "",
-                &[('M', "knowledge/.mkbase/waymark.toml")],
+                &[('M', "agent-memory/.waymark/settings.toml")],
             ),
         ];
-        let e = entries(&kb, &commits, "ME@x.org");
+        let e = entries(&memrepo, &commits, "ME@x.org");
         assert_eq!(e.len(), 1);
         assert_eq!(e[0].title, "A");
         assert_eq!(e[0].ids, vec!["ops/a"]);
@@ -262,23 +262,23 @@ mod tests {
 
     #[test]
     fn an_undo_marks_the_target_and_a_redo_clears_it() {
-        let (_d, kb) = kb();
+        let (_d, memrepo) = memrepo();
         let add = commit(
             "a1",
             "me@x.org",
             "waymark: add \"A\"",
             "",
-            &[('A', "knowledge/a.md")],
+            &[('A', "agent-memory/a.md")],
         );
         let undo = commit(
             "u1",
             "me@x.org",
             "waymark: undo \"A\"",
             "Reverts: a1",
-            &[('D', "knowledge/a.md")],
+            &[('D', "agent-memory/a.md")],
         );
         let log = vec![undo.clone(), add.clone()];
-        let e = entries(&kb, &log, "me@x.org");
+        let e = entries(&memrepo, &log, "me@x.org");
         let a = e.iter().find(|x| x.commit == "a1").unwrap();
         assert!(a.undone && a.undone_by.as_deref() == Some("u1"));
         // A redo reverts the undo: the add is live again, and the undo is undone.
@@ -287,32 +287,32 @@ mod tests {
             "me@x.org",
             "waymark: undo \"A\"",
             "Reverts: u1",
-            &[('A', "knowledge/a.md")],
+            &[('A', "agent-memory/a.md")],
         );
         let log = vec![redo, undo, add];
-        let e = entries(&kb, &log, "me@x.org");
+        let e = entries(&memrepo, &log, "me@x.org");
         assert!(!e.iter().find(|x| x.commit == "a1").unwrap().undone);
         assert!(e.iter().find(|x| x.commit == "u1").unwrap().undone);
     }
 
     #[test]
     fn a_move_and_its_link_fix_are_one_entry() {
-        let (_d, kb) = kb();
+        let (_d, memrepo) = memrepo();
         let mv = commit(
             "m1",
             "me@x.org",
             "waymark: move \"New\"",
             "",
-            &[('D', "knowledge/a/x.md"), ('A', "knowledge/b/x.md")],
+            &[('D', "agent-memory/a/x.md"), ('A', "agent-memory/b/x.md")],
         );
         let fix = commit(
             "f1",
             "me@x.org",
             "waymark: update \"New\"",
             "Move: m1",
-            &[('M', "knowledge/c/y.md")],
+            &[('M', "agent-memory/c/y.md")],
         );
-        let e = entries(&kb, &[fix, mv], "me@x.org");
+        let e = entries(&memrepo, &[fix, mv], "me@x.org");
         assert_eq!(e.len(), 1);
         assert_eq!(e[0].verb, Verb::Move);
         assert_eq!(e[0].hashes.len(), 2);
@@ -322,22 +322,22 @@ mod tests {
 
     #[test]
     fn later_changes_are_found() {
-        let (_d, kb) = kb();
+        let (_d, memrepo) = memrepo();
         let add = commit(
             "a1",
             "me@x.org",
             "waymark: add \"A\"",
             "",
-            &[('A', "knowledge/a.md")],
+            &[('A', "agent-memory/a.md")],
         );
         let other = commit(
             "o1",
             "other@x.org",
             "waymark: update \"A\"",
             "",
-            &[('M', "knowledge/a.md")],
+            &[('M', "agent-memory/a.md")],
         );
-        let e = entries(&kb, &[other, add], "me@x.org");
+        let e = entries(&memrepo, &[other, add], "me@x.org");
         assert!(e[0].later_changes);
     }
 }

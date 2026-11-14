@@ -30,7 +30,7 @@ A function `changes_since` compares the tree at the start of the window with `HE
 7. **Mine.** `created_by` email (lowercase) equals the author email from `gitsync`.
 8. **Order and cap.** Sort as in the requirements. Cut at 50.
 9. **Mark.** Without `since`, write `last_updates` with the time of this call to the state file. A write failure is a notice, not an error.
-10. **State file.** The folder is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`, else `~/.local/state/waymark`. The file is `<kb id>.json`. Format: `{ "last_updates": "2026-11-14T09:30:00Z" }`. Other keys stay as they are (see `notifications-and-review`).
+10. **State file.** The folder is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`, else `~/.local/state/waymark`. The file is `<memory repository id>.json`. Format: `{ "last_updates": "2026-11-14T09:30:00Z" }`. Other keys stay as they are (see `notifications-and-review`).
 11. **Message.** "`N` changes since `<date>`." plus one sentence per disputed document of the person, plus "waymark did not check these changes for truth."
 
 ## Cross-Feature Dependencies

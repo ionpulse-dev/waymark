@@ -41,7 +41,7 @@ fn key_of(text: &str) -> String {
 
 /// The notices about the documents of the person: disputes, and changes by others.
 fn document_notices(ctx: &Context) -> Vec<DocNotice> {
-    let (Some(kb), Ok(repo)) = (ctx.kb_if_ready(), ctx.repo()) else {
+    let (Some(memrepo), Ok(repo)) = (ctx.memrepo_if_ready(), ctx.repo()) else {
         return Vec::new();
     };
     let Some(head) = repo.head() else {
@@ -59,14 +59,14 @@ fn document_notices(ctx: &Context) -> Vec<DocNotice> {
     if own.is_empty() {
         return Vec::new();
     }
-    let state = State::for_kb(&kb.settings.id);
+    let state = State::for_memrepo(&memrepo.settings.id);
     let since = state
         .get_str("last_updates")
         .and_then(|t| chrono::DateTime::parse_from_rfc3339(&t).ok())
         .map(|t| t.with_timezone(&chrono::Utc))
         .unwrap_or(chrono::Utc::now() - chrono::Duration::days(7));
     let base = repo.base_commit_before(&since.to_rfc3339_opts(chrono::SecondsFormat::Secs, true));
-    let changes = match changes_since(&repo, &kb, &base, &own) {
+    let changes = match changes_since(&repo, &memrepo, &base, &own) {
         Ok(c) => c,
         Err(e) => {
             eprintln!(
@@ -117,10 +117,10 @@ pub fn open_items(ctx: &Context) -> Vec<String> {
 
 /// Count a notice about documents for this session. `false` if it was shown in 3 sessions already.
 fn count_session(ctx: &Context, text: &str, current: &[String]) -> bool {
-    let Some(kb) = ctx.kb_if_ready() else {
+    let Some(memrepo) = ctx.memrepo_if_ready() else {
         return true;
     };
-    let state = State::for_kb(&kb.settings.id);
+    let state = State::for_memrepo(&memrepo.settings.id);
     let key = key_of(text);
     let mut map = state
         .get("notice_sessions")
@@ -153,7 +153,7 @@ pub fn finalize(ctx: &Context, tool: &str, tool_notices: Vec<String>) -> Vec<Str
         })
         .collect();
     let mut docs: Vec<String> = Vec::new();
-    if ctx.kb_if_ready().is_some() {
+    if ctx.memrepo_if_ready().is_some() {
         if let Ok(repo) = ctx.repo() {
             if repo.last_fetch_failed() {
                 candidates.push(text::CLONE_BEHIND.to_string());

@@ -24,7 +24,7 @@ _The tests use the harness of `integration-testing`. The `McpClient` returns the
 - [x] [auto] The instructions contain none of `should`, `must`, `always`, `never`, `please`, `prefer`, `you`, in a table of ten setting combinations (inline in `src/mcp/instructions.rs`, and once end to end in `tests/it_session_start.rs`)
 - [x] [auto] With `paused = true`, the instructions say `writes paused: yes` and the first notice of `status` is "Writes are paused." (`tests/it_session_start.rs`)
 - [x] [auto] With `access = "read-only"` and an agent that never calls `status`, `add` gives `access_denied` (`tests/it_session_start.rs`)
-- [x] [auto] With no knowledge base, the instructions have the second form with the `message` of the problem, and `status` returns `knowledge_base: null`, a `problem` with `next`, and no error flag (`tests/it_session_start.rs`)
+- [x] [auto] With no knowledge base, the instructions have the second form with the `message` of the problem, and `status` returns `memory_repository: null`, a `problem` with `next`, and no error flag (`tests/it_session_start.rs`)
 - [x] [auto] The test changes `max_results` in the personal file after `initialize`. The `settings` of the next result show the new value, and the instructions do not change (`tests/it_session_start.rs`)
 - [x] [auto] The remote is deleted after the clone. `initialize` answers in under 2 seconds (`tests/it_session_start.rs`)
 - [x] [auto] Length: defaults give fewer than 900 characters. A name of 500 characters, a notice list of 10 entries, and a long `folders` list give at most 1200 (inline in `src/mcp/instructions.rs`)

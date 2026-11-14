@@ -53,7 +53,7 @@ Define who is responsible for what agents write, which limits the server enforce
 - The person whose agent writes a document is responsible for it. History and blame show who changed what.
 - Wrong documents are fixed like in a wiki: another agent or person changes them, or marks them `disputed` with a reason.
 - Readers treat a document as a wiki page: use it, name the author and date, and check important facts against the code.
-- Owner verification is optional. A knowledge base turns it on in `.mkbase/waymark.toml`. It is off by default.
+- Owner verification is optional. A knowledge base turns it on in `.waymark/settings.toml`. It is off by default.
 
 ### Limits
 
@@ -76,7 +76,7 @@ A limit is the most that the server ever allows. A limit is not advice.
 | `approval.required_for` | Tool names, or `write`, that need approval before they run (see `write-approval`) | empty |
 | `approval.via` | `elicitation` or `console` | `elicitation` |
 
-The document limits (`documents.max_bytes`, `documents.title_max_words`, `documents.description_max_words`) and the secret patterns are shared settings of the knowledge base (see `knowledge-base-repo`).
+The document limits (`documents.max_bytes`, `documents.title_max_words`, `documents.description_max_words`) and the secret patterns are shared settings of the knowledge base (see `memory-repository`).
 
 ### Config layers
 
@@ -86,7 +86,7 @@ Limits come from layers. All layers use the same keys.
 |---|---|---|---|
 | System config file (`/Library/Application Support/waymark/config.toml` on macOS, `/etc/waymark/config.toml` on Linux). Optional. | IT. The file belongs to an administrator. | at every call | **Hard in local mode**, where a company needs it. A normal user and their agent cannot change it. Most people do not use it. |
 | Server config | The operator of a server (see `server-mode`) | at every call | **Hard in server mode.** Users cannot touch it. |
-| Shared settings in the knowledge base (`.mkbase/waymark.toml`, section `[limits]`) | The team owner | at every sync | The server refuses to change this file through its tools. Two exceptions come from code in the binary and never from input: the automatic repairs and, later, `migrate` (see `knowledge-base-repo`, section "Versions and updates"). A person with Git access can still change it. |
+| Shared settings in the knowledge base (`.waymark/settings.toml`, section `[limits]`) | The team owner | at every sync | The server refuses to change this file through its tools. Two exceptions come from code in the binary and never from input: the automatic repairs and, later, `migrate` (see `memory-repository`, section "Versions and updates"). A person with Git access can still change it. |
 | Personal config (`~/.config/waymark/config.toml`) | The person | at every call | A safety default. An agent with file access could edit it. |
 | MCP entry (arguments and environment variables) | The person | at start | A safety default. |
 

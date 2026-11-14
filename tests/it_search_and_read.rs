@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::git;
-use common::kb::{commit_doc, doc, write_doc};
+use common::memrepo::{commit_doc, doc, write_doc};
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::Path;
@@ -35,7 +35,7 @@ fn with_props(title: &str, extra_props: &str, body: &str) -> String {
 }
 
 fn set_shared(w: &World, from: &str, to: &str) {
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&path).unwrap();
     assert!(old.contains(from));
     std::fs::write(&path, old.replacen(from, to, 1)).unwrap();
@@ -315,8 +315,8 @@ fn t16_a_moved_document_is_followed() {
         &w.a,
         &[
             "mv",
-            "knowledge/ops/old-name.md",
-            "knowledge/ops/new-name.md",
+            "agent-memory/ops/old-name.md",
+            "agent-memory/ops/new-name.md",
         ],
     );
     git(&w.a, &["commit", "-q", "-m", "test: move"]);

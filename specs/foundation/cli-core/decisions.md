@@ -39,7 +39,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## Skill and templates are compiled in — 2026-11-06
 
-**Decision:** The release is one file per platform. The skill text and the templates for `waymark.toml` and `AGENTS.md` are embedded in it.
+**Decision:** The release is one file per platform. The skill text and the templates for `settings.toml` and `AGENTS.md` are embedded in it.
 
 **Reason:** Binary and skill versions always match.
 

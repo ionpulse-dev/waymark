@@ -32,7 +32,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## The exact text and the fields — 2026-11-14
 
-**Decision:** The instructions are five short lines in a fixed format (see `requirements.md`). The limits are the same as the `settings` object, in prose. The `status` result has `knowledge_base` (`name`, `id`, `slug`, `path`, `remote`, `found_by`) and `settings`. The `settings` object has these keys: `access`, `paused`, `tools_denied`, `folders`, `max_results`, `max_tokens`, `max_documents_opened`, and `approval` with `required_for` and `via`. This object is the shape for every result of every tool.
+**Decision:** The instructions are five short lines in a fixed format (see `requirements.md`). The limits are the same as the `settings` object, in prose. The `status` result has `memory_repository` (`name`, `id`, `slug`, `path`, `remote`, `found_by`) and `settings`. The `settings` object has these keys: `access`, `paused`, `tools_denied`, `folders`, `max_results`, `max_tokens`, `max_documents_opened`, and `approval` with `required_for` and `via`. This object is the shape for every result of every tool.
 
 **Alternatives considered:**
 - A list of all tools in the instructions (the old example). Rejected: `tools/list` has it already, and it costs context in every session.
@@ -67,7 +67,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## `status` without a knowledge base is a normal result — 2026-11-14
 
-**Decision:** `status` returns `knowledge_base: null` and a `problem` object, with no error flag.
+**Decision:** `status` returns `memory_repository: null` and a `problem` object, with no error flag.
 
 **Alternatives considered:** An error result. Rejected: `status` is the tool that tells what is wrong, so it must succeed.
 

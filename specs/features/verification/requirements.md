@@ -17,12 +17,12 @@ requires:
 
 ## Personas
 
-- **Knowledge base owner** — turns verification on in `.mkbase/waymark.toml`.
+- **Knowledge base owner** — turns verification on in `.waymark/settings.toml`.
 - **Document owner** — verifies documents.
 
 ## Behaviour
 
-Verification is off by default. It is on when `.mkbase/waymark.toml` has `verification = true`. With it off, `verify`, `review`, and `reject` are not listed, and a call fails with `access_denied`. No tool changes the setting.
+Verification is off by default. It is on when `.waymark/settings.toml` has `verification = true`. With it off, `verify`, `review`, and `reject` are not listed, and a call fails with `access_denied`. No tool changes the setting.
 
 With verification on:
 

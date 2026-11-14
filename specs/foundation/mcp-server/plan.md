@@ -7,7 +7,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 ## Components Affected
 
 - Every feature spec adds a tool file and one line in the registry.
-- `trust-model` (`config`), `knowledge-base-repo` (`kb`), `git-sync` (`gitsync`), and `document-format` (`format`) are used from here.
+- `trust-model` (`config`), `memory-repository` (`kb`), `git-sync` (`gitsync`), and `document-format` (`format`) are used from here.
 
 ## New Files
 
@@ -40,7 +40,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 
 ## Dependencies on Other Foundation Items
 
-- `git-sync` and `trust-model` (listed in `requires`), plus `knowledge-base-repo` and `document-format` through them.
+- `git-sync` and `trust-model` (listed in `requires`), plus `memory-repository` and `document-format` through them.
 - `integration-testing` — the harness.
 
 ## Risks

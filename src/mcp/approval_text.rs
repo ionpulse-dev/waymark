@@ -6,7 +6,7 @@ const MAX_PATHS: usize = 20;
 
 pub struct Request<'a> {
     pub tool: &'a str,
-    pub kb_name: &'a str,
+    pub memrepo_name: &'a str,
     pub author: &'a str,
     /// What the tool shows: a first line, and for document tools a blank line and the full body.
     pub summary: &'a str,
@@ -21,7 +21,7 @@ pub fn render(r: &Request) -> String {
     };
     let mut out = format!(
         "waymark asks to publish a write to \"{}\".\n{}\nTool: {}\nAuthor: {}\n",
-        r.kb_name, first, r.tool, r.author
+        r.memrepo_name, first, r.tool, r.author
     );
     match rest {
         Some(body) => {
@@ -60,7 +60,7 @@ mod tests {
     fn req<'a>(summary: &'a str, paths: &'a [String]) -> Request<'a> {
         Request {
             tool: "add",
-            kb_name: "Example",
+            memrepo_name: "Example",
             author: "Jane <j@example.org>",
             summary,
             paths,

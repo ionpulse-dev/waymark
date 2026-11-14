@@ -20,7 +20,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** a hand move, **When** `sync` and `show` with the old ID run, **Then** `show` returns the new document. | T10 |
 | **Given** a file that is not a document, **When** `sync` runs, **Then** it is skipped. | T11 |
 | **Given** `preview: true`, **When** `sync` runs, **Then** nothing is committed, pulled, or pushed. | T12 |
-| **Given** an edit to `.mkbase/waymark.toml`, **When** `sync` runs, **Then** it is not committed. | T13 |
+| **Given** an edit to `.waymark/settings.toml`, **When** `sync` runs, **Then** it is not committed. | T13 |
 | **Given** a remote change to the same document as a pending edit, **When** `sync` runs, **Then** both versions are kept and a notice says so. | T14 |
 
 ## Test Cases
@@ -39,7 +39,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [x] [auto] T10: `git mv`-free hand move (delete and create in another folder). `sync`. `show` with the old ID returns `moved_from`.
 - [x] [auto] T11: add `images/diagram.png`. `sync` lists it under `skipped` and it is not in the commit.
 - [x] [auto] T12: `sync` with `preview: true`: no commit, no push, and `committed` lists the document without `commit`.
-- [x] [auto] T13: edit `.mkbase/waymark.toml`. `sync` does not commit it.
+- [x] [auto] T13: edit `.waymark/settings.toml`. `sync` does not commit it.
 - [x] [auto] T14: B edits the same document and pushes. A has a pending edit to it. `sync` keeps both files, and the result has `conflicts` and a notice.
 - [x] [auto] T15: a pending delete is committed with kind `deleted`.
 - [x] [auto] T16: the `lint` rules apply: a duplicate title in a new file blocks it with `duplicate-title`.

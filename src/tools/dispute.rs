@@ -57,14 +57,14 @@ impl Tool for Dispute {
             _ => {}
         }
         if let Some(r) = &reason {
-            writes::check_reason(r, ctx.kb()?.settings.documents.description_max_words)?;
+            writes::check_reason(r, ctx.memrepo()?.settings.documents.description_max_words)?;
         }
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "dispute", Kind::Write, preview, |tx, kb| {
-            let (rel, mut doc) = writes::read_doc(tx, kb, &id)?;
+        writes::execute(ctx, env, "dispute", Kind::Write, preview, |tx, memrepo| {
+            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
             tx.check_base(&rel, Some(&base))?;
             let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
             let disputed = doc.frontmatter.get_bool("disputed") == Some(true);
@@ -80,7 +80,7 @@ impl Tool for Dispute {
                     ));
                 }
                 let mut problems = writes::Problems::default();
-                let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
+                let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
                 for hit in crate::lint::secrets::scan(r, &custom) {
                     problems.add(
                         format!(
@@ -110,10 +110,10 @@ impl Tool for Dispute {
             let mut problems = writes::Problems::default();
             let mut notices = Vec::new();
             writes::check_document(
-                kb,
+                memrepo,
                 &id,
                 &text,
-                &kb.id_set(),
+                &memrepo.id_set(),
                 &[],
                 None,
                 &mut problems,

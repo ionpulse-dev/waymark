@@ -20,7 +20,7 @@ Plain Rust integration tests in `tests/`, with a shared module `tests/common/`. 
 
 ## Technical Approach
 
-1. `World::new()` creates a temp root, `git init --bare remote.git`, clones to `a/` and `b/`, writes a minimal knowledge base (marker folder, `waymark.toml`, a few documents) in `a/`, commits, and pushes.
+1. `World::new()` creates a temp root, `git init --bare remote.git`, clones to `a/` and `b/`, writes a minimal knowledge base (marker folder, `settings.toml`, a few documents) in `a/`, commits, and pushes.
 2. Environment isolation: `HOME`, `XDG_CONFIG_HOME`, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_SYSTEM=/dev/null`, `GIT_AUTHOR_*` and `GIT_COMMITTER_*` are set for every child process.
 3. `McpClient::spawn(world, person, args)` starts `waymark --repo <path> --path <clone> ...` and speaks newline-delimited JSON-RPC on stdio. A read thread collects messages. `call` waits for the response with a timeout.
 4. A test keeps the temp folder when it fails (a guard object checks `std::thread::panicking()`).

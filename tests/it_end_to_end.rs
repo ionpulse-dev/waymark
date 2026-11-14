@@ -36,14 +36,14 @@ fn personal(w: &World, text: &str) {
 fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     let w = World::empty();
 
-    // create-knowledge-base: the owner sets up the empty repository.
+    // create-memory-repository: the owner sets up the empty repository.
     let mut a = client(&w, Person::A, &[]);
     ok(a.call(
         "init",
         json!({"name": "Team KB", "email_domains": ["example.org"], "folders": ["ops"], "limits": {"max_results": 3}}),
     ));
 
-    // join-knowledge-base: a second person gets the shared limits with no setup.
+    // join-memory-repository: a second person gets the shared limits with no setup.
     let mut b = client(&w, Person::B, &[]);
     let s = ok(b.call("status", json!({})));
     assert_eq!(s["healthy"], true, "{s}");
@@ -152,7 +152,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
         "update_document",
         json!({"id": id, "base": v["version"], "body": "B version of the text."}),
     ));
-    let file = w.a.join("knowledge/ops/deploy-pipeline.md");
+    let file = w.a.join("agent-memory/ops/deploy-pipeline.md");
     let text = std::fs::read_to_string(&file).unwrap();
     std::fs::write(&file, text.replace("Use the pipeline.", "A hand edit.")).unwrap();
     let sync = ok(a.call("sync", json!({})));
@@ -201,13 +201,13 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
 }
 
 #[test]
-fn project_binding_refuses_another_knowledge_base() {
+fn project_binding_refuses_another_memory_repository() {
     let w = World::empty();
     let mut a = client(&w, Person::A, &[]);
     ok(a.call("init", json!({"name": "Team KB"})));
     drop(a);
     let other = "123e4567-e89b-42d3-a456-426614174000";
-    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--kb-id", other]));
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--memory-repository-id", other]));
     assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
     let s = ok(c.call("status", json!({})));
     assert_eq!(s["healthy"], false);

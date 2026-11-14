@@ -9,12 +9,12 @@ Two pure functions build the facts: one makes the `settings` JSON from `Effectiv
 - `mcp` (`src/mcp/mod.rs`) — the `rmcp` handler sets `instructions` in the `initialize` result from `instructions::build`.
 - `mcp` (`src/mcp/result.rs`) — builds the `settings` field of every result with `session::settings_json`, so all results and `status` share one shape.
 - `mcp` (`src/mcp/context.rs`) — gives access to `binding`, and to the list of local notices.
-- `tools` (`src/tools/status.rs`) — the tool of `mcp-server`. It returns `knowledge_base`, `problem`, `settings`, and `notices` from `session::facts`. `maintenance` adds `checks` and the version.
+- `tools` (`src/tools/status.rs`) — the tool of `mcp-server`. It returns `memory_repository`, `problem`, `settings`, and `notices` from `session::facts`. `maintenance` adds `checks` and the version.
 - `config` — `EffectiveSettings` only. No change.
 
 ## New Files
 
-- `src/mcp/session.rs` — `SessionFacts` (`knowledge_base`, `problem`, `settings`, `notices`), `facts(&Context, &EffectiveSettings) -> SessionFacts`, `settings_json(&EffectiveSettings) -> Value`, and `local_notices(...)`.
+- `src/mcp/session.rs` — `SessionFacts` (`memory_repository`, `problem`, `settings`, `notices`), `facts(&Context, &EffectiveSettings) -> SessionFacts`, `settings_json(&EffectiveSettings) -> Value`, and `local_notices(...)`.
 - `src/mcp/instructions.rs` — `build(&SessionFacts) -> String`, the cut rules, and the `sanitize` function for values from files.
 - `tests/it_session_start.rs` — end-to-end tests.
 
@@ -25,7 +25,7 @@ Two pure functions build the facts: one makes the `settings` JSON from `Effectiv
 3. **Notices.** `local_notices` returns the notices of `requirements.md` in this order: paused, no remote, unknown keys, found by folder. `ToolOutput` adds the notices of the call after them.
 4. **Instructions.** `instructions::build` fills the fixed lines. `sanitize` cuts a value at the first line break and at 80 characters. The text is cut at 1200 characters as a last guard. With a `Problem`, the second form is used.
 5. **Initialize.** The handler calls `facts` and `build` once when `initialize` arrives and stores nothing else. No network call is made.
-6. **Status.** The tool maps `SessionFacts` to its result. `knowledge_base.remote` uses `repo_url::redact` (see `project-binding`). With a `Problem`, the result is a normal result with `problem` and no error flag.
+6. **Status.** The tool maps `SessionFacts` to its result. `memory_repository.remote` uses `repo_url::redact` (see `project-binding`). With a `Problem`, the result is a normal result with `problem` and no error flag.
 7. **Word list test.** A unit test builds the text for many setting combinations (a table) and fails if it has a forbidden word.
 8. **Budget test.** A unit test checks the lengths of `requirements.md` (below 900 with defaults, at most 1200 in the worst case).
 
@@ -36,7 +36,7 @@ Two pure functions build the facts: one makes the `settings` JSON from `Effectiv
 - `trust-model` — the limits.
 - `pause-and-resume` — the paused notice and `settings.paused`.
 - `maintenance` — adds `checks` and the version to `status`.
-- `knowledge-base-repo` — the unknown-keys notice.
+- `memory-repository` — the unknown-keys notice.
 - `git-sync` — the no-remote notice.
 
 ## Risks

@@ -1,10 +1,10 @@
 //! Tests of `plain-git-access` (see `specs/features/plain-git-access/test.md`).
 //!
-//! The `init` tool comes with `create-knowledge-base`. Until then the tests call `kb::init_with`,
+//! The `init` tool comes with `create-memory-repository`. Until then the tests call `memrepo::init_with`,
 //! the function that the tool calls.
 
 use std::path::{Path, PathBuf};
-use waymark::kb::agents_file::{frontmatter_value, render, skill_version, Audience};
+use waymark::memrepo::agents_file::{frontmatter_value, render, skill_version, Audience};
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -22,7 +22,7 @@ fn skill_file(a: Audience) -> String {
 
 fn init_in(dir: &Path, a: Audience, domains: &[&str]) -> String {
     let d: Vec<String> = domains.iter().map(|s| s.to_string()).collect();
-    waymark::kb::init_with(dir, "Test", "test", a, &d).unwrap();
+    waymark::memrepo::init_with(dir, "Test", "test", a, &d).unwrap();
     std::fs::read_to_string(dir.join("AGENTS.md")).unwrap()
 }
 
@@ -34,7 +34,7 @@ fn a1_init_writes_the_intro_the_rules_and_the_marker() {
     assert!(text.starts_with("# Rules for agents\n"));
     let version = skill_version(Audience::Personal);
     assert!(text.contains(&format!(
-        "<!-- plain-git-rules begin: personal-knowledge-base {version} -->"
+        "<!-- plain-git-rules begin: personal-agent-memory {version} -->"
     )));
     assert!(text.contains("<!-- plain-git-rules end -->"));
     assert!(text.contains("## Rules of this team"));
@@ -54,7 +54,7 @@ fn a2_the_pin_equals_the_version_of_the_file() {
 fn a4_personal_has_the_personal_skill_and_no_team_part() {
     let dir = tempfile::tempdir().unwrap();
     let text = init_in(dir.path(), Audience::Personal, &["example.org"]);
-    assert!(text.contains("begin: personal-knowledge-base"));
+    assert!(text.contains("begin: personal-agent-memory"));
     assert!(!text.contains("Team settings"));
 }
 
@@ -62,7 +62,7 @@ fn a4_personal_has_the_personal_skill_and_no_team_part() {
 fn a5_team_has_the_team_skill_and_the_domains() {
     let dir = tempfile::tempdir().unwrap();
     let text = init_in(dir.path(), Audience::Team, &["example.org", "example.net"]);
-    assert!(text.contains("begin: team-knowledge-base"));
+    assert!(text.contains("begin: team-agent-memory"));
     assert!(text.contains("Allowed email domains for commits: example.org, example.net.\n"));
     let dir = tempfile::tempdir().unwrap();
     let text = init_in(dir.path(), Audience::Team, &[]);
@@ -104,6 +104,6 @@ fn a10_git_archive_holds_the_skill_files() {
         );
         return;
     }
-    assert!(names.contains("plain-git/personal-knowledge-base/SKILL.md"));
-    assert!(names.contains("plain-git/team-knowledge-base/SKILL.md"));
+    assert!(names.contains("plain-git/personal-agent-memory/SKILL.md"));
+    assert!(names.contains("plain-git/team-agent-memory/SKILL.md"));
 }

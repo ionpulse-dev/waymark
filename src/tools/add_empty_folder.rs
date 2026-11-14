@@ -4,7 +4,7 @@
 use crate::config::Kind;
 use crate::error::{Code, Error};
 use crate::gitsync::Verb;
-use crate::kb::folders::GITKEEP;
+use crate::memrepo::folders::GITKEEP;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
@@ -56,14 +56,14 @@ impl Tool for AddEmptyFolder {
             "add_empty_folder",
             Kind::Write,
             preview,
-            |_tx, kb| {
-                if kb.id_set().contains(&path) {
+            |_tx, memrepo| {
+                if memrepo.id_set().contains(&path) {
                     return Err(Error::validation(format!(
                     "A document with the ID \"{path}\" exists. A folder cannot have the same path."
                 ))
                     .with_next("Choose another folder name."));
                 }
-                if kb.folders().iter().any(|f| f.path == path) {
+                if memrepo.folders().iter().any(|f| f.path == path) {
                     return Err(Error::validation(format!(
                         "The folder \"{path}\" exists already. Nothing was changed."
                     ))

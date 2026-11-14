@@ -9,7 +9,7 @@ pub mod format;
 pub mod gitsync;
 pub mod identity;
 pub mod indexgen;
-pub mod kb;
+pub mod memrepo;
 pub mod lint;
 pub mod maintenance;
 pub mod manual;

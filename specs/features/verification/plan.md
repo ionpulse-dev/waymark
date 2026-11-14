@@ -2,11 +2,11 @@
 
 ## Overview
 
-Three small tool files on top of the helpers of `write-documents`. The setting `verification` of `.mkbase/waymark.toml` decides whether the registry lists them. Trust fields are changed through `format`, never by hand.
+Three small tool files on top of the helpers of `write-documents`. The setting `verification` of `.waymark/settings.toml` decides whether the registry lists them. Trust fields are changed through `format`, never by hand.
 
 ## Components Affected
 
-- `kb` (`knowledge-base-repo`) — `settings.verification` (already in the schema).
+- `kb` (`memory-repository`) — `settings.verification` (already in the schema).
 - `mcp` (`mcp-server`) — the registry already hides `verify`, `review`, and `reject` unless verification is on. A direct call of a hidden tool is `access_denied`.
 - `format` — the trust fields in the field table, and `render`.
 - `writes` (`write-documents`) — `DocPlan`, `Repo::write` glue, preview and result helpers, the `folders` check.

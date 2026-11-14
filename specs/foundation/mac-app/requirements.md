@@ -11,7 +11,7 @@ superseded_by:
   - distribution
 ---
 
-> **Superseded on 2026-11-11 by `web-console` and `distribution`.** There is no macOS app. The jobs that need a human channel (approval, activity, undo, review, pause) go to the web console of server mode (see `web-console`). Setup is an MCP entry and the Git login of the person (see `join-knowledge-base`).
+> **Superseded on 2026-11-11 by `web-console` and `distribution`.** There is no macOS app. The jobs that need a human channel (approval, activity, undo, review, pause) go to the web console of server mode (see `web-console`). Setup is an MCP entry and the Git login of the person (see `join-memory-repository`).
 > The text below is the old design. It is kept as a record and is not part of the current specification. See [docs/architecture-direction.md](../../../docs/architecture-direction.md).
 
 # Mac app
@@ -23,7 +23,7 @@ Provide `Waymark.app`, the native macOS menu bar app for people. People use the 
 ## Dependents
 
 - `approval-dialog`, `activity-and-undo`, `notifications-and-review`, `manual-edits`, and `distribution`.
-- `pause-and-resume`, `project-binding`, `create-knowledge-base`, `join-knowledge-base`, and `login-and-identity` — their native parts (windows and dialogs).
+- `pause-and-resume`, `project-binding`, `create-memory-repository`, `join-memory-repository`, and `login-and-identity` — their native parts (windows and dialogs).
 
 ## Deliverables
 

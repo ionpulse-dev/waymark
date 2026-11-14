@@ -1,7 +1,7 @@
 //! The offline check that an address reaches a person.
 
 use super::AuthorProblem;
-use crate::kb::settings::People;
+use crate::memrepo::settings::People;
 
 const BLOCKED: &[&str] = &[
     "noreply",

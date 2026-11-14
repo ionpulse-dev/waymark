@@ -46,20 +46,20 @@ impl Tool for Deprecate {
             .trim()
             .to_string();
         let preview = writes::get_bool(&args, "preview");
-        writes::check_reason(&reason, ctx.kb()?.settings.documents.description_max_words)?;
+        writes::check_reason(&reason, ctx.memrepo()?.settings.documents.description_max_words)?;
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "deprecate", Kind::Write, preview, |tx, kb| {
-            let (rel, mut doc) = writes::read_doc(tx, kb, &id)?;
+        writes::execute(ctx, env, "deprecate", Kind::Write, preview, |tx, memrepo| {
+            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
             tx.check_base(&rel, Some(&base))?;
             let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
             if doc.frontmatter.get_text("status") == Some("deprecated") {
                 return Err(Error::validation("This document is already deprecated.")
                     .with_next("Nothing to do."));
             }
-            let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
+            let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
             let mut problems = writes::Problems::default();
             for hit in crate::lint::secrets::scan(&reason, &custom) {
                 problems.add(
@@ -75,10 +75,10 @@ impl Tool for Deprecate {
             let text = doc.render();
             let mut notices = Vec::new();
             writes::check_document(
-                kb,
+                memrepo,
                 &id,
                 &text,
-                &kb.id_set(),
+                &memrepo.id_set(),
                 &[],
                 None,
                 &mut problems,

@@ -12,19 +12,19 @@ use std::path::PathBuf;
     after_help = "Every option is optional. Combine as many as you need, in any order.\n\
 Your agent tool starts waymark, so the options usually go into the `args` list of its MCP entry.\n\n\
 Examples:\n  \
-waymark --repo git@github.com:example/knowledge.git\n  \
-waymark --repo git@github.com:example/knowledge.git --access read-only --max-results 3\n  \
-waymark --path ~/Projects/team-knowledge-base --folders ops,docs/* --no-delete\n\n\
+waymark --repo git@github.com:example/waymark-agent-memory.git\n  \
+waymark --repo git@github.com:example/waymark-agent-memory.git --access read-only --max-results 3\n  \
+waymark --path ~/Projects/team-agent-memory --folders ops,docs/* --no-delete\n\n\
 Flags with a value take it after a space or `=`. Lists take comma-separated values with no spaces."
 )]
 pub struct Args {
     /// Git URL of the knowledge base. The server clones it on first start.
     #[arg(long)]
     pub repo: Option<String>,
-    /// The ID that `.mkbase/waymark.toml` must have. Stops the server from opening a different knowledge base by mistake.
+    /// The ID that `.waymark/settings.toml` must have. Stops the server from opening a different knowledge base by mistake.
     #[arg(long)]
-    pub kb_id: Option<String>,
-    /// Folder of the clone. Default: `~/Projects/<slug>-knowledge-base`.
+    pub memory_repository_id: Option<String>,
+    /// Folder of the clone. Default: `~/Projects/<slug>-agent-memory`.
     #[arg(long)]
     pub path: Option<PathBuf>,
     /// Name for your changes. Default: your Git `user.name`.
@@ -296,7 +296,7 @@ mod tests {
     }
 
     #[test]
-    fn a_wrong_value_blocks_and_guesses_no_knowledge_base() {
+    fn a_wrong_value_blocks_and_guesses_no_memory_repository() {
         let a = lenient(&["--path", "/x", "--max-results", "many"], &[]);
         let i = a.blocking_issue().expect("a blocking issue");
         assert!(i.message.contains("wrong argument"), "{}", i.message);

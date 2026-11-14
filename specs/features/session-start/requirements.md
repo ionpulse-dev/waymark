@@ -84,11 +84,11 @@ Tool "status" returns the fix.
     "approval": { "required_for": [], "via": "elicitation" }
   },
   "notices": [],
-  "knowledge_base": {
+  "memory_repository": {
     "name": "Example Company",
     "id": "6f1c2a9e-3b7d-4c55-9a0e-1d2f3a4b5c6d",
     "slug": "example",
-    "path": "/Users/jane/Projects/example-knowledge-base",
+    "path": "/Users/jane/Projects/example-agent-memory",
     "remote": "git@example.org:team/knowledge.git",
     "found_by": "repo_argument"
   }
@@ -97,20 +97,20 @@ Tool "status" returns the fix.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `knowledge_base.name`, `id`, `slug` | string | From `.mkbase/waymark.toml` |
-| `knowledge_base.path` | string | Absolute path of the clone |
-| `knowledge_base.remote` | string or null | The `origin` URL with no user and no password. `null` if there is no remote. |
-| `knowledge_base.found_by` | string | One of `path_argument`, `repo_argument`, `working_folder`, `default_folder` |
+| `memory_repository.name`, `id`, `slug` | string | From `.waymark/settings.toml` |
+| `memory_repository.path` | string | Absolute path of the clone |
+| `memory_repository.remote` | string or null | The `origin` URL with no user and no password. `null` if there is no remote. |
+| `memory_repository.found_by` | string | One of `path_argument`, `repo_argument`, `working_folder`, `default_folder` |
 | `settings` | object | The effective limits. The same object is in every result. |
 
 The `settings` object has exactly the keys above, in that order. It holds the limits that matter to an agent. It does not hold `allowed_repo_hosts`.
 
-If no knowledge base is bound, `knowledge_base` is `null` and the result has `problem`:
+If no knowledge base is bound, `memory_repository` is `null` and the result has `problem`:
 
 ```json
 {
   "message": "No knowledge base is set up.",
-  "knowledge_base": null,
+  "memory_repository": null,
   "problem": {
     "code": "setup_problem",
     "message": "No knowledge base is set up. waymark found none in the working folder, and none or several in ~/Projects.",
@@ -129,7 +129,7 @@ A notice is a plain sentence. These can exist at start, from local data:
 
 - "Writes are paused." (see `pause-and-resume`)
 - "This repository has no remote." (see `git-sync`)
-- "The settings file has keys that this version does not know: <keys>." (see `knowledge-base-repo`)
+- "The settings file has keys that this version does not know: <keys>." (see `memory-repository`)
 - "The knowledge base was found in the working folder." and the same for the default folder. It is a notice because the person did not name it.
 
 ## Acceptance Criteria

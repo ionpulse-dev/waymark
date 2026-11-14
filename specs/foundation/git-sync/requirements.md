@@ -4,7 +4,7 @@ status: implemented
 created: 2026-11-08
 updated: 2026-11-14
 requires:
-  - knowledge-base-repo
+  - memory-repository
 ---
 
 # Git sync

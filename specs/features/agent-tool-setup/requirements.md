@@ -75,7 +75,7 @@ There is no tool and no code. The deliverables are text:
 
 - No cloud agents. Only local tools that a person starts, or a login on a server.
 - Formats and paths come from the current official documentation (read on 2026-11-14, see `docs/agent-tools-research.md`). A snippet is tested in the real tool in the manual tests. Until then, it says "not yet tested".
-- Codex starts a server with a time-out of 10 seconds by default. waymark answers `initialize` at once and clones in the background (see `join-knowledge-base`), so the default is enough.
+- Codex starts a server with a time-out of 10 seconds by default. waymark answers `initialize` at once and clones in the background (see `join-memory-repository`), so the default is enough.
 - A tool that asks to approve a project server (Claude Code does) shows the prompt on the first start. The README says so.
 - The person may write any rules in their own `AGENTS.md`. waymark does not edit them.
 

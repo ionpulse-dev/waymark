@@ -6,7 +6,7 @@ use crate::config::Effective;
 use crate::error::Result;
 use crate::format::{self, Finding};
 use crate::gitsync::{commit_message, Change, Tx, Verb};
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 use crate::lint;
 use crate::store::{Scope, Store};
 pub use pending::{Edit, Kind, Skip};
@@ -31,13 +31,13 @@ pub struct Outcome {
 /// changed documents that passed. Writes only those fields. Nothing is committed here.
 pub fn prepare(
     tx: &Tx,
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     effective: &Effective,
     author: &str,
     today: &str,
     write_files: bool,
 ) -> Result<Outcome> {
-    let found = pending::find(tx.repo(), kb)?;
+    let found = pending::find(tx.repo(), memrepo)?;
     let ids: HashSet<String> = found
         .edits
         .iter()
@@ -47,19 +47,19 @@ pub fn prepare(
     let report = if ids.is_empty() {
         None
     } else {
-        let store = Store::load(kb);
+        let store = Store::load(memrepo);
         let limit = Scope::limit(effective);
-        Some(lint::run(kb, &store, &|id| ids.contains(id), &limit, None)?)
+        Some(lint::run(memrepo, &store, &|id| ids.contains(id), &limit, None)?)
     };
 
-    let all_ids = kb.id_set();
+    let all_ids = memrepo.id_set();
     let mut passing = Vec::new();
     let mut blocked = Vec::new();
     for edit in found.edits {
         if edit.kind == Kind::Deleted {
             // A deleted document that another document still links to would leave a broken
             // link, so the deletion waits (see `write-documents`). Generated index files do not count.
-            let linked = crate::tools::delete::linked_from(kb, &edit.id, "");
+            let linked = crate::tools::delete::linked_from(memrepo, &edit.id, "");
             if linked.is_empty() {
                 passing.push(edit);
             } else {
@@ -102,7 +102,7 @@ pub fn prepare(
                 .ok()
                 .flatten()
                 .map(|old| {
-                    format::check(&path, &old, &kb.settings.documents, Some(&all_ids))
+                    format::check(&path, &old, &memrepo.settings.documents, Some(&all_ids))
                         .into_iter()
                         .filter(|f| f.rule == "broken-link")
                         .map(|f| f.message)
@@ -193,12 +193,12 @@ fn title_of(tx: &Tx, edit: &Edit) -> String {
 /// Returns a notice if some edits are not published, and the paths that stay uncommitted.
 pub fn commit_before_write(
     tx: &Tx,
-    kb: &KnowledgeBase,
+    memrepo: &MemRepo,
     effective: &Effective,
     author: &str,
     today: &str,
 ) -> Result<(Vec<String>, Vec<String>)> {
-    let outcome = prepare(tx, kb, effective, author, today, true)?;
+    let outcome = prepare(tx, memrepo, effective, author, today, true)?;
     if let Some(change) = &outcome.change {
         tx.repo().commit_change(change)?;
     }
@@ -215,7 +215,7 @@ pub fn commit_before_write(
     let rels: Vec<String> = outcome
         .blocked
         .iter()
-        .filter_map(|b| kb.repo_relative(&b.id).ok())
+        .filter_map(|b| memrepo.repo_relative(&b.id).ok())
         .collect();
     Ok((notices, rels))
 }

@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use waymark::config::{Effective, Limits};
-use waymark::kb::{self, KnowledgeBase};
+use waymark::memrepo::{self, MemRepo};
 use waymark::lint;
 use waymark::store::{Scope, Store};
 
@@ -29,23 +29,23 @@ fn copy_tree(from: &Path, to: &Path) {
 }
 
 fn run_lint(dir: &Path) -> lint::Report {
-    let kb = KnowledgeBase::open(dir).unwrap();
-    let store = Store::load(&kb);
+    let memrepo = MemRepo::open(dir).unwrap();
+    let store = Store::load(&memrepo);
     let eff = Effective::from_layers(&[Limits::default()]);
     let scope = Scope::new(&eff, &[]);
     let limit = Scope::limit(&eff);
-    lint::run(&kb, &store, &|id| scope.allows(id), &limit, None).unwrap()
+    lint::run(&memrepo, &store, &|id| scope.allows(id), &limit, None).unwrap()
 }
 
 #[test]
 fn the_sample_vault_has_no_error() {
     let dir = tempfile::tempdir().unwrap();
-    kb::init(dir.path(), "Vault", "vault").unwrap();
-    let root = dir.path().join("knowledge");
+    memrepo::init(dir.path(), "Vault", "vault").unwrap();
+    let root = dir.path().join("agent-memory");
     copy_tree(&conformance_dir().join("vault"), &root);
     // The vault excludes some files (for example its README).
-    let exclude = fs::read_to_string(conformance_dir().join("vault/.mkbase/exclude")).unwrap();
-    fs::write(root.join(".mkbase/exclude"), exclude).unwrap();
+    let exclude = fs::read_to_string(conformance_dir().join("vault/.waymark/exclude")).unwrap();
+    fs::write(root.join(".waymark/exclude"), exclude).unwrap();
     let report = run_lint(dir.path());
     let errors: Vec<_> = report
         .findings
@@ -67,10 +67,10 @@ fn every_invalid_document_has_the_rule_of_its_file_name() {
         }
         let rule = p.file_stem().unwrap().to_string_lossy().to_string();
         let dir = tempfile::tempdir().unwrap();
-        kb::init(dir.path(), "Invalid", "invalid").unwrap();
+        memrepo::init(dir.path(), "Invalid", "invalid").unwrap();
         fs::copy(
             &p,
-            dir.path().join("knowledge").join(p.file_name().unwrap()),
+            dir.path().join("agent-memory").join(p.file_name().unwrap()),
         )
         .unwrap();
         let report = run_lint(dir.path());

@@ -2,7 +2,7 @@
 
 mod common;
 use common::git::{git, subjects};
-use common::kb::{commit_doc, write_doc};
+use common::memrepo::{commit_doc, write_doc};
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 
@@ -76,7 +76,7 @@ fn t2_a_failing_edit_alone_fails_and_pushes_nothing() {
     assert!(r.json["next"].is_string());
     assert_eq!(subjects(&w.remote), before);
     assert_eq!(
-        std::fs::read_to_string(w.a.join("knowledge/ops/new.md")).unwrap(),
+        std::fs::read_to_string(w.a.join("agent-memory/ops/new.md")).unwrap(),
         "no frontmatter\n"
     );
 }
@@ -140,7 +140,7 @@ fn t6_a_write_to_a_document_with_a_blocked_edit_is_stale() {
     write_doc(&w.a, "ops/deploy", &text(long, "2020-01-02", "x"));
     let version = git(
         &w.a,
-        &["log", "-1", "--format=%h", "--", "knowledge/ops/deploy.md"],
+        &["log", "-1", "--format=%h", "--", "agent-memory/ops/deploy.md"],
     );
     let mut c = client(&w);
     let r = c.call(
@@ -166,7 +166,7 @@ fn t8_read_only_only_pulls() {
     assert_eq!(r.json["committed"], json!([]));
     assert_eq!(r.json["pushed"], false);
     assert_eq!(r.json["pulled"], 1);
-    assert!(w.a.join("knowledge/ops/from-b.md").exists());
+    assert!(w.a.join("agent-memory/ops/from-b.md").exists());
     assert!(git(&w.a, &["status", "--porcelain"]).contains("ops/deploy.md"));
     assert_eq!(subjects(&w.remote), before);
     assert!(r.json["notices"]
@@ -182,7 +182,7 @@ fn t9_updated_and_updated_by_are_set_and_the_body_is_kept() {
     let mut c = client(&w);
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
-    let t = std::fs::read_to_string(w.a.join("knowledge/ops/deploy.md")).unwrap();
+    let t = std::fs::read_to_string(w.a.join("agent-memory/ops/deploy.md")).unwrap();
     let today = chrono_today();
     assert!(t.contains(&format!("updated: {today}\n")), "{t}");
     assert!(
@@ -210,10 +210,10 @@ fn chrono_today() -> String {
 fn t10_a_hand_move_is_followed_by_show() {
     let w = World::new();
     setup(&w);
-    std::fs::create_dir_all(w.a.join("knowledge/guides")).unwrap();
+    std::fs::create_dir_all(w.a.join("agent-memory/guides")).unwrap();
     std::fs::rename(
-        w.a.join("knowledge/ops/deploy.md"),
-        w.a.join("knowledge/guides/deploy.md"),
+        w.a.join("agent-memory/ops/deploy.md"),
+        w.a.join("agent-memory/guides/deploy.md"),
     )
     .unwrap();
     let mut c = client(&w);
@@ -239,9 +239,9 @@ fn t10_a_hand_move_is_followed_by_show() {
 fn t11_t13_other_files_are_skipped() {
     let w = World::new();
     setup(&w);
-    std::fs::create_dir_all(w.a.join("knowledge/images")).unwrap();
-    std::fs::write(w.a.join("knowledge/images/diagram.png"), b"png").unwrap();
-    let settings = w.a.join("knowledge/.mkbase/waymark.toml");
+    std::fs::create_dir_all(w.a.join("agent-memory/images")).unwrap();
+    std::fs::write(w.a.join("agent-memory/images/diagram.png"), b"png").unwrap();
+    let settings = w.a.join("agent-memory/.waymark/settings.toml");
     let old = std::fs::read_to_string(&settings).unwrap();
     std::fs::write(&settings, format!("{old}\n# edited by hand\n")).unwrap();
     edit_deploy(&w, "x");
@@ -250,14 +250,14 @@ fn t11_t13_other_files_are_skipped() {
     assert!(!r.is_error, "{}", r.json);
     let skipped = r.json["skipped"].to_string();
     assert!(
-        skipped.contains("diagram.png") && skipped.contains("waymark.toml"),
+        skipped.contains("diagram.png") && skipped.contains("settings.toml"),
         "{skipped}"
     );
     let files = git(&w.remote, &["show", "--name-only", "--format=", "HEAD"]);
     assert!(
         files.contains("ops/deploy.md")
             && !files.contains("diagram")
-            && !files.contains("waymark.toml"),
+            && !files.contains("settings.toml"),
         "{files}"
     );
 }
@@ -307,11 +307,11 @@ fn t14_a_conflict_keeps_both_versions() {
     assert!(r.json["notices"]
         .to_string()
         .contains("Both versions are kept"));
-    let kept = std::fs::read_to_string(w.a.join("knowledge/ops/deploy.md")).unwrap();
+    let kept = std::fs::read_to_string(w.a.join("agent-memory/ops/deploy.md")).unwrap();
     assert!(kept.contains("B version"));
     let copy = r.json["conflicts"][0]["copy"].as_str().unwrap();
     assert!(
-        std::fs::read_to_string(w.a.join(format!("knowledge/{copy}.md")))
+        std::fs::read_to_string(w.a.join(format!("agent-memory/{copy}.md")))
             .unwrap()
             .contains("A version")
     );
@@ -321,7 +321,7 @@ fn t14_a_conflict_keeps_both_versions() {
 fn t15_a_pending_delete_is_committed() {
     let w = World::new();
     setup(&w);
-    std::fs::remove_file(w.a.join("knowledge/ops/deploy.md")).unwrap();
+    std::fs::remove_file(w.a.join("agent-memory/ops/deploy.md")).unwrap();
     let mut c = client(&w);
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
@@ -363,7 +363,7 @@ fn t17_a_clean_tree_makes_no_commit() {
     assert_eq!(r.json["committed"], json!([]));
     assert_eq!(r.json["pulled"], 1);
     assert_eq!(subjects(&w.remote), before);
-    assert!(w.a.join("knowledge/ops/from-b.md").exists());
+    assert!(w.a.join("agent-memory/ops/from-b.md").exists());
 }
 
 #[test]
@@ -429,7 +429,7 @@ fn deleting_a_linked_document_by_hand_waits_until_the_links_are_gone() {
     let w = World::new();
     commit_doc(&w.a, "ops/target", "Target", "T.");
     commit_doc(&w.a, "ops/linker", "Linker", "See [t](target.md).");
-    std::fs::remove_file(w.a.join("knowledge/ops/target.md")).unwrap();
+    std::fs::remove_file(w.a.join("agent-memory/ops/target.md")).unwrap();
     let mut c = client(&w);
     let r = c.call("sync", json!({}));
     assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);

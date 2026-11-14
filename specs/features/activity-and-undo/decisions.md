@@ -76,4 +76,4 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **Undo applies in two steps.** The tool first tries `git revert --no-commit` to find conflicts and to list the changes, then takes it back. `writes::execute` applies it again after the approval, inside the lock, and commits the staged paths. A conflict becomes `stale_base` and names the later commits. `git revert --abort` and `git reset --merge` keep unrelated local changes.
 - **Hidden entries.** `activity` leaves out entries whose documents are all outside the `folders` limit. An `undo` for such a commit gives `not_found`.
 - **`commit_change` filters paths.** A path that is gone from the disk and from the index (a revert removed it) is not given to `git add`.
-- **A write that touched only non-documents** (for example `.mkbase/waymark.toml`) has no entry.
+- **A write that touched only non-documents** (for example `.waymark/settings.toml`) has no entry.

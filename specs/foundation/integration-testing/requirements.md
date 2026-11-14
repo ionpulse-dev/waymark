@@ -15,7 +15,7 @@ Test the real `waymark` binary end to end, with no network and no credentials. E
 
 ## Dependents
 
-- Every feature spec and `mcp-server`, `git-sync`, `knowledge-base-repo`, `trust-model` for their end-to-end tests.
+- Every feature spec and `mcp-server`, `git-sync`, `memory-repository`, `trust-model` for their end-to-end tests.
 - `distribution` — the local Homebrew install test.
 
 ## Deliverables
@@ -39,7 +39,7 @@ Test the real `waymark` binary end to end, with no network and no credentials. E
 
 ### The world
 
-A `World` has: a bare repository (the remote), a first clone (person A), a second clone (person B), each with its own author and its own `waymark` process on request, and a config home. The knowledge base is initialized in the remote with the layout of `knowledge-base-repo`.
+A `World` has: a bare repository (the remote), a first clone (person A), a second clone (person B), each with its own author and its own `waymark` process on request, and a config home. The knowledge base is initialized in the remote with the layout of `memory-repository`.
 
 ### MCP client
 

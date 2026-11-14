@@ -49,8 +49,8 @@ impl Tool for Verify {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "verify", Kind::Write, preview, |tx, kb| {
-            let (rel, mut doc) = writes::read_doc(tx, kb, &id)?;
+        writes::execute(ctx, env, "verify", Kind::Write, preview, |tx, memrepo| {
+            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
             tx.check_base(&rel, Some(&base))?;
             let fm = &mut doc.frontmatter;
             let title = fm.get_text("title").unwrap_or("").to_string();
@@ -77,10 +77,10 @@ impl Tool for Verify {
             let mut problems = writes::Problems::default();
             let mut notices = Vec::new();
             writes::check_document(
-                kb,
+                memrepo,
                 &id,
                 &text,
-                &kb.id_set(),
+                &memrepo.id_set(),
                 &[],
                 None,
                 &mut problems,

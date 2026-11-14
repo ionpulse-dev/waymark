@@ -47,11 +47,11 @@ impl Tool for Delete {
         writes::require_visible(env, &id)?;
         writes::author_string(ctx)?;
 
-        writes::execute(ctx, env, "delete", Kind::Destructive, preview, |tx, kb| {
-            let (rel, doc) = writes::read_doc(tx, kb, &id)?;
+        writes::execute(ctx, env, "delete", Kind::Destructive, preview, |tx, memrepo| {
+            let (rel, doc) = writes::read_doc(tx, memrepo, &id)?;
             tx.check_base(&rel, Some(&base))?;
             let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
-            let linked = linked_from(kb, &id, &title);
+            let linked = linked_from(memrepo, &id, &title);
             if !linked.is_empty() {
                 if let Some(hidden) = linked
                     .iter()
@@ -115,9 +115,9 @@ impl Tool for Delete {
 
 /// The documents that link to `id`, as `{ id, where, count }`: one entry for the body and one for
 /// the properties of each linking document.
-pub fn linked_from(kb: &crate::kb::KnowledgeBase, id: &str, title: &str) -> Vec<Value> {
+pub fn linked_from(memrepo: &crate::memrepo::MemRepo, id: &str, title: &str) -> Vec<Value> {
     let file_name = id.rsplit('/').next().unwrap_or(id).to_string();
-    let all = kb.documents();
+    let all = memrepo.documents();
     let same_name = all
         .iter()
         .filter(|d| d.id.rsplit('/').next() == Some(file_name.as_str()))
@@ -133,7 +133,7 @@ pub fn linked_from(kb: &crate::kb::KnowledgeBase, id: &str, title: &str) -> Vec<
     };
     let mut out = Vec::new();
     for other in all.iter().filter(|d| d.id != id) {
-        let Ok(text) = kb.read(&other.id) else {
+        let Ok(text) = memrepo.read(&other.id) else {
             continue;
         };
         let Ok(mut d) = format::parse(&text) else {

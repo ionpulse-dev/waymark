@@ -17,7 +17,7 @@ pub struct KbFacts {
 }
 
 pub struct Facts {
-    pub kb: Option<KbFacts>,
+    pub memrepo: Option<KbFacts>,
     pub problem: Option<Error>,
     pub settings: Value,
     pub notices: Vec<String>,
@@ -30,7 +30,7 @@ pub fn settings_json(e: &Effective) -> Value {
 
 fn local_notices(
     effective: &Effective,
-    kb_notices: &[String],
+    memrepo_notices: &[String],
     has_remote: Option<bool>,
     found_by: Option<FoundBy>,
 ) -> Vec<String> {
@@ -41,7 +41,7 @@ fn local_notices(
     if has_remote == Some(false) {
         out.push("This repository has no remote.".to_string());
     }
-    out.extend(kb_notices.iter().cloned());
+    out.extend(memrepo_notices.iter().cloned());
     match found_by {
         Some(FoundBy::WorkingFolder) => {
             out.push("The knowledge base was found in the working folder.".to_string())
@@ -66,7 +66,7 @@ fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
     let build_unbound = |problem: Error| {
         let effective = ctx.limits(None).effective;
         Facts {
-            kb: None,
+            memrepo: None,
             notices: local_notices(&effective, &[], None, None),
             problem: Some(problem),
             settings: settings_json(&effective),
@@ -96,26 +96,26 @@ fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
         Ok(r) => r,
         Err(e) => return build_unbound(e),
     };
-    let kb = match ctx.kb() {
+    let memrepo = match ctx.memrepo() {
         Ok(k) => k,
         Err(e) => return build_unbound(e),
     };
-    let effective = ctx.limits(Some(&kb)).effective;
+    let effective = ctx.limits(Some(&memrepo)).effective;
     let origin = super::binding::origin_url(repo.dir());
     let found_by = ctx.found_by();
     Facts {
         notices: local_notices(
             &effective,
-            &kb.settings.notices,
+            &memrepo.settings.notices,
             Some(origin.is_some()),
             found_by,
         ),
         problem: None,
         settings: settings_json(&effective),
-        kb: Some(KbFacts {
-            name: kb.settings.name.clone(),
-            id: kb.settings.id.clone(),
-            slug: kb.settings.slug.clone(),
+        memrepo: Some(KbFacts {
+            name: memrepo.settings.name.clone(),
+            id: memrepo.settings.id.clone(),
+            slug: memrepo.settings.slug.clone(),
             path: repo.dir().display().to_string(),
             remote: origin.map(|o| repo_url::redact(&o)),
             found_by,

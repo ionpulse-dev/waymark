@@ -44,8 +44,8 @@ impl Tool for Index {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "index", Kind::Write, preview, |_tx, kb| {
-            let store = Store::load(kb);
+        writes::execute(ctx, env, "index", Kind::Write, preview, |_tx, memrepo| {
+            let store = Store::load(memrepo);
             let scope = Scope::new(&env.effective, &folders);
             let actions = indexgen::plan(&store, &scope, &author, &today);
 
@@ -53,7 +53,7 @@ impl Tool for Index {
             let mut written = Vec::new();
             let mut unchanged = 0;
             let mut skipped = Vec::new();
-            let mut ids_after = kb.id_set();
+            let mut ids_after = memrepo.id_set();
             for a in &actions {
                 if let Action::Write { id, .. } = a {
                     ids_after.insert(id.clone());
@@ -65,7 +65,7 @@ impl Tool for Index {
                 match a {
                     Action::Write { id, text, created } => {
                         writes::check_document(
-                            kb,
+                            memrepo,
                             &id,
                             &text,
                             &ids_after,

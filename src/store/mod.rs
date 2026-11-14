@@ -10,7 +10,7 @@ pub mod stats;
 
 use crate::format;
 use crate::format::frontmatter::Frontmatter;
-use crate::kb::KnowledgeBase;
+use crate::memrepo::MemRepo;
 
 pub use scope::Scope;
 
@@ -91,12 +91,12 @@ pub struct Store {
 
 impl Store {
     /// Load every document. A file that cannot be read as text is skipped.
-    pub fn load(kb: &KnowledgeBase) -> Store {
-        let docs = kb
+    pub fn load(memrepo: &MemRepo) -> Store {
+        let docs = memrepo
             .documents()
             .into_iter()
             .filter_map(|d| {
-                let raw = std::fs::read(kb.path_of(&d.id).ok()?).ok()?;
+                let raw = std::fs::read(memrepo.path_of(&d.id).ok()?).ok()?;
                 let raw = String::from_utf8(raw).ok()?;
                 Some(match format::parse(&raw) {
                     Ok(doc) => Doc {

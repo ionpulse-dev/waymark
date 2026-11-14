@@ -1,6 +1,6 @@
 //! A problem that only an update fixes must reach the person: in `initialize`, in the description
 //! of `status`, and in the error of every tool (see `specs/foundation/mcp-server`, section
-//! "Updates of the MCP entry", and `knowledge-base-repo`, section "Versions and updates").
+//! "Updates of the MCP entry", and `memory-repository`, section "Versions and updates").
 
 mod common;
 use common::{McpClient, Person, Spawn, World};
@@ -63,7 +63,7 @@ fn an_unknown_argument_reaches_the_person_and_blocks_the_tools() {
 }
 
 #[test]
-fn a_wrong_value_does_not_guess_a_knowledge_base() {
+fn a_wrong_value_does_not_guess_a_memory_repository() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--max-results", "many"]));
     assert!(instructions(&c).contains("WAYMARK NEEDS AN UPDATE"));
@@ -73,9 +73,9 @@ fn a_wrong_value_does_not_guess_a_knowledge_base() {
 }
 
 #[test]
-fn a_knowledge_base_with_a_higher_schema_reaches_the_person_too() {
+fn a_memory_repository_with_a_higher_schema_reaches_the_person_too() {
     let w = World::new();
-    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let path = w.a.join("agent-memory/.waymark/settings.toml");
     let text = std::fs::read_to_string(&path).unwrap();
     std::fs::write(&path, text.replace("schema = 1", "schema = 2")).unwrap();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
