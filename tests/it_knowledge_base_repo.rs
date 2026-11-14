@@ -264,5 +264,24 @@ fn a_repair_keeps_the_values_that_the_owner_set() {
     assert!(!r.is_error, "{}", r.json);
     let settings = git(&w.remote, &["show", "main:knowledge/.mkbase/waymark.toml"]);
     assert!(settings.contains("max_results = 2 # tight"), "{settings}");
-    assert!(settings.starts_with("schema = 1\n"), "{settings}");
+    assert!(
+        settings.contains("\nschema = 1\n") || settings.starts_with("schema = 1\n"),
+        "{settings}"
+    );
+}
+
+#[test]
+fn the_template_explains_every_setting_and_keeps_no_wrong_header() {
+    let w = World::new();
+    let text = std::fs::read_to_string(w.a.join("knowledge/.mkbase/waymark.toml")).unwrap();
+    assert!(!text.contains("Every key in the sections below is optional"));
+    assert!(text.contains("Identifies this knowledge base. Required."));
+    // Every line that sets a key has a comment line right above it.
+    let lines: Vec<&str> = text.lines().collect();
+    for (i, l) in lines.iter().enumerate() {
+        let is_key = !l.starts_with('#') && l.contains(" = ") && !l.starts_with('[');
+        if is_key {
+            assert!(lines[i - 1].starts_with('#'), "no comment above: {l}");
+        }
+    }
 }

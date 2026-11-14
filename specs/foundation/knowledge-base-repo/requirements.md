@@ -106,6 +106,8 @@ extra_secret_patterns = []      # regular expressions
 
 **Schema version.** The key `schema` is a whole number of 1 or more. It is the version of the format of this file. A file without the key has schema 1. Every build of waymark knows the highest schema that it supports (now 1). If the file has a higher schema, the server refuses every tool except `status`, with the error `setup_problem`, the message "This knowledge base needs a newer waymark. Its settings file has schema N, and this waymark supports schema M.", and the `next` sentence "Update waymark with `brew upgrade waymark`, then restart your agent tool." `status` shows the same problem and both numbers, so a person can see why the tools fail. This holds for reads too: nobody works on a file that an older waymark might read wrongly. A `schema` that is not a whole number of 1 or more is a `setup_problem`. A build never raises the schema by itself. There is no migration yet. The number is raised only by a later release that needs a change of this file, and only through a deliberate step of the owner (a normal commit that `undo` can revert). The check protects only builds that contain it: waymark 0.1.2 and older ignore the key, so the number is not raised before the team had time to update.
 
+The file that `init` writes has a short comment above every setting: what it does, and its default or the values it takes. The file has no header comment, because the comments above the keys say what is required: only `id` is required, and `schema` is written by waymark. A settings file that `init` writes with limits or approval rules keeps the comments of the top keys. The sections that were set are written without comments.
+
 The shared file holds no behavior rules. There is no read level, write level, or agent tool list. Behavior is written in the `AGENTS.md` of the team.
 
 ## Versions and updates
@@ -137,7 +139,7 @@ The repository holds the data and its two version labels. The binary holds the h
 - It goes in its own commit before the change of the caller: `waymark: repair "settings"`, under the author of the person, and it is pushed with that change. `undo` can revert it. The result of the call has a notice, for example "Repaired the settings file: added the missing schema key."
 - A repair never touches `[limits]`, `[approval]`, or any value that the owner set. It comes only from the list in the binary, never from the input of a tool or from a document. An agent cannot use it to loosen a limit.
 - Two people who trigger the same repair at once are handled by the write flow of `git-sync`: it fetches first, so the second finds the file fixed and does nothing.
-- The first repair: a file without the key `schema` gets `schema = 1` as its first line. Every other line stays as it was, with its comments.
+- The first repair: a file without the key `schema` gets `schema = 1`. The line goes after the leading comment lines of the file (a header comment stays on top) and after the empty lines that follow them. Every other line stays as it was, with its comments.
 
 ### Migrations (designed, not built)
 
@@ -170,7 +172,7 @@ A settings file with no `id` (or one that is not valid TOML) blocks every tool, 
 - **Given** a file without `schema`, **When** the server reads it, **Then** it works as schema 1.
 - **Given** a `schema` of 0, a negative number, or a text, **When** the server reads it, **Then** it fails with `setup_problem`.
 - **Given** a new repository from `init`, **When** `waymark.toml` is read, **Then** it has `schema = 1`.
-- **Given** a settings file without `schema`, **When** a write tool runs, **Then** `schema = 1` is added as its first line in a commit `waymark: repair "settings"` before the commit of the write, every other line is unchanged, and the result has a notice.
+- **Given** a settings file without `schema`, **When** a write tool runs, **Then** `schema = 1` is added after the header comment, if there is one, in a commit `waymark: repair "settings"` before the commit of the write, every other line is unchanged, and the result has a notice.
 - **Given** a settings file without `schema`, **When** a read tool runs or a write runs with `preview: true`, **Then** nothing is committed.
 - **Given** a current settings file, **When** a write tool runs, **Then** no repair commit is made.
 - **Given** a settings file with values in `[limits]`, **When** a repair runs, **Then** those values and the comments are unchanged.

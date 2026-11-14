@@ -72,12 +72,8 @@ pub fn settings_text(input: &InitInput, id: &str) -> Result<String> {
             .replace("{id}", id)
             .replace("{slug}", &input.slug));
     }
+    // The top keys keep their comments. Only the sections that the inputs set are generated.
     let mut t = toml::Table::new();
-    t.insert("schema".into(), crate::kb::settings::SCHEMA_VERSION.into());
-    t.insert("name".into(), input.name.clone().into());
-    t.insert("id".into(), id.to_string().into());
-    t.insert("slug".into(), input.slug.clone().into());
-    t.insert("verification".into(), false.into());
     if !input.email_domains.is_empty() {
         let mut p = toml::Table::new();
         p.insert(
@@ -98,8 +94,17 @@ pub fn settings_text(input: &InitInput, id: &str) -> Result<String> {
     if !input.approval.is_empty() {
         t.insert("approval".into(), input.approval.clone().into());
     }
-    let text = toml::to_string(&t)
+    let name_toml = toml::Value::String(input.name.clone()).to_string();
+    let top = SETTINGS_TEMPLATE
+        .split("\n# Limits for everyone")
+        .next()
+        .unwrap_or("")
+        .replace("{name}", &name_toml)
+        .replace("{id}", id)
+        .replace("{slug}", &input.slug);
+    let sections = toml::to_string(&t)
         .map_err(|e| Error::invalid(format!("The settings cannot be written: {e}")))?;
+    let text = format!("{top}\n{sections}");
     // The new settings must parse, with the same rules as a read.
     settings::parse(&text, SETTINGS_FILE).map_err(|e| {
         Error::invalid(format!(

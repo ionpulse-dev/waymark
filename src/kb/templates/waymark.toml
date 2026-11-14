@@ -1,26 +1,51 @@
-# Shared settings of this knowledge base. Every key in the sections below is optional.
+# Version of the format of this file. waymark writes it. Do not change it by hand.
 schema = 1
+
+# The name of this knowledge base. Agents see it at the start of a session.
 name = {name}
+
+# Identifies this knowledge base. Required. Never change it.
 id = "{id}"
+
+# A short name for the default folder of the clone (~/Projects/<slug>-knowledge-base).
 slug = "{slug}"
+
+# true: owners verify documents. This adds the tools verify, review, and reject.
 verification = false
 
+# Limits for everyone who uses this knowledge base. A stricter limit in a personal file or in
+# an MCP entry wins. Every key is optional.
 [limits]
-# access = "read-write"        # read-only | read-write
-# tools_denied = []            # for example ["delete", "move"]
-# folders = []                 # allowed folders, empty means all
+# read-only: agents can only read. read-write: agents can also write.
+# access = "read-write"
+# Tools that are switched off, for example ["delete", "move"].
+# tools_denied = []
+# Folders that agents may use. Empty means all folders.
+# folders = []
+# The most documents that one search returns.
 # max_results = 5
+# The most tokens that one search returns.
 # max_tokens = 800
+# The most documents that one session opens with show.
 # max_documents_opened = 20
 
+# Ask a person before a write. Every key is optional.
 [approval]
-# required_for = []            # tool names, or "write"
+# Tool names, or "write" for all write tools, that need a yes first.
+# required_for = []
+# How waymark asks: "elicitation" asks through the agent tool.
 # via = "elicitation"
 
+# Size limits of one document. Every key is optional.
 [documents]
+# The most bytes in one document file.
 # max_bytes = 102400
+# The most words in a title.
 # title_max_words = 15
+# The most words in a description.
 # description_max_words = 50
 
+# Extra checks of lint. Every key is optional.
 [lint]
-# extra_secret_patterns = []   # regular expressions
+# Regular expressions for secrets, in addition to the built-in patterns.
+# extra_secret_patterns = []

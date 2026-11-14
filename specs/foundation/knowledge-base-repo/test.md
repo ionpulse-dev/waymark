@@ -23,9 +23,10 @@
 - [x] [auto] A file with a higher `schema` gives `setup_problem` and the message "needs a newer waymark"; a file without `schema` is schema 1; a `schema` of 0, -1, or "x" gives `setup_problem` (`src/kb/settings.rs`)
 - [x] [auto] With a higher `schema`, `list`, `add`, and `search` fail, and `status` reports the problem with the fix (`tests/it_knowledge_base_repo.rs`)
 - [x] [auto] `init` writes `schema = 1` (`tests/it_knowledge_base_repo.rs`)
-- [x] [auto] The repair adds `schema = 1` as the first line, keeps every other line and comment, does nothing twice, and leaves a file that is not TOML, a higher schema, and a bad schema alone (`src/kb/repairs.rs`)
+- [x] [auto] The repair adds `schema = 1` after the header comment (or as the first line if there is none), keeps every other line and comment, does nothing twice, and leaves a file that is not TOML, a higher schema, and a bad schema alone (`src/kb/repairs.rs`)
 - [x] [auto] A write on a file without `schema` makes the commit `waymark: repair "settings"` and then its own commit, with a notice. A read and a preview make no commit. A second write makes no repair commit (`tests/it_knowledge_base_repo.rs`)
 - [x] [auto] A repair keeps a limit that the owner set, and its comment (`tests/it_knowledge_base_repo.rs`)
+- [x] [auto] The file from `init` has no header comment that calls every key optional, says that `id` is required, and has a comment line above every key (`tests/it_knowledge_base_repo.rs`)
 - [ ] [manual] A repository made by `init` opens in Obsidian as a vault. Steps: run `make sample-kb`, open the folder in Obsidian, create a link with the link dialog. Expected: the link is a relative Markdown link and `git status` shows only the new document.
 
 ## Notes

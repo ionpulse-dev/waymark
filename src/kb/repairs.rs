@@ -15,13 +15,35 @@ pub struct Repair {
     pub apply: fn(&str) -> Option<String>,
 }
 
-/// A file without the key `schema` is schema 1. The repair writes the key.
+/// A file without the key `schema` is schema 1. The repair writes the key, after the header
+/// comment if the file has one.
 fn add_schema_key(text: &str) -> Option<String> {
     let table: toml::Table = text.parse().ok()?;
     if table.contains_key("schema") {
         return None;
     }
-    Some(format!("schema = {SCHEMA_VERSION}\n{text}"))
+    // Keep a header comment on top: the key goes after the leading comment lines and the empty
+    // lines that follow them.
+    let mut at = 0;
+    for line in text.split_inclusive('\n') {
+        if line.trim_start().starts_with('#') {
+            at += line.len();
+        } else {
+            break;
+        }
+    }
+    for line in text[at..].split_inclusive('\n') {
+        if line.trim().is_empty() {
+            at += line.len();
+        } else {
+            break;
+        }
+    }
+    Some(format!(
+        "{}schema = {SCHEMA_VERSION}\n{}",
+        &text[..at],
+        &text[at..]
+    ))
 }
 
 pub const REPAIRS: &[Repair] = &[Repair {
@@ -55,12 +77,25 @@ mod tests {
 
     #[test]
     fn a_file_without_schema_gets_the_key_and_keeps_everything_else() {
-        let text = format!("# my comment\nid = \"{ID}\"\n[limits]\nmax_results = 3 # tight\n");
+        let text = format!("id = \"{ID}\"\n[limits]\nmax_results = 3 # tight\n");
         let (fixed, done) = repair(&text).unwrap();
         assert_eq!(done.len(), 1);
         assert_eq!(fixed, format!("schema = 1\n{text}"));
         let table: toml::Table = fixed.parse().unwrap();
         assert_eq!(table["schema"].as_integer(), Some(1));
+    }
+
+    #[test]
+    fn a_header_comment_stays_on_top() {
+        let text = format!("# My header.\n# Second line.\n\nname = \"X\"\nid = \"{ID}\"\n");
+        let (fixed, _) = repair(&text).unwrap();
+        assert_eq!(
+            fixed,
+            format!("# My header.\n# Second line.\n\nschema = 1\nname = \"X\"\nid = \"{ID}\"\n")
+        );
+        let text = format!("# Header.\nname = \"X\"\nid = \"{ID}\"\n");
+        let (fixed, _) = repair(&text).unwrap();
+        assert!(fixed.starts_with("# Header.\nschema = 1\nname"), "{fixed}");
     }
 
     #[test]

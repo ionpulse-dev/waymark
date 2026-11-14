@@ -41,3 +41,11 @@
 **Alternatives considered:** Repair on a read, or at the start of the session (rejected: a person who only reads would cause a commit to a shared repository, and `initialize` must stay fast and free of writes). Let `init` complete an existing settings file (rejected: it is not what `init` is for, and it would be a second way to edit the file). Migrate automatically too (rejected: the first person on a new build would move the whole team's file and lock out everyone on an older build).
 
 **Reason:** A repair only adds what is missing, so it is safe and the result stays readable for older builds. The repairs come from a list in the binary and never touch the limits that an owner set, so the trust model holds. The first repair adds the key `schema` to files that were written before it existed. A file with no `id` cannot be repaired this way, because it blocks every tool (see the section).
+
+## Every setting has a comment, the header comment is gone, and a repair keeps a header on top — 2026-11-14
+
+**Decision (product owner):** The settings file from `init` has a short comment above every setting and no header comment. The old header said that every key is optional, which was wrong for `id`. A repair puts `schema = 1` after the leading comment lines of an existing file, so that a header comment stays on top.
+
+**Alternatives considered:** Rewrite the comments of existing files by a repair (rejected: a repair never changes what a person may have edited; the files from older versions keep their text). One header comment that lists what is required (rejected: it goes stale, and a comment above the key is read where the key is).
+
+**Reason:** Found when the first repair put the key above the header comment of a real file. Files written before 0.1.5 keep their old header. That is only a comment, and no tool depends on it.
