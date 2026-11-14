@@ -73,7 +73,9 @@ that you own, with rules that the server enforces.
 
 Tell your agent:
 
-> Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/install.md
+```text
+Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/install.md
+```
 
 ### Option 2: manual
 
