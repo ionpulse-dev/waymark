@@ -54,7 +54,7 @@ if [ "$current" != "$version" ]; then
   sed -i '' "s/^version = \"$current\"/version = \"$version\"/" Cargo.toml
   cargo build -q
   git add Cargo.toml Cargo.lock
-  git commit -q -m "Release $version" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+  git commit -q -m "Release $version"
   git push -q origin main
 fi
 
