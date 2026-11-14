@@ -82,6 +82,7 @@ impl Tool for Status {
                             "slug": kb.settings.slug,
                             "path": repo.dir().display().to_string(),
                             "verification": kb.settings.verification,
+                            "found_by": ctx.found_by().map(|f| f.name()),
                         });
                     }
                     Err(e) => checks.push(check("knowledge_base", false, e.message, e.next)),

@@ -116,3 +116,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The claims that a project entry overrides a user entry of the same name, and that a tool asks before it starts a project-level server, are not specified as waymark behavior. They are manual tests per tool. The README states only what the tests confirm.
 
 **Reason:** They belong to the agent tools, and waymark cannot test them. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously:**
+- The folder is found at the first use of the repository, not at process start, and then kept. The server answers `initialize` at once, so a slow first clone cannot hit the start time-out of the client. The result is the same: one knowledge base for the whole process.
+- The binding code is `src/mcp/binding.rs` (`locate`, `check_folder`, `clone_checked`) and `src/mcp/repo_url.rs`. `Context::repo` calls them. There is no `Binding` struct. `Context::found_by` gives the value that `status` shows.
+- A knowledge base found in the working folder uses the Git root of the matching folder as the repository folder.
+- A URL goes into a message only through `repo_url::redact`.
+- The identity check runs at every `Context::kb` call, because the shared file is read from disk at each call.

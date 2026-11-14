@@ -3,8 +3,8 @@
 use super::args::Args;
 use crate::config::{self, Access, ConfigError, Effective, Limits, Paths};
 use crate::error::{Error, Result};
-use crate::gitsync::{cmd, Author, Repo};
-use crate::kb::{self, KnowledgeBase};
+use crate::gitsync::{Author, Repo};
+use crate::kb::KnowledgeBase;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -13,6 +13,7 @@ pub struct Context {
     pub args: Args,
     pub paths: Paths,
     repo: Mutex<Option<Arc<Repo>>>,
+    found_by: Mutex<Option<super::binding::FoundBy>>,
     /// The documents that `show` opened in this session: the read budget (see `search-and-read`).
     /// The connection to the client for the current call (see `write-approval`).
     pub channel: Mutex<Option<super::approval::Channel>>,
@@ -35,6 +36,7 @@ impl Context {
             args,
             paths,
             repo: Mutex::new(None),
+            found_by: Mutex::new(None),
             channel: Mutex::new(None),
             opened: Mutex::new(std::collections::HashSet::new()),
         }
@@ -67,83 +69,45 @@ impl Context {
         }
     }
 
-    /// The folder of the clone, if it can be named without running Git.
-    pub fn repo_dir(&self) -> Option<PathBuf> {
-        if let Some(p) = &self.args.path {
-            return Some(p.clone());
-        }
-        if let Some(url) = &self.args.repo {
-            return Some(default_clone_dir(url));
-        }
-        // The working folder and its Git root.
-        if let Ok(cwd) = std::env::current_dir() {
-            if let Ok(out) = cmd::run(&cwd, None, &["rev-parse", "--show-toplevel"]) {
-                if out.ok {
-                    let top = PathBuf::from(out.stdout.trim());
-                    if kb::find_root(&top).is_ok() {
-                        return Some(top);
-                    }
-                }
-            }
-        }
-        // Exactly one `~/Projects/*-knowledge-base`.
-        let projects = home()?.join("Projects");
-        let found: Vec<PathBuf> = std::fs::read_dir(projects)
-            .ok()?
-            .filter_map(|e| e.ok())
-            .map(|e| e.path())
-            .filter(|p| {
-                p.file_name()
-                    .map(|n| n.to_string_lossy().ends_with("-knowledge-base"))
-                    .unwrap_or(false)
-                    && p.join(".git").exists()
-            })
-            .collect();
-        (found.len() == 1).then(|| found[0].clone())
+    /// How the folder was found, once the repository is open.
+    pub fn found_by(&self) -> Option<super::binding::FoundBy> {
+        *self.found_by.lock().unwrap()
     }
 
-    /// The open repository. Clones `--repo` on the first call when the folder does not exist.
+    /// The open repository (see `project-binding`). The folder is found at the first call and
+    /// kept. A new clone happens only here, once.
     pub fn repo(&self) -> Result<Arc<Repo>> {
         let mut slot = self.repo.lock().unwrap();
         if let Some(r) = slot.as_ref() {
             return Ok(r.clone());
         }
-        let dir = self.repo_dir().ok_or_else(|| {
-            Error::setup("No knowledge base is set up.")
-                .with_next("Add --repo <git-url> to the MCP entry, or use --path <folder>.")
-        })?;
-        let repo = if dir.join(".git").exists() {
-            let author = Author::resolve(
+        let found = super::binding::locate(&self.args)?;
+        let limit = self.limits(None);
+        let effective = &limit.effective;
+        let author = |dir: &Path| {
+            Author::resolve(
                 self.args.author_name.as_deref(),
                 self.args.author_email.as_deref(),
-                &dir,
-            )?;
-            Repo::open(&dir, author)?
-        } else if let Some(url) = &self.args.repo {
-            if dir.exists()
-                && std::fs::read_dir(&dir)
-                    .map(|mut d| d.next().is_some())
-                    .unwrap_or(false)
-            {
-                return Err(Error::setup(format!(
-                    "{} exists and is not a Git repository.",
-                    dir.display()
-                ))
-                .with_next("Choose another folder with --path, or remove this one."));
-            }
-            let author = Author::resolve(
-                self.args.author_name.as_deref(),
-                self.args.author_email.as_deref(),
-                dir.parent().unwrap_or(Path::new(".")),
-            )?;
-            Repo::clone_from(url, &dir, author)?
+                dir,
+            )
+        };
+        let repo = if let Some(url) = &found.clone_url {
+            let parent = found.dir.parent().unwrap_or(Path::new("."));
+            std::fs::create_dir_all(parent)
+                .map_err(|e| Error::setup(format!("Cannot create {}: {e}", parent.display())))?;
+            super::binding::clone_checked(url, &found.dir, effective, author(parent)?)?
         } else {
-            return Err(
-                Error::setup(format!("{} is not a Git repository.", dir.display()))
-                    .with_next("Pass the folder of a clone with --path, or a URL with --repo."),
-            );
+            if !found.dir.exists() {
+                return Err(
+                    Error::setup(format!("{} does not exist.", found.dir.display()))
+                        .with_next("Pass the folder of a clone with --path, or a URL with --repo."),
+                );
+            }
+            super::binding::check_folder(&self.args, &found.dir, effective)?;
+            Repo::open(&found.dir, author(&found.dir)?)?
         };
         let repo = Arc::new(repo);
+        *self.found_by.lock().unwrap() = Some(found.found_by);
         *slot = Some(repo.clone());
         Ok(repo)
     }
@@ -170,42 +134,4 @@ fn read_only() -> Effective {
         access: Some(Access::ReadOnly),
         ..Limits::default()
     }])
-}
-
-fn home() -> Option<PathBuf> {
-    std::env::var_os("HOME").map(PathBuf::from)
-}
-
-/// `~/Projects/<slug>-knowledge-base` from the last part of a Git URL.
-pub fn default_clone_dir(url: &str) -> PathBuf {
-    let last = url
-        .trim_end_matches('/')
-        .rsplit(['/', ':'])
-        .next()
-        .unwrap_or("knowledge");
-    let name = last.trim_end_matches(".git");
-    let slug = kb::slug_from_name(name);
-    let slug = slug.trim_end_matches("-knowledge-base").to_string();
-    let slug = if slug.is_empty() {
-        "knowledge".to_string()
-    } else {
-        slug
-    };
-    home()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("Projects")
-        .join(format!("{slug}-knowledge-base"))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn clone_folder_comes_from_the_url() {
-        let d = default_clone_dir("git@github.com:example/team-knowledge-base.git");
-        assert!(d.ends_with("Projects/team-knowledge-base"));
-        let d = default_clone_dir("https://example.org/acme/notes.git");
-        assert!(d.ends_with("Projects/notes-knowledge-base"));
-    }
 }

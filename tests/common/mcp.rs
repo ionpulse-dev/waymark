@@ -55,6 +55,8 @@ pub struct Spawn {
     pub elicitation: bool,
     /// The exact `elicitation` capability to announce (instead of `{}`).
     pub elicitation_caps: Option<Value>,
+    /// The working folder of the server. The default is the home folder.
+    pub cwd: Option<PathBuf>,
 }
 
 impl Spawn {
@@ -101,7 +103,7 @@ impl McpClient {
             .env("GIT_TERMINAL_PROMPT", "0")
             .env_remove("WAYMARK_AUTHOR_NAME")
             .env_remove("WAYMARK_AUTHOR_EMAIL")
-            .current_dir(home)
+            .current_dir(spawn.cwd.as_deref().unwrap_or(home))
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit());

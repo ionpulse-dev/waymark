@@ -3,8 +3,10 @@
 pub mod approval;
 pub mod approval_text;
 pub mod args;
+pub mod binding;
 pub mod context;
 pub mod error;
+pub mod repo_url;
 pub mod result;
 pub mod schema;
 pub mod tool;

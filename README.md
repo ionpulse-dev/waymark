@@ -198,6 +198,32 @@ A limit can switch a tool off, and then it is not listed. There is no tool that
 changes limits, pause, approval, or credentials. The full list is in the
 [MCP server spec](specs/foundation/mcp-server/requirements.md).
 
+## Project and default entry
+
+One waymark process serves one knowledge base, and no tool can change it. A
+project shares its knowledge base through the MCP entry in the project (for
+example `.mcp.json`), which holds the repository URL and no secret:
+
+```json
+{ "mcpServers": { "waymark": { "command": "waymark", "args": ["--repo", "git@github.com:example/knowledge.git", "--kb-id", "<id from .mkbase/waymark.toml>"] } } }
+```
+
+A personal default in the user-level config of your agent tool needs no
+arguments if the knowledge base is in `~/Projects/<name>-knowledge-base`:
+
+```json
+{ "mcpServers": { "waymark": { "command": "waymark" } } }
+```
+
+Use the same server name in both. In the agent tools that were checked, the
+project entry wins in the project. waymark finds the folder in this order:
+`--path`; `--repo` (cloned once to `~/Projects/<name>-knowledge-base`); the
+working folder and the folders above it; the one knowledge base in
+`~/Projects`. `--kb-id` makes the server refuse a repository with another ID.
+`allowed_repo_hosts` in your personal config limits the Git hosts waymark may
+use. A large first clone can exceed the start time-out of your tool: clone it by
+hand to the default folder first.
+
 ## Pause writes
 
 To stop all writes at once, add this to `~/.config/waymark/config.toml`:
