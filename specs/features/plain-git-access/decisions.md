@@ -84,3 +84,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** An update tool (rejected: the tool set stays small, and the file may hold the team's own text).
 
 **Reason:** The file belongs to the team. A check of the version in `status` is in `todo.md` of `maintenance`.
+
+## Implementation notes — 2026-11-14
+
+- The two skill files were copied from `waymark-trail` (version 1.5.1) to `plain-git/`. The personal copy is byte-equal to `~/.claude/skills/personal-knowledge-base/SKILL.md`. Decided autonomously.
+- `kb::agents_file` has `Audience`, `render`, `strip`, `skill_version`, and `frontmatter_value`. `kb::init_with(dir, name, slug, audience, email_domains)` writes `AGENTS.md` through `render`. `kb::init` keeps its signature and uses `Audience::Personal`. The tool `init` (create-knowledge-base) calls `init_with`.
+- A1, A4, and A5 call `kb::init_with` directly, because the `init` tool does not exist yet. `create-knowledge-base` adds the tool test that goes through the tool.
+- The text of both skills says "as the section \"Update of this skill\" says". The copy drops that section, so the sentence points to nothing. The test A6 checks the heading only. See `todo.md`.
+- The old template `src/kb/templates/AGENTS.md` is removed. `agents-intro.md` replaces it.
+- A10 skips itself in a folder that is not a Git checkout, and when `plain-git/` is not yet tracked.

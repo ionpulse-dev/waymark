@@ -1,5 +1,6 @@
 //! The layout of a content repository and its root (see `knowledge-base-repo`).
 
+use super::agents_file::Audience;
 use super::settings;
 use crate::error::{Error, Result};
 use std::fs;
@@ -8,7 +9,6 @@ use std::path::{Path, PathBuf};
 pub const MARKER: &str = ".mkbase";
 pub const SETTINGS_FILE: &str = "waymark.toml";
 
-const AGENTS_TEMPLATE: &str = include_str!("templates/AGENTS.md");
 const GITIGNORE_TEMPLATE: &str = include_str!("templates/gitignore");
 const OBSIDIAN_TEMPLATE: &str = include_str!("templates/obsidian-app.json");
 const SETTINGS_TEMPLATE: &str = include_str!("templates/waymark.toml");
@@ -83,14 +83,23 @@ pub fn find_root(start: &Path) -> Result<PathBuf> {
 }
 
 /// The files that `init` writes, as (path below the repository folder, content).
-pub fn init_files(name: &str, slug: &str, id: &str) -> Vec<(String, String)> {
+pub fn init_files(
+    name: &str,
+    slug: &str,
+    id: &str,
+    audience: Audience,
+    email_domains: &[String],
+) -> Vec<(String, String)> {
     let name_toml = toml::Value::String(name.to_string()).to_string();
     let settings = SETTINGS_TEMPLATE
         .replace("{name}", &name_toml)
         .replace("{id}", id)
         .replace("{slug}", slug);
     vec![
-        ("AGENTS.md".to_string(), AGENTS_TEMPLATE.to_string()),
+        (
+            "AGENTS.md".to_string(),
+            super::agents_file::render(audience, email_domains),
+        ),
         (".gitignore".to_string(), GITIGNORE_TEMPLATE.to_string()),
         (
             ".obsidian/app.json".to_string(),
@@ -109,8 +118,19 @@ pub fn init_files(name: &str, slug: &str, id: &str) -> Vec<(String, String)> {
 /// `validation_failed` if a file of the layout exists already.
 /// Returns the paths that were written, below the repository folder.
 pub fn init(repo_dir: &Path, name: &str, slug: &str) -> Result<Vec<String>> {
+    init_with(repo_dir, name, slug, Audience::Personal, &[])
+}
+
+/// Like `init`, for an audience and the allowed email domains of a team.
+pub fn init_with(
+    repo_dir: &Path,
+    name: &str,
+    slug: &str,
+    audience: Audience,
+    email_domains: &[String],
+) -> Result<Vec<String>> {
     let id = uuid::Uuid::new_v4().to_string();
-    let files = init_files(name, slug, &id);
+    let files = init_files(name, slug, &id, audience, email_domains);
     for (rel, _) in &files {
         if repo_dir.join(rel).exists() {
             return Err(Error::validation(format!(

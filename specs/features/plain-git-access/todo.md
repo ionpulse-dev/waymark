@@ -19,3 +19,8 @@ None.
 ## Open Questions
 
 None.
+
+## Notes 2026-11-14
+
+- The skills tell the agent to check for an update "as the section \"Update of this skill\" says". The copy in `AGENTS.md` has no such section. Change the wording in the next skill version (the source is `plain-git/`, a change starts in this spec).
+- Add a test of the `init` tool for `AGENTS.md` when `create-knowledge-base` is implemented.

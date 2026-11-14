@@ -2,10 +2,11 @@
 //!
 //! This module reads files. It does not run Git (see `gitsync`).
 
+pub mod agents_file;
 pub mod layout;
 pub mod settings;
 
-pub use layout::{find_root, init, slug_from_name, MARKER};
+pub use layout::{find_root, init, init_with, slug_from_name, MARKER};
 pub use settings::Settings;
 
 use crate::error::{Error, Result};
