@@ -22,17 +22,21 @@ Releases 0.1.0 to 0.1.5 are published (2026-11-14). 0.1.5 explains every setting
 
 ## For the next release
 
-1. Set the version in `Cargo.toml`, run `make check`, commit, push.
-2. Build and publish:
+1. Write the entry for the new version at the top of `CHANGELOG.md`: a short description for people, what is new and what to do. It becomes the text of the GitHub release.
+2. Commit and push it, then check:
 
    ```bash
-   bash scripts/package.sh
-   git tag vX.Y.Z && git push origin vX.Y.Z
-   gh release create vX.Y.Z dist/*.tar.gz dist/*.sha256 --generate-notes
+   bash scripts/release.sh X.Y.Z --check
    ```
 
-3. In the tap, copy `packaging/homebrew/waymark.rb` to `Formula/waymark.rb`, replace `VERSION` and `SHA256`, commit, push.
-4. Check with `brew upgrade waymark` and `waymark --version`.
+3. Release:
+
+   ```bash
+   bash scripts/release.sh X.Y.Z
+   ```
+
+   The script runs the checks, sets the version, builds, tags, publishes the release with the changelog text, updates the tap, and verifies the result. It stops at the first step that fails and names it. The rules are in `specs/foundation/distribution`, section "Release process".
+4. On your machine: `brew update && brew upgrade ionpulse-dev/tap/waymark`, then restart your agent tool.
 
 ## Not covered
 

@@ -34,6 +34,21 @@ else
   bad "the binary exists after cargo build"
 fi
 
+# changelog and release script (see specs/foundation/distribution, "Release process")
+entry=$(bash scripts/changelog-entry.sh 0.1.5 2>/dev/null) && [ "${#entry}" -ge 40 ] && ok "changelog-entry prints the entry of a version" || bad "changelog-entry prints the entry of a version"
+bash scripts/changelog-entry.sh 9.9.9 >/dev/null 2>&1 && bad "changelog-entry fails for a missing entry" || ok "changelog-entry fails for a missing entry"
+bash scripts/release.sh >/dev/null 2>&1 && bad "release.sh refuses a missing version" || ok "release.sh refuses a missing version"
+bash scripts/release.sh 1.0 >/dev/null 2>&1 && bad "release.sh refuses a bad version" || ok "release.sh refuses a bad version"
+res=$(bash scripts/release.sh 9.9.9 --check 2>&1) && bad "release.sh refuses a version without a changelog entry" || {
+  echo "$res" | grep -q "no entry for 9.9.9" && ok "release.sh refuses a version without a changelog entry" || bad "release.sh refuses a version without a changelog entry"
+}
+missing=""
+cv=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+for v in $cv $(git tag -l 'v*' | sed 's/^v//'); do
+  bash scripts/changelog-entry.sh "$v" >/dev/null 2>&1 || missing="$missing $v"
+done
+[ -z "$missing" ] && ok "every version and tag has a changelog entry" || bad "no changelog entry for:$missing"
+
 # public-check passes the repository and flags a planted secret
 bash scripts/public-check.sh >/dev/null 2>&1 && ok "public-check passes the repository" || bad "public-check passes the repository"
 plant=planted-secret.txt

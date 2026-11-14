@@ -11,3 +11,4 @@
 - [x] `docs/next-steps/release-checklist.md` and `packaging/homebrew/README.md`.
 - [x] README: install section.
 - [x] Run the local Homebrew install test and the full suite.
+- [x] `CHANGELOG.md`, `scripts/changelog-entry.sh`, `scripts/release.sh`, the release skill, and tests (2026-11-14).

@@ -54,6 +54,23 @@ Define how waymark reaches people: one binary per platform, one container image 
 - Updates: the person updates with the package manager or a new download. The binary does not update itself. The container updates by a new image tag.
 - Binary and tool descriptions always have the same version, because both are in one file.
 
+### Release process
+
+A release is one command: `scripts/release.sh <version>`. `scripts/release.sh <version> --check` runs only the checks and changes nothing. The script stops at the first step that fails and names it. A Claude Code skill (`.claude/skills/release/SKILL.md`) tells an agent how to prepare and run it.
+
+- **Every release has a description.** `CHANGELOG.md` holds one entry for each version, newest first, with a short text for people: what is new and what to do, with no commit list. The text of the entry is the text of the GitHub release. A release without an entry of at least 40 characters is refused (`scripts/changelog-entry.sh`).
+- **Steps of the script, in order:**
+  1. The checks: the entry exists, the version is not older than `Cargo.toml`, the branch is `main`, the working tree is clean (`.DS_Store` aside), `main` equals `origin/main`, the tag does not exist, `gh` is signed in, and the tap is reachable.
+  2. `make check` and `scripts/public-check.sh`.
+  3. The version in `Cargo.toml` (and `Cargo.lock`), in a commit `Release <version>` that is pushed. If `Cargo.toml` already has the version, no commit is made.
+  4. The archive and its checksum (`scripts/package.sh`).
+  5. The tag `v<version>`, pushed, and the GitHub release with the archive, the checksum file, and the entry of the changelog as notes.
+  6. The formula in the tap, filled with the version and the checksum, in a commit `waymark <version>`.
+  7. The verification: the published archive has the checksum, its binary reports the version, `brew audit --strict --new` passes, and the tag points at `HEAD`.
+- **The script never asks and never skips a failed check.** It does not install on the machine of the person. It prints the command: `brew update && brew upgrade <account>/tap/waymark`.
+- **Version numbers.** While waymark is below 1.0, a fix or a small change raises the patch number (0.1.5 to 0.1.6) and a larger change raises the minor number. The product owner decides.
+- **CI later.** The disabled workflow `.github/workflows/release.yml.disabled` may replace steps 4 to 6 when a token for the tap exists. The changelog rule stays.
+
 ## Acceptance Criteria
 
 - **Given** a Mac with `git`, **When** the person runs `brew install <account>/tap/waymark`, **Then** `waymark` is on the `PATH`.
@@ -62,6 +79,10 @@ Define how waymark reaches people: one binary per platform, one container image 
 - **Given** a release, **When** Gatekeeper checks it, **Then** it passes as notarized.
 - **Given** the container image, **When** it starts with the required settings, **Then** the server answers on HTTPS behind a proxy.
 - **Given** a new release, **When** the person installs it, **Then** the tool descriptions match the binary.
+- **Given** a version without an entry in `CHANGELOG.md`, **When** `scripts/release.sh` runs, **Then** it stops before it changes anything and says so.
+- **Given** a version with an entry, **When** the release is made, **Then** the GitHub release has the text of the entry as its notes.
+- **Given** a failed check or step, **When** `scripts/release.sh` runs, **Then** it stops and names the step, and no later step runs.
+- **Given** a finished release, **When** the script verifies it, **Then** the published archive has the checksum of the formula and its binary reports the version.
 
 ## Open Questions
 
