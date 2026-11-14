@@ -9,22 +9,22 @@ use std::path::PathBuf;
     name = "waymark",
     version,
     about = "Long-term agent memory. Starts an MCP server over stdio.",
-    after_help = "Every option is optional. Combine as many as you need, in any order.\n\
+    after_help = "One of `--repo` and `--path` is required. Every other option is optional. Combine as many as you need, in any order.\n\
 Your agent tool starts waymark, so the options usually go into the `args` list of its MCP entry.\n\n\
 Examples:\n  \
 waymark --repo git@github.com:example/waymark-agent-memory.git\n  \
 waymark --repo git@github.com:example/waymark-agent-memory.git --access read-only --max-results 3\n  \
-waymark --path ~/Projects/team-agent-memory --folders ops,docs/* --no-delete\n\n\
+waymark --path ~/vaults/team-memory --folders ops,docs/* --no-delete\n\n\
 Flags with a value take it after a space or `=`. Lists take comma-separated values with no spaces."
 )]
 pub struct Args {
-    /// Git URL of the memory repository. The server clones it on first start.
+    /// Git URL of the memory repository. The server clones it on first start, into `--path` or into `~/.waymark/<name>`. One of `--repo` and `--path` is required.
     #[arg(long)]
     pub repo: Option<String>,
     /// The ID that `.waymark/settings.toml` must have. Stops the server from opening a different memory repository by mistake.
     #[arg(long)]
     pub memory_repository_id: Option<String>,
-    /// Folder of the clone. Default: `~/Projects/<slug>-agent-memory`.
+    /// Folder of the memory repository. `~` is your home folder. With `--repo`, a missing or empty folder is the clone target. Without `--path`, `--repo` uses `~/.waymark/<name>`.
     #[arg(long)]
     pub path: Option<PathBuf>,
     /// Name for your changes. Default: your Git `user.name`.

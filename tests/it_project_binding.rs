@@ -70,8 +70,39 @@ fn personal(h: &Path, text: &str) {
     std::fs::write(p, text).unwrap();
 }
 
+/// The repository name of the `World` remote (`remote.git` gives `remote`).
+fn name(w: &World) -> String {
+    let n = w.remote.file_name().unwrap().to_string_lossy().to_string();
+    n.strip_suffix(".git").unwrap_or(&n).to_string()
+}
+
+fn default_dir(h: &Path, w: &World) -> PathBuf {
+    h.join(".waymark").join(name(w))
+}
+
+fn clone_to(w: &World, dir: &Path) {
+    git(
+        &w.root,
+        &[
+            "clone",
+            "-q",
+            w.remote.to_str().unwrap(),
+            dir.to_str().unwrap(),
+        ],
+    );
+}
+
+fn other_repository(dir: &Path) {
+    std::fs::create_dir_all(dir).unwrap();
+    git(dir, &["init", "-q"]);
+    git(
+        dir,
+        &["remote", "add", "origin", "file:///somewhere/else.git"],
+    );
+}
+
 #[test]
-fn repo_argument_clones_to_the_default_folder_once() {
+fn row1_repo_only_clones_to_default() {
     let w = World::new();
     let h = home(&w, "h1");
     let u = url(&w);
@@ -79,7 +110,11 @@ fn repo_argument_clones_to_the_default_folder_once() {
     let s = status(&mut c);
     assert_eq!(s["memory_repository"]["found_by"], "repo_argument");
     assert_eq!(s["memory_repository"]["id"], memory_repository_id(&w));
-    let dir = h.join("Projects/remote-agent-memory");
+    let dir = default_dir(&h, &w);
+    assert_eq!(
+        s["memory_repository"]["path"],
+        dir.display().to_string().as_str()
+    );
     assert!(dir.join(".git").is_dir());
     drop(c);
     // A second start reuses the clone: a marker file in it survives.
@@ -87,14 +122,52 @@ fn repo_argument_clones_to_the_default_folder_once() {
     let mut c = start(&h, &["--repo", &u], None);
     assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
     assert!(dir.join("marker.txt").exists());
+    // An empty default folder is a clone target too.
+    let h2 = home(&w, "h1b");
+    std::fs::create_dir_all(default_dir(&h2, &w)).unwrap();
+    let mut c = start(&h2, &["--repo", &u], None);
+    assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
+    assert!(default_dir(&h2, &w).join(".git").is_dir());
 }
 
 #[test]
-fn repo_and_path_clone_into_the_path() {
+fn row2_repo_only_uses_same_remote() {
     let w = World::new();
-    let h = home(&w, "h2");
-    let target = h.join("elsewhere");
+    let h = home(&w, "h2a");
+    let dir = default_dir(&h, &w);
+    std::fs::create_dir_all(dir.parent().unwrap()).unwrap();
+    clone_to(&w, &dir);
+    std::fs::write(dir.join("marker.txt"), "x").unwrap();
     let u = url(&w);
+    let plain = u.strip_suffix(".git").unwrap_or(&u).to_string();
+    for form in [u.clone(), plain, format!("{u}/")] {
+        let mut c = start(&h, &["--repo", &form], None);
+        assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
+        assert!(dir.join("marker.txt").exists());
+    }
+}
+
+#[test]
+fn row3_repo_only_name_collision() {
+    let w = World::new();
+    let h = home(&w, "h3a");
+    let dir = default_dir(&h, &w);
+    other_repository(&dir);
+    let before = git(&dir, &["remote", "-v"]);
+    let mut c = start(&h, &["--repo", &url(&w)], None);
+    let r = c.call("list", json!({}));
+    assert_eq!(r.code(), Some("setup_problem"));
+    assert!(r.message().contains("Name collision"), "{}", r.message());
+    assert!(r.json["next"].as_str().unwrap().contains("--path"));
+    assert_eq!(git(&dir, &["remote", "-v"]), before);
+}
+
+#[test]
+fn row4_both_clones_to_path() {
+    let w = World::new();
+    let u = url(&w);
+    let h = home(&w, "h4a");
+    let target = h.join("elsewhere");
     let mut c = start(
         &h,
         &["--repo", &u, "--path", target.to_str().unwrap()],
@@ -103,6 +176,126 @@ fn repo_and_path_clone_into_the_path() {
     let s = status(&mut c);
     assert_eq!(s["memory_repository"]["found_by"], "path_argument");
     assert!(target.join(".git").is_dir());
+    assert!(!h.join(".waymark").exists());
+    // An empty path is a clone target too.
+    let h2 = home(&w, "h4b");
+    let empty = h2.join("empty");
+    std::fs::create_dir_all(&empty).unwrap();
+    let mut c = start(
+        &h2,
+        &["--repo", &u, "--path", empty.to_str().unwrap()],
+        None,
+    );
+    assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
+    assert!(empty.join(".git").is_dir());
+}
+
+#[test]
+fn row5_both_uses_same_remote() {
+    let w = World::new();
+    let h = home(&w, "h5a");
+    let dir = h.join("mine");
+    clone_to(&w, &dir);
+    let mut c = start(
+        &h,
+        &["--repo", &url(&w), "--path", dir.to_str().unwrap()],
+        None,
+    );
+    let s = status(&mut c);
+    assert_eq!(s["memory_repository"]["state"], "ready");
+    assert_eq!(s["memory_repository"]["found_by"], "path_argument");
+}
+
+#[test]
+fn row6_both_remote_mismatch() {
+    let w = World::new();
+    let h = home(&w, "h6a");
+    let before = git(&w.a, &["remote", "-v"]);
+    let mut c = start(
+        &h,
+        &[
+            "--repo",
+            "file:///somewhere/else.git",
+            "--path",
+            w.a.to_str().unwrap(),
+        ],
+        None,
+    );
+    let r = c.call("list", json!({}));
+    assert_eq!(r.code(), Some("setup_problem"));
+    assert!(r.message().contains("Remote mismatch"), "{}", r.message());
+    assert_eq!(git(&w.a, &["remote", "-v"]), before);
+}
+
+#[test]
+fn row7_path_only_uses_memory_repository() {
+    let w = World::new();
+    let h = home(&w, "h7a");
+    let mut c = start(&h, &["--path", w.a.to_str().unwrap()], None);
+    let s = status(&mut c);
+    assert_eq!(s["memory_repository"]["state"], "ready");
+    assert_eq!(s["memory_repository"]["found_by"], "path_argument");
+}
+
+#[test]
+fn row8_path_only_missing_or_empty() {
+    let w = World::new();
+    let h = home(&w, "h8a");
+    let missing = h.join("missing");
+    let empty = h.join("empty");
+    std::fs::create_dir_all(&empty).unwrap();
+    for p in [missing, empty] {
+        let mut c = start(&h, &["--path", p.to_str().unwrap()], None);
+        let r = c.call("list", json!({}));
+        assert_eq!(r.code(), Some("setup_problem"));
+        assert!(r.json["next"].as_str().unwrap().contains("--repo"));
+        assert!(!p.join(".git").exists());
+    }
+}
+
+#[test]
+fn row9_neither_given() {
+    let w = World::new();
+    let h = home(&w, "h9a");
+    // A memory repository in the working folder and one in the home folder are not used.
+    clone_to(&w, &h.join("Projects/x-agent-memory"));
+    let mut c = start(&h, &[], Some(w.a.clone()));
+    assert!(status(&mut c).is_object());
+    let r = c.call("list", json!({}));
+    assert_eq!(r.code(), Some("setup_problem"));
+    let next = r.json["next"].as_str().unwrap();
+    assert!(next.contains("--repo") && next.contains("--path"));
+    let s = c.call("status", json!({})).json;
+    assert!(s["memory_repository"]["path"].is_null(), "{s}");
+    assert_eq!(s["problem"]["code"], "setup_problem");
+}
+
+#[test]
+fn a_tilde_and_a_relative_path_are_expanded() {
+    let w = World::new();
+    let u = url(&w);
+    let h = home(&w, "h9b");
+    let mut c = start(&h, &["--repo", &u, "--path", "~/vault"], None);
+    assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
+    assert!(h.join("vault/.git").is_dir());
+    let h2 = home(&w, "h9c");
+    let mut c = start(
+        &h2,
+        &["--repo", &u, "--path", "rel/vault"],
+        Some(h2.clone()),
+    );
+    assert_eq!(status(&mut c)["memory_repository"]["state"], "ready");
+    assert!(h2.join("rel/vault/.git").is_dir());
+}
+
+#[test]
+fn a_url_without_a_name_needs_a_path() {
+    let w = World::new();
+    let h = home(&w, "h9d");
+    let mut c = start(&h, &["--repo", "https://example.org/.git"], None);
+    let r = c.call("list", json!({}));
+    assert_eq!(r.code(), Some("setup_problem"));
+    assert!(r.json["next"].as_str().unwrap().contains("--path"));
 }
 
 #[test]
@@ -187,11 +380,10 @@ fn allowed_hosts_refuse_a_clone_and_allow_localhost() {
     let u = url(&w);
     let mut c = start(&h, &["--repo", &u], None);
     assert_eq!(c.call("list", json!({})).code(), Some("access_denied"));
-    let dir = h.join("Projects/remote-agent-memory");
+    let dir = default_dir(&h, &w);
     assert!(!dir.exists());
-    assert!(!h
-        .join("Projects/remote-agent-memory.waymark-clone")
-        .exists());
+    assert!(!default_dir(&h, &w).with_extension("waymark-clone").exists());
+    assert!(!h.join(".waymark").exists());
     drop(c);
     personal(&h, "[limits]\nallowed_repo_hosts = [\"localhost\"]\n");
     let mut c = start(&h, &["--repo", &u], None);
@@ -231,70 +423,6 @@ fn tools_take_no_repository_argument() {
 }
 
 #[test]
-fn working_folder_is_found_from_the_root_a_subfolder_and_the_parent() {
-    let w = World::new();
-    let h = home(&w, "h8");
-    for cwd in [
-        w.a.join("agent-memory"),
-        w.a.join("agent-memory/.waymark"),
-        w.a.clone(),
-    ] {
-        let mut c = start(&h, &[], Some(cwd));
-        let s = status(&mut c);
-        assert_eq!(s["memory_repository"]["found_by"], "working_folder");
-    }
-}
-
-#[test]
-fn single_default_folder_is_used() {
-    let w = World::new();
-    let h = home(&w, "h9");
-    git(
-        &w.root,
-        &[
-            "clone",
-            "-q",
-            w.remote.to_str().unwrap(),
-            h.join("Projects/a-agent-memory").to_str().unwrap(),
-        ],
-    );
-    let mut c = start(&h, &[], None);
-    let s = status(&mut c);
-    assert_eq!(s["memory_repository"]["found_by"], "default_folder");
-}
-
-#[test]
-fn two_default_folders_and_nothing_found() {
-    let w = World::new();
-    let h = home(&w, "h10");
-    let mut c = start(&h, &[], None);
-    assert!(status(&mut c).is_object());
-    let r = c.call("list", json!({}));
-    assert_eq!(r.code(), Some("setup_problem"));
-    assert!(r.json["next"].as_str().unwrap().contains("--repo"));
-    drop(c);
-    for n in ["a", "b"] {
-        git(
-            &w.root,
-            &[
-                "clone",
-                "-q",
-                w.remote.to_str().unwrap(),
-                h.join(format!("Projects/{n}-agent-memory"))
-                    .to_str()
-                    .unwrap(),
-            ],
-        );
-    }
-    let mut c = start(&h, &[], None);
-    assert!(status(&mut c).is_object());
-    let r = c.call("list", json!({}));
-    assert_eq!(r.code(), Some("setup_problem"));
-    assert!(r.message().contains("a-agent-memory") && r.message().contains("b-agent-memory"));
-    assert!(r.json["next"].as_str().unwrap().contains("--path"));
-}
-
-#[test]
 fn a_git_repository_without_a_marker() {
     let w = World::new();
     let h = home(&w, "h11");
@@ -304,26 +432,6 @@ fn a_git_repository_without_a_marker() {
     let mut c = start(&h, &["--path", d.to_str().unwrap()], None);
     assert!(status(&mut c).is_object());
     assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
-}
-
-#[test]
-fn origin_mismatch_does_not_touch_the_folder() {
-    let w = World::new();
-    let h = home(&w, "h12");
-    let before = git(&w.a, &["remote", "-v"]);
-    let mut c = start(
-        &h,
-        &[
-            "--repo",
-            "file:///somewhere/else.git",
-            "--path",
-            w.a.to_str().unwrap(),
-        ],
-        None,
-    );
-    let r = c.call("list", json!({}));
-    assert_eq!(r.code(), Some("setup_problem"));
-    assert_eq!(git(&w.a, &["remote", "-v"]), before);
 }
 
 #[test]
@@ -352,14 +460,14 @@ fn a_failed_clone_leaves_no_temporary_folder() {
     let w = World::new();
     let h = home(&w, "h14");
     // A leftover from an earlier start.
-    let tmp = h.join("Projects/nothing-agent-memory.waymark-clone");
+    let tmp = h.join(".waymark/nothing.waymark-clone");
     std::fs::create_dir_all(&tmp).unwrap();
     std::fs::write(tmp.join("junk"), "x").unwrap();
     let mut c = start(&h, &["--repo", "file:///does/not/exist/nothing.git"], None);
     let r = c.call("list", json!({}));
     assert_eq!(r.code(), Some("sync_failed"), "{}", r.json);
     assert!(!tmp.exists());
-    assert!(!h.join("Projects/nothing-agent-memory").exists());
+    assert!(!h.join(".waymark/nothing").exists());
 }
 
 #[test]

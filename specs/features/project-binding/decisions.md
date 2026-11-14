@@ -149,7 +149,7 @@ _Note 2026-11-14: the personal default is a user-level entry that names `--repo`
 
 **Decision:** "Fails at start" means that the server starts, `status` works, and every other tool returns `setup_problem` with the sentence "The MCP entry names no memory repository" and a `next` that names `--repo` and `--path`. The process does not exit.
 
-**Alternatives considered:** Exit with a non-zero code and a message on stderr. Rejected: agent tools show a dead server as "failed to connect" and hide stderr, so the person sees no hint. This is the reason of the earlier decision "How the server finds the knowledge base". Reopen it if the product owner wants an exit.
+**Alternatives considered:** Exit with a non-zero code and a message on stderr. Rejected: agent tools show a dead server as "failed to connect" and hide stderr, so the person sees no hint. This is the reason of the earlier decision "How the server finds the knowledge base". Confirmed by the product owner on 2026-11-14: report the error, do not exit.
 
 ## Same remote: compare `host/path` of `origin` — 2026-11-14
 
@@ -170,3 +170,9 @@ _Note 2026-11-14: the personal default is a user-level entry that names `--repo`
 **Decision:** An existing folder with no entries is a clone target. This covers a folder that the person made for the vault or that Git left behind.
 
 **Reason:** The table of the product owner treats "missing or empty" the same. The clone goes to a temporary folder and is renamed, so the empty folder is replaced and never mixed.
+
+## `find_root` never climbs out of a Git repository — 2026-11-14
+
+**Decision:** `memrepo::layout::find_root` still looks above its start folder for a `.waymark` marker, but it stops at a folder that has a `.git`. Found when the default folder moved to `~/.waymark/<name>`: the folder `~/.waymark` itself looked like a marker for every clone without one (an empty repository), and the settings were read from the wrong place.
+
+**Reason:** The default clone folder lives inside a folder that is named like the marker. A repository is the boundary of its memory repository. Unit test: `the_search_above_stops_at_a_git_repository`.

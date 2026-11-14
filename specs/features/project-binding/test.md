@@ -29,17 +29,17 @@ _The tests use the harness of `integration-testing`. The `HOME` of the `World` i
 
 ## Test Cases
 
-- [ ] [auto] Row 1: `--repo` with a `file://` remote and an empty home: the server clones to `~/.waymark/<name>`, `status` shows the ID, the path, and `found_by: "repo_argument"`. An existing empty `~/.waymark/<name>` is used as the target too. A second start does not clone again (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 2: `~/.waymark/<name>` holds a clone of the same remote, and `--repo` uses the other URL form (with and without `.git`): the folder is used and no clone starts (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 3: `~/.waymark/<name>` holds a repository with another remote: `setup_problem` whose message says name collision and whose `next` names `--path`. The folder is not changed (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 4: `--repo` and `--path` to a missing folder, and to an empty folder: the clone goes to the path, and `~/.waymark` is not created (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 5: `--repo` and `--path` with a clone of the same remote: it is used (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 6: `--repo` and `--path` with another remote: `setup_problem` that says remote mismatch. The folder is not changed (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 7: `--path` only, with a memory repository: it is used, with `found_by: "path_argument"` (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 8: `--path` only, missing and empty: `setup_problem` whose `next` says to add `--repo` (`tests/it_project_binding.rs`)
-- [ ] [auto] Row 9: no arguments: `status` works, another tool gives `setup_problem` whose `next` names `--repo` and `--path`. The working folder holds a memory repository and `$HOME/Projects/x-agent-memory` holds one: neither is used (`tests/it_project_binding.rs`)
-- [ ] [auto] `--path ~/x` expands to `$HOME/x`, and a relative `--path` is resolved against the working folder (`tests/it_project_binding.rs`)
-- [ ] [auto] A URL without a name and no `--path`: `setup_problem` that asks for `--path` (unit test in `src/mcp/repo_url.rs`, and `tests/it_project_binding.rs`)
+- [x] [auto] Row 1: `--repo` with a `file://` remote and an empty home: the server clones to `~/.waymark/<name>`, `status` shows the ID, the path, and `found_by: "repo_argument"`. An existing empty `~/.waymark/<name>` is used as the target too. A second start does not clone again (`tests/it_project_binding.rs`)
+- [x] [auto] Row 2: `~/.waymark/<name>` holds a clone of the same remote, and `--repo` uses the other URL form (with and without `.git`): the folder is used and no clone starts (`tests/it_project_binding.rs`)
+- [x] [auto] Row 3: `~/.waymark/<name>` holds a repository with another remote: `setup_problem` whose message says name collision and whose `next` names `--path`. The folder is not changed (`tests/it_project_binding.rs`)
+- [x] [auto] Row 4: `--repo` and `--path` to a missing folder, and to an empty folder: the clone goes to the path, and `~/.waymark` is not created (`tests/it_project_binding.rs`)
+- [x] [auto] Row 5: `--repo` and `--path` with a clone of the same remote: it is used (`tests/it_project_binding.rs`)
+- [x] [auto] Row 6: `--repo` and `--path` with another remote: `setup_problem` that says remote mismatch. The folder is not changed (`tests/it_project_binding.rs`)
+- [x] [auto] Row 7: `--path` only, with a memory repository: it is used, with `found_by: "path_argument"` (`tests/it_project_binding.rs`)
+- [x] [auto] Row 8: `--path` only, missing and empty: `setup_problem` whose `next` says to add `--repo` (`tests/it_project_binding.rs`)
+- [x] [auto] Row 9: no arguments: `status` works, another tool gives `setup_problem` whose `next` names `--repo` and `--path`. The working folder holds a memory repository and `$HOME/Projects/x-agent-memory` holds one: neither is used (`tests/it_project_binding.rs`)
+- [x] [auto] `--path ~/x` expands to `$HOME/x`, and a relative `--path` is resolved against the working folder (`tests/it_project_binding.rs`)
+- [x] [auto] A URL without a name and no `--path`: `setup_problem` that asks for `--path` (unit test in `src/mcp/repo_url.rs`, and `tests/it_project_binding.rs`)
 - [x] [auto] `--memory-repository-id` equal to the file: all tools work (`tests/it_project_binding.rs`)
 - [x] [auto] `--memory-repository-id` different: `status` works and shows the problem, and a read tool and a write tool give `setup_problem`. The write makes no commit (`tests/it_project_binding.rs`)
 - [x] [auto] The shared file has no `id`: `setup_problem` (`tests/it_project_binding.rs`)
@@ -54,7 +54,7 @@ _The tests use the harness of `integration-testing`. The `HOME` of the `World` i
 - [x] [auto] A clone from a remote that does not exist: `sync_failed`, and no temporary folder remains. A leftover temporary folder from an earlier start is removed (`tests/it_project_binding.rs`)
 - [x] [auto] Two `McpClient`s with different `--path` in one `World`: a write through one leaves the other repository untouched (`tests/it_project_binding.rs`)
 - [x] [auto] A `--repo` URL with `user:secret@` never appears in a result, in `status`, or in stderr (`tests/it_project_binding.rs`)
-- [ ] [auto] Unit tests of `host`, `name`, `same_remote` (SSH and HTTPS forms), and `redact` (inline in `src/mcp/repo_url.rs`)
+- [x] [auto] Unit tests of `host`, `name`, `same_remote` (SSH and HTTPS forms), and `redact` (inline in `src/mcp/repo_url.rs`)
 - [ ] [manual] M1, Claude Code: the project entry wins. Steps: (1) Add an entry named `waymark` with `--repo <A>` to the user-level MCP config. (2) In a project folder, commit a `.mcp.json` with an entry named `waymark` and `--repo <B>`. (3) Start Claude Code in the project and ask the agent to call `status`. Expected: `status` shows the memory repository B. Outside the project it shows A. Record the exact config locations.
 - [ ] [manual] M2, GitHub Copilot in VS Code: as M1. Expected and record: which entry wins.
 - [ ] [manual] M3, OpenAI Codex CLI: as M1. Expected and record: which entry wins.

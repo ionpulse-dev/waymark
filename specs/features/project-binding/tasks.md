@@ -18,12 +18,12 @@ _`requires`: `mcp-server`._
 
 _Prerequisite: the changed specs are approved._
 
-- [ ] `src/mcp/repo_url.rs`: replace `slug` by `name`, and make `same_remote` compare `host/path` (SSH and HTTPS forms). Unit tests.
-- [ ] `src/mcp/binding.rs`: remove the working-folder search, the scan of the home folder, and `default_clone_dir` by slug. Add `~/.waymark/<name>`, the `~` expansion, the empty-folder rule, and the new error sentences. `FoundBy` keeps `PathArgument` and `RepoArgument`.
-- [ ] `src/mcp/context.rs`, `src/mcp/session.rs`, `src/mcp/instructions.rs`: use the two `FoundBy` values and the new `locate`. `status` shows the folder in use.
-- [ ] `src/mcp/args.rs`: the help text and the doc comment of `--path` and `--repo`.
-- [ ] `src/memrepo/templates/settings.toml`: the comment of `slug`.
-- [ ] `tests/it_project_binding.rs`: one test per row of the table, and the other cases of `test.md`.
-- [ ] `tests/it_join_memory_repository.rs`: the clone-folder tests for the new rules.
-- [ ] Update the harness, `README.md`, `docs/install.md`, `CHANGELOG.md`, and the old path text in `docs/`.
-- [ ] Run `make check`.
+- [x] `src/mcp/repo_url.rs`: replace `slug` by `name`, and make `same_remote` compare `host/path` (SSH and HTTPS forms). Unit tests.
+- [x] `src/mcp/binding.rs`: remove the working-folder search, the scan of the home folder, and `default_clone_dir` by slug. Add `~/.waymark/<name>`, the `~` expansion, the empty-folder rule, and the new error sentences. `FoundBy` keeps `PathArgument` and `RepoArgument`.
+- [x] `src/mcp/context.rs`, `src/mcp/session.rs`, `src/mcp/instructions.rs`: use the two `FoundBy` values and the new `locate`. `status` shows the folder in use.
+- [x] `src/mcp/args.rs`: the help text and the doc comment of `--path` and `--repo`.
+- [x] `src/memrepo/templates/settings.toml`: the comment of `slug`.
+- [x] `tests/it_project_binding.rs`: one test per row of the table, and the other cases of `test.md`.
+- [x] `tests/it_join_memory_repository.rs`: the clone-folder tests for the new rules.
+- [x] Update the harness, `README.md`, `docs/install.md`, `CHANGELOG.md`, and the old path text in `docs/`.
+- [x] Run `make check`.

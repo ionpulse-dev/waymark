@@ -146,7 +146,7 @@ fn a3_the_default_path_comes_from_the_url() {
     let s = wait_state(&mut c);
     assert_eq!(s["memory_repository"]["state"], "ready", "{s}");
     // Decided in `decisions.md`: the default folder keeps the form of `project-binding`.
-    assert!(h.join("Projects/remote-agent-memory/.git").is_dir());
+    assert!(h.join(".waymark/remote/.git").is_dir());
 }
 
 #[test]
@@ -308,7 +308,7 @@ fn a11_a_host_that_is_not_allowed_is_not_cloned() {
     let mut c = start(&h, &["--repo", &u]);
     let r = c.call("list", json!({}));
     assert_eq!(r.code(), Some("access_denied"), "{}", r.json);
-    assert!(!h.join("Projects").exists());
+    assert!(!h.join(".waymark").exists());
 }
 
 #[test]

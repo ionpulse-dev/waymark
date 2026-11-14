@@ -1,15 +1,14 @@
 //! How the server finds its memory repository (see `project-binding`).
 //!
 //! One process serves one memory repository. The folder is found at the first use and then kept.
-//! The rules, in order: `--path`, `--repo` (default folder), the working folder and its parents,
-//! and the one folder `~/Projects/*-agent-memory` that holds a memory repository.
+//! The entry names it: `--path` is the folder, and `--repo` alone uses `~/.waymark/<name>`.
+//! The server never searches, so it never guesses.
 
 use super::args::Args;
 use super::repo_url;
 use crate::config::Effective;
 use crate::error::{Code, Error, Result};
 use crate::gitsync::cmd;
-use crate::memrepo::layout::MARKER;
 use std::path::{Path, PathBuf};
 
 /// How the folder was found. `status` shows it as `found_by`.
@@ -17,8 +16,6 @@ use std::path::{Path, PathBuf};
 pub enum FoundBy {
     PathArgument,
     RepoArgument,
-    WorkingFolder,
-    DefaultFolder,
 }
 
 impl FoundBy {
@@ -26,8 +23,6 @@ impl FoundBy {
         match self {
             FoundBy::PathArgument => "path_argument",
             FoundBy::RepoArgument => "repo_argument",
-            FoundBy::WorkingFolder => "working_folder",
-            FoundBy::DefaultFolder => "default_folder",
         }
     }
 }
@@ -35,7 +30,7 @@ impl FoundBy {
 pub struct Found {
     pub dir: PathBuf,
     pub found_by: FoundBy,
-    /// The URL to clone, if the folder does not exist yet.
+    /// The URL to clone, if the folder is missing or empty.
     pub clone_url: Option<String>,
 }
 
@@ -43,97 +38,82 @@ fn home() -> Option<PathBuf> {
     std::env::var_os("HOME").map(PathBuf::from)
 }
 
-/// `~/Projects/<slug>-agent-memory` for a repository URL.
-pub fn default_clone_dir(url: &str) -> PathBuf {
-    home()
+/// `~/.waymark/<name>` for a repository URL.
+pub fn default_clone_dir(url: &str) -> Result<PathBuf> {
+    let name = repo_url::name(url).ok_or_else(|| {
+        Error::setup(format!(
+            "Cannot get a folder name from the URL {}.",
+            repo_url::redact(url)
+        ))
+        .with_next("Add --path <folder> to the MCP entry.")
+    })?;
+    Ok(home()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("Projects")
-        .join(format!("{}-agent-memory", repo_url::slug(url)))
+        .join(".waymark")
+        .join(name))
 }
 
-fn has_marker(dir: &Path) -> bool {
-    dir.join(MARKER).is_dir() || dir.join("agent-memory").join(MARKER).is_dir()
+/// A leading `~` is the home folder. A relative path is resolved against the working folder.
+fn expand_path(p: &Path) -> PathBuf {
+    let text = p.to_string_lossy();
+    if text == "~" || text.starts_with("~/") {
+        if let Some(h) = home() {
+            return h.join(text.trim_start_matches('~').trim_start_matches('/'));
+        }
+    }
+    if p.is_relative() {
+        if let Ok(cwd) = std::env::current_dir() {
+            return cwd.join(p);
+        }
+    }
+    p.to_path_buf()
 }
 
-fn git_root(dir: &Path) -> PathBuf {
-    match cmd::run(dir, None, &["rev-parse", "--show-toplevel"]) {
-        Ok(o) if o.ok => std::fs::canonicalize(o.stdout.trim()).unwrap_or(dir.to_path_buf()),
-        _ => dir.to_path_buf(),
+/// A folder that is missing, or has no entries.
+fn is_missing_or_empty(dir: &Path) -> bool {
+    match std::fs::read_dir(dir) {
+        Ok(mut d) => d.next().is_none(),
+        Err(_) => !dir.exists(),
     }
 }
 
-fn no_kb() -> Error {
-    Error::setup(
-        "No memory repository is set up. waymark found none in the working folder, and none or several in ~/Projects.",
-    )
-    .with_next("Add --repo <git url> or --path <folder> to the MCP entry.")
+fn nothing_named() -> Error {
+    Error::setup("The MCP entry names no memory repository.")
+        .with_next("Add --repo <git url> or --path <folder> to the MCP entry.")
 }
 
 /// Pick the folder. No network, no clone.
 pub fn locate(args: &Args) -> Result<Found> {
-    if let Some(p) = &args.path {
-        let clone_url = if p.exists() { None } else { args.repo.clone() };
-        return Ok(Found {
-            dir: p.clone(),
-            found_by: FoundBy::PathArgument,
-            clone_url,
-        });
-    }
-    if let Some(url) = &args.repo {
-        let dir = default_clone_dir(url);
-        let clone_url = if dir.exists() {
-            None
-        } else {
-            Some(url.clone())
-        };
-        return Ok(Found {
-            dir,
-            found_by: FoundBy::RepoArgument,
-            clone_url,
-        });
-    }
-    if let Ok(cwd) = std::env::current_dir() {
-        let mut cur = Some(cwd.as_path());
-        while let Some(d) = cur {
-            if has_marker(d) {
-                return Ok(Found {
-                    dir: git_root(d),
-                    found_by: FoundBy::WorkingFolder,
-                    clone_url: None,
-                });
-            }
-            cur = d.parent();
+    match (&args.repo, &args.path) {
+        (None, None) => Err(nothing_named()),
+        (repo, Some(p)) => {
+            let dir = expand_path(p);
+            let clone_url = match repo {
+                Some(url) if is_missing_or_empty(&dir) => Some(url.clone()),
+                Some(_) => None,
+                None if is_missing_or_empty(&dir) => {
+                    return Err(Error::setup(format!(
+                        "{} is missing or empty, and the MCP entry has no --repo.",
+                        dir.display()
+                    ))
+                    .with_next("Add --repo <git url> to clone the memory repository into it."))
+                }
+                None => None,
+            };
+            Ok(Found {
+                dir,
+                found_by: FoundBy::PathArgument,
+                clone_url,
+            })
         }
-    }
-    let projects = home().map(|h| h.join("Projects"));
-    let mut found: Vec<PathBuf> = projects
-        .and_then(|p| std::fs::read_dir(p).ok())
-        .into_iter()
-        .flatten()
-        .filter_map(|e| e.ok())
-        .map(|e| e.path())
-        .filter(|p| {
-            p.file_name()
-                .map(|n| n.to_string_lossy().ends_with("-agent-memory"))
-                .unwrap_or(false)
-                && has_marker(p)
-        })
-        .collect();
-    found.sort();
-    match found.len() {
-        1 => Ok(Found {
-            dir: found.remove(0),
-            found_by: FoundBy::DefaultFolder,
-            clone_url: None,
-        }),
-        0 => Err(no_kb()),
-        _ => {
-            let names: Vec<String> = found.iter().map(|p| p.display().to_string()).collect();
-            Err(Error::setup(format!(
-                "Several memory repositories are in ~/Projects: {}.",
-                names.join(", ")
-            ))
-            .with_next("Add --repo <git url> or --path <folder> to the MCP entry."))
+        (Some(url), None) => {
+            let dir = default_clone_dir(url)?;
+            let clone_url = is_missing_or_empty(&dir).then(|| url.clone());
+            Ok(Found {
+                dir,
+                found_by: FoundBy::RepoArgument,
+                clone_url,
+            })
         }
     }
 }
@@ -179,15 +159,23 @@ pub fn check_folder(args: &Args, dir: &Path, effective: &Effective) -> Result<()
     let origin = origin_url(dir);
     if let (Some(want), Some(have)) = (&args.repo, &origin) {
         if !repo_url::same_remote(want, have) {
+            let what = if args.path.is_some() {
+                "Remote mismatch"
+            } else {
+                "Name collision"
+            };
+            let fix = if args.path.is_some() {
+                "Fix --repo or --path in the MCP entry."
+            } else {
+                "Add --path <folder> to the MCP entry to choose another folder."
+            };
             return Err(Error::setup(format!(
-                "The folder {} has the remote {}, not {}.",
+                "{what}: the folder {} has the remote {}, not {}.",
                 dir.display(),
                 repo_url::redact(have),
                 repo_url::redact(want)
             ))
-            .with_next(
-                "Fix --repo or --path in the MCP entry. waymark did not change the folder.",
-            ));
+            .with_next(format!("{fix} waymark did not change the folder.")));
         }
     }
     if let Some(have) = &origin {

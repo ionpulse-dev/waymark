@@ -30,8 +30,9 @@ fn host_of_authority(authority: &str) -> String {
     h.to_ascii_lowercase()
 }
 
-/// The slug for the default folder: from the last part of the URL.
-pub fn slug(url: &str) -> String {
+/// The repository name for the default folder: the last part of the URL, without a trailing `/`
+/// and without `.git`. `None` if the URL gives no usable name.
+pub fn name(url: &str) -> Option<String> {
     let last = url
         .trim()
         .trim_end_matches('/')
@@ -39,32 +40,35 @@ pub fn slug(url: &str) -> String {
         .next()
         .unwrap_or("");
     let last = last.strip_suffix(".git").unwrap_or(last);
-    let mut out = String::new();
-    for c in last.to_ascii_lowercase().chars() {
-        if c.is_ascii_lowercase() || c.is_ascii_digit() {
-            out.push(c);
-        } else if !out.ends_with('-') {
-            out.push('-');
-        }
-    }
-    let out = out.trim_matches('-');
-    let out = out.strip_suffix("-agent-memory").unwrap_or(out);
-    let out = out.trim_matches('-').to_string();
-    if out.is_empty() {
-        "memory".to_string()
+    if last.is_empty() || last == "." || last == ".." || last.contains('\\') {
+        None
     } else {
-        out
+        Some(last.to_string())
     }
 }
 
-fn normal(url: &str) -> String {
+/// The path of a URL: no scheme, user, port, or host.
+fn path_part(url: &str) -> String {
     let u = url.trim().trim_end_matches('/');
-    u.strip_suffix(".git").unwrap_or(u).to_string()
+    let u = u.strip_suffix(".git").unwrap_or(u);
+    let path = if let Some((_, rest)) = u.split_once("://") {
+        rest.find('/').map(|i| &rest[i..]).unwrap_or("")
+    } else if let Some((left, path)) = u.split_once(':') {
+        if !left.contains('/') && !left.is_empty() {
+            path
+        } else {
+            u
+        }
+    } else {
+        u
+    };
+    path.trim_start_matches('/').to_string()
 }
 
-/// Are two remote URLs the same address? A trailing `/` and `.git` do not count.
+/// Are two remote URLs the same repository? The form (SSH or HTTPS), the user, the port, a trailing
+/// `/`, and `.git` do not count. The host is compared in lower case, the path as it is.
 pub fn same_remote(a: &str, b: &str) -> bool {
-    normal(a) == normal(b)
+    host(a) == host(b) && path_part(a) == path_part(b)
 }
 
 /// The URL without a user and a password. A scp-like address keeps its form.
@@ -112,15 +116,23 @@ mod tests {
     }
 
     #[test]
-    fn slugs() {
+    fn names() {
         assert_eq!(
-            slug("git@example.org:team/Example_Agent-Memory.git"),
-            "example"
+            name("git@example.org:team/Example_Agent-Memory.git").as_deref(),
+            Some("Example_Agent-Memory")
         );
-        assert_eq!(slug("https://example.org/acme/notes.git/"), "notes");
-        assert_eq!(slug("https://example.org/acme/My  Notes!.git"), "my-notes");
-        assert_eq!(slug("https://example.org/.git"), "memory");
-        assert_eq!(slug("/tmp/team-agent-memory"), "team");
+        assert_eq!(
+            name("https://example.org/acme/notes.git/").as_deref(),
+            Some("notes")
+        );
+        assert_eq!(
+            name("ssh://git@h:2222/acme/notes").as_deref(),
+            Some("notes")
+        );
+        assert_eq!(name("host:notes.git").as_deref(), Some("notes"));
+        assert_eq!(name("https://example.org/.git"), None);
+        assert_eq!(name("https://example.org/a/.."), None);
+        assert_eq!(name(""), None);
     }
 
     #[test]
@@ -128,7 +140,18 @@ mod tests {
         assert!(same_remote("file:///a/b.git", "file:///a/b"));
         assert!(same_remote("file:///a/b/", "file:///a/b.git"));
         assert!(!same_remote("file:///a/b", "file:///a/c"));
-        assert!(!same_remote("git@h:a/b.git", "https://h/a/b.git"));
+        assert!(same_remote("git@h:a/b.git", "https://h/a/b.git"));
+        assert!(same_remote(
+            "git@GitHub.com:a/b.git",
+            "https://github.com/a/b"
+        ));
+        assert!(same_remote(
+            "ssh://git@h:2222/a/b.git",
+            "https://user:pw@h/a/b/"
+        ));
+        assert!(!same_remote("git@h:a/b.git", "https://other/a/b.git"));
+        assert!(!same_remote("git@h:a/b.git", "https://h/c/b.git"));
+        assert!(!same_remote("git@h:a/b.git", "https://h/a/B.git"));
     }
 
     #[test]

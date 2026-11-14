@@ -32,7 +32,6 @@ fn local_notices(
     effective: &Effective,
     memrepo_notices: &[String],
     has_remote: Option<bool>,
-    found_by: Option<FoundBy>,
 ) -> Vec<String> {
     let mut out = Vec::new();
     if effective.paused {
@@ -42,15 +41,6 @@ fn local_notices(
         out.push("This repository has no remote.".to_string());
     }
     out.extend(memrepo_notices.iter().cloned());
-    match found_by {
-        Some(FoundBy::WorkingFolder) => {
-            out.push("The memory repository was found in the working folder.".to_string())
-        }
-        Some(FoundBy::DefaultFolder) => {
-            out.push("The memory repository was found in the default folder.".to_string())
-        }
-        _ => {}
-    }
     out
 }
 
@@ -67,7 +57,7 @@ fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
         let effective = ctx.limits(None).effective;
         Facts {
             memrepo: None,
-            notices: local_notices(&effective, &[], None, None),
+            notices: local_notices(&effective, &[], None),
             problem: Some(problem),
             settings: settings_json(&effective),
         }
@@ -108,7 +98,6 @@ fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
             &effective,
             &memrepo.settings.notices,
             Some(origin.is_some()),
-            found_by,
         ),
         problem: None,
         settings: settings_json(&effective),

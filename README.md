@@ -76,6 +76,11 @@ Tell your agent:
 }
 ```
 
+waymark clones the repository into `~/.waymark/<name>`. To keep it in a folder
+of your choice, add `"--path", "~/vaults/memory"` to `args`. One of `--repo` and
+`--path` is required. See "Where the memory repository lives" in the
+[install guide](docs/install.md).
+
 The [install guide](docs/install.md) lists every step, for agents and for people.
 
 ## Documentation

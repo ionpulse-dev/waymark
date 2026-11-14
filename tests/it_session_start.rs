@@ -102,7 +102,7 @@ fn unbound_instructions_and_status() {
     let mut c = McpClient::start(&h, Spawn::default());
     let t = instructions(&c);
     assert!(
-        t.contains("No memory repository is set up: No memory repository is set up."),
+        t.contains("No memory repository is set up: The MCP entry names no memory repository."),
         "{t}"
     );
     let s = c.call("status", json!({}));

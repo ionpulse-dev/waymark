@@ -62,13 +62,19 @@ pub fn find_root(start: &Path) -> Result<PathBuf> {
         }
         level = next;
     }
-    // Above the start folder.
-    let mut cur = start.parent();
+    // Above the start folder, but never out of its Git repository. A folder like `~/.waymark`
+    // that holds clones must not count as a marker for them.
+    let mut cur = Some(start);
     while let Some(p) = cur {
-        if has_marker(p) {
-            return Ok(p.to_path_buf());
+        if p.join(".git").exists() {
+            break;
         }
         cur = p.parent();
+        if let Some(parent) = cur {
+            if has_marker(parent) {
+                return Ok(parent.to_path_buf());
+            }
+        }
     }
     Err(Error::setup(format!(
         "No memory repository found at {}.",
@@ -211,6 +217,13 @@ mod tests {
         assert_eq!(find_root(&root).unwrap(), root);
         fs::create_dir_all(root.join("a/b")).unwrap();
         assert_eq!(find_root(&root.join("a/b")).unwrap(), root);
+    }
+
+    #[test]
+    fn the_search_above_stops_at_a_git_repository() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir_all(dir.path().join(".waymark/clone/.git")).unwrap();
+        assert!(find_root(&dir.path().join(".waymark/clone")).is_err());
     }
 
     #[test]
