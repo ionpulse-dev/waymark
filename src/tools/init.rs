@@ -1,11 +1,13 @@
-//! The `init` tool: set up an empty repository as a knowledge base
+//! The `init` tool: set up an empty repository as a knowledge base, or add the settings file to a
+//! folder that has the marker `.mkbase` but no `waymark.toml`
 //! (see `specs/features/create-knowledge-base`).
 
 use crate::config::Kind;
 use crate::error::Error;
 use crate::gitsync::{commit_message, Change, Verb};
 use crate::kb::agents_file::Audience;
-use crate::kb::init::{derive_slug, files, InitInput};
+use crate::kb::init::{derive_slug, files, settings_text, InitInput};
+use crate::kb::layout::{MARKER, SETTINGS_FILE};
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
@@ -165,7 +167,7 @@ impl Tool for Init {
     }
 
     fn description(&self) -> &'static str {
-        "Set up an empty repository as a knowledge base."
+        "Set up an empty repository as a knowledge base. Also adds the settings file to a folder that has the older `.mkbase` marker but no settings file."
     }
 
     fn kind(&self) -> Kind {
@@ -197,24 +199,43 @@ impl Tool for Init {
         ctx.checked_author()?;
         let id = uuid::Uuid::new_v4().to_string();
         // Build the files once, so that a bad value fails before anything is written.
-        let planned = files(&input, &id)?;
-        let paths: Vec<String> = planned.iter().map(|(p, _)| p.clone()).collect();
+        let planned_new = files(&input, &id)?;
 
-        let (res, ()) = repo.write(preview, |tx| {
-            if repo.dir().join(".mkbase").is_dir() || repo.dir().join("knowledge/.mkbase").is_dir()
-            {
-                return Err(Error::validation(
-                    "This repository is already a knowledge base. Nothing was changed.",
-                )
-                .with_next("Use the other tools, or choose another repository."));
-            }
-            if !crate::kb::layout::repo_is_empty(repo.dir()) {
-                return Err(Error::validation(
-                    "This repository is not empty. init works only on an empty repository.",
-                )
-                .with_next("Create a new empty repository, or remove the files and commits."));
-            }
-            // A second guard behind the emptiness check: never overwrite a file.
+        let (res, (planned, adopted)) = repo.write(preview, |tx| {
+            // The marker is at the repository root or in `knowledge/`.
+            let marker_base = ["", "knowledge/"]
+                .into_iter()
+                .find(|b| repo.dir().join(format!("{b}{MARKER}")).is_dir());
+            let (planned, adopted) = match marker_base {
+                Some(base) => {
+                    if repo.dir().join(format!("{base}{MARKER}/{SETTINGS_FILE}")).exists() {
+                        return Err(Error::validation(
+                            "This repository is already a knowledge base. Nothing was changed.",
+                        )
+                        .with_next("Use the other tools, or choose another repository."));
+                    }
+                    // A folder with the marker and no settings file: add only that file.
+                    if args.get("folders").is_some() || args.get("audience").is_some() {
+                        return Err(Error::invalid(
+                            "The fields `folders` and `audience` do not apply to a folder that has the `.mkbase` marker. init only adds the settings file there.",
+                        )
+                        .with_next("Call init again without `folders` and `audience`."));
+                    }
+                    let path = format!("{base}{MARKER}/{SETTINGS_FILE}");
+                    (vec![(path, settings_text(&input, &id)?)], true)
+                }
+                None => {
+                    if !crate::kb::layout::repo_is_empty(repo.dir()) {
+                        return Err(Error::validation(
+                            "This repository is not empty. init works only on an empty repository, or on a folder that has the `.mkbase` marker and no settings file.",
+                        )
+                        .with_next("Create a new empty repository, or remove the files and commits."));
+                    }
+                    (planned_new.clone(), false)
+                }
+            };
+            let paths: Vec<String> = planned.iter().map(|(p, _)| p.clone()).collect();
+            // A second guard: never overwrite a file.
             for p in &paths {
                 if tx.read(p)?.is_some() {
                     return Err(Error::validation(format!(
@@ -248,9 +269,10 @@ impl Tool for Init {
                     paths: paths.clone(),
                     message: commit_message(Verb::Init, &input.name),
                 },
-                (),
+                (planned, adopted),
             ))
         })?;
+        let paths: Vec<String> = planned.iter().map(|(p, _)| p.clone()).collect();
 
         let message = if preview {
             format!(
@@ -278,6 +300,7 @@ impl Tool for Init {
                 "files": paths,
                 "commit": res.commit,
                 "pushed": !preview && res.pushed,
+                "adopted": adopted,
             }),
         );
         if input.approval.get("via").and_then(|v| v.as_str()) == Some("console") {

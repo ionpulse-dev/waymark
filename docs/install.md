@@ -8,7 +8,7 @@ This guide has two parts. The section "Install the binary" is owned by the `dist
 
 ## Install the binary
 
-The first release is not published yet. When it is, the install command is:
+Install with Homebrew:
 
 ```bash
 brew install ionpulse-dev/tap/waymark

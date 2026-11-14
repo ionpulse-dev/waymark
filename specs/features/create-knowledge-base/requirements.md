@@ -34,6 +34,10 @@ requires:
 
 A repository is empty when it has no commit, or when all tracked files are among `README.md`, `README`, `LICENSE`, and `LICENSE.md`. These are the files that a Git host creates. Any other file makes `init` fail with `validation_failed` and no change. `init` never overwrites a file: the empty rule means no file of the layout can exist. The check runs again after the fetch inside the write flow, so two people who call `init` at the same time cannot both succeed.
 
+### A folder with the marker and no settings file
+
+A repository that has a `.mkbase` folder at its root or in `knowledge/`, and no `waymark.toml` there, was made for the older MKBase standard. `init` adopts it. It writes only `.mkbase/waymark.toml` (or `knowledge/.mkbase/waymark.toml`) and commits and pushes that one file. It touches no document and no other file, and it does not create `AGENTS.md`, `.gitignore`, `.obsidian`, or folders. The inputs `name`, `slug`, `email_domains`, `limits`, `approval`, and `preview` work as below. The inputs `folders` and `audience` have no meaning here and give `invalid_arguments`. The result has `adopted: true` and `files` with the one path. If `waymark.toml` exists, the repository is already a knowledge base (`validation_failed`, no change).
+
 ### Inputs
 
 | Input | Type | Required | Stored in | Default |
@@ -104,6 +108,8 @@ With `preview: true`, `id` and `commit` are `null`, `pushed` is `false`, and not
 - **Given** `preview: true`, **When** `init` runs, **Then** nothing is written or committed.
 - **Given** `init` succeeded, **When** the same session calls `search` or `add`, **Then** the tools work with no restart.
 - **Given** a bad input (slug, folder, unknown key), **When** `init` runs, **Then** it fails with `invalid_arguments`, names the field, and changes nothing.
+- **Given** a repository with a `.mkbase` marker and documents but no `waymark.toml`, **When** `init` runs with a name, **Then** only the `waymark.toml` is added and the state is `ready` in the same session.
+- **Given** that repository, **When** `init` runs with `folders` or `audience`, **Then** it fails with `invalid_arguments` and changes nothing.
 - **Given** two people who call `init` at the same time, **When** both end, **Then** exactly one commit of `init` exists.
 
 ## Constraints & Edge Cases

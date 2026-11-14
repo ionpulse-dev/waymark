@@ -149,7 +149,7 @@ yourself.
 
 ## Setup
 
-1. Install the `waymark` binary (`brew install ionpulse-dev/tap/waymark`, once the first release is published). `git` must work and be signed in to your
+1. Install the `waymark` binary (`brew install ionpulse-dev/tap/waymark`). `git` must work and be signed in to your
    Git host (SSH key or `gh auth login`). IT can prepare this.
 2. Add one entry to the MCP config of your agent tool.
 3. Start a session. waymark clones the knowledge base on first start.

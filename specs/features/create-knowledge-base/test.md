@@ -17,6 +17,8 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | **Given** `init` succeeded, **When** the same session calls `search` or `add`, **Then** the tools work with no restart. | A10 |
 | **Given** a bad input, **When** `init` runs, **Then** it fails with `invalid_arguments`, names the field, and changes nothing. | A11 |
 | **Given** two people who call `init` at the same time, **When** both end, **Then** exactly one commit of `init` exists. | A12 |
+| **Given** a repository with a `.mkbase` marker and documents but no `waymark.toml`, **When** `init` runs with a name, **Then** only the `waymark.toml` is added and the state is `ready` in the same session. | A16, A17 |
+| **Given** that repository, **When** `init` runs with `folders` or `audience`, **Then** it fails with `invalid_arguments` and changes nothing. | A18 |
 
 ## Test Cases
 
@@ -35,6 +37,9 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A13: `derive_slug` for "Example Company", "  Ünï Corp ", "!!!" (`src/kb/init.rs`)
 - [x] [auto] A14: the `AGENTS.md` written for `personal` and for `team` carries the pinned skill version (`tests/it_create_knowledge_base.rs`; see `plain-git-access`)
 - [x] [auto] A15: the generated `AGENTS.md`, `.gitignore`, and `waymark.toml` pass `kb::settings` and the document checks (the root has no document, so `lint` finds nothing) (`tests/it_create_knowledge_base.rs`)
+- [x] [auto] A16: a remote with `.mkbase/version`, `.mkbase/exclude`, a document, and a `README.md` but no `waymark.toml`: `status` is `broken`, `init` adds exactly `.mkbase/waymark.toml` (`adopted: true`), the other files are byte-equal, the state is `ready` in the same session, and a second `init` is `validation_failed` (`tests/it_create_knowledge_base.rs`)
+- [x] [auto] A17: the same with the marker in `knowledge/`: the file is `knowledge/.mkbase/waymark.toml` (`tests/it_create_knowledge_base.rs`)
+- [x] [auto] A18: `folders` or `audience` for such a repository: `invalid_arguments`, and the head did not move (`tests/it_create_knowledge_base.rs`)
 - [ ] [manual] M1: Obsidian. Steps: clone the repository that `init` made. Open the folder as a vault in Obsidian. Create a link between two documents through the link dialog. Expected: the vault opens, the link is a relative Markdown link with `.md`, and `git status` does not list `.obsidian/workspace.json`.
 - [ ] [manual] M2: real Git host. Steps: create an empty private repository on a real host. Add the entry to an agent tool with the SSH URL. Start a session, call `status` (state `empty`), then ask the agent to call `init`. Expected: the files appear on the host in one commit, and a second person with only the URL can search.
 

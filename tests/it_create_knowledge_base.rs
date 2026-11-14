@@ -335,3 +335,68 @@ fn undo_refuses_an_init_commit() {
     let u = c.call("undo", json!({"commit": hash}));
     assert!(u.is_error, "{}", u.json);
 }
+
+/// A folder made for the older MKBase standard: the marker and documents, no `waymark.toml`.
+fn old_marker_repo(w: &World, base: &str) {
+    let dir = w.a.join(base);
+    std::fs::create_dir_all(dir.join(".mkbase")).unwrap();
+    std::fs::write(dir.join(".mkbase/version"), "1.0\n").unwrap();
+    std::fs::write(dir.join(".mkbase/exclude"), "README.md\n").unwrap();
+    std::fs::create_dir_all(dir.join("work")).unwrap();
+    std::fs::write(
+        dir.join("work/note.md"),
+        "---\ntitle: Note\ndescription: A note.\n---\nText.\n",
+    )
+    .unwrap();
+    std::fs::write(w.a.join("README.md"), "my readme\n").unwrap();
+    commit_all(&w.a, "old layout");
+}
+
+#[test]
+fn a16_a_folder_with_the_marker_and_no_settings_file_gets_only_that_file() {
+    let w = World::empty();
+    old_marker_repo(&w, "");
+    let before = remote_files(&w);
+    let mut c = client(&w, Person::A);
+    let s = c.call("status", json!({}));
+    assert_eq!(s.json["knowledge_base"]["state"], "broken", "{}", s.json);
+    let r = init(&mut c, json!({"name": "Mine"}));
+    assert!(!r.is_error, "{}", r.json);
+    assert_eq!(r.json["adopted"], true);
+    assert_eq!(r.json["files"], json!([".mkbase/waymark.toml"]));
+    let after = remote_files(&w);
+    let added: Vec<_> = after.iter().filter(|f| !before.contains(f)).collect();
+    assert_eq!(added, vec![".mkbase/waymark.toml"]);
+    assert_eq!(remote_show(&w, "README.md"), "my readme\n");
+    assert_eq!(remote_show(&w, ".mkbase/exclude"), "README.md\n");
+    assert!(remote_show(&w, ".mkbase/waymark.toml").contains("name = \"Mine\""));
+    // The same session works at once, and a second call is refused.
+    let s = c.call("status", json!({}));
+    assert_eq!(s.json["knowledge_base"]["state"], "ready", "{}", s.json);
+    assert!(!c.call("list", json!({})).is_error);
+    let again = init(&mut c, json!({"name": "Mine"}));
+    assert_eq!(again.code(), Some("validation_failed"));
+}
+
+#[test]
+fn a17_the_marker_in_knowledge_gets_the_file_there() {
+    let w = World::empty();
+    old_marker_repo(&w, "knowledge");
+    let mut c = client(&w, Person::A);
+    let r = init(&mut c, json!({"name": "Mine"}));
+    assert!(!r.is_error, "{}", r.json);
+    assert_eq!(r.json["files"], json!(["knowledge/.mkbase/waymark.toml"]));
+}
+
+#[test]
+fn a18_folders_and_audience_are_refused_for_a_folder_with_the_marker() {
+    let w = World::empty();
+    old_marker_repo(&w, "");
+    let head = remote_head(&w);
+    let mut c = client(&w, Person::A);
+    let r = init(&mut c, json!({"name": "Mine", "folders": ["ops"]}));
+    assert_eq!(r.code(), Some("invalid_arguments"), "{}", r.json);
+    let r = init(&mut c, json!({"name": "Mine", "audience": "personal"}));
+    assert_eq!(r.code(), Some("invalid_arguments"), "{}", r.json);
+    assert_eq!(remote_head(&w), head);
+}

@@ -103,3 +103,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - `slug_from_name` now calls `derive_slug`. The fallback is `knowledge-base` (it was `knowledge`).
 - Input errors from the registry (a wrong type) come before the checks of the tool. The tool names the field for the checks it does itself (`name`, `slug`, `email_domains`, `audience`, `limits`, `approval`, `folders`).
 - `World::empty()` is added to the harness.
+
+## `init` adopts a folder with the marker and no settings file — 2026-11-14
+
+**Decision (decided autonomously):** A repository with a `.mkbase` marker and no `waymark.toml` is not "already a knowledge base" and not "not empty". `init` adds only the settings file there. `folders` and `audience` are refused for it, so that nothing is ignored in silence. If `waymark.toml` exists, the old refusal stays.
+
+**Alternatives considered:** (1) A new tool such as `adopt`: one more tool in every agent's context for a one-time step. (2) Create the file by hand: the format is in a spec, and a person has to know it. (3) Let `init` also write `AGENTS.md` and the other files: it would change files of a knowledge base that is already in use.
+
+**Reason:** Found when the first real install met a knowledge base made for the older MKBase standard. `status` said "Create the knowledge base with the init tool", and `init` refused. Documents are not checked here. `lint` does that once the file exists.

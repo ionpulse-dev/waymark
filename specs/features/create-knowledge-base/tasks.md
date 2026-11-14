@@ -12,3 +12,4 @@
 - [x] `activity-and-undo`: `undo` refuses the verb `init` (note for that spec).
 - [x] `tests/it_create_knowledge_base.rs`: the acceptance criteria.
 - [x] Run the full suite.
+- [x] Adopt a folder that has the `.mkbase` marker and no `waymark.toml`: write only the settings file (`src/tools/init.rs`).
