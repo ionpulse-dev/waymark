@@ -100,3 +100,9 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Decision (decided autonomously):** When verification is off, `verify`, `review`, and `reject` are not listed, and a direct call returns `access_denied` with the `next` sentence "The owner turns it on with verification = true in .mkbase/waymark.toml." This replaces the earlier choice that such a call is an unknown tool (code -32602). The tools that the limits hide (`tools_denied`, read-only) are unchanged.
 
 **Reason:** The `verification` spec says a direct call gives `access_denied`. A tool-level error tells the agent more than a protocol error. Found while implementing `verification`.
+
+## `--help` explains each option and shows examples — 2026-11-14
+
+**Decision (decided autonomously):** Every option has a help line, with its default where one exists. The text after the options says that all options are optional and can be combined, that they usually go into the `args` list of the MCP entry, and shows three example command lines. This changes text only, not behavior.
+
+**Reason:** A first user could not tell how to combine the options. Found while testing the install of 0.1.0. It ships with the next release.
