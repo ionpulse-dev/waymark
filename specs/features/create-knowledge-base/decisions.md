@@ -87,3 +87,9 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `integration-testing` gets `World::empty()`: a bare remote with no commit and no knowledge base. The tests of this spec need it.
 
 **Reason:** `World::new()` initializes a knowledge base in the remote. Reported to the owner of `integration-testing`.
+
+## Console value of `approval.via` — 2026-11-14
+
+**Decision (decided autonomously):** Out of scope for now. The tool accepts `via: "console"` in its input and writes it, because the shared file format allows it. A write that then needs approval returns `approval_unavailable` (see `write-approval`). The tool adds a notice that says so.
+
+**Reason:** Found in the consistency pass. See `docs/decisions.md`.

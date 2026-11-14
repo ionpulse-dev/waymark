@@ -10,8 +10,8 @@
 Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously". The plan and state of the work are in `tmp/plan.md` (not in Git).
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
-2. Review the 19 feature specs together (consistency pass: tool names, error codes, config keys, `requires`). They were written in parallel and not yet reviewed.
-3. Features in dependency order: `write-documents`, `search-and-read`, `quality-checks`, then the rest.
+2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
+3. Features in dependency order: `write-documents` (now), `search-and-read`, `quality-checks`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 

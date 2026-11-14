@@ -308,6 +308,7 @@ When working in this project, AI must:
 12. **Ask for approval** at each phase gate before proceeding to the next phase
 13. **Reverse-propagate** any manual code changes back into the spec files immediately
 14. **Keep `## Next Up` current in `INDEX.md`** — after every status change or completed task, update the `## Next Up` section. List items in execution order: what is actively in progress, what is next in line, what is blocked and why. Maximum 5 entries. Remove an item once it reaches `done`. Foundation blockers must appear above the features they unblock.
+15. **Mark finished work as done at once** — tick the task in `tasks.md`, the `[auto]` items in `test.md`, and any working plan, in the same step as the work. Before a pause or a wrap-up, check that nothing finished is left unticked.
 
 ---
 

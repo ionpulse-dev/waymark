@@ -30,6 +30,8 @@ The short version of the rules (the full rules are in `WORKFLOW.md`):
 - Record non-obvious choices in the `decisions.md` of the spec.
 - If code changes without a spec, update the spec at once.
 - Never delete spec files. Git keeps the history.
+- Mark work as done at once: tick the task in `tasks.md`, the `[auto]` items in
+  `test.md`, and the plan you follow, as soon as the work is finished.
 
 ## What waymark is
 

@@ -159,3 +159,11 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Alternatives considered:** Build local and server mode together (rejected: server mode needs sign-in, tenancy, and a console, which delay a usable binary). Support Linux now (rejected: macOS is the only goal for the first release).
 
 **Reason:** The fastest path to a binary that people can install is local mode on one platform. Everything else builds on it.
+
+## Feature spec consistency pass (C20) — 2026-11-14
+
+**Decision (decided autonomously):** The 19 in-scope feature specs were checked together. Tool names, error codes, and `requires` agree with each other and with `src/error.rs` and `trust-model`. No cycle exists in `requires`. One order fix: `create-knowledge-base` requires `plain-git-access`, so `plain-git-access` is implemented first. The `console` value of `approval.via` is out of scope. `write-approval` returns `approval_unavailable` for it. `create-knowledge-base` still accepts the value in its input, and its tool must pass it on to that error path.
+
+**Implementation order:** write-documents, search-and-read, quality-checks, manual-edits, move-documents, activity-and-undo, verification, pause-and-resume, write-approval, project-binding, session-start, agent-tool-setup, login-and-identity, join-knowledge-base, plain-git-access, create-knowledge-base, updates, notifications-and-review, maintenance.
+
+**Reason:** `requires` says a spec may start only when its prerequisites are `implemented`.
