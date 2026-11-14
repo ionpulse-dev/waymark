@@ -41,7 +41,7 @@ The portable Rust `waymark` binary with the conformance tests (fixture repo, too
 - [x] Write: `write-documents`, `move-documents`, `quality-checks`, `manual-edits`, `activity-and-undo`, `pause-and-resume`, `write-approval` (elicitation).
 - [x] `plain-git-access`.
 
-**Status 2026-11-14:** built for macOS on Apple silicon and tested with the real binary (all `[auto]` tests pass). The `[manual]` tests with real agent tools are in [manual-test-checklist.md](manual-test-checklist.md). The Homebrew formula works from a local tap. The tap, the release, and the public switch wait for the product owner ([release-checklist.md](release-checklist.md)).
+**Status 2026-11-14:** built for macOS on Apple silicon and tested with the real binary (all `[auto]` tests pass). The `[manual]` tests with real agent tools are in the `test.md` of each spec (list them with `make manual-tests`). The Homebrew formula works from a local tap. The tap, the release, and the public switch wait for the product owner ([release-checklist.md](release-checklist.md)).
 
 Result: an agent in Claude Code, Copilot, or Codex can search, read, write, and dispute documents in a real Git repo, within enforced limits.
 

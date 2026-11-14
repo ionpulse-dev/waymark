@@ -19,3 +19,4 @@ None.
 
 - Signing and notarization wait for a developer identity (product owner).
 - Run `brew audit --strict --new` again after the repository is public.
+- `make brew-local` runs `brew install`, and Homebrew cleans old cache files then. Note it in the install test steps.

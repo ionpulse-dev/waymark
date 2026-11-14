@@ -24,4 +24,4 @@
 
 ## Notes
 
-The manual item is part of the Obsidian check at the release (see `docs/manual-test-checklist.md`).
+The manual item is part of the Obsidian check at the release (run `make manual-tests`).

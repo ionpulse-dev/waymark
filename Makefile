@@ -60,6 +60,9 @@ run: ## Start the server on a sample knowledge base
 sample-kb: ## Create a sample knowledge base in tmp/
 	@bash scripts/sample-kb.sh create
 
+manual-tests: ## List the open [manual] tests of all specs
+	@grep -rn --include=test.md "^- \[ \] \[manual\]" specs/features specs/foundation | sed "s|specs/||"
+
 brew-local: ## Install from a local Homebrew tap (publishes nothing)
 	@bash scripts/brew-local.sh
 

@@ -53,7 +53,7 @@ brew install ionpulse-dev/tap/waymark
 waymark --version
 ```
 
-Then add the MCP entry from `docs/install.md` and run the manual tests in `docs/manual-test-checklist.md`.
+Then add the MCP entry from `docs/install.md` and run the open manual tests (`make manual-tests`).
 
 ## Not covered
 
