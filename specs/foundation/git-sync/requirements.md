@@ -1,13 +1,15 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-14
 requires:
   - knowledge-base-repo
 ---
 
 # Git sync
+
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. The background pull and the server workspace are out of scope for now. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -85,5 +87,4 @@ A tool takes `preview: true`, which shows what would be written and writes nothi
 
 ## Open Questions
 
-- What is the exact rule for naming the second file when both versions are kept?
-- Should the lock also protect against two servers that share one clone?
+None. Answered on 2026-11-14 (see `decisions.md`): the name rule of the second file, and the lock is an operating system file lock, so two processes on one clone are safe.

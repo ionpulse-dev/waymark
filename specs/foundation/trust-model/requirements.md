@@ -1,11 +1,13 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-08
-updated: 2026-11-12
+updated: 2026-11-14
 ---
 
 # Trust model
+
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. The server config layer, roles, and separate connections are out of scope for now. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -124,5 +126,4 @@ Only the person or the operator changes limits. No tool changes them.
 
 ## Open Questions
 
-- Should the built-in default for `access` be `read-only`, so that writes need an explicit step? This is about writes. Reads are always allowed.
-- Which agent tools support a managed MCP config, and is the system config file enough for IT?
+None. Answered on 2026-11-14 (see `decisions.md`): the built-in default of `access` stays `read-write`. Whether agent tools support a managed MCP config is a research item in `todo.md`.

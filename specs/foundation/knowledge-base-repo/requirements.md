@@ -1,13 +1,15 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-08
-updated: 2026-11-11
+updated: 2026-11-14
 requires:
   - document-format
 ---
 
 # Knowledge base repository
+
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. This spec is fully in scope. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -113,4 +115,4 @@ The shared file holds no behavior rules. There is no read level, write level, or
 
 ## Open Questions
 
-- Which settings, if any, may a knowledge base set per folder in a later version?
+None. Per-folder settings are deferred (see `todo.md`).

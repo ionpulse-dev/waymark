@@ -2,7 +2,7 @@
 
 ```
 📦 Features      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 20 active
-🏗️ Foundation    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 8 done+implemented
+🏗️ Foundation    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 10 done+implemented
 ```
 
 ## Next Up
@@ -45,14 +45,16 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 
 | Item | Status | Updated |
 |:-----|:-------|:--------|
+| [dev-environment](foundation/dev-environment/requirements.md) | `planned` | 2026-11-14 |
+| [distribution](foundation/distribution/requirements.md) | `planned` | 2026-11-14 |
 | [document-format](foundation/document-format/requirements.md) | `planned` | 2026-11-14 |
-| [distribution](foundation/distribution/requirements.md) | `draft` | 2026-11-12 |
-| [git-sync](foundation/git-sync/requirements.md) | `draft` | 2026-11-11 |
-| [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `draft` | 2026-11-11 |
-| [mcp-server](foundation/mcp-server/requirements.md) | `draft` | 2026-11-11 |
+| [git-sync](foundation/git-sync/requirements.md) | `planned` | 2026-11-14 |
+| [integration-testing](foundation/integration-testing/requirements.md) | `planned` | 2026-11-14 |
+| [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `planned` | 2026-11-14 |
+| [mcp-server](foundation/mcp-server/requirements.md) | `planned` | 2026-11-14 |
+| [trust-model](foundation/trust-model/requirements.md) | `planned` | 2026-11-14 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-12 |
-| [trust-model](foundation/trust-model/requirements.md) | `draft` | 2026-11-12 |
 
 ## Superseded
 

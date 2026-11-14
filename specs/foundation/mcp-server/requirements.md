@@ -1,14 +1,16 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-11
-updated: 2026-11-11
+updated: 2026-11-14
 requires:
   - git-sync
   - trust-model
 ---
 
 # MCP server
+
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only the stdio transport is built. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -104,6 +106,8 @@ A failure sets the MCP error flag. The structured result has `code`, `message`, 
 | `access_denied` | A limit blocks the call (access, folder, tool switched off) |
 | `stale_base` | The document changed since the agent read it |
 | `approval_denied` | The person said no, or no answer came in time |
+| `not_found` | The document or the knowledge base item does not exist |
+| `invalid_arguments` | The call has a missing or wrong argument. The `next` sentence names it. |
 | `approval_unavailable` | Approval is required but cannot be asked (client lacks the feature, or the console is not connected) |
 | `paused` | Writes are paused |
 
@@ -138,8 +142,9 @@ A secret is never an argument. In local mode, Git uses its own login. In server 
 | Need | Choice |
 |---|---|
 | Language | Rust |
-| MCP | an MCP library for Rust, checked at build time (for example `rmcp`) |
-| YAML frontmatter | `serde` with a maintained YAML crate |
+| MCP | `rmcp` 3.x with `tokio` (checked at build time) |
+| YAML frontmatter | `yaml-rust2`, without `serde` (see `document-format`) |
+| Settings files | `toml` with `serde` |
 | Git | the `git` binary (see `git-sync`) |
 
 ### Conformance tests
@@ -159,9 +164,4 @@ A fixture repository, a tool call, and the expected result fix the behavior, so 
 
 ## Open Questions
 
-- How does the server find the knowledge base when the client starts it in another folder? The entry carries `--repo`, so the working folder may be unnecessary.
-- Are documents also offered as MCP resources, besides the tools?
-- How small can the tool set be, to keep the context cost low? Can `list` and `stats` merge into `search`?
-- Which Rust toolchain version and which MCP library?
-- Which platforms get a release, and when?
-- Can an embedded Git library remove the dependency on the `git` binary?
+None. All answered on 2026-11-14 (see `decisions.md`).

@@ -1,13 +1,15 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-08
-updated: 2026-11-12
+updated: 2026-11-14
 requires:
   - mcp-server
 ---
 
 # Distribution
+
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The tap, the release, and the public repository are prepared, and they are created by the product owner (see `docs/release-checklist.md`). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -63,8 +65,4 @@ Define how waymark reaches people: one binary per platform, one container image 
 
 ## Open Questions
 
-- Is the developer account for signing in place?
-- Homebrew tap only, or also a download script for the first release?
-- Is `cargo-dist` used to build the release and the formula, or a hand-written CI workflow?
-- Is the name `waymark` free in Homebrew core?
-- Which registry hosts the container image?
+None for now. Answered on 2026-11-14 (see `decisions.md`). Still open for the product owner: the signing identity, and the registry of the container image (server mode).

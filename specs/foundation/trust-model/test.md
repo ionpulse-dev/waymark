@@ -1,0 +1,28 @@
+# Tests: Trust model
+
+## Acceptance Criteria Coverage
+
+| Criterion | Test Case |
+|:--|:--|
+| Commit author is the person | `commit_author_is_person` (integration) |
+| Shared `read-only` beats personal `read-write` | `shared_read_only_wins` |
+| `max_results` 5 and 3 gives 3 | `numeric_caps_take_smallest` |
+| No tool changes a limit | `no_control_tool_listed` |
+| `tools_denied = ["delete"]` hides `delete` and blocks a call | `denied_tool_hidden_and_blocked` |
+| System file `read-only` beats personal | `system_file_wins` |
+| `paused = true` gives `paused` | `paused_blocks_write` |
+| No layer gives built-in defaults | `defaults_apply` |
+
+## Test Cases
+
+- [ ] [auto] `strictest` is commutative and idempotent, and never looser than an input (property test, `src/config/limits.rs`)
+- [ ] [auto] Each limit merges as the requirements say: access, paused, tools_denied, approval, hosts, folders, caps (`src/config/limits.rs`)
+- [ ] [auto] Folder globs: `engineering/**` allows `engineering/a/b`, blocks `ops/x` (`src/config/glob.rs`)
+- [ ] [auto] A syntax error in a layer file gives `setup_problem` with the path (`src/config/layers.rs`)
+- [ ] [auto] The effective settings change when the personal file changes between two calls (`tests/it_trust_model.rs`)
+- [ ] [auto] All eight criteria above, through the real binary (`tests/it_trust_model.rs`)
+- [ ] [auto] The `settings` field of every result shows the effective limits (`tests/it_trust_model.rs`)
+
+## Notes
+
+Tests set `HOME` and `XDG_CONFIG_HOME` to a temporary folder. The system file path is overridden by the environment variable `WAYMARK_SYSTEM_CONFIG` in tests only. The binary honors this variable in release builds too, and the documentation says it is for tests (decision in `decisions.md`).
