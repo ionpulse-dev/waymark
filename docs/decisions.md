@@ -176,3 +176,10 @@ only as a use case. The earlier entries of this file keep their original words,
 because they record what was said at the time. The rules and the reasons are in
 the spec [terminology](../specs/foundation/terminology/decisions.md).
 
+
+## The `index` tool is removed — 2026-11-14
+
+**Decision:** waymark has no `index` tool and no `index-stale` check. An
+`index.md` is a normal document. The older entries of this file and of the
+feature specs keep their words. The reasons are in the spec
+[remove-index](../specs/foundation/remove-index/decisions.md).

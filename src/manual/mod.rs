@@ -2,13 +2,12 @@
 
 pub mod pending;
 
-use crate::config::Effective;
 use crate::error::Result;
 use crate::format::{self, Finding};
 use crate::gitsync::{commit_message, Change, Tx, Verb};
 use crate::lint;
 use crate::memrepo::MemRepo;
-use crate::store::{Scope, Store};
+use crate::store::Store;
 pub use pending::{Edit, Kind, Skip};
 use std::collections::HashSet;
 
@@ -32,7 +31,6 @@ pub struct Outcome {
 pub fn prepare(
     tx: &Tx,
     memrepo: &MemRepo,
-    effective: &Effective,
     author: &str,
     today: &str,
     write_files: bool,
@@ -48,14 +46,7 @@ pub fn prepare(
         None
     } else {
         let store = Store::load(memrepo);
-        let limit = Scope::limit(effective);
-        Some(lint::run(
-            memrepo,
-            &store,
-            &|id| ids.contains(id),
-            &limit,
-            None,
-        )?)
+        Some(lint::run(memrepo, &store, &|id| ids.contains(id), None)?)
     };
 
     let all_ids = memrepo.id_set();
@@ -64,7 +55,7 @@ pub fn prepare(
     for edit in found.edits {
         if edit.kind == Kind::Deleted {
             // A deleted document that another document still links to would leave a broken
-            // link, so the deletion waits (see `write-documents`). Generated index files do not count.
+            // link, so the deletion waits (see `write-documents`).
             let linked = crate::tools::delete::linked_from(memrepo, &edit.id, "");
             if linked.is_empty() {
                 passing.push(edit);
@@ -200,11 +191,10 @@ fn title_of(tx: &Tx, edit: &Edit) -> String {
 pub fn commit_before_write(
     tx: &Tx,
     memrepo: &MemRepo,
-    effective: &Effective,
     author: &str,
     today: &str,
 ) -> Result<(Vec<String>, Vec<String>)> {
-    let outcome = prepare(tx, memrepo, effective, author, today, true)?;
+    let outcome = prepare(tx, memrepo, author, today, true)?;
     if let Some(change) = &outcome.change {
         tx.repo().commit_change(change)?;
     }

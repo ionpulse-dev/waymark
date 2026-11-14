@@ -63,12 +63,6 @@ impl Doc {
         self.front.as_ref().and_then(|f| f.get_bool("disputed")) == Some(true)
     }
 
-    /// A generated index file: named `index` and tagged `index`.
-    pub fn is_index(&self) -> bool {
-        (self.id == "index" || self.id.ends_with("/index"))
-            && self.tags().iter().any(|t| t == "index")
-    }
-
     /// The IDs in a property list of wikilinks, such as `related`.
     pub fn property_ids(&self, key: &str) -> Vec<String> {
         self.list(key)
@@ -117,17 +111,12 @@ impl Store {
         Store { docs }
     }
 
-    /// The documents that read tools use: parsed, and not generated index files.
+    /// The parsed documents.
     pub fn docs(&self) -> impl Iterator<Item = &Doc> {
-        self.docs.iter().filter(|d| d.parsed() && !d.is_index())
-    }
-
-    /// The parsed documents including generated index files.
-    pub fn docs_with_index(&self) -> impl Iterator<Item = &Doc> {
         self.docs.iter().filter(|d| d.parsed())
     }
 
-    /// Every document, also those that cannot be parsed and index files.
+    /// Every document, also those that cannot be parsed.
     pub fn all_docs(&self) -> &[Doc] {
         &self.docs
     }

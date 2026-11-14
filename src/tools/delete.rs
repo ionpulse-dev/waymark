@@ -147,15 +147,6 @@ pub fn linked_from(memrepo: &crate::memrepo::MemRepo, id: &str, title: &str) -> 
         let Ok(mut d) = format::parse(&text) else {
             continue;
         };
-        // A generated index file lists every document. It never blocks a delete.
-        let is_index = (other.id == "index" || other.id.ends_with("/index"))
-            && d.frontmatter
-                .get_list("tags")
-                .map(|t| t.iter().any(|x| x == "index"))
-                .unwrap_or(false);
-        if is_index {
-            continue;
-        }
         let in_props = linkfix::fix_properties(&mut d.frontmatter, &target);
         let (_, in_body) = linkfix::fix_body(&format!("{}.md", other.id), &d.body, &target);
         if in_body > 0 {

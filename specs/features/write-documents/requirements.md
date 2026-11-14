@@ -135,7 +135,7 @@ Result `data`: `{ "id", "title", "version", "commit", "pushed", "status": "depre
 
 Input: `id` (string, required), `base` (string, required), `preview` (boolean).
 
-Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document. Generated index files (see `quality-checks`) are ignored, because they list every document and `lint` reports a stale one. `preview: true` runs the same check and fails the same way, so an agent can ask what would break without a risk.
+Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document.
 
 The `folders` limit applies to the document that is deleted. If the deleted document has `supersedes`, a notice says that the older documents stay deprecated. The message says that the file stays in the Git history.
 

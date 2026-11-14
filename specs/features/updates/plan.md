@@ -23,7 +23,7 @@ A function `changes_since` compares the tree at the start of the window with `HE
 
 1. **Window.** Parse `since` (`time` crate). Without it, read `last_updates` from the state file, or use now minus 7 days. A date alone means 00:00 UTC. A `since` in the future is `invalid_arguments`.
 2. **Base commit.** `git rev-list -1 --before=<since> HEAD` gives the base. If there is none, use the empty tree `4b825dc642cb6eb9a060e54bf8d69288fbee4904`.
-3. **Changed paths.** `git diff --name-status -M <base> HEAD -- <root>` lists `A`, `M`, `D`, and `R` entries. Keep `.md` files that are not dot paths, not excluded, and not index files. Map each path to an ID.
+3. **Changed paths.** `git diff --name-status -M <base> HEAD -- <root>` lists `A`, `M`, `D`, and `R` entries. Keep `.md` files that are not dot paths, and not excluded. Map each path to an ID.
 4. **Classify.** `A` is `new`. `D` is `deleted` (the title comes from the base version, read with `git show`). `R` is `moved` with `from`. `M` compares the frontmatter at the base and at `HEAD`: `disputed` false to true is `disputed` (with `dispute_reason`), `status` active to deprecated is `deprecated`, else `changed`. A `R` entry with a changed `disputed` flag stays `moved`.
 5. **Author of the change.** For each path, `git log --format=%an <%ae>|%as <base>..HEAD -- <path>` gives the commits in the window. Drop the path if all commits have the email of the person. Else `by` and `date` come from the newest commit by someone else.
 6. **Filter.** Apply the `Scope` of `store::filter`: the `folders` limit and the `folders` argument. A moved document passes if its old or new ID passes.

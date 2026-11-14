@@ -5,7 +5,7 @@ Questions that need an answer before or during planning. Each spec also lists it
 ## Project level
 
 - **Confluence and Jira.** What is the relation of waymark to Confluence and Jira: link only, import, or replace? Today documents may link to wiki pages as sources, and nothing more.
-- **CI on the Git host.** Is CI (for example GitHub Actions) allowed on the Git hosts of the target organizations? If yes, CI can run `lint`, index generation, and secret scans without a server that we operate.
+- **CI on the Git host.** Is CI (for example GitHub Actions) allowed on the Git hosts of the target organizations? If yes, CI can run `lint` and secret scans without a server that we operate.
 - **Contributions.** Is a contributor license agreement needed before the first outside pull request?
 
 ## Architecture direction

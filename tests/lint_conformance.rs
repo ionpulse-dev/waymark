@@ -33,8 +33,7 @@ fn run_lint(dir: &Path) -> lint::Report {
     let store = Store::load(&memrepo);
     let eff = Effective::from_layers(&[Limits::default()]);
     let scope = Scope::new(&eff, &[]);
-    let limit = Scope::limit(&eff);
-    lint::run(&memrepo, &store, &|id| scope.allows(id), &limit, None).unwrap()
+    lint::run(&memrepo, &store, &|id| scope.allows(id), None).unwrap()
 }
 
 #[test]

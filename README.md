@@ -211,7 +211,7 @@ empty private repository and calls the `init` tool once.
 | `move` | Move or rename a document or a folder. Links are fixed. |
 | `activity`, `undo` | See what your agent wrote and revert a write. |
 | `sync` | Commit manual edits, pull, and push. |
-| `lint`, `index` | Check documents, and generate index files. |
+| `lint` | Check documents. |
 | `init` | Create the structure of an empty memory repository. |
 
 A limit can switch a tool off, and then it is not listed. There is no tool that

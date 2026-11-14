@@ -60,7 +60,7 @@ The `message` is plain text. Its first line says what the tool does. The next li
 | `delete` | The title, the ID, and the full body of the document that goes away |
 | `move` | A summary, for example `Move 42 documents, update links in 17 documents`, and the first 10 moves |
 | `undo` | The commit message and the hash of the write that goes away |
-| `sync`, `index`, `init`, `verify`, `review`, `reject` | A one-line summary and the list of changed paths (at most 20) |
+| `sync`, `init`, `verify`, `review`, `reject` | A one-line summary and the list of changed paths (at most 20) |
 
 The body is cut at 20000 characters. A cut message ends with `[Cut: <n> more characters. The document has <w> words.]`. The `message` never holds a secret that the checks found, because a document with a secret never reaches this step.
 

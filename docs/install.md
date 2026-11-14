@@ -101,7 +101,6 @@ A session started by a person asks you to approve a server from `.mcp.json` befo
       "mcp__waymark__move",
       "mcp__waymark__undo",
       "mcp__waymark__sync",
-      "mcp__waymark__index",
       "mcp__waymark__init"
     ]
   }

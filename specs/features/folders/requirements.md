@@ -44,7 +44,7 @@ Shows the folders of the memory repository as a tree, with the number of documen
 - The parameter is named `folder`, not `path`, because `path` is the name of a repository argument that no tool may take (see `project-binding`).
 - At most 200 folders are listed, in path order, a parent before its children. If more exist, `truncated: true` and the `next` sentence says to start below a folder, or to use a lower depth.
 - The `folders` limit applies. A folder that no limit allows is not listed. A parent of an allowed folder is listed with its own counts for the allowed part only.
-- Index files and `.gitkeep` files are not counted as documents.
+- `.gitkeep` files are not counted as documents.
 - With an unknown start folder the call fails with `not_found`.
 
 Result `data`:
