@@ -103,6 +103,9 @@ impl Registry {
         let settings = env.effective.to_json();
         let fail = |e: Error, notices: &[String]| {
             // Every result, also an error, passes the filter of notices.
+            if tool.name() != "status" {
+                ctx.set_session_error(e.message.clone());
+            }
             let all = crate::notices::finalize(ctx, tool.name(), notices.to_vec());
             Outcome {
                 json: error_json(&e, Some(settings.clone()), &all),

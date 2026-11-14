@@ -16,3 +16,8 @@ None.
 ## Open Questions
 
 None.
+
+## Notes 2026-11-14
+
+- A `status` call takes up to 10 seconds on a bad network (the remote probe). Accepted.
+- The 5 second time-out of `git --version` is built (`git_check`), but no test makes it fire.

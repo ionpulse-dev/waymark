@@ -230,3 +230,35 @@ Never write secrets, tokens, or personal data.
 ### Tighten the limits
 
 Limits come from layers, and the strictest layer wins. Your personal file is `~/.config/waymark/config.toml`. The team's shared file is `.mkbase/waymark.toml` in the knowledge base. IT owns the system file. See the README, section "Limits", and the `trust-model` spec.
+
+## Update waymark
+
+Update the binary with Homebrew:
+
+```bash
+brew upgrade waymark
+```
+
+The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
+
+## Check that waymark works
+
+Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.
+
+## Remove waymark
+
+waymark does not remove itself. It never wrote into your agent tools, so these four steps remove everything:
+
+1. Remove the MCP entry from the agent tool. For Claude Code run `claude mcp remove waymark`. For Codex delete the table `[mcp_servers.waymark]` in `config.toml`. For GitHub Copilot delete the `waymark` entry in the JSON file.
+2. Check the clone for changes that are not pushed. In the folder, run `git status` and `git log @{u}..`. Delete the folder if you no longer need it. The remote repository stays.
+3. Delete the personal settings folder. If IT set a system file, `/Library/Application Support/waymark/config.toml` belongs to IT.
+
+   ```bash
+   rm -r ~/.config/waymark
+   ```
+
+4. Remove the binary:
+
+   ```bash
+   brew uninstall waymark
+   ```

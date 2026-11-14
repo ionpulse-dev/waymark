@@ -44,6 +44,8 @@ pub struct Context {
     pub opened: Mutex<std::collections::HashSet<String>>,
     /// The notices of this session (see `notifications-and-review`).
     pub notices: crate::notices::NoticeBook,
+    /// The last error text that a tool returned in this session (see `maintenance`).
+    session_error: Mutex<Option<String>>,
 }
 
 /// The limits for one call, and the problem that stopped them from loading, if any.
@@ -67,6 +69,7 @@ impl Context {
             channel: Mutex::new(None),
             opened: Mutex::new(std::collections::HashSet::new()),
             notices: crate::notices::NoticeBook::default(),
+            session_error: Mutex::new(None),
         }
     }
 
@@ -143,6 +146,14 @@ impl Context {
                 Err(e)
             }
         }
+    }
+
+    pub fn set_session_error(&self, text: String) {
+        *self.session_error.lock().unwrap() = Some(text);
+    }
+
+    pub fn last_session_error(&self) -> Option<String> {
+        self.session_error.lock().unwrap().clone()
     }
 
     /// Is the first clone running now? `status` and `initialize` never wait for it.

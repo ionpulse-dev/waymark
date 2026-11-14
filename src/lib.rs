@@ -11,6 +11,7 @@ pub mod identity;
 pub mod indexgen;
 pub mod kb;
 pub mod lint;
+pub mod maintenance;
 pub mod manual;
 pub mod mcp;
 pub mod notices;

@@ -8,7 +8,7 @@ use super::Repo;
 use crate::error::{Error, Result};
 use crate::format;
 use sha2::{Digest, Sha256};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 const FRESH_FOR: Duration = Duration::from_secs(180);
 
@@ -135,7 +135,7 @@ impl Repo {
             }
             return Ok(vec![format!("{msg}. The local copy may be behind.")]);
         }
-        *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        self.mark_fetched();
         if self.head().is_none() {
             self.join_remote_branch_if_unborn()?;
             return Ok(Vec::new());
@@ -249,7 +249,7 @@ impl Repo {
             ))
             .with_next("Check the network and your Git login, then try again."));
         }
-        *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        self.mark_fetched();
         if self.has_upstream() {
             let (ahead, behind) = self.ahead_behind()?;
             if behind > 0 {

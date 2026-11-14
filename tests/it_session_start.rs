@@ -214,10 +214,7 @@ fn status_matches_instructions_and_shows_found_by_and_remote() {
         .as_str()
         .unwrap()
         .ends_with("remote.git"));
-    assert!(s["message"]
-        .as_str()
-        .unwrap()
-        .contains("Knowledge base \"Test\" is in use. Access is read-write."));
+    assert_eq!(s["message"], "All checks are ok.");
 }
 
 #[test]

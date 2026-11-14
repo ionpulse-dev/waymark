@@ -79,10 +79,15 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
     if std::env::var_os("GIT_SSH_COMMAND").is_none() {
         cmd.env("GIT_SSH_COMMAND", "ssh -o BatchMode=yes");
     }
+    {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
     let mut child = cmd.spawn().map_err(|e| {
         Error::setup(format!("Cannot run git: {e}"))
             .with_next("Install git, for example with: xcode-select --install")
     })?;
+    let pid = child.id();
     let mut stdout = child.stdout.take().unwrap();
     let mut stderr = child.stderr.take().unwrap();
     let t_out = std::thread::spawn(move || {
@@ -104,9 +109,14 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
             break Some(s);
         }
         if std::time::Instant::now() >= deadline {
+            // Kill the whole group: git may have started `ssh`, which holds the pipes.
+            let _ = std::process::Command::new("kill")
+                .args(["-KILL", &format!("-{pid}")])
+                .stderr(Stdio::null())
+                .status();
             let _ = child.kill();
             let _ = child.wait();
-            break None;
+            return Ok(None);
         }
         std::thread::sleep(std::time::Duration::from_millis(20));
     };

@@ -8,6 +8,7 @@ pub mod diff;
 pub mod lock;
 pub mod log;
 pub mod message;
+pub mod probe;
 mod sync;
 mod write;
 
@@ -28,6 +29,7 @@ pub struct Repo {
     author: Mutex<Author>,
     pub(crate) last_fetch: Mutex<Option<Instant>>,
     fetch_failed: std::sync::atomic::AtomicBool,
+    last_pull: Mutex<Option<chrono::DateTime<chrono::Utc>>>,
 }
 
 impl Repo {
@@ -46,6 +48,7 @@ impl Repo {
             author: Mutex::new(author),
             last_fetch: Mutex::new(None),
             fetch_failed: std::sync::atomic::AtomicBool::new(false),
+            last_pull: Mutex::new(None),
         })
     }
 
@@ -78,7 +81,7 @@ impl Repo {
             .with_next("Check the URL and your Git login (an SSH key or a credential helper)."));
         }
         let repo = Repo::open(dir, author)?;
-        *repo.last_fetch.lock().unwrap() = Some(Instant::now());
+        repo.mark_fetched();
         Ok(repo)
     }
 
@@ -94,6 +97,16 @@ impl Repo {
     /// Did the last fetch fail? (see `notifications-and-review`)
     pub fn last_fetch_failed(&self) -> bool {
         self.fetch_failed.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// The time of the last good fetch in this session.
+    pub fn last_pull(&self) -> Option<chrono::DateTime<chrono::Utc>> {
+        *self.last_pull.lock().unwrap()
+    }
+
+    pub(crate) fn mark_fetched(&self) {
+        *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        *self.last_pull.lock().unwrap() = Some(chrono::Utc::now());
     }
 
     pub(crate) fn set_fetch_failed(&self, failed: bool) {

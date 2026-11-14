@@ -49,7 +49,7 @@ fn missing_id_is_setup_problem() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     let r = c.call("status", json!({}));
     assert_eq!(r.json["healthy"], false);
-    let kb = check(&r.json, "knowledge_base");
+    let kb = check(&r.json, "clone");
     assert_eq!(kb["ok"], false);
     assert!(kb["detail"].as_str().unwrap().contains("id"));
 }
