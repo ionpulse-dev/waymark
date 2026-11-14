@@ -3,7 +3,7 @@
 _Prerequisite: `quality-checks` is `implemented` or `done`._
 
 - [x] `src/lint/mod.rs`: `run` now takes an `include` predicate instead of a `Scope`, so it checks any set of documents. Tested through `sync`.
-- [x] `src/manual/pending.rs`: parse `git status`, classify, skip non-documents and `.mkbase/` files. Unit tests with a temp repository: new, changed, deleted, image, dot file, excluded path.
+- [x] `src/manual/pending.rs`: parse `git status`, classify, skip non-documents and `.mkbase/` files. Tested end to end (T1, T10, T11, T13, T15).
 - [x] touching is in `src/manual/mod.rs` (`prepare`). Tested end to end (T9).
 - [x] `src/manual/mod.rs`: `prepare` (lint, touch) and `commit_before_write`. Tested end to end (T1 to T6).
 - [x] `src/gitsync/sync.rs`: `Repo::sync` already took a hook. Added `pulled` to `SyncResult` and `Repo::pull_only`.

@@ -102,6 +102,7 @@ impl Tool for Index {
             data.insert("unchanged".into(), json!(unchanged));
             data.insert("skipped".into(), json!(skipped));
             Ok(Plan {
+                first: None,
                 changes,
                 verb: Verb::Update,
                 title,

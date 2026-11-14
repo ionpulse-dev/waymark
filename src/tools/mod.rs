@@ -7,6 +7,7 @@ pub mod dispute;
 pub mod index;
 pub mod lint;
 pub mod list;
+pub mod move_documents;
 pub mod read_common;
 pub mod search;
 pub mod show;
@@ -28,6 +29,7 @@ pub fn registry() -> Registry {
         Box::new(lint::Lint),
         Box::new(index::Index),
         Box::new(sync::Sync),
+        Box::new(move_documents::Move),
         Box::new(add::Add),
         Box::new(update_document::UpdateDocument),
         Box::new(dispute::Dispute),

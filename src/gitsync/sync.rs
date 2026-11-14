@@ -34,7 +34,7 @@ pub struct SyncResult {
 
 impl Repo {
     /// Does the current branch have an upstream?
-    fn has_upstream(&self) -> bool {
+    pub(crate) fn has_upstream(&self) -> bool {
         run(
             &self.dir,
             None,
@@ -45,7 +45,7 @@ impl Repo {
     }
 
     /// (ahead, behind) of the upstream.
-    fn ahead_behind(&self) -> Result<(usize, usize)> {
+    pub(crate) fn ahead_behind(&self) -> Result<(usize, usize)> {
         let out = run_ok(
             &self.dir,
             None,

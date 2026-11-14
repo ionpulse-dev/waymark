@@ -108,7 +108,9 @@ impl<'a> Tx<'a> {
         }
         fs::write(&dest, bytes).map_err(|e| Error::setup(format!("Cannot write {to}: {e}")))?;
         fs::remove_file(self.abs(from))
-            .map_err(|e| Error::setup(format!("Cannot remove {from}: {e}")))
+            .map_err(|e| Error::setup(format!("Cannot remove {from}: {e}")))?;
+        self.remove_empty_parents(&self.abs(from));
+        Ok(())
     }
 
     /// The short hash of the last commit of a path. Used as the `version` of a document.
@@ -130,14 +132,32 @@ impl<'a> Tx<'a> {
         }
     }
 
+    /// Remove the empty folders above a path, up to the repository folder.
+    fn remove_empty_parents(&self, path: &std::path::Path) {
+        let mut cur = path.parent();
+        while let Some(dir) = cur {
+            if dir == self.repo.dir || !dir.starts_with(&self.repo.dir) {
+                break;
+            }
+            if fs::remove_dir(dir).is_err() {
+                break;
+            }
+            cur = dir.parent();
+        }
+    }
+
     fn rollback(&self) {
         let mut undo = self.undo.borrow_mut();
         while let Some(u) = undo.pop() {
             match u {
                 Undo::Created(p) => {
-                    let _ = fs::remove_file(p);
+                    let _ = fs::remove_file(&p);
+                    self.remove_empty_parents(&p);
                 }
                 Undo::Restore(p, bytes) => {
+                    if let Some(parent) = p.parent() {
+                        let _ = fs::create_dir_all(parent);
+                    }
                     let _ = fs::write(p, bytes);
                 }
             }
@@ -182,6 +202,13 @@ impl Repo {
             Ok(Some(hash)) => result.commit = Some(hash),
             Ok(None) => {
                 result.unchanged = true;
+                // The closure may have made commits of its own (see `move`). Push them.
+                if self.has_remote() && self.has_upstream() && self.ahead_behind()?.0 > 0 {
+                    match self.push()? {
+                        Some(notice) => result.notices.push(notice),
+                        None => result.pushed = true,
+                    }
+                }
                 return Ok((result, value));
             }
             Err(e) => {
@@ -197,6 +224,12 @@ impl Repo {
             Err(e) => return Err(e),
         }
         Ok((result, value))
+    }
+
+    /// Remove the commits after `head` and keep the files as they are in the working tree.
+    pub(crate) fn undo_commit_keep_files(&self, head: &str) -> Result<()> {
+        run_ok(&self.dir, None, &["reset", "-q", "--mixed", head])?;
+        Ok(())
     }
 
     /// Stage the paths and commit only them. Returns the short hash, or `None` if nothing changed.

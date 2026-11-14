@@ -14,3 +14,8 @@
 
 - Conflict with `search-and-read`: its criterion "`show` with an old ID names the new ID" is not in this spec, because `move-documents` does not require `search-and-read`. `search-and-read` must cover it with `git log --follow`.
 - Needs from `git-sync`: several commits in one `Repo::write`, a check step before the push, and a rollback of the unpushed commits of the transaction.
+
+## Done in the implementation (2026-11-14)
+
+- All `[auto]` cases pass in `tests/it_move_documents.rs` and the unit tests of `src/writes/linkfix.rs`.
+- The `[manual]` Obsidian check is for the product owner.

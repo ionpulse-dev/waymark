@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  4 / 20 active
+📦 Features      ██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  5 / 20 active
 🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits` are `implemented`. Next in dependency order: `move-documents`, `activity-and-undo`, `verification`, then the rest.
+3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents` are `implemented`. Next in dependency order: `activity-and-undo`, `verification`, `pause-and-resume`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -22,6 +22,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
 | [manual-edits](features/manual-edits/requirements.md) | `implemented` | 2026-11-14 |
+| [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-14 |
 | [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-14 |
 | [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-14 |
 | [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
@@ -31,7 +32,6 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [join-knowledge-base](features/join-knowledge-base/requirements.md) | `planned` | 2026-11-14 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `planned` | 2026-11-14 |
 | [maintenance](features/maintenance/requirements.md) | `planned` | 2026-11-14 |
-| [move-documents](features/move-documents/requirements.md) | `planned` | 2026-11-14 |
 | [notifications-and-review](features/notifications-and-review/requirements.md) | `planned` | 2026-11-14 |
 | [pause-and-resume](features/pause-and-resume/requirements.md) | `planned` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `planned` | 2026-11-14 |

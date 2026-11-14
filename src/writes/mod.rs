@@ -255,7 +255,17 @@ pub enum FileChange {
     },
 }
 
+/// A first commit that holds only moves (see `move-documents`). It is made before `Plan::changes`.
+pub struct FirstCommit {
+    /// Paths below the repository folder: (from, to), for every file that moves.
+    pub moves: Vec<(String, String)>,
+    pub title: String,
+    /// After the commit, the history of each new path must reach the old commit: (new path, old commit).
+    pub history: Vec<(String, String)>,
+}
+
 pub struct Plan {
+    pub first: Option<FirstCommit>,
     pub changes: Vec<FileChange>,
     pub verb: Verb,
     pub title: String,
@@ -328,19 +338,49 @@ pub fn execute(
             approve(env, tool, kind, &plan.summary)?;
         }
         let mut paths = Vec::new();
-        for change in &plan.changes {
-            match change {
-                FileChange::Write { id, text, .. } => {
-                    let rel = kb.repo_relative(id)?;
-                    tx.write_file(&rel, text)?;
-                    paths.push(rel);
+        let mut first_hash: Option<String> = None;
+        let mut history_checked = false;
+        if !preview {
+            if let Some(first) = &plan.first {
+                let head = tx.repo().head();
+                let mut moved_paths = Vec::new();
+                for (from, to) in &first.moves {
+                    tx.rename(from, to)?;
+                    moved_paths.push(from.clone());
+                    moved_paths.push(to.clone());
                 }
-                FileChange::Remove { id } => {
-                    let rel = kb.repo_relative(id)?;
-                    tx.remove_file(&rel)?;
-                    paths.push(rel);
+                first_hash = tx.repo().commit_change(&Change {
+                    paths: moved_paths,
+                    message: commit_message(Verb::Move, &first.title),
+                })?;
+                for (new_rel, old_commit) in &first.history {
+                    if !tx.repo().history_reaches(new_rel, old_commit)? {
+                        // Take the commit back, keep the files. The transaction restores them.
+                        if let Some(h) = &head {
+                            tx.repo().undo_commit_keep_files(h)?;
+                        }
+                        return Err(Error::validation(format!(
+                            "Git cannot follow the history of \"{new_rel}\" after the move."
+                        ))
+                        .with_next("Nothing was changed. Move fewer documents at once, or ask someone who knows Git."));
+                    }
                 }
-                FileChange::Keep { id } => paths.push(kb.repo_relative(id)?),
+                history_checked = true;
+            }
+            for change in &plan.changes {
+                match change {
+                    FileChange::Write { id, text, .. } => {
+                        let rel = kb.repo_relative(id)?;
+                        tx.write_file(&rel, text)?;
+                        paths.push(rel);
+                    }
+                    FileChange::Remove { id } => {
+                        let rel = kb.repo_relative(id)?;
+                        tx.remove_file(&rel)?;
+                        paths.push(rel);
+                    }
+                    FileChange::Keep { id } => paths.push(kb.repo_relative(id)?),
+                }
             }
         }
         let mut message = commit_message(plan.verb, &plan.title);
@@ -348,15 +388,35 @@ pub fn execute(
             message.push_str("\n\n");
             message.push_str(body);
         }
-        Ok((Change { paths, message }, plan))
+        if let Some(h) = &first_hash {
+            message.push_str(&format!("\n\nMove: {h}"));
+        }
+        Ok((Change { paths, message }, (plan, first_hash, history_checked)))
     })?;
+    let (plan, first_hash, history_checked) = plan;
 
     let mut data = plan.data.clone();
-    data.insert("commit".into(), json!(res.commit));
-    if res.commit.is_some() {
-        data.insert("version".into(), json!(res.commit));
-    } else if !data.contains_key("version") {
-        data.insert("version".into(), Value::Null);
+    if plan.first.is_some() {
+        let commits: Vec<&String> = first_hash.iter().chain(res.commit.iter()).collect();
+        data.insert(
+            "commits".into(),
+            json!(if preview { Value::Null } else { json!(commits) }),
+        );
+        data.insert(
+            "history_checked".into(),
+            if preview {
+                Value::Null
+            } else {
+                json!(history_checked)
+            },
+        );
+    } else {
+        data.insert("commit".into(), json!(res.commit));
+        if res.commit.is_some() {
+            data.insert("version".into(), json!(res.commit));
+        } else if !data.contains_key("version") {
+            data.insert("version".into(), Value::Null);
+        }
     }
     data.insert(
         "pushed".into(),

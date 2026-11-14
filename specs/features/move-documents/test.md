@@ -18,16 +18,16 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 ## Test Cases
 
-- [ ] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_move_documents.rs`)
-- [ ] [auto] Commit 1 has only `R100` entries (`git diff-tree -M --name-status`) (`tests/it_move_documents.rs`)
-- [ ] [auto] Commit 2 has the subject `waymark: update "<title>"` and the body line `Move: <hash of commit 1>` (`tests/it_move_documents.rs`)
-- [ ] [auto] `updated` and `updated_by` change only in documents whose links changed (`tests/it_move_documents.rs`)
-- [ ] [auto] A property wikilink, a body Markdown link, a short-name wikilink with alias, and a link in a code fence: the first three are rewritten, the last is not (`tests/it_move_documents.rs`)
-- [ ] [auto] A move into itself, of the root, of `.mkbase/`, and with different kinds each fail with the right code (`tests/it_move_documents.rs`)
-- [ ] [auto] A failed history check removes the local commits and pushes nothing (`tests/it_move_documents.rs`, with a fake that hides history)
-- [ ] [auto] Both commits reach the remote with one push, and the second clone sees the new layout after a pull (`tests/it_move_documents.rs`)
-- [ ] [auto] The same move twice gives `not_found` the second time, with no change (`tests/it_move_documents.rs`)
-- [ ] [auto] Relative path computation (unit tests in `src/writes/moveplan.rs`)
+- [x] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_move_documents.rs`)
+- [x] [auto] Commit 1 has only `R100` entries (`git diff-tree -M --name-status`) (`tests/it_move_documents.rs`)
+- [x] [auto] Commit 2 has the subject `waymark: update "<title>"` and the body line `Move: <hash of commit 1>` (`tests/it_move_documents.rs`)
+- [x] [auto] `updated` and `updated_by` change only in documents whose links changed (`tests/it_move_documents.rs`)
+- [x] [auto] A property wikilink, a body Markdown link, a short-name wikilink with alias, and a link in a code fence: the first three are rewritten, the last is not (`tests/it_move_documents.rs`)
+- [x] [auto] A move into itself, of the root, of `.mkbase/`, and with different kinds each fail with the right code (`tests/it_move_documents.rs`)
+- [x] [auto] A failed history check removes the local commits and pushes nothing (`tests/it_move_documents.rs`, with a fake that hides history)
+- [x] [auto] Both commits reach the remote with one push, and the second clone sees the new layout after a pull (`tests/it_move_documents.rs`)
+- [x] [auto] The same move twice gives `not_found` the second time, with no change (`tests/it_move_documents.rs`)
+- [x] [auto] Relative path computation (unit tests in `src/writes/linkfix.rs`)
 - [ ] [manual] Links still work in Obsidian after a folder move. Steps: run `move` on a folder with 5 linked documents through a real agent tool, pull in a vault, click each link and open the graph. Expected: no unresolved link shows.
 
 ## Notes

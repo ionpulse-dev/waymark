@@ -159,6 +159,33 @@ impl Repo {
         Ok(result)
     }
 
+    /// Does the history of a path reach back to a commit? Uses `git log --follow`, so it sees
+    /// through a rename. `commit` is a short or full hash.
+    pub fn history_reaches(&self, rel_path: &str, commit: &str) -> Result<bool> {
+        // A test hook: tests set this to see how a failed history check behaves.
+        if std::env::var_os("WAYMARK_TEST_HIDE_HISTORY").is_some() {
+            return Ok(false);
+        }
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &["log", "--follow", "--format=%h", "--", rel_path],
+        )?;
+        Ok(out.ok
+            && out
+                .stdout
+                .lines()
+                .any(|l| commit.starts_with(l.trim()) || l.trim().starts_with(commit)))
+    }
+
+    /// The short hash of HEAD, or `None` in a repository without a commit.
+    pub fn head(&self) -> Option<String> {
+        cmd::run(&self.dir, None, &["rev-parse", "--short", "HEAD"])
+            .ok()
+            .filter(|o| o.ok)
+            .map(|o| o.stdout.trim().to_string())
+    }
+
     /// The text of a file at a commit. `None` if it did not exist there.
     pub fn show_at(&self, commit: &str, rel_path: &str) -> Result<Option<String>> {
         let spec = format!("{commit}:{rel_path}");

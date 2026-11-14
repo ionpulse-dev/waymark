@@ -92,6 +92,7 @@ impl Tool for Deprecate {
             data.insert("title".into(), json!(title));
             data.insert("status".into(), json!("deprecated"));
             Ok(Plan {
+                first: None,
                 changes: vec![FileChange::Write {
                     id: id.clone(),
                     text,

@@ -78,3 +78,16 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The criterion "`show` with an old ID names the new ID" is removed from this spec. This spec only guarantees pure rename commits, so `git log --follow` works.
 
 **Reason:** `move-documents` does not require `search-and-read`, and `show` is a tool of that spec. Decided autonomously. Reported as a conflict.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **Two commits through one write path.** `writes::Plan` has an optional `first: FirstCommit` (the moves, the title, and the history list). `writes::execute` makes that commit first, then the link fixes as the usual commit, then one push. The link fixes are computed on the text before the move and written to the new paths.
+- **History check.** For each moved document, `git log --follow` on the new path must reach the last commit of the old path. If not, `git reset --mixed` removes the move commit, the transaction restores the files, and the call fails with `validation_failed`. The test hook `WAYMARK_TEST_HIDE_HISTORY` makes the check fail.
+- **Push of a lone commit.** `Repo::write` pushes unpushed commits also when its own commit has no change, so a move without link fixes is pushed.
+- **Folder moves** move every file below the folder, also images and other files. Empty source folders are removed.
+- **Relative links.** A link text is rewritten only if it no longer resolves to the moved target from the new location of the linking document. Links between documents that move together keep their text. A leading `/` stays absolute.
+- **Short wikilinks** are rewritten to the full new path only if the short name no longer finds exactly one document, which was the target before.
+- **Edits that wait.** A moved document with an unpublished manual edit gives `stale_base`, as in the other write tools.
+- **Kind.** `move` is a write tool (`Kind::Write`). The commit verbs are `move` and `update`.
