@@ -96,6 +96,14 @@ pub fn not_found(id: &str) -> Error {
 pub fn read_doc(tx: &Tx, kb: &KnowledgeBase, id: &str) -> Result<(String, Document)> {
     let rel = kb.repo_relative(id)?;
     let text = tx.read(&rel)?.ok_or_else(|| not_found(id))?;
+    // A document with a manual edit that is not published cannot be changed (see `manual-edits`).
+    if tx.repo().dirty_paths()?.contains(&rel) {
+        return Err(Error::new(
+            Code::StaleBase,
+            format!("The document \"{id}\" has manual edits that are not published."),
+        )
+        .with_next("This document has manual edits that are not published. Run `sync`."));
+    }
     let doc = format::parse(&text).map_err(|e| {
         Error::validation(format!("The document \"{id}\" cannot be read: {e:?}."))
             .with_next("Fix the file by hand, then try again.")
@@ -265,7 +273,7 @@ pub struct Plan {
 
 /// The approval step of the write flow. `write-approval` fills it in. Until then a write that
 /// needs approval fails, so that nothing is written without the approval that the limits ask for.
-fn approve(env: &Env, tool: &str, kind: Kind, _summary: &str) -> Result<()> {
+pub(crate) fn approve(env: &Env, tool: &str, kind: Kind, _summary: &str) -> Result<()> {
     if env.effective.needs_approval(tool, kind) {
         Err(Error::new(
             Code::ApprovalUnavailable,
@@ -290,9 +298,32 @@ pub fn execute(
 ) -> Result<ToolOutput> {
     let repo = ctx.repo()?;
     ctx.kb()?;
+    let author = author_string(ctx)?;
+    let today = today();
     let (res, plan) = repo.write(preview, |tx| {
         let kb = KnowledgeBase::open(repo.dir())?;
-        let plan = build(tx, &kb)?;
+        // Manual edits go first, in their own commit (see `manual-edits`).
+        let (pending_notices, blocked) = if preview {
+            (Vec::new(), Vec::new())
+        } else {
+            crate::manual::commit_before_write(tx, &kb, &env.effective, &author, &today)?
+        };
+        let mut plan = build(tx, &kb)?;
+        for change in &plan.changes {
+            let id = match change {
+                FileChange::Write { id, .. }
+                | FileChange::Remove { id }
+                | FileChange::Keep { id } => id,
+            };
+            if blocked.contains(&kb.repo_relative(id)?) {
+                return Err(Error::new(
+                    Code::StaleBase,
+                    format!("The document \"{id}\" has manual edits that are not published."),
+                )
+                .with_next("This document has manual edits that are not published. Run `sync`."));
+            }
+        }
+        plan.notices.extend(pending_notices);
         if !preview {
             approve(env, tool, kind, &plan.summary)?;
         }

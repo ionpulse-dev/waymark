@@ -77,12 +77,12 @@ fn sort(findings: &mut [Finding]) {
     });
 }
 
-/// Check the documents in scope. `limit_scope` has only the `folders` limit: it decides what the
+/// Check the documents that `include` selects. `limit_scope` has only the `folders` limit: it decides what the
 /// index files must contain. `repo` is used for the author checks.
 pub fn run(
     kb: &KnowledgeBase,
     store: &Store,
-    scope: &Scope,
+    include: &dyn Fn(&str) -> bool,
     limit_scope: &Scope,
     repo: Option<&Repo>,
 ) -> Result<Report> {
@@ -94,7 +94,7 @@ pub fn run(
 
     let mut all_ids: Vec<String> = ids.iter().cloned().collect();
     all_ids.sort();
-    for id in all_ids.iter().filter(|i| scope.allows(i)) {
+    for id in all_ids.iter().filter(|i| include(i)) {
         checked += 1;
         let path = format!("{id}.md");
         match store.get(id) {
@@ -139,7 +139,7 @@ pub fn run(
         group.sort();
         let first = group[0].1;
         for (_, id) in group.iter().skip(1) {
-            if scope.allows(id) {
+            if include(id) {
                 findings.push(Finding::error(
                     &format!("{id}.md"),
                     "duplicate-title",
@@ -153,7 +153,7 @@ pub fn run(
     if let Some(repo) = repo {
         let history = repo.path_authors()?;
         let dirty: HashSet<String> = repo.dirty_paths()?.into_iter().collect();
-        for d in store.docs().filter(|d| scope.allows(&d.id)) {
+        for d in store.docs().filter(|d| include(&d.id)) {
             let Ok(rel) = kb.repo_relative(&d.id) else {
                 continue;
             };
@@ -186,7 +186,7 @@ pub fn run(
     // Generated indexes that are out of date.
     for d in store
         .docs_with_index()
-        .filter(|d| d.is_index() && scope.allows(&d.id))
+        .filter(|d| d.is_index() && include(&d.id))
     {
         let folder = indexgen::folder_of_index(&d.id);
         let expected = indexgen::expected_body(store, folder, limit_scope);

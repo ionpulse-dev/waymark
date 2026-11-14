@@ -27,25 +27,25 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClient` on clone A. A "manual edit" is a file change that the test makes with plain file writes in the clone, as Obsidian would.
 
-- [ ] [auto] T1: edit the body of `ops/deploy.md`. `sync` returns `committed` with `ops/deploy`. The remote has a commit with the message `waymark: sync "How we deploy"` and the author of the person.
-- [ ] [auto] T2: create `ops/new.md` with no frontmatter. `sync` fails with `validation_failed`. The remote has no new commit. `ops/new.md` is unchanged.
-- [ ] [auto] T3: one good edit and one bad new file. `committed` has the good one and `blocked` has the bad one with `no-frontmatter`. The remote has the good commit only.
-- [ ] [auto] T4: edit `ops/deploy.md`, then call `add`. `git log` shows a `sync` commit and then an `add` commit.
-- [ ] [auto] T5: a bad new file and a call to `add` for another document. `add` works, and the result has the notice "1 manual edit is not published. Run `sync`."
-- [ ] [auto] T6: a bad edit to `ops/deploy.md` (a 16-word title) and a call to `update_document` for it fails with `stale_base` and the `next` sentence.
+- [x] [auto] T1: edit the body of `ops/deploy.md`. `sync` returns `committed` with `ops/deploy`. The remote has a commit with the message `waymark: sync "How we deploy"` and the author of the person.
+- [x] [auto] T2: create `ops/new.md` with no frontmatter. `sync` fails with `validation_failed`. The remote has no new commit. `ops/new.md` is unchanged.
+- [x] [auto] T3: one good edit and one bad new file. `committed` has the good one and `blocked` has the bad one with `no-frontmatter`. The remote has the good commit only.
+- [x] [auto] T4: edit `ops/deploy.md`, then call `add`. `git log` shows a `sync` commit and then an `add` commit.
+- [x] [auto] T5: a bad new file and a call to `add` for another document. `add` works, and the result has the notice "1 manual edit is not published. Run `sync`."
+- [x] [auto] T6: a bad edit to `ops/deploy.md` (a 16-word title) and a call to `update_document` for it fails with `stale_base` and the `next` sentence.
 - [ ] [auto] T7: `approval.required_for = ["sync"]`, and the harness answers the elicitation. With "no", nothing is committed and the error is `approval_denied`. With "yes", it commits. Waits for `write-approval`.
-- [ ] [auto] T8: `--access read-only`. A pending edit and a remote commit from B. `sync` is listed, `committed` is empty, `pushed` is false, the clone has B's commit, the edit is still pending.
-- [ ] [auto] T9: edit `ops/deploy.md` without touching `updated`. After `sync`, the file has `updated` of today and `updated_by` of the author. The body is the same bytes.
-- [ ] [auto] T10: `git mv`-free hand move (delete and create in another folder). `sync`. `show` with the old ID returns `moved_from`.
-- [ ] [auto] T11: add `images/diagram.png`. `sync` lists it under `skipped` and it is not in the commit.
-- [ ] [auto] T12: `sync` with `preview: true`: no commit, no push, and `committed` lists the document without `commit`.
-- [ ] [auto] T13: edit `.mkbase/waymark.toml`. `sync` does not commit it.
-- [ ] [auto] T14: B edits the same document and pushes. A has a pending edit to it. `sync` keeps both files, and the result has `conflicts` and a notice.
-- [ ] [auto] T15: a pending delete is committed with kind `deleted`.
-- [ ] [auto] T16: the `lint` rules apply: a duplicate title in a new file blocks it with `duplicate-title`.
-- [ ] [auto] T17: a clean tree: `sync` returns `committed: []`, pulls, and does not create an empty commit.
-- [ ] [auto] T18: a repository with no remote commits locally and the result has a notice that there is no remote.
-- [ ] [auto] T19: a `preview: true` write does not commit pending edits.
+- [x] [auto] T8: `--access read-only`. A pending edit and a remote commit from B. `sync` is listed, `committed` is empty, `pushed` is false, the clone has B's commit, the edit is still pending.
+- [x] [auto] T9: edit `ops/deploy.md` without touching `updated`. After `sync`, the file has `updated` of today and `updated_by` of the author. The body is the same bytes.
+- [x] [auto] T10: `git mv`-free hand move (delete and create in another folder). `sync`. `show` with the old ID returns `moved_from`.
+- [x] [auto] T11: add `images/diagram.png`. `sync` lists it under `skipped` and it is not in the commit.
+- [x] [auto] T12: `sync` with `preview: true`: no commit, no push, and `committed` lists the document without `commit`.
+- [x] [auto] T13: edit `.mkbase/waymark.toml`. `sync` does not commit it.
+- [x] [auto] T14: B edits the same document and pushes. A has a pending edit to it. `sync` keeps both files, and the result has `conflicts` and a notice.
+- [x] [auto] T15: a pending delete is committed with kind `deleted`.
+- [x] [auto] T16: the `lint` rules apply: a duplicate title in a new file blocks it with `duplicate-title`.
+- [x] [auto] T17: a clean tree: `sync` returns `committed: []`, pulls, and does not create an empty commit.
+- [x] [auto] T18: a repository with no remote commits locally and the result has a notice that there is no remote.
+- [x] [auto] T19: a `preview: true` write does not commit pending edits.
 - [ ] [manual] T20: edit in a real Obsidian vault and publish.
   - Setup: install the current Obsidian. Create a knowledge base with `init` and a real Git remote (a private repository on a Git host that you control). Open the knowledge base folder as a vault. Add the MCP entry to a real agent tool.
   - Steps: in Obsidian, open `ops/deploy`, change one sentence, and save. Create a new document through Obsidian with all required properties (use the properties panel). In the agent tool, ask it to run `sync`.

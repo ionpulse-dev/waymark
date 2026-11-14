@@ -2,15 +2,15 @@
 
 _Prerequisite: `quality-checks` is `implemented` or `done`._
 
-- [ ] `src/lint/mod.rs`: add `run_on(store, paths)` if `run` does not give it. Unit test.
-- [ ] `src/manual/pending.rs`: parse `git status`, classify, skip non-documents and `.mkbase/` files. Unit tests with a temp repository: new, changed, deleted, image, dot file, excluded path.
-- [ ] `src/manual/touch.rs`: set `updated` and `updated_by` with `format::render`. Unit tests: body unchanged, no write when equal.
-- [ ] `src/manual/mod.rs`: `commit_pending` (lint, touch, approval, commit) and the quiet variant. Unit tests: pass, block, mixed, all blocked.
-- [ ] `src/gitsync/sync.rs`: add the hook parameter to `Repo::sync`. Unit test with a fake hook.
-- [ ] `src/gitsync/write.rs`: add `install_pending_hook`, the call after the fetch, and the check for uncommitted paths with `stale_base`. Unit tests.
-- [ ] `src/mcp/context.rs`: install the hook.
-- [ ] `src/mcp/tool.rs`: list `sync` in read-only and paused states.
-- [ ] `src/tools/sync.rs`: schema, call, read-only mode, preview, the all-blocked error, the result. Register it in `src/tools/mod.rs`.
-- [ ] `tests/it_manual_edits.rs`: the test cases of `test.md`.
-- [ ] Check the size of `tools/list` against the budget of `mcp-server`.
-- [ ] Run the full suite (`make check`).
+- [x] `src/lint/mod.rs`: `run` now takes an `include` predicate instead of a `Scope`, so it checks any set of documents. Tested through `sync`.
+- [x] `src/manual/pending.rs`: parse `git status`, classify, skip non-documents and `.mkbase/` files. Unit tests with a temp repository: new, changed, deleted, image, dot file, excluded path.
+- [x] touching is in `src/manual/mod.rs` (`prepare`). Tested end to end (T9).
+- [x] `src/manual/mod.rs`: `prepare` (lint, touch) and `commit_before_write`. Tested end to end (T1 to T6).
+- [x] `src/gitsync/sync.rs`: `Repo::sync` already took a hook. Added `pulled` to `SyncResult` and `Repo::pull_only`.
+- [x] `src/writes/mod.rs`: the hook runs in `execute`, inside the lock after the fetch, and `read_doc` gives `stale_base` for a document with unpublished edits (see `decisions.md`).
+- [x] no hook object in `Context`: `writes::execute` calls `manual::commit_before_write`.
+- [x] `sync` has the kind `read`, so the registry lists it in read-only and paused states. The tool checks the limits itself.
+- [x] `src/tools/sync.rs`: schema, call, read-only mode, preview, the all-blocked error, the result. Register it in `src/tools/mod.rs`.
+- [x] `tests/it_manual_edits.rs`: the test cases of `test.md`.
+- [x] Check the size of `tools/list` against the budget of `mcp-server`.
+- [x] Run the full suite (`make check`).

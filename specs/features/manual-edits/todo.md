@@ -23,3 +23,8 @@ None.
 - `mcp-server` plan, step 4, hides write tools in read-only and paused states. `sync` must stay listed (see `decisions.md`).
 - `git-sync` plan: `Repo::sync` needs a hook parameter and `Repo::write` needs an installed pending-edit hook and a check for uncommitted target paths.
 - `git-sync` requirements say "`sync` commits pending manual edits". This spec fixes the details: lint first, partial commit, message `waymark: sync "<title>"`.
+
+## Done in the implementation (2026-11-14)
+
+- 17 of 18 `[auto]` cases pass in `tests/it_manual_edits.rs`. T7 (approval for `sync`) waits for `write-approval` and is `#[ignore]`.
+- The two `[manual]` Obsidian checks (T20, T21) are for the product owner.

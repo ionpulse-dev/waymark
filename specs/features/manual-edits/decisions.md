@@ -95,3 +95,16 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Each write tool calls `manual::commit_pending` (rejected: tools would forget it, and `git-sync` already owns the write flow).
 
 **Reason:** The write flow stays in one place. These are additions to `git-sync` and are reported. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **No hook object.** The plan had `Repo::install_pending_hook`. The code is simpler: `writes::execute` (the one write path) calls `manual::commit_before_write` after the fetch and inside the lock. `gitsync` stays free of document rules. A `preview` write does not run it.
+- **`stale_base` for unpublished edits** is raised in `writes::read_doc`, before the tool builds its change. After the hook, a document that is still changed in the working tree is a blocked edit. The write then fails, also when the new content would be invalid. `execute` also checks the planned files after the build.
+- **`sync` has the kind `read`.** The registry lists read tools in every state, which is what the requirements ask. The tool itself calls `check_tool("sync", write)` and, if writes are not allowed, only pulls (`Repo::pull_only`) and adds a notice. `tools_denied` still hides it.
+- **Preview** reads the working tree and runs lint. It does not fetch, so nothing is pulled.
+- **`lint::run` takes a predicate** (`include`) instead of a `Scope`, so `sync` can check exactly the pending documents. Duplicate titles are still found against all documents.
+- **`pulled`** is the number of commits that the pull brought in, as `git rev-list --left-right` counts them before the merge. A rebase of local commits is not counted twice.
+- **Hand moves** show as one `deleted` and one `new` in one commit. Git finds the rename, and `show` follows it.
+- **Approval** for `sync` uses `writes::approve`. It fails closed until `write-approval` exists. Test T7 waits for it.

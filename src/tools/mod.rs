@@ -12,6 +12,7 @@ pub mod search;
 pub mod show;
 pub mod stats;
 pub mod status;
+pub mod sync;
 pub mod update_document;
 
 use crate::mcp::tool::{Registry, Tool};
@@ -26,6 +27,7 @@ pub fn registry() -> Registry {
         Box::new(stats::Stats),
         Box::new(lint::Lint),
         Box::new(index::Index),
+        Box::new(sync::Sync),
         Box::new(add::Add),
         Box::new(update_document::UpdateDocument),
         Box::new(dispute::Dispute),

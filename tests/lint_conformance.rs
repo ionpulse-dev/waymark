@@ -34,7 +34,7 @@ fn run_lint(dir: &Path) -> lint::Report {
     let eff = Effective::from_layers(&[Limits::default()]);
     let scope = Scope::new(&eff, &[]);
     let limit = Scope::limit(&eff);
-    lint::run(&kb, &store, &scope, &limit, None).unwrap()
+    lint::run(&kb, &store, &|id| scope.allows(id), &limit, None).unwrap()
 }
 
 #[test]

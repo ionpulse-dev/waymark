@@ -25,6 +25,8 @@ fn fresh_for() -> Duration {
 pub struct SyncResult {
     pub commits: Vec<String>,
     pub pushed: bool,
+    /// The number of commits that the pull brought in.
+    pub pulled: usize,
     pub notices: Vec<String>,
     /// Pairs (original path, conflict copy path) of documents that were edited at the same time.
     pub conflicts: Vec<(String, String)>,
@@ -202,6 +204,7 @@ impl Repo {
                         &["pull", "--rebase", "--quiet"],
                     )?
                 };
+                result.pulled = behind;
                 if !out.ok {
                     self.resolve_conflicts(&mut result)?;
                 }
@@ -213,6 +216,33 @@ impl Repo {
             result.pushed = true;
         }
         Ok(result)
+    }
+
+    /// Only bring the clone up to date: fetch and fast-forward or rebase. Nothing is committed or
+    /// pushed. Returns the number of commits that came in, and notices.
+    pub fn pull_only(&self) -> Result<(usize, Vec<String>)> {
+        let _lock = Lock::acquire(&self.git_dir()?, Duration::from_secs(30))?;
+        if !self.has_remote() {
+            return Ok((
+                0,
+                vec!["This repository has no remote, so nothing is shared.".to_string()],
+            ));
+        }
+        let fetched = run(&self.dir, None, &["fetch", "--quiet"])?;
+        if !fetched.ok {
+            return Err(Error::sync(format!(
+                "Cannot reach the remote: {}",
+                cmd::first_line(&fetched.stderr)
+            ))
+            .with_next("Check the network and your Git login, then try again."));
+        }
+        let behind = if self.has_upstream() {
+            self.ahead_behind()?.1
+        } else {
+            0
+        };
+        let notices = self.update(false)?;
+        Ok((behind, notices))
     }
 
     /// The conflict rule. The rebase failed. Abort it, then keep both versions of every document

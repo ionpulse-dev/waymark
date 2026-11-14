@@ -9,6 +9,7 @@ pub mod gitsync;
 pub mod indexgen;
 pub mod kb;
 pub mod lint;
+pub mod manual;
 pub mod mcp;
 pub mod store;
 pub mod tools;
