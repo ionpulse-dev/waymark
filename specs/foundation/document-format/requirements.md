@@ -101,4 +101,3 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 
 ## Open Questions
 
-- Which Obsidian version is the baseline for the release check?

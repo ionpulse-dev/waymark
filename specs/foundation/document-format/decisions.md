@@ -72,6 +72,32 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The project is not released, so no tool and no knowledge base depends on a version number. Versioning costs effort and gives no value before there are users.
 
+## Patch versions for minor changes — 2026-11-14
+
+**Supersedes:** The version rules of "The standard stays at 1.0 until the first release" (the pre-release rule stays)
+
+**Decision:** The standard uses three numbers from the first release: major.minor.patch.
+- **Patch (1.0.1):** a clarification, a typo, or a new example. It changes no rule and no fixture result.
+- **Minor (1.1.0):** an addition that valid 1.x documents still pass, such as a new optional field.
+- **Major (2.0.0):** a change that makes a valid document invalid, or changes what a field means. It needs a migration note.
+
+A claim of conformance and the `version` file in `.mkbase` name only major.minor ("MKBase 1.0"), because a patch never changes what is valid. The patch number shows in the header of the standard and in its changelog. The file name stays `mkbase-<major>.<minor>.md`, and a patch edits that file in place. Until the first release, the standard stays "1.0" as decided above.
+
+**Alternatives considered:**
+- Two numbers only — a typo fix would need a new minor version, or would have no version at all.
+
+**Reason:** Small fixes are frequent and should be visible in the changelog without implying a change to the rules.
+
+## Obsidian baseline for the release check — 2026-11-14
+
+**Decision:** The release check of the sample vault uses the latest stable Obsidian desktop release on the day of the check. The version is written in the release notes. The floor is Obsidian 1.4, the first version with the current property editor. The floor must be verified before this spec is approved.
+
+**Alternatives considered:**
+- Only a fixed version — it ages and hides new problems.
+- Only "latest" — there is no floor for people with older installs.
+
+**Reason:** The check should find problems in the version that people use now, and the floor says which older versions are supported. The floor can be raised without a spec change.
+
 ## The unit is called a document — 2026-11-08
 
 **Decision:** The unit of a knowledge base is a "document", not a "note".
