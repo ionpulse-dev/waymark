@@ -101,3 +101,16 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** A `folder` outside `folders` in `add` is `access_denied`. An `id` outside `folders` in the other tools is `not_found`.
 
 **Reason:** `mcp-server` lists the folder under `access_denied`. `search-and-read` says a document outside the limit is not found. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **Retarget of links moves to `move-documents`.** `src/writes/linkfix.rs` has `fix_body` and `fix_properties` (remove a link). The retarget code is written with `move-documents`, because only that tool needs it. Task and test item are changed to match.
+- **Approval fails closed.** `writes::approve` returns `approval_unavailable` when the limits ask for approval for the tool, because `write-approval` is not implemented yet. Nothing is written without the approval that the limits ask for. A preview never asks. `write-approval` replaces the body of this one function. The test `approval_asked_before_commit` stays `#[ignore]` until then.
+- **One execution path.** Every tool builds a `Plan` (files to write, remove, or keep, the commit message, the result fields). `writes::execute` runs it through `Repo::write`. A call that finds nothing to change returns a `Keep` entry, so that `git add` never runs with an empty path list.
+- **The knowledge base is read again inside the lock**, after the fetch, so settings and documents are current.
+- **Secret rule for assignments.** `password`, `passwd`, `secret`, `token`, and `api_key` followed by `=` or `:` match only when the value is at least 4 characters and does not start with `<`, `$`, `{`, `[`, `*`, or `.`. This keeps placeholders such as `password: <your password>` out of the findings.
+- **`stale_base` next sentence** now says "Read the document again with show, then redo the change." (`git-sync` `Tx::check_base`).
+- **Excluded folders.** `KnowledgeBase::is_excluded(id)` is new. A write into a path of `.mkbase/exclude` fails with `validation_failed`.
+- **The `Reason:` of `deprecate`** is scanned for secrets, because it goes into the Git history.

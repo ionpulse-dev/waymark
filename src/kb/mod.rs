@@ -114,6 +114,14 @@ impl KnowledgeBase {
             .collect()
     }
 
+    /// Is the document ID in a path of `.mkbase/exclude`? A write never goes there.
+    pub fn is_excluded(&self, id: &str) -> bool {
+        let path = format!("{id}.md");
+        self.excluded()
+            .iter()
+            .any(|x| path == *x || path.starts_with(&format!("{x}/")))
+    }
+
     /// All documents, sorted by ID. Skips names that start with `.`, excluded paths, and symbolic links.
     pub fn documents(&self) -> Vec<DocRef> {
         let exclude = self.excluded();

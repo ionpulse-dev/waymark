@@ -9,3 +9,4 @@ pub mod gitsync;
 pub mod kb;
 pub mod mcp;
 pub mod tools;
+pub mod writes;

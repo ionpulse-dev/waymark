@@ -125,7 +125,7 @@ impl<'a> Tx<'a> {
                 crate::error::Code::StaleBase,
                 format!("The document changed since you read it (version {n}, you have {b})."),
             )
-            .with_next("Read the document again, then redo the change.")),
+            .with_next("Read the document again with show, then redo the change.")),
             _ => Ok(()),
         }
     }

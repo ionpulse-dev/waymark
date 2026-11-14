@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0 / 20 active
+📦 Features      ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  1 / 20 active
 🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. Features in dependency order: `write-documents` (now), `search-and-read`, `quality-checks`, then the rest.
+3. `write-documents` is `implemented` (add, update_document, dispute, deprecate, delete). Next in dependency order: `search-and-read`, `quality-checks`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -21,6 +21,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
+| [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `planned` | 2026-11-14 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `planned` | 2026-11-14 |
 | [create-knowledge-base](features/create-knowledge-base/requirements.md) | `planned` | 2026-11-14 |
@@ -39,7 +40,6 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [updates](features/updates/requirements.md) | `planned` | 2026-11-14 |
 | [verification](features/verification/requirements.md) | `planned` | 2026-11-14 |
 | [write-approval](features/write-approval/requirements.md) | `planned` | 2026-11-14 |
-| [write-documents](features/write-documents/requirements.md) | `planned` | 2026-11-14 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation

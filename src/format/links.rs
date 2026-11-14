@@ -68,7 +68,7 @@ pub fn strip_code(body: &str) -> String {
     out
 }
 
-fn normalize(base_dir: &str, target: &str) -> Option<String> {
+pub(crate) fn normalize(base_dir: &str, target: &str) -> Option<String> {
     let mut parts: Vec<&str> = if target.starts_with('/') || base_dir.is_empty() {
         Vec::new()
     } else {
