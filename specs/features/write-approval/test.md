@@ -37,7 +37,7 @@ _The tests use the elicitation hook of the harness of `integration-testing`. The
 - [x] [auto] Two writes in a row send two requests (`tests/it_write_approval.rs`)
 - [x] [auto] The hook writes `paused = true` before it answers yes. The write fails with `paused`, with no new commit. With `access = "read-only"` set instead, the code is `access_denied` (`tests/it_write_approval.rs`)
 - [x] [auto] `required_for` from the shared file and from the personal file are both applied (union) (`tests/it_write_approval.rs`)
-- [ ] [auto] A second process that wants the lock during the wait fails with `sync_failed` after 30 seconds. Set the lock wait small in the test (`tests/it_write_approval.rs`)
+- [x] [auto] A second process that wants the lock during the wait fails with `sync_failed` after the lock wait. The test sets the wait small (`a_second_lock_waits_and_then_fails` in `src/gitsync/lock.rs`)
 - [x] [auto] Render tests for `add`, `update_document`, `delete`, `move` (synthetic request), `undo`, and `sync`, and the cut at 20000 characters (inline in `src/mcp/approval_text.rs`)
 - [x] [auto] Unit tests of `approval_required` (inline in `src/config/mod.rs`)
 - [ ] [manual] M1, Claude Code CLI shows the request. Steps: (1) Set `[approval] required_for = ["add"]` in `~/.config/waymark/config.toml`. (2) Start Claude Code in a project that has the MCP entry. (3) Ask the agent to add a document. Expected: Claude Code shows the request with the memory repository, folder, title, and body, and a box "Approve this write". After Accept with the box ticked, the document is committed. After Decline, the agent reports `approval_denied` and nothing is committed.

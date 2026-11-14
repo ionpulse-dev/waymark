@@ -48,7 +48,7 @@ Read [specs/PROJECT.md](specs/PROJECT.md) for the details.
 - `docs/`: roadmap, ideas, similar projects, project-wide decisions, and open questions.
 - Versions and automatic updates (settings schema, repairs, migrations): [specs/foundation/memory-repository](specs/foundation/memory-repository/requirements.md), section "Versions and updates".
 - `CHANGELOG.md` and `scripts/release.sh`: what each release is about, and the one command that makes a release (see the skill `.claude/skills/release/SKILL.md`).
-- `README.md`: the public project page. Keep it in sync with the specs. Only list advantages that a spec supports.
+- `README.md`: the public project page. Keep it in sync with the specs.
 
 ## What does not belong in this repository
 

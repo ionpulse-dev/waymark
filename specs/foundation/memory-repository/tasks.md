@@ -1,4 +1,4 @@
-# Tasks: Memory repository repository
+# Tasks: Memory repository
 
 `requires`: `document-format`.
 

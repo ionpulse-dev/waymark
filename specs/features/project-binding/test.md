@@ -49,7 +49,7 @@ _The tests use the harness of `integration-testing`. The `HOME` of the `World` i
 - [x] [auto] A memory repository without `origin` passes the host check (`tests/it_project_binding.rs`)
 - [x] [auto] Every schema in `tools/list` has `additionalProperties: false` and no property named `repo`, `path`, `memrepo`, or `memory_repository_id`. A call with `repo` gives `invalid_arguments` (`tests/it_project_binding.rs`)
 - [x] [auto] A Git repository without a marker: `status` works, other tools give `setup_problem` (`init` is tested in `create-memory-repository`) (`tests/it_project_binding.rs`)
-- [x] [auto] The path is a linked worktree of the memory repository repository: `setup_problem` (`tests/it_project_binding.rs`)
+- [x] [auto] The path is a linked worktree of the memory repository: `setup_problem` (`tests/it_project_binding.rs`)
 - [x] [auto] The path is not a Git repository: `setup_problem` (`tests/it_project_binding.rs`)
 - [x] [auto] A clone from a remote that does not exist: `sync_failed`, and no temporary folder remains. A leftover temporary folder from an earlier start is removed (`tests/it_project_binding.rs`)
 - [x] [auto] Two `McpClient`s with different `--path` in one `World`: a write through one leaves the other repository untouched (`tests/it_project_binding.rs`)

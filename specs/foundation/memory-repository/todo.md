@@ -1,4 +1,4 @@
-# Todo: Memory repository repository
+# Todo: Memory repository
 
 ## Bugs
 

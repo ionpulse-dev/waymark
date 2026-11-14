@@ -7,7 +7,7 @@ requires:
   - document-format
 ---
 
-# Memory repository repository
+# Memory repository
 
 > **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. This spec is fully in scope. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 

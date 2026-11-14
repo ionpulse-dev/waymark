@@ -74,7 +74,7 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | `move` | Move or rename documents | write | `move-documents` |
 | `undo` | Revert one write | write | `activity-and-undo` |
 | `sync` | Commit pending manual edits, pull, push | write | `git-sync`, `manual-edits` |
-| `init` | Create the structure of an empty memory repository repository | write | `create-memory-repository` |
+| `init` | Create the structure of an empty memory repository | write | `create-memory-repository` |
 | `verify`, `review`, `reject` | Owner verification. Present only when verification is on. | write | `verification` |
 
 Every tool has a JSON input schema and a kind hint (read-only, write, or destructive) so that clients can ask the person per tool. A tool that the limits switch off is not listed (see `trust-model`).

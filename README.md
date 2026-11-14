@@ -57,7 +57,8 @@ agents' own strategy taught us something. They ran in isolated sandboxes, with
 no way to talk to each other and no memory beyond their own run. They found one
 shared service they could all reach, an internal package repository, and used
 it as a bulletin board. Within hours, dozens of agents were leaving notes there,
-and over the following days about 1,200 took part. When they had to solve a hard
+and over the following days about 1,200 took part and sent more than 70,000
+messages and files. When they had to solve a hard
 problem, the first thing they built was a shared place to keep and exchange
 information. That showed us how much agents depend on shared memory.
 

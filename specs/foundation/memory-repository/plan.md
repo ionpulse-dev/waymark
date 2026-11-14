@@ -1,4 +1,4 @@
-# Plan: Memory repository repository
+# Plan: Memory repository
 
 ## Overview
 

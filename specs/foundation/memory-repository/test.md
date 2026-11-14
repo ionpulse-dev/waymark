@@ -1,4 +1,4 @@
-# Tests: Memory repository repository
+# Tests: Memory repository
 
 ## Acceptance Criteria Coverage
 

@@ -140,7 +140,7 @@ The codes at start:
 
 - The ID is an identifier, not a secret.
 - An agent that edits the MCP config of its tool could add an entry. This is a deliberate act and the same limit as raw Git use.
-- A Git worktree of the code project has its own copy of the committed `.mcp.json`, so the project entry works there. A worktree of the memory repository repository is not supported.
+- A Git worktree of the code project has its own copy of the committed `.mcp.json`, so the project entry works there. A worktree of the memory repository is not supported.
 - A first clone happens before the server answers `initialize`. A very large repository can exceed the start time-out of the client. The clone goes to a temporary folder next to the target and is renamed when it is complete, so a cut clone never counts as a memory repository. The next start clones again.
 
 ## Open Questions

@@ -33,7 +33,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [x] [auto] T4: edit `ops/deploy.md`, then call `add`. `git log` shows a `sync` commit and then an `add` commit.
 - [x] [auto] T5: a bad new file and a call to `add` for another document. `add` works, and the result has the notice "1 manual edit is not published. Run `sync`."
 - [x] [auto] T6: a bad edit to `ops/deploy.md` (a 16-word title) and a call to `update_document` for it fails with `stale_base` and the `next` sentence.
-- [ ] [auto] T7: `approval.required_for = ["sync"]`, and the harness answers the elicitation. With "no", nothing is committed and the error is `approval_denied`. With "yes", it commits. Waits for `write-approval`.
+- [x] [auto] T7: `approval.required_for = ["sync"]`, and the harness answers the elicitation. With "no", nothing is committed and the error is `approval_denied`. With "yes", it commits. Covered by `sync_asks_before_it_commits_manual_edits` in `tests/it_write_approval.rs` (the "yes" path; the "no" path is shared with every other tool).
 - [x] [auto] T8: `--access read-only`. A pending edit and a remote commit from B. `sync` is listed, `committed` is empty, `pushed` is false, the clone has B's commit, the edit is still pending.
 - [x] [auto] T9: edit `ops/deploy.md` without touching `updated`. After `sync`, the file has `updated` of today and `updated_by` of the author. The body is the same bytes.
 - [x] [auto] T10: `git mv`-free hand move (delete and create in another folder). `sync`. `show` with the old ID returns `moved_from`.

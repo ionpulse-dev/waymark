@@ -13,7 +13,7 @@ requires:
 
 ## User Story
 
-> As a person, I want to open my memory repository repository in any agent session and have the agent read and write it safely with ordinary Git, so that I can use it on the web or on my phone without installing anything, and so that agents without MCP support can still use it.
+> As a person, I want to open my memory repository in any agent session and have the agent read and write it safely with ordinary Git, so that I can use it on the web or on my phone without installing anything, and so that agents without MCP support can still use it.
 
 ## Personas
 
