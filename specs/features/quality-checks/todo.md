@@ -23,3 +23,6 @@ None.
 
 - All 24 `[auto]` cases pass (`tests/it_quality_checks.rs`, `tests/lint_conformance.rs`).
 - Deferred: an allow list for the built-in patterns, when real use shows false findings.
+
+- Decide whether to remove the `index` tool, since waymark is mostly agent storage (2026-11-14). It costs one tool description in every agent's context. For now it stays.
+- Folder tree for agents: a read-only overview of all folders with document counts, as a mode of `stats` or a new tool. Under discussion (2026-11-14); not specified yet.

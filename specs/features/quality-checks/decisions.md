@@ -117,3 +117,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **`commit_change` guard.** `Repo::write` with an empty list of paths commits nothing. This keeps `git add -A` from running without a path.
 - **Index title.** `waymark: update "Index"` is not used: a run that writes only the root index has the title "Index". A run that writes several files has "Indexes".
 - **Index links to subfolders** appear only for subfolders that are in scope of the call, so that no link points to a missing file.
+
+## Index files stay manual — 2026-11-14
+
+**Decision (decided with the product owner):** `index` is not run automatically. No write tool refreshes index files, and no setting (such as `auto_index`) is added. The tool stays as an optional extra for people who browse a knowledge base in Obsidian or on GitHub.
+
+**Alternatives considered:** Refresh the indexes of the changed folder and its parents in the same commit as every write. Rejected: waymark is mostly agent storage, and its own tools (`list`, `stats`, `search`) ignore index files, so the files would add commits and diff noise with no reader. A stale index is a `lint` warning, not a state to prevent.
+
+**Reason:** The consistency that matters for agents is in the documents and their links, and that is covered by the link rules of `write-documents`. An overview of the folders for agents belongs in a read tool (see the folder tree discussion in `todo.md`).

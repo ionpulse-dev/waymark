@@ -65,6 +65,7 @@ An index file is a normal document that waymark generates. It lists the document
 - `updated` and `updated_by` change only when the body changes.
 - `index` is a write tool. Limits, approval, and `preview` apply. It makes one commit: `waymark: update "Index of backend"` for one folder, or `waymark: update "Indexes"` for several.
 - Search, list, stats, backlinks, and `updates` ignore index files (see `search-and-read`).
+- `index` runs only when someone calls it. No write tool refreshes the index files, and there is no setting for it. `lint` reports a stale index as the warning `index-stale`. The files help readers who browse the knowledge base without waymark, such as Obsidian or GitHub. waymark's own tools ignore them (see `decisions.md`).
 
 ## Interfaces & Contracts
 
