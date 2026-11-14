@@ -63,7 +63,7 @@ impl Registry {
     }
 
     fn env(&self, ctx: &Context) -> (Env, bool, Vec<String>) {
-        let kb = ctx.kb().ok();
+        let kb = ctx.kb_if_ready();
         let limit = ctx.limits(kb.as_ref());
         let verification = kb
             .as_ref()

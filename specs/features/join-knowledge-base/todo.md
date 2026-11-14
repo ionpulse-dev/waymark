@@ -15,3 +15,9 @@ None.
 ## Open Questions
 
 None.
+
+## Notes 2026-11-14
+
+- The `git --version` time-out of 5 seconds is not built (A1 uses a fake `git` that fails fast).
+- Decide whether the default folder should be `~/Projects/<repository-name>` (see `decisions.md`).
+- The shared layer is missing from the limits of the very first call after a clone (see `decisions.md`). Re-read the limits after the wait if it matters.

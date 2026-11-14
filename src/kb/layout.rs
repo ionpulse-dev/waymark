@@ -15,6 +15,23 @@ const SETTINGS_TEMPLATE: &str = include_str!("templates/waymark.toml");
 const EXCLUDE_TEMPLATE: &str =
     "# Files and folders below the root that are not part of the knowledge base.\n";
 
+/// Is the repository empty? No commit, or only files that a Git host creates.
+pub fn repo_is_empty(dir: &Path) -> bool {
+    use crate::gitsync::cmd;
+    match cmd::run(dir, None, &["rev-parse", "--verify", "-q", "HEAD"]) {
+        Ok(o) if !o.ok => return true,
+        Err(_) => return false,
+        _ => {}
+    }
+    let Ok(o) = cmd::run(dir, None, &["ls-files"]) else {
+        return false;
+    };
+    o.ok && o
+        .stdout
+        .lines()
+        .all(|f| matches!(f, "README.md" | "README" | "LICENSE" | "LICENSE.md"))
+}
+
 /// Find the root of a knowledge base: the folder that contains the marker folder `.mkbase`.
 /// Looks at the folder itself, then `knowledge/`, then below it (up to 3 levels), then above it.
 pub fn find_root(start: &Path) -> Result<PathBuf> {

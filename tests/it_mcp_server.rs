@@ -155,6 +155,17 @@ fn personal_layer_is_strictest() {
     assert_eq!(r.json["settings"]["access"], "read-only");
 }
 
+/// The first clone runs in the background: ask until the setup is healthy.
+fn healthy_soon(c: &mut McpClient) -> bool {
+    for _ in 0..100 {
+        if c.call("status", json!({})).json["healthy"] == true {
+            return true;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+    false
+}
+
 #[test]
 fn clones_once_and_reuses() {
     let w = World::new();
@@ -170,13 +181,13 @@ fn clones_once_and_reuses() {
     let all: Vec<&str> = args.iter().chain(author.iter()).copied().collect();
     {
         let mut c = McpClient::start(&w.root.join("home-c"), Spawn::args(&all));
-        assert_eq!(c.call("status", json!({})).json["healthy"], true);
+        assert!(healthy_soon(&mut c));
     }
     assert!(target.join(".git").exists());
     git(&target, &["config", "--local", "marker.test", "kept"]);
     {
         let mut c = McpClient::start(&w.root.join("home-c"), Spawn::args(&all));
-        assert_eq!(c.call("status", json!({})).json["healthy"], true);
+        assert!(healthy_soon(&mut c));
     }
     assert_eq!(
         git(&target, &["config", "--local", "marker.test"]).trim(),

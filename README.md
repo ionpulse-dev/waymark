@@ -223,8 +223,11 @@ project entry wins in the project. waymark finds the folder in this order:
 working folder and the folders above it; the one knowledge base in
 `~/Projects`. `--kb-id` makes the server refuse a repository with another ID.
 `allowed_repo_hosts` in your personal config limits the Git hosts waymark may
-use. A large first clone can exceed the start time-out of your tool: clone it by
-hand to the default folder first.
+use. The first clone runs in the background, so your tool starts at once. `status`
+shows the state (`cloning`, `ready`, `empty`, `not_a_knowledge_base`, or
+`broken`). Other tools wait up to 60 seconds for the clone. A clone that takes
+more than 5 minutes stops: clone it by hand to the default folder, then start
+again.
 
 ## Pause writes
 

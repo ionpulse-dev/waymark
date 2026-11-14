@@ -75,3 +75,15 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The clone itself shows a login problem (`sync_failed`). There is no separate pre-check before the clone.
 
 **Reason:** One network call fewer, and the error text of Git is mapped to the plain `next` sentence (see `login-and-identity`).
+
+## Implementation notes — 2026-11-14
+
+- No `src/join/` module. The code sits where the earlier specs put it: `mcp::binding` (path, host check, clone), `mcp::repo_url` (URL parts, A13), `mcp::context` (state), `gitsync::cmd::run_timeout` (time-out). The plan's file list was a proposal. Decided autonomously.
+- **The default folder stays `~/Projects/<slug>-knowledge-base`** (the form of `project-binding`, which was implemented first and is documented in the README). The entry "Default folder: `~/Projects/<repository-name>`" above is not applied. A3 checks the implemented form. Reopen it if the product owner wants the other form. Decided autonomously.
+- The state lives in `Context`: `repo()` holds a mutex during the clone. Other calls poll `try_lock` for up to 60 seconds (`WAYMARK_CLONE_WAIT_SECONDS` for tests), then return `setup_problem`. `status`, `initialize`, and `tools/list` never wait (`is_cloning`, `kb_if_ready`). Decided autonomously.
+- The background clone starts at process start only when `--repo` is set (`Server::start_join`). Without `--repo` nothing is cloned, so the discovery of `project-binding` still happens at the first tool call.
+- A failed clone with `sync_failed` is not tried again for 30 seconds. Other failures are tried again at once.
+- The clone time-out is 5 minutes (`WAYMARK_CLONE_TIMEOUT_SECONDS` for tests). `git --version` has no separate 5 second time-out: a stub that opens a dialog is a known risk (M2 checks it by hand).
+- The temporary clone folder is `<name>.waymark-clone-<pid>`. At each clone, folders of dead processes and the old form `<name>.waymark-clone` are removed. If the rename fails because another server won, the existing clone is used when its origin is the same.
+- `status` shows `knowledge_base.state` always (also `cloning` and `broken`, with `reason`). The registry computes the limits at the start of a call, so the first `status` after a clone can show limits without the shared layer. The next call is right.
+- `repo_is_empty` is in `kb::layout`. `Context::kb()` returns `setup_problem` with the `init` sentence for an empty repository.

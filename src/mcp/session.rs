@@ -66,6 +66,11 @@ pub fn facts(ctx: &Context, allow_clone: bool) -> Facts {
             settings: settings_json(&effective),
         }
     };
+    if ctx.is_cloning() {
+        return build_unbound(
+            Error::setup("The first clone is still running.").with_next("Call status in a minute."),
+        );
+    }
     if !allow_clone {
         match super::binding::locate(&ctx.args) {
             Ok(f) if f.clone_url.is_some() => {

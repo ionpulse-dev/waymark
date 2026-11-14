@@ -64,6 +64,62 @@ pub fn run(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output>
     Ok(to_output(out))
 }
 
+/// Like `run`, but kills git after `seconds` and returns `None` then.
+pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Output>> {
+    use std::io::Read;
+    use std::process::Stdio;
+    let mut cmd = Command::new("git");
+    cmd.arg("-C").arg(dir).args(args);
+    cmd.env("GIT_TERMINAL_PROMPT", "0")
+        .env("LC_ALL", "C")
+        .env_remove("GIT_ASKPASS")
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    if std::env::var_os("GIT_SSH_COMMAND").is_none() {
+        cmd.env("GIT_SSH_COMMAND", "ssh -o BatchMode=yes");
+    }
+    let mut child = cmd.spawn().map_err(|e| {
+        Error::setup(format!("Cannot run git: {e}"))
+            .with_next("Install git, for example with: xcode-select --install")
+    })?;
+    let mut stdout = child.stdout.take().unwrap();
+    let mut stderr = child.stderr.take().unwrap();
+    let t_out = std::thread::spawn(move || {
+        let mut s = String::new();
+        let _ = stdout.read_to_string(&mut s);
+        s
+    });
+    let t_err = std::thread::spawn(move || {
+        let mut s = String::new();
+        let _ = stderr.read_to_string(&mut s);
+        s
+    });
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(seconds);
+    let status = loop {
+        if let Some(s) = child
+            .try_wait()
+            .map_err(|e| Error::sync(format!("git: {e}")))?
+        {
+            break Some(s);
+        }
+        if std::time::Instant::now() >= deadline {
+            let _ = child.kill();
+            let _ = child.wait();
+            break None;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    };
+    let stdout = t_out.join().unwrap_or_default();
+    let stderr = t_err.join().unwrap_or_default();
+    Ok(status.map(|s| Output {
+        stdout,
+        stderr,
+        ok: s.success(),
+        code: s.code(),
+    }))
+}
+
 /// Run git and fail with `sync_failed` if it fails.
 pub fn run_ok(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output> {
     let out = run(dir, author, args)?;

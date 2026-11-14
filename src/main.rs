@@ -8,6 +8,7 @@ use waymark::mcp::{args::Args, context::Context, serve_stdio, Server};
 async fn main() {
     let args = Args::parse();
     let server = Server::new(Context::new(args), waymark::tools::registry());
+    server.start_join();
     if let Err(e) = serve_stdio(server).await {
         eprintln!("waymark: {e}");
         std::process::exit(1);

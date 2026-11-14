@@ -68,7 +68,21 @@ impl Tool for Status {
 
         let mut kb_json = Value::Null;
         let mut problem = Value::Null;
-        match ctx.repo() {
+        let state = ctx.join_state();
+        let cloning = matches!(state, crate::mcp::context::JoinState::Cloning);
+        if cloning {
+            checks.push(check(
+                "clone",
+                false,
+                "The first clone is running.",
+                Some("Call status again in a minute.".into()),
+            ));
+        }
+        match if cloning {
+            Err(Error::setup("The first clone is running."))
+        } else {
+            ctx.repo()
+        } {
             Ok(repo) => {
                 checks.push(check("clone", true, repo.dir().display().to_string(), None));
                 match ctx.kb() {
@@ -94,9 +108,19 @@ impl Tool for Status {
                 }
             }
             Err(e) => {
-                problem = json!({"code": e.code.as_str(), "message": e.message, "next": e.next});
-                checks.push(check("clone", false, e.message, e.next))
+                if !cloning {
+                    problem =
+                        json!({"code": e.code.as_str(), "message": e.message, "next": e.next});
+                    checks.push(check("clone", false, e.message, e.next))
+                }
             }
+        }
+        if kb_json.is_null() {
+            kb_json = json!({});
+        }
+        kb_json["state"] = json!(state.name());
+        if let crate::mcp::context::JoinState::Broken(e) = &state {
+            kb_json["reason"] = json!(crate::identity::redact_text(&e.message));
         }
 
         let mut author_json = Value::Null;
@@ -120,7 +144,9 @@ impl Tool for Status {
         }
 
         let healthy = checks.iter().all(|c| c["ok"] == json!(true));
-        let message = if !problem.is_null() {
+        let message = if cloning {
+            "The first clone is still running.".to_string()
+        } else if !problem.is_null() {
             "No knowledge base is set up.".to_string()
         } else if healthy {
             format!(

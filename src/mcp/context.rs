@@ -8,12 +8,36 @@ use crate::kb::KnowledgeBase;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+/// The state of the server after the start (see `join-knowledge-base`).
+#[derive(Debug, Clone)]
+pub enum JoinState {
+    Cloning,
+    Ready,
+    Empty,
+    NotAKnowledgeBase,
+    Broken(Error),
+}
+
+impl JoinState {
+    pub fn name(&self) -> &'static str {
+        match self {
+            JoinState::Cloning => "cloning",
+            JoinState::Ready => "ready",
+            JoinState::Empty => "empty",
+            JoinState::NotAKnowledgeBase => "not_a_knowledge_base",
+            JoinState::Broken(_) => "broken",
+        }
+    }
+}
+
 /// What a tool needs for one call.
 pub struct Context {
     pub args: Args,
     pub paths: Paths,
     repo: Mutex<Option<Arc<Repo>>>,
     found_by: Mutex<Option<super::binding::FoundBy>>,
+    /// The last failure of the start, and when it happened (see `join-knowledge-base`).
+    last_error: Mutex<Option<(Error, std::time::Instant)>>,
     /// The documents that `show` opened in this session: the read budget (see `search-and-read`).
     /// The connection to the client for the current call (see `write-approval`).
     pub channel: Mutex<Option<super::approval::Channel>>,
@@ -37,6 +61,7 @@ impl Context {
             paths,
             repo: Mutex::new(None),
             found_by: Mutex::new(None),
+            last_error: Mutex::new(None),
             channel: Mutex::new(None),
             opened: Mutex::new(std::collections::HashSet::new()),
         }
@@ -77,10 +102,85 @@ impl Context {
     /// The open repository (see `project-binding`). The folder is found at the first call and
     /// kept. A new clone happens only here, once.
     pub fn repo(&self) -> Result<Arc<Repo>> {
-        let mut slot = self.repo.lock().unwrap();
+        let wait: u64 = std::env::var("WAYMARK_CLONE_WAIT_SECONDS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(60);
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(wait);
+        let mut slot = loop {
+            match self.repo.try_lock() {
+                Ok(g) => break g,
+                Err(std::sync::TryLockError::Poisoned(p)) => break p.into_inner(),
+                Err(std::sync::TryLockError::WouldBlock) => {
+                    if std::time::Instant::now() >= deadline {
+                        return Err(Error::setup("The first clone is still running.")
+                            .with_next("Call again in a minute."));
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                }
+            }
+        };
         if let Some(r) = slot.as_ref() {
             return Ok(r.clone());
         }
+        // A failed clone is tried again at the next call, at most once in 30 seconds.
+        if let Some((e, at)) = self.last_error.lock().unwrap().as_ref() {
+            if e.code == crate::error::Code::SyncFailed && at.elapsed().as_secs() < 30 {
+                return Err(e.clone());
+            }
+        }
+        match self.open_repo() {
+            Ok(r) => {
+                *self.last_error.lock().unwrap() = None;
+                *slot = Some(r.clone());
+                Ok(r)
+            }
+            Err(e) => {
+                *self.last_error.lock().unwrap() = Some((e.clone(), std::time::Instant::now()));
+                Err(e)
+            }
+        }
+    }
+
+    /// Is the first clone running now? `status` and `initialize` never wait for it.
+    pub fn is_cloning(&self) -> bool {
+        matches!(
+            self.repo.try_lock(),
+            Err(std::sync::TryLockError::WouldBlock)
+        )
+    }
+
+    /// The state of the knowledge base, without waiting (see `join-knowledge-base`).
+    pub fn join_state(&self) -> JoinState {
+        if self.is_cloning() {
+            return JoinState::Cloning;
+        }
+        let repo = match self.repo() {
+            Ok(r) => r,
+            Err(e) => return JoinState::Broken(e),
+        };
+        match crate::kb::layout::find_root(repo.dir()) {
+            Err(_) if crate::kb::layout::repo_is_empty(repo.dir()) => JoinState::Empty,
+            Err(_) => JoinState::NotAKnowledgeBase,
+            Ok(_) => match self.kb() {
+                Ok(_) => JoinState::Ready,
+                Err(e) => JoinState::Broken(e),
+            },
+        }
+    }
+
+    /// Start the first clone in the background, so that `initialize` answers at once.
+    pub fn start_in_background(self: &Arc<Self>) {
+        if self.args.repo.is_none() {
+            return;
+        }
+        let ctx = self.clone();
+        std::thread::spawn(move || {
+            let _ = ctx.repo();
+        });
+    }
+
+    fn open_repo(&self) -> Result<Arc<Repo>> {
         let found = super::binding::locate(&self.args)?;
         let limit = self.limits(None);
         let effective = &limit.effective;
@@ -97,8 +197,6 @@ impl Context {
         };
         let repo = if let Some(url) = &found.clone_url {
             let parent = found.dir.parent().unwrap_or(Path::new("."));
-            std::fs::create_dir_all(parent)
-                .map_err(|e| Error::setup(format!("Cannot create {}: {e}", parent.display())))?;
             super::binding::clone_checked(url, &found.dir, effective, author(parent)?)?
         } else {
             if !found.dir.exists() {
@@ -112,7 +210,6 @@ impl Context {
         };
         let repo = Arc::new(repo);
         *self.found_by.lock().unwrap() = Some(found.found_by);
-        *slot = Some(repo.clone());
         Ok(repo)
     }
 
@@ -142,10 +239,25 @@ impl Context {
         Ok(resolved)
     }
 
+    /// The knowledge base if it is ready now. It never waits for a clone.
+    pub fn kb_if_ready(&self) -> Option<KnowledgeBase> {
+        if self.is_cloning() {
+            None
+        } else {
+            self.kb().ok()
+        }
+    }
+
     /// The knowledge base in the repository, read from disk at every call.
     /// A different ID than `--kb-id` is a `setup_problem`.
     pub fn kb(&self) -> Result<KnowledgeBase> {
         let repo = self.repo()?;
+        if crate::kb::layout::find_root(repo.dir()).is_err()
+            && crate::kb::layout::repo_is_empty(repo.dir())
+        {
+            return Err(Error::setup("This repository is empty.")
+                .with_next("This repository is empty. Call `init`."));
+        }
         let kb = KnowledgeBase::open(repo.dir())?;
         if let Some(want) = &self.args.kb_id {
             if !want.eq_ignore_ascii_case(&kb.settings.id) {

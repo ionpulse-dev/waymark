@@ -20,19 +20,19 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 ## Test Cases
 
-- [ ] [auto] A1: put a fake `git` that exits 1 first in `PATH`; start with `--repo`: `status` shows check `git` not ok with a `fix`, and the path does not exist (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A2: `World` remote with a knowledge base, `--repo file://<remote>` and `--path <new folder>`: after `status` the state is `ready` and the folder is a clone (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A3: `HOME` is a temporary folder, no `--path`, URL `.../team-knowledge.git`: the clone is in `$HOME/Projects/team-knowledge` (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A4: shared `access = "read-only"`, personal `read-write`: `settings.access` is `read-only` and `add` fails with `access_denied` (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A5: two servers with two `--repo` values and two paths: both are `ready`, and the files of the first clone do not change (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A6: a remote whose `waymark.toml` has no `id`: the state is `broken` and `search` returns `setup_problem` (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A7: two processes start together on the same new path: the path holds one clone, no `.cloning-*` folder remains, and both answer `status` `ready` (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A8: an existing folder with a file; and a clone of another repository at the path: both give `setup_problem`, and the files are unchanged (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A9: a `git` wrapper that sleeps 3 seconds before the clone: `initialize` returns in under 1 second and `status` shows `cloning`, then `ready` (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A10: no author anywhere: `status` check `author` is not ok with a `fix`, and `search` works (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A11: personal `allowed_repo_hosts = ["github.com"]` and a `file://` URL: `access_denied`, and no folder is created (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A12: an empty remote (no commit): the state is `empty` and `search` returns `setup_problem` with the `init` hint (`tests/it_join_knowledge_base.rs`)
-- [ ] [auto] A13: URL parsing of `https://`, `ssh://`, `git@host:path`, and `file://` forms (`src/join/url.rs`)
+- [x] [auto] A1: put a fake `git` that exits 1 first in `PATH`; start with `--repo`: `status` shows check `git` not ok with a `fix`, and the path does not exist (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A2: `World` remote with a knowledge base, `--repo file://<remote>` and `--path <new folder>`: after `status` the state is `ready` and the folder is a clone (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A3: `HOME` is a temporary folder, no `--path`, URL `.../team-knowledge.git`: the clone is in `$HOME/Projects/team-knowledge` (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A4: shared `access = "read-only"`, personal `read-write`: `settings.access` is `read-only` and `add` fails with `access_denied` (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A5: two servers with two `--repo` values and two paths: both are `ready`, and the files of the first clone do not change (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A6: a remote whose `waymark.toml` has no `id`: the state is `broken` and `search` returns `setup_problem` (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A7: two processes start together on the same new path: the path holds one clone, no `.cloning-*` folder remains, and both answer `status` `ready` (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A8: an existing folder with a file; and a clone of another repository at the path: both give `setup_problem`, and the files are unchanged (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A9: a `git` wrapper that sleeps 3 seconds before the clone: `initialize` returns in under 1 second and `status` shows `cloning`, then `ready` (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A10: no author anywhere: `status` check `author` is not ok with a `fix`, and `search` works (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A11: personal `allowed_repo_hosts = ["github.com"]` and a `file://` URL: `access_denied`, and no folder is created (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A12: an empty remote (no commit): the state is `empty` and `search` returns `setup_problem` with the `init` hint (`tests/it_join_knowledge_base.rs`)
+- [x] [auto] A13: URL parsing of `https://`, `ssh://`, `git@host:path`, and `file://` forms (`src/join/url.rs`)
 - [ ] [manual] M1: real Git host, new Mac user or clean path. Steps: install waymark with Homebrew. Add the entry with the SSH URL of a private test repository to Claude Code. Start a session, and call `status`. Expected: the clone is at `~/Projects/<name>`, `status` is ok, and the time from install to the first search is under 5 minutes.
 - [ ] [manual] M2: a Mac without the command line tools (or a test user without them). Steps: start a session with the entry. Call `status`. Expected: the check `git` is not ok, the fix says to install the tools, and the Apple dialog does not block the agent tool.
 

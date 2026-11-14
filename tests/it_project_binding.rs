@@ -36,8 +36,16 @@ fn url(w: &World) -> String {
     format!("file://{}", w.remote.display())
 }
 
+/// `status`, after the first clone (it runs in the background, see `join-knowledge-base`).
 fn status(c: &mut McpClient) -> Value {
-    c.call("status", json!({})).json
+    for _ in 0..100 {
+        let s = c.call("status", json!({})).json;
+        if s["knowledge_base"]["state"] != "cloning" {
+            return s;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+    panic!("the clone did not end");
 }
 
 fn kb_id(w: &World) -> String {
@@ -77,7 +85,7 @@ fn repo_argument_clones_to_the_default_folder_once() {
     // A second start reuses the clone: a marker file in it survives.
     std::fs::write(dir.join("marker.txt"), "x").unwrap();
     let mut c = start(&h, &["--repo", &u], None);
-    assert!(!status(&mut c)["knowledge_base"].is_null());
+    assert_eq!(status(&mut c)["knowledge_base"]["state"], "ready");
     assert!(dir.join("marker.txt").exists());
 }
 

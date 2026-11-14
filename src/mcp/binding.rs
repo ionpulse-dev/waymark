@@ -198,6 +198,35 @@ pub fn check_folder(args: &Args, dir: &Path, effective: &Effective) -> Result<()
     Ok(())
 }
 
+/// Remove temporary clone folders of dead processes, and the old form without a process number.
+fn remove_stale_clones(dir: &Path, name: &str) {
+    let Some(parent) = dir.parent() else { return };
+    let Ok(rd) = std::fs::read_dir(parent) else {
+        return;
+    };
+    let prefix = format!("{name}.waymark-clone");
+    for e in rd.filter_map(|e| e.ok()) {
+        let file = e.file_name().to_string_lossy().to_string();
+        let Some(rest) = file.strip_prefix(&prefix) else {
+            continue;
+        };
+        let alive = rest
+            .strip_prefix('-')
+            .filter(|p| p.chars().all(|c| c.is_ascii_digit()) && !p.is_empty())
+            .is_some_and(|pid| {
+                std::process::Command::new("kill")
+                    .args(["-0", pid])
+                    .stderr(std::process::Stdio::null())
+                    .status()
+                    .map(|s| s.success())
+                    .unwrap_or(false)
+            });
+        if !alive {
+            let _ = std::fs::remove_dir_all(e.path());
+        }
+    }
+}
+
 /// Clone to a temporary folder next to the target, then rename it, so that a cut clone never
 /// counts as a knowledge base.
 pub fn clone_checked(
@@ -224,7 +253,12 @@ pub fn clone_checked(
         .file_name()
         .map(|n| n.to_string_lossy().to_string())
         .unwrap_or_default();
-    let tmp = dir.with_file_name(format!("{name}.waymark-clone"));
+    if let Some(parent) = dir.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| Error::setup(format!("Cannot create {}: {e}", parent.display())))?;
+    }
+    remove_stale_clones(dir, &name);
+    let tmp = dir.with_file_name(format!("{name}.waymark-clone-{}", std::process::id()));
     if tmp.exists() {
         let _ = std::fs::remove_dir_all(&tmp);
     }
@@ -238,6 +272,14 @@ pub fn clone_checked(
     let _ = std::fs::remove_dir(dir);
     if let Err(e) = std::fs::rename(&tmp, dir) {
         let _ = std::fs::remove_dir_all(&tmp);
+        // Another server was faster: use its clone if it is the same repository.
+        if dir.join(".git").is_dir() {
+            if let Some(have) = origin_url(dir) {
+                if repo_url::same_remote(url, &have) {
+                    return crate::gitsync::Repo::open(dir, author);
+                }
+            }
+        }
         return Err(Error::setup(format!(
             "Cannot move the clone to {}: {e}",
             dir.display()

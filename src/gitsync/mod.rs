@@ -55,7 +55,18 @@ impl Repo {
         }
         let parent = dir.parent().unwrap_or(Path::new("."));
         let target = dir.to_string_lossy().to_string();
-        let out = cmd::run(parent, None, &["clone", "--quiet", url, &target])?;
+        let seconds = std::env::var("WAYMARK_CLONE_TIMEOUT_SECONDS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(300);
+        let Some(out) = cmd::run_timeout(parent, &["clone", "--quiet", url, &target], seconds)?
+        else {
+            return Err(
+                Error::sync("The clone took longer than 5 minutes.").with_next(
+                    "Clone the repository by hand to the folder of the entry, then start again.",
+                ),
+            );
+        };
         if !out.ok {
             return Err(Error::sync(format!(
                 "Cannot clone the repository: {}",

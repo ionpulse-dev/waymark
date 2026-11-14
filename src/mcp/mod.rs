@@ -35,6 +35,11 @@ pub struct Server {
 }
 
 impl Server {
+    /// Start the first clone in the background, if the entry names a repository.
+    pub fn start_join(&self) {
+        self.ctx.start_in_background();
+    }
+
     pub fn new(ctx: Context, registry: Registry) -> Server {
         Server {
             ctx: Arc::new(ctx),

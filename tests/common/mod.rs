@@ -8,4 +8,5 @@ pub mod world;
 
 #[allow(unused_imports)]
 pub use mcp::{McpClient, Reply, Spawn};
+#[allow(unused_imports)]
 pub use world::{Person, World};
