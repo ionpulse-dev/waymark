@@ -20,9 +20,9 @@ pub struct Args {
     /// Folder of the clone. Default: `~/Projects/<slug>-knowledge-base`.
     #[arg(long)]
     pub path: Option<PathBuf>,
-    #[arg(long, env = "WAYMARK_AUTHOR_NAME")]
+    #[arg(long)]
     pub author_name: Option<String>,
-    #[arg(long, env = "WAYMARK_AUTHOR_EMAIL")]
+    #[arg(long)]
     pub author_email: Option<String>,
     /// `read-only` or `read-write`.
     #[arg(long)]

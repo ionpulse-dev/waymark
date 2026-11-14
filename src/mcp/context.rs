@@ -84,11 +84,15 @@ impl Context {
         let found = super::binding::locate(&self.args)?;
         let limit = self.limits(None);
         let effective = &limit.effective;
+        // A missing author does not stop reads. A write resolves and checks it again.
         let author = |dir: &Path| {
-            Author::resolve(
-                self.args.author_name.as_deref(),
-                self.args.author_email.as_deref(),
-                dir,
+            Ok::<_, Error>(
+                self.resolve_author(dir)
+                    .map(|r| r.author())
+                    .unwrap_or(Author {
+                        name: String::new(),
+                        email: String::new(),
+                    }),
             )
         };
         let repo = if let Some(url) = &found.clone_url {
@@ -110,6 +114,32 @@ impl Context {
         *self.found_by.lock().unwrap() = Some(found.found_by);
         *slot = Some(repo.clone());
         Ok(repo)
+    }
+
+    /// Resolve the author now: argument, environment, Git settings (see `login-and-identity`).
+    pub fn resolve_author(
+        &self,
+        dir: &Path,
+    ) -> std::result::Result<crate::identity::Resolved, crate::identity::AuthorProblem> {
+        crate::identity::resolve(
+            self.args.author_name.as_deref(),
+            self.args.author_email.as_deref(),
+            std::env::var("WAYMARK_AUTHOR_NAME").ok().as_deref(),
+            std::env::var("WAYMARK_AUTHOR_EMAIL").ok().as_deref(),
+            dir,
+        )
+    }
+
+    /// The author for a write: resolved and checked at every call, then set on the repository.
+    pub fn checked_author(&self) -> Result<crate::identity::Resolved> {
+        let repo = self.repo()?;
+        let resolved = self.resolve_author(repo.dir())?;
+        let people = KnowledgeBase::open(repo.dir())
+            .map(|k| k.settings.people)
+            .unwrap_or_default();
+        crate::identity::check_email(&resolved.email, &people)?;
+        repo.set_author(resolved.author());
+        Ok(resolved)
     }
 
     /// The knowledge base in the repository, read from disk at every call.

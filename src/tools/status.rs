@@ -99,6 +99,26 @@ impl Tool for Status {
             }
         }
 
+        let mut author_json = Value::Null;
+        if let Ok(repo) = ctx.repo() {
+            match ctx.checked_author() {
+                Ok(a) => {
+                    author_json = json!({
+                        "name": a.name, "email": a.email,
+                        "name_source": a.name_source.name(), "email_source": a.email_source.name()
+                    });
+                    checks.push(check(
+                        "author",
+                        true,
+                        format!("{} <{}>", a.name, a.email),
+                        None,
+                    ));
+                }
+                Err(e) => checks.push(check("author", false, e.message, e.next)),
+            }
+            checks.push(git_login(&repo));
+        }
+
         let healthy = checks.iter().all(|c| c["ok"] == json!(true));
         let message = if !problem.is_null() {
             "No knowledge base is set up.".to_string()
@@ -112,6 +132,9 @@ impl Tool for Status {
             "The setup has a problem. See the checks.".to_string()
         };
         let mut data = json!({ "healthy": healthy, "knowledge_base": kb_json, "checks": checks });
+        if !author_json.is_null() {
+            data["author"] = author_json;
+        }
         if !problem.is_null() {
             data["problem"] = problem;
         }
@@ -124,6 +147,39 @@ impl Tool for Status {
             }
         }
         Ok(out)
+    }
+}
+
+/// One read call to the remote, with a time-out of 10 seconds. It reads no secret.
+fn git_login(repo: &crate::gitsync::Repo) -> Value {
+    if !repo.has_remote() {
+        return check("git_login", true, "There is no remote.", None);
+    }
+    let dir = repo.dir().to_path_buf();
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(cmd::run(&dir, None, &["ls-remote", "origin", "HEAD"]));
+    });
+    match rx.recv_timeout(std::time::Duration::from_secs(10)) {
+        Ok(Ok(o)) if o.ok => check("git_login", true, "The remote answers.", None),
+        Ok(Ok(o)) if crate::identity::is_login_failure(&o.stderr) => check(
+            "git_login",
+            false,
+            crate::identity::redact_text(&cmd::first_line(&o.stderr)),
+            Some(crate::identity::LOGIN_NEXT.to_string()),
+        ),
+        Ok(Ok(o)) => check(
+            "git_login",
+            false,
+            crate::identity::redact_text(&cmd::first_line(&o.stderr)),
+            Some("Check the remote URL and your network.".to_string()),
+        ),
+        _ => check(
+            "git_login",
+            false,
+            "The remote did not answer in 10 seconds.",
+            Some("Check the remote URL and your network.".to_string()),
+        ),
     }
 }
 

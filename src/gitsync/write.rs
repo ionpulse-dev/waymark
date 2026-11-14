@@ -254,17 +254,17 @@ impl Repo {
         if !to_add.is_empty() {
             let mut add = vec!["add", "-A", "--"];
             add.extend(&to_add);
-            run_ok(&self.dir, Some(&self.author), &add)?;
+            run_ok(&self.dir, Some(&self.author()), &add)?;
         }
         let mut check = vec!["diff", "--cached", "--quiet", "--"];
         check.extend(&paths);
-        let out = cmd::run(&self.dir, Some(&self.author), &check)?;
+        let out = cmd::run(&self.dir, Some(&self.author()), &check)?;
         if out.ok {
             return Ok(None);
         }
         let mut commit = vec!["commit", "-q", "-m", &change.message, "--"];
         commit.extend(&paths);
-        let out = cmd::run(&self.dir, Some(&self.author), &commit)?;
+        let out = cmd::run(&self.dir, Some(&self.author()), &commit)?;
         if !out.ok {
             return Err(Error::sync(format!(
                 "The commit failed: {}",

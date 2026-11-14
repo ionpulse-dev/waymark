@@ -88,13 +88,13 @@ impl Repo {
         let out = if ahead == 0 {
             run(
                 &self.dir,
-                Some(&self.author),
+                Some(&self.author()),
                 &["merge", "--ff-only", "--quiet", "@{u}"],
             )?
         } else {
             run(
                 &self.dir,
-                Some(&self.author),
+                Some(&self.author()),
                 &["pull", "--rebase", "--quiet"],
             )?
         };
@@ -194,13 +194,13 @@ impl Repo {
                 let out = if ahead == 0 {
                     run(
                         &self.dir,
-                        Some(&self.author),
+                        Some(&self.author()),
                         &["merge", "--ff-only", "--quiet", "@{u}"],
                     )?
                 } else {
                     run(
                         &self.dir,
-                        Some(&self.author),
+                        Some(&self.author()),
                         &["pull", "--rebase", "--quiet"],
                     )?
                 };
@@ -286,7 +286,7 @@ impl Repo {
             }
             to_commit.push(p.clone());
             if let Some(local_text) = local {
-                let copy = conflict_copy(p, &local_text, &self.author, &today());
+                let copy = conflict_copy(p, &local_text, &self.author(), &today());
                 self.write_raw(&copy.0, &copy.1)?;
                 to_commit.push(copy.0.clone());
                 result.conflicts.push((p.clone(), copy.0));
@@ -301,7 +301,7 @@ impl Repo {
         }
         let merged = run(
             &self.dir,
-            Some(&self.author),
+            Some(&self.author()),
             &["merge", "--no-edit", "--quiet", "@{u}"],
         )?;
         if !merged.ok {

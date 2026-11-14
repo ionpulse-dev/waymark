@@ -8,9 +8,19 @@ pub type ToolError = Error;
 
 /// The structured content of a failed call: `{ code, message, next? }`, plus `settings` and `notices`.
 pub fn error_json(e: &Error, settings: Option<Value>, notices: &[String]) -> Value {
-    let mut v = json!({ "code": e.code.as_str(), "message": e.message });
-    if let Some(next) = &e.next {
-        v["next"] = json!(next);
+    use crate::identity::{is_login_failure, redact_text, LOGIN_NEXT};
+    let (message, next) =
+        if e.code == crate::error::Code::SyncFailed && is_login_failure(&e.message) {
+            (
+                "Git cannot sign in to this repository.".to_string(),
+                Some(LOGIN_NEXT.to_string()),
+            )
+        } else {
+            (e.message.clone(), e.next.clone())
+        };
+    let mut v = json!({ "code": e.code.as_str(), "message": redact_text(&message) });
+    if let Some(next) = &next {
+        v["next"] = json!(redact_text(next));
     }
     if let Some(s) = settings {
         v["settings"] = s;

@@ -351,7 +351,7 @@ impl Repo {
     ) -> Result<std::result::Result<Vec<(char, String)>, String>> {
         let mut args = vec!["revert", "--no-commit"];
         args.extend(hashes.iter().map(String::as_str));
-        let out = cmd::run(&self.dir, Some(&self.author), &args)?;
+        let out = cmd::run(&self.dir, Some(&self.author()), &args)?;
         if !out.ok {
             self.abort_revert();
             return Ok(Err(cmd::first_line(&format!(

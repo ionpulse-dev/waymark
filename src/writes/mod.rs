@@ -46,8 +46,7 @@ pub fn today() -> String {
 
 /// The author in the form `Name <email>`.
 pub fn author_string(ctx: &Context) -> Result<String> {
-    let repo = ctx.repo()?;
-    let a = repo.author();
+    let a = ctx.checked_author()?;
     Ok(format!("{} <{}>", a.name, a.email))
 }
 

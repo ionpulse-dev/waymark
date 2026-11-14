@@ -24,34 +24,8 @@ use std::time::Instant;
 /// A Git working tree that waymark writes to.
 pub struct Repo {
     pub(crate) dir: PathBuf,
-    pub(crate) author: Author,
+    author: Mutex<Author>,
     pub(crate) last_fetch: Mutex<Option<Instant>>,
-}
-
-impl Author {
-    /// The author from arguments or variables, or else from the Git settings of the person.
-    pub fn resolve(name: Option<&str>, email: Option<&str>, dir: &Path) -> Result<Author> {
-        let from_git = |key: &str| {
-            cmd::run(dir, None, &["config", "--get", key])
-                .ok()
-                .filter(|o| o.ok)
-                .map(|o| o.stdout.trim().to_string())
-                .filter(|s| !s.is_empty())
-        };
-        let name = name
-            .map(String::from)
-            .filter(|s| !s.is_empty())
-            .or_else(|| from_git("user.name"));
-        let email = email
-            .map(String::from)
-            .filter(|s| !s.is_empty())
-            .or_else(|| from_git("user.email"));
-        match (name, email) {
-            (Some(name), Some(email)) => Ok(Author { name, email }),
-            _ => Err(Error::setup("No author is set for the commits.")
-                .with_next("Set git config user.name and user.email, or pass --author-name and --author-email.")),
-        }
-    }
 }
 
 impl Repo {
@@ -67,7 +41,7 @@ impl Repo {
         }
         Ok(Repo {
             dir: dir.to_path_buf(),
-            author,
+            author: Mutex::new(author),
             last_fetch: Mutex::new(None),
         })
     }
@@ -98,8 +72,13 @@ impl Repo {
         &self.dir
     }
 
-    pub fn author(&self) -> &Author {
-        &self.author
+    /// The author of the next commits (see `login-and-identity`: resolved at every write).
+    pub fn author(&self) -> Author {
+        self.author.lock().unwrap().clone()
+    }
+
+    pub fn set_author(&self, author: Author) {
+        *self.author.lock().unwrap() = author;
     }
 
     /// Does the repository have a remote named `origin`?

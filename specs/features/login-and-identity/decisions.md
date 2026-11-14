@@ -80,3 +80,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `identity::redact_url` removes the password part of the user info of any URL before it enters a result, an error, or a log.
 
 **Reason:** A person may put a token in a URL by mistake. The result then does not repeat it. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+- The clap `env` attribute is removed from `--author-name` and `--author-email`. `identity::resolve` reads the variables itself, so it can tell the source (`argument` or `environment`). Decided autonomously.
+- `Repo` holds the author in a `Mutex`. `Context::checked_author` resolves and checks it at every write (through `writes::author_string`) and sets it on the repo. At the first open, a missing author does not stop reads: the repo gets an empty author, and a write resolves again. Decided autonomously.
+- `gitsync::Author::resolve` is removed. `identity::resolve` replaces it.
+- The login failure mapping is in `mcp::error::error_json`, not in `gitsync::cmd`. One place maps every `sync_failed` whose message holds a login marker (`identity::is_login_failure`). The same function redacts passwords in all messages (`redact_text`). Decided autonomously.
+- `status` has the checks `author` and `git_login` and `data.author` now. The `git_login` check runs `git ls-remote origin HEAD` in a thread with a 10 second time-out. `maintenance` extends the other checks.
+- Test A9 collects every result and error. It does not collect the stderr log, because the harness lets stderr pass through. The server logs no argument values (checked by reading the code: nothing logs `Args`).

@@ -7,6 +7,7 @@ pub mod config;
 pub mod error;
 pub mod format;
 pub mod gitsync;
+pub mod identity;
 pub mod indexgen;
 pub mod kb;
 pub mod lint;
