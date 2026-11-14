@@ -92,10 +92,10 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
         },
     };
     if schema > SCHEMA_VERSION {
-        return Err(Error::setup(format!(
-            "This knowledge base needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
-        ))
-        .with_next(
+        return Err(Error::needs_update(
+            format!(
+                "This knowledge base needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
+            ),
             "Update waymark with `brew upgrade waymark`, then restart your agent tool.",
         ));
     }

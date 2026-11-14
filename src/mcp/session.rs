@@ -57,6 +57,12 @@ fn local_notices(
 /// Gather the facts. Local data only: no network. With `allow_clone` false, a clone that is still
 /// missing counts as "not set up yet", so that `initialize` never waits for a clone.
 pub fn facts(ctx: &Context, allow_clone: bool) -> Facts {
+    let mut f = facts_inner(ctx, allow_clone);
+    f.notices.extend(ctx.args.entry_notices());
+    f
+}
+
+fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
     let build_unbound = |problem: Error| {
         let effective = ctx.limits(None).effective;
         Facts {
@@ -66,6 +72,9 @@ pub fn facts(ctx: &Context, allow_clone: bool) -> Facts {
             settings: settings_json(&effective),
         }
     };
+    if let Some(i) = ctx.args.blocking_issue() {
+        return build_unbound(Error::needs_update(i.message.clone(), i.next.clone()));
+    }
     if ctx.is_cloning() {
         return build_unbound(
             Error::setup("The first clone is still running.").with_next("Call status in a minute."),

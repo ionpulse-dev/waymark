@@ -41,6 +41,13 @@ fn cut(mut s: String) -> String {
 
 pub fn build(f: &Facts) -> String {
     let Some(kb) = &f.kb else {
+        if let Some(e) = f.problem.as_ref().filter(|p| p.is_update_needed()) {
+            return cut(format!(
+                "{INTRO}\nWAYMARK NEEDS AN UPDATE: {} {}\nTool \"status\" returns the fix.",
+                sanitize(&e.message),
+                e.next.as_deref().map(sanitize).unwrap_or_default()
+            ));
+        }
         let msg = f
             .problem
             .as_ref()

@@ -246,6 +246,8 @@ The tool descriptions come with the binary. The new version applies at the next 
 
 **When a team's knowledge base needs a newer waymark.** The settings file `.mkbase/waymark.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [knowledge-base-repo spec](../specs/foundation/knowledge-base-repo/requirements.md).
 
+**When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
+
 ## Check that waymark works
 
 Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.

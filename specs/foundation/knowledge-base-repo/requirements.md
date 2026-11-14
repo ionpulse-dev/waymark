@@ -149,6 +149,10 @@ The repository holds the data and its two version labels. The binary holds the h
 - If steps are dropped one day, a file that is too old gets the message "Open this knowledge base once with waymark X to migrate it first."
 - The check for a higher schema must ship before the first schema bump, because builds without it ignore the key. Releases up to 0.1.2 do. The number is not raised before the team had time to update.
 
+### Updates of the MCP entry
+
+The entry of the agent tool belongs to the person. If an update needs a different entry (a removed argument, a new required one), waymark still starts and shows the problem and the fix in three places. The rules are in `mcp-server`, section "Updates of the MCP entry".
+
 ### The start of a session
 
 `initialize` checks the settings file when it builds the `instructions` text. A schema problem is in that text. The text is not enough on its own, because a client may not show it, so every tool call also fails with the same message. A migration is never run during `initialize`: it must not write, and it must not wait for the network.

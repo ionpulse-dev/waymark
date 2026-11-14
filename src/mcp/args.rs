@@ -1,7 +1,7 @@
 //! The command line and the environment variables (see `specs/foundation/mcp-server`).
 
 use crate::config::{Access, Limits};
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug, Clone, Default)]
@@ -57,6 +57,158 @@ pub struct Args {
     /// Most documents that `show` opens in one session. Default: 20.
     #[arg(long)]
     pub max_documents_opened: Option<usize>,
+    /// Problems of the MCP entry that the lenient parser found. Not a command line argument.
+    #[arg(skip)]
+    pub entry_issues: Vec<EntryIssue>,
+}
+
+/// A problem with the arguments of the MCP entry (see `specs/foundation/mcp-server`, section
+/// "Updates of the MCP entry").
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EntryIssue {
+    pub message: String,
+    pub next: String,
+    /// A blocking issue stops every tool except `status`. Otherwise it is only a notice.
+    pub blocking: bool,
+}
+
+/// Arguments that no longer have an effect, with the sentence for the notice. A flag in this list
+/// is ignored. Any other unknown flag blocks the tools, because it may come from a newer waymark
+/// and may be a limit.
+pub const DEPRECATED_FLAGS: &[(&str, &str)] = &[];
+
+fn shell_quote(s: &str) -> String {
+    if !s.is_empty()
+        && s.chars()
+            .all(|c| c.is_ascii_alphanumeric() || "-_./:@=,*~".contains(c))
+    {
+        s.to_string()
+    } else {
+        format!("'{}'", s.replace('\'', "'\\''"))
+    }
+}
+
+/// The commands that replace the entry of Claude Code with the given arguments.
+fn fix_commands(kept: &[String]) -> String {
+    let args: Vec<String> = kept.iter().map(|a| shell_quote(a)).collect();
+    format!(
+        "`claude mcp remove waymark`, then `claude mcp add --transport stdio --scope user waymark -- waymark {}`",
+        args.join(" ")
+    )
+}
+
+impl Args {
+    /// Parse the command line without exiting on a problem. An argument that this waymark does
+    /// not know, or a wrong value, does not stop the server. It becomes an `EntryIssue`, so that
+    /// `initialize`, `status`, and every tool can say what to change. `--help` and `--version`
+    /// work as always.
+    pub fn parse_lenient() -> Args {
+        Args::parse_lenient_from(std::env::args().collect(), DEPRECATED_FLAGS)
+    }
+
+    pub fn parse_lenient_from(argv: Vec<String>, deprecated: &[(&str, &str)]) -> Args {
+        let cmd = Args::command();
+        let mut known: Vec<String> = cmd
+            .get_arguments()
+            .filter_map(|a| a.get_long().map(String::from))
+            .collect();
+        known.push("help".into());
+        known.push("version".into());
+        let program = argv.first().cloned().unwrap_or_else(|| "waymark".into());
+        let mut kept: Vec<String> = Vec::new();
+        let mut issues: Vec<EntryIssue> = Vec::new();
+        let mut unknown: Vec<String> = Vec::new();
+        let mut i = 1;
+        while i < argv.len() {
+            let tok = &argv[i];
+            let is_flag = tok.starts_with('-') && tok.len() > 1;
+            let name = tok.trim_start_matches('-').split('=').next().unwrap_or("");
+            let is_known = tok.starts_with("--") && known.iter().any(|k| k == name)
+                || matches!(tok.as_str(), "-h" | "-V");
+            if !is_flag || is_known {
+                kept.push(tok.clone());
+                i += 1;
+                continue;
+            }
+            // An unknown flag. Drop it and its value, if it has one.
+            let takes_value = !tok.contains('=')
+                && argv
+                    .get(i + 1)
+                    .is_some_and(|n| !(n.starts_with('-') && n.len() > 1));
+            i += if takes_value { 2 } else { 1 };
+            if let Some((_, why)) = deprecated.iter().find(|(f, _)| *f == format!("--{name}")) {
+                issues.push(EntryIssue {
+                    message: format!("The MCP entry uses `--{name}`. {why}"),
+                    next: "Remove it from the entry when you next change it.".to_string(),
+                    blocking: false,
+                });
+            } else {
+                unknown.push(tok.split('=').next().unwrap_or(tok).to_string());
+            }
+        }
+        let mut argv_kept = vec![program];
+        argv_kept.extend(kept.iter().cloned());
+        let mut args = match Args::try_parse_from(&argv_kept) {
+            Ok(a) => a,
+            Err(e) => {
+                use clap::error::ErrorKind;
+                if matches!(e.kind(), ErrorKind::DisplayHelp | ErrorKind::DisplayVersion) {
+                    e.exit();
+                }
+                let text = e.to_string();
+                let first = text
+                    .lines()
+                    .next()
+                    .unwrap_or("")
+                    .trim_start_matches("error: ")
+                    .to_string();
+                issues.push(EntryIssue {
+                    message: format!("The MCP entry has a wrong argument: {first}"),
+                    next: format!(
+                        "Change the entry: {}. Then restart your agent tool.",
+                        fix_commands(&[])
+                    ),
+                    blocking: true,
+                });
+                // Without valid arguments the server must not guess a knowledge base.
+                Args::default()
+            }
+        };
+        if !unknown.is_empty() {
+            issues.push(EntryIssue {
+                message: format!(
+                    "The MCP entry has {} that this waymark ({}) does not know.",
+                    unknown
+                        .iter()
+                        .map(|u| format!("`{u}`"))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    env!("CARGO_PKG_VERSION")
+                ),
+                next: format!(
+                    "If the entry was made for a newer waymark, run `brew upgrade waymark` and restart your agent tool. Otherwise remove the argument: {}. Then restart your agent tool.",
+                    fix_commands(&kept)
+                ),
+                blocking: true,
+            });
+        }
+        args.entry_issues = issues;
+        args
+    }
+
+    /// The first issue that stops the tools.
+    pub fn blocking_issue(&self) -> Option<&EntryIssue> {
+        self.entry_issues.iter().find(|i| i.blocking)
+    }
+
+    /// The issues that only give a notice.
+    pub fn entry_notices(&self) -> Vec<String> {
+        self.entry_issues
+            .iter()
+            .filter(|i| !i.blocking)
+            .map(|i| i.message.clone())
+            .collect()
+    }
 }
 
 impl Args {
@@ -92,6 +244,64 @@ impl Args {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn lenient(args: &[&str], deprecated: &[(&str, &str)]) -> Args {
+        let mut v = vec!["waymark".to_string()];
+        v.extend(args.iter().map(|s| s.to_string()));
+        Args::parse_lenient_from(v, deprecated)
+    }
+
+    #[test]
+    fn known_arguments_make_no_issue() {
+        let a = lenient(
+            &["--path", "/x", "--access", "read-only", "--no-delete"],
+            &[],
+        );
+        assert!(a.entry_issues.is_empty());
+        assert_eq!(a.path.unwrap().to_str(), Some("/x"));
+        assert!(a.no_delete);
+    }
+
+    #[test]
+    fn an_unknown_argument_blocks_and_names_the_fix() {
+        for argv in [
+            vec!["--path", "/x", "--future-flag", "1"],
+            vec!["--path", "/x", "--future-flag=1"],
+            vec!["--path", "/x", "--future-flag"],
+        ] {
+            let a = lenient(&argv, &[]);
+            let i = a.blocking_issue().expect("a blocking issue");
+            assert!(i.message.contains("`--future-flag`"), "{}", i.message);
+            assert!(i.next.contains("brew upgrade waymark"));
+            assert!(i.next.contains(
+                "claude mcp add --transport stdio --scope user waymark -- waymark --path /x"
+            ));
+            assert!(!i.next.contains("future-flag"));
+            // The known part still parses.
+            assert_eq!(a.path.unwrap().to_str(), Some("/x"));
+        }
+    }
+
+    #[test]
+    fn a_deprecated_argument_is_only_a_notice() {
+        let a = lenient(
+            &["--path", "/x", "--old", "v"],
+            &[("--old", "It has no effect any more.")],
+        );
+        assert!(a.blocking_issue().is_none());
+        let n = a.entry_notices();
+        assert_eq!(n.len(), 1);
+        assert!(n[0].contains("`--old`") && n[0].contains("no effect"));
+        assert_eq!(a.path.unwrap().to_str(), Some("/x"));
+    }
+
+    #[test]
+    fn a_wrong_value_blocks_and_guesses_no_knowledge_base() {
+        let a = lenient(&["--path", "/x", "--max-results", "many"], &[]);
+        let i = a.blocking_issue().expect("a blocking issue");
+        assert!(i.message.contains("wrong argument"), "{}", i.message);
+        assert!(a.path.is_none() && a.repo.is_none());
+    }
 
     #[test]
     fn entry_layer_from_arguments() {

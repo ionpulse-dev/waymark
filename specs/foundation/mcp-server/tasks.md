@@ -15,3 +15,4 @@
 - [x] `tests/it_mcp_server.rs`: the acceptance criteria.
 - [x] A size test for `tools/list`.
 - [x] Run the full suite.
+- [x] Updates of the MCP entry: lenient parser, the state "needs an update" in `initialize`, `tools/list`, the tool errors, and `status` (2026-11-14).

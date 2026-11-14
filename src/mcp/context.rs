@@ -262,6 +262,21 @@ impl Context {
         }
     }
 
+    /// A problem that only an update fixes: an argument of the MCP entry that this waymark cannot
+    /// use, or a knowledge base that needs a newer waymark. It never waits for a clone.
+    pub fn update_needed(&self) -> Option<Error> {
+        if let Some(i) = self.args.blocking_issue() {
+            return Some(Error::needs_update(i.message.clone(), i.next.clone()));
+        }
+        if self.is_cloning() {
+            return None;
+        }
+        match self.kb() {
+            Err(e) if e.is_update_needed() => Some(e),
+            _ => None,
+        }
+    }
+
     /// The knowledge base in the repository, read from disk at every call.
     /// A different ID than `--kb-id` is a `setup_problem`.
     pub fn kb(&self) -> Result<KnowledgeBase> {

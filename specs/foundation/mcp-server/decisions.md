@@ -106,3 +106,13 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Decision (decided autonomously):** Every option has a help line, with its default where one exists. The text after the options says that all options are optional and can be combined, that they usually go into the `args` list of the MCP entry, and shows three example command lines. This changes text only, not behavior.
 
 **Reason:** A first user could not tell how to combine the options. Found while testing the install of 0.1.0. It ships with the next release.
+
+## An unknown argument no longer exits; every update problem is shown — 2026-11-14
+
+**Supersedes:** the sentence "An unknown command or argument makes the process exit with an error" of "The command line of the first version".
+
+**Decision (product owner):** All updates must be possible, and the person must at least learn that an update is needed, even when the MCP entry has to be replaced. The server does not exit on an unknown or wrong argument. It starts in the state "needs an update": `instructions`, the description of `status`, and the error of every tool carry the problem and the fix. A removed argument goes through a deprecation list first. A flag that is not in the list blocks the tools, because it may come from a newer waymark and may be a limit.
+
+**Alternatives considered:** Ignore unknown arguments (rejected: a newer limit would be dropped without a word). Exit as before (rejected: the agent tool shows only "failed to connect", with no cause). Write the entry ourselves (rejected: waymark never writes into an agent tool).
+
+**Reason:** The description of a tool is always in the context of the agent, so it is the one channel that does not depend on the client showing `instructions`. How each agent tool shows the three channels is open until the manual test runs.

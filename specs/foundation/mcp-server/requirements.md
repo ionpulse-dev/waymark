@@ -137,6 +137,23 @@ The agent tool starts the server from an entry in its MCP config. The entry pass
 
 A secret is never an argument. In local mode, Git uses its own login. In server mode, secrets come from the host (see `server-mode`).
 
+### Updates of the MCP entry
+
+The entry of the agent tool (the command and its arguments) belongs to the person. waymark never writes into an agent tool, so a change of the entry is always made by the person. This section says how waymark makes sure that the person learns about it. The whole path of updates (binary, settings schema, repairs, migrations) is in `knowledge-base-repo`, section "Versions and updates".
+
+- **The server does not exit on a bad argument.** An argument that this waymark does not know, or a wrong value, never stops the process. The server starts, answers `initialize`, and lists `status`. (`--help` and `--version` work as before.)
+- **Deprecated arguments.** The binary has a list of arguments that no longer have an effect (`DEPRECATED_FLAGS` in `src/mcp/args.rs`), each with a sentence. Such an argument is ignored, the tools work, and every result has a notice: "The MCP entry uses `--x`. <sentence>". `status` shows it in the check `entry` (ok). An argument is removed from the program only after it was in this list for at least one minor version.
+- **Any other unknown argument blocks the tools.** It may come from a newer waymark, and it may be a limit that this build would ignore. The server then needs an update: see below. The same holds for a wrong value of a known argument (for example `--max-results many`): the server must not guess a knowledge base, so it starts with no arguments at all.
+- **A new required argument** is handled like an unknown one from the other side: a build that needs an argument and does not find it starts with the same state and says what to add. A release must not add a required argument without this check.
+- **"Needs an update" state.** It exists for three causes: an unknown or wrong argument in the entry, a settings file of a higher schema (see `knowledge-base-repo`), and a required argument that is missing. In this state:
+  - `initialize` sends `instructions` that start with "WAYMARK NEEDS AN UPDATE:", then the message and the fix, and then "Tool "status" returns the fix."
+  - `tools/list` lists only `status`. Its description carries the same text ("WAYMARK NEEDS AN UPDATE: ... Call this tool for the fix."), up to 600 characters. A tool description is in the context of the agent from the start, so the agent knows without a call.
+  - Every other tool fails with `setup_problem`, the message, and a `next` sentence. For an argument of the entry the `next` sentence names `brew upgrade waymark` (if the entry was made for a newer waymark), and the two commands that replace the entry of Claude Code: `claude mcp remove waymark`, then `claude mcp add --transport stdio --scope user waymark -- waymark <the arguments that remain>`. Then it says to restart the agent tool.
+  - `status` works. It has a failing check `entry` with the message and the fix, and `healthy` is false.
+  - The error carries `data.update_needed: true`, so that code can tell this state from other setup problems.
+- **What cannot be helped.** If the binary is missing or crashes before `initialize`, no message is possible. The agent tool shows its own error then.
+- **The three channels.** The text at the start (`instructions`), the description of `status` (always in the context), and the error of every tool call. A client may not show the first, so the other two exist.
+
 ### Technology
 
 | Need | Choice |
@@ -152,6 +169,12 @@ A secret is never an argument. In local mode, Git uses its own login. In server 
 A fixture repository, a tool call, and the expected result fix the behavior, so the server can be rebuilt or ported. The tests call the tools through an in-memory MCP client, in both transports. They run in CI.
 
 ## Acceptance Criteria
+
+- **Given** an argument in the entry that this waymark does not know, **When** the session starts, **Then** the server starts, `instructions` start the problem with "WAYMARK NEEDS AN UPDATE", `tools/list` lists only `status` with the problem in its description, and every other tool fails with `setup_problem` and the fix.
+- **Given** a wrong value of a known argument, **When** the session starts, **Then** the same state holds and no knowledge base is guessed.
+- **Given** a deprecated argument, **When** a tool runs, **Then** it works and the result has a notice.
+- **Given** a settings file of a higher schema, **When** the session starts, **Then** the same state holds with the message "needs a newer waymark".
+- **Given** a working setup, **When** the session starts, **Then** there is no warning and all tools are listed.
 
 - **Given** a started server, **When** the client lists tools, **Then** the list holds the tools above that the limits allow, and no control tool.
 - **Given** any tool call, **When** it ends, **Then** the result has `message` and `settings`, and `notices` when there are any.

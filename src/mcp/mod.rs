@@ -66,10 +66,23 @@ impl Server {
 
     /// The tool list as MCP tools. Blocking: it reads files.
     pub fn list(&self) -> Vec<McpTool> {
+        let attention = self.ctx.update_needed().map(|e| {
+            format!(
+                " WAYMARK NEEDS AN UPDATE: {} {} Call this tool for the fix.",
+                e.message,
+                e.next.unwrap_or_default()
+            )
+        });
         self.registry
             .list(&self.ctx)
             .into_iter()
             .map(|t| {
+                let mut description = t.description().to_string();
+                if t.always_listed() {
+                    if let Some(a) = &attention {
+                        description.push_str(&a.chars().take(600).collect::<String>());
+                    }
+                }
                 let schema = match t.input_schema() {
                     Value::Object(m) => m,
                     _ => Default::default(),
@@ -79,7 +92,8 @@ impl Server {
                 if t.kind() != Kind::Read {
                     a.destructive_hint = Some(t.kind() == Kind::Destructive);
                 }
-                McpTool::new(t.name(), t.description(), Arc::new(schema)).with_annotations(a)
+                McpTool::new(t.name().to_string(), description, Arc::new(schema))
+                    .with_annotations(a)
             })
             .collect()
     }

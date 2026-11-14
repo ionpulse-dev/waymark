@@ -69,7 +69,8 @@ impl Registry {
             .as_ref()
             .map(|k| k.settings.verification)
             .unwrap_or(false);
-        let notices = kb.map(|k| k.settings.notices).unwrap_or_default();
+        let mut notices = kb.map(|k| k.settings.notices).unwrap_or_default();
+        notices.extend(ctx.args.entry_notices());
         (
             Env {
                 effective: limit.effective,
@@ -83,9 +84,12 @@ impl Registry {
     /// The tools that the limits allow. A broken config file lists the read tools and `status`.
     pub fn list(&self, ctx: &Context) -> Vec<&dyn Tool> {
         let (env, verification, _) = self.env(ctx);
+        // When only an update helps, `status` is the one tool that is listed.
+        let only_status = ctx.update_needed().is_some();
         self.tools
             .iter()
             .map(|t| t.as_ref())
+            .filter(|t| !only_status || t.always_listed())
             .filter(|t| self.visible(*t, &env, verification))
             .collect()
     }
@@ -112,6 +116,12 @@ impl Registry {
                 is_error: true,
             }
         };
+        // A problem that only an update fixes stops every tool except `status`.
+        if !tool.always_listed() {
+            if let Some(e) = ctx.update_needed() {
+                return Ok(fail(e, &notices));
+            }
+        }
         // A tool of verification is not listed when verification is off. A direct call is denied.
         if tool.needs_verification() && !verification {
             return Ok(fail(

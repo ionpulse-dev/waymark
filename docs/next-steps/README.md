@@ -8,6 +8,6 @@ Everything that is left to do for the first release is in this folder or one com
 | Result of the scan for secrets and private details, before going public | [public-readiness.md](public-readiness.md) |
 | Project-level open questions (trademark, contributions, skills home, Obsidian version, CI) | [open-questions.md](open-questions.md) |
 | What comes after the first release (dogfooding, server mode, pilot) | [roadmap.md](roadmap.md) |
-| The 48 manual tests with real tools (they live in each spec's `test.md`) | run `make manual-tests` |
+| The 50 manual tests with real tools (they live in each spec's `test.md`) | run `make manual-tests` |
 | Facts still marked "unverified" (answered by the manual tests) | [../install.md](../install.md), [../agent-tools-research.md](../agent-tools-research.md) |
 | Spec-level open points and autonomous decisions | `todo.md` and `decisions.md` in each spec folder |

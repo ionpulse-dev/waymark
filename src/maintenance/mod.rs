@@ -149,6 +149,13 @@ fn settings_check(ctx: &Context, kb: Option<&KnowledgeBase>) -> Check {
 pub fn run_checks(ctx: &Context) -> Report {
     let mut checks = Vec::new();
     let state = ctx.join_state();
+    for i in &ctx.args.entry_issues {
+        checks.push(if i.blocking {
+            Check::bad("entry", i.message.clone(), i.next.clone())
+        } else {
+            Check::ok("entry", i.message.clone())
+        });
+    }
     let git = git_check();
     let git_ok = git.ok;
     checks.push(git);

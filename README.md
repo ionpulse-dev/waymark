@@ -155,6 +155,7 @@ yourself.
 3. Start a session. waymark clones the knowledge base on first start.
 4. A team adds the same entry to the project config, so everyone uses the same
    knowledge base.
+5. Update with `brew upgrade waymark` and restart your agent tool. waymark never writes into your agent tool and never changes a shared file without a rule. If an update needs a change of your MCP entry, or a team's knowledge base needs a newer waymark, the agent tells you ("WAYMARK NEEDS AN UPDATE") and `status` shows the exact fix. Details: [install guide](docs/install.md#update-waymark).
 
 <!-- snippet: generic -->
 ```json

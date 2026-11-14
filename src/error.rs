@@ -64,6 +64,23 @@ impl Error {
         self
     }
 
+    /// A problem that only an update fixes: a newer waymark, or an entry of the MCP config that
+    /// this waymark cannot use. The server shows it in `initialize`, in the description of
+    /// `status`, and in the error of every tool (see `specs/foundation/mcp-server`).
+    pub fn needs_update(message: impl Into<String>, next: impl Into<String>) -> Error {
+        Error::new(Code::SetupProblem, message)
+            .with_next(next)
+            .with_data(serde_json::json!({ "update_needed": true }))
+    }
+
+    pub fn is_update_needed(&self) -> bool {
+        self.data
+            .as_ref()
+            .and_then(|d| d.get("update_needed"))
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+    }
+
     pub fn setup(message: impl Into<String>) -> Error {
         Error::new(Code::SetupProblem, message)
     }
