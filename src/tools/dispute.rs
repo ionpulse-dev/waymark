@@ -80,8 +80,8 @@ impl Tool for Dispute {
                     ));
                 }
                 let mut problems = writes::Problems::default();
-                let custom = writes::secrets::compile(&kb.settings.extra_secret_patterns);
-                for hit in writes::secrets::scan(r, &custom) {
+                let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
+                for hit in crate::lint::secrets::scan(r, &custom) {
                     problems.add(
                         format!(
                             "The reason looks like it contains a secret (rule {}, line {}).",
@@ -118,7 +118,7 @@ impl Tool for Dispute {
                 None,
                 &mut problems,
                 &mut notices,
-            );
+            )?;
             if !problems.is_empty() {
                 return Err(problems.into_error());
             }

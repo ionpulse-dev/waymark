@@ -23,7 +23,7 @@ Five tools, one file each in `src/tools/`. Each tool builds a plan of file chang
 - `src/writes/mod.rs` — `DocPlan` (the changes of one call), the glue to `Repo::write`, the common input checks, and the preview and result builders.
 - `src/writes/slug.rs` — file name from a title, and the hex suffix rule.
 - `src/writes/titles.rs` — title words, duplicate check, near-duplicate check.
-- `src/writes/secrets.rs` — built-in secret patterns, custom patterns, and the scan that reports rule and line, never the match. `quality-checks` reuses it for `lint`.
+- `src/lint/secrets.rs` — built-in secret patterns, custom patterns, and the scan that reports rule and line, never the match. It was `src/writes/secrets.rs` and moved here with `quality-checks`.
 - `src/writes/linkfix.rs` — find links to a document in all documents and rewrite them: remove (used by `delete`) or retarget (used by `move`). Uses `format::links` for the link spans.
 - `tests/it_write_documents.rs` — end-to-end tests with the `World` harness.
 

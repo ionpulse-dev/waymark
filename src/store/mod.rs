@@ -121,6 +121,11 @@ impl Store {
         self.docs.iter().filter(|d| d.parsed() && !d.is_index())
     }
 
+    /// The parsed documents including generated index files.
+    pub fn docs_with_index(&self) -> impl Iterator<Item = &Doc> {
+        self.docs.iter().filter(|d| d.parsed())
+    }
+
     /// Every document, also those that cannot be parsed and index files.
     pub fn all_docs(&self) -> &[Doc] {
         &self.docs

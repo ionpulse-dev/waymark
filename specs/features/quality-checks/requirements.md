@@ -1,6 +1,6 @@
 ---
 type: feature
-status: planned
+status: implemented
 created: 2026-11-08
 updated: 2026-11-14
 requires:

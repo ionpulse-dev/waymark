@@ -5,7 +5,6 @@
 //! brings the clone up to date, commits under the author, and pushes.
 
 pub mod linkfix;
-pub mod secrets;
 pub mod slug;
 pub mod titles;
 
@@ -162,60 +161,72 @@ pub struct TitleCheck<'a> {
 }
 
 /// Check the full text of a document as it will be written.
-/// `ids_after` is the set of document IDs after the write. `secret_fields` are the texts to scan.
-/// Warnings go to `notices`.
+/// `ids_after` is the set of document IDs after the write. `scan_fields` are the texts to scan for
+/// secrets and personal data. Warnings go to `notices`.
 #[allow(clippy::too_many_arguments)]
 pub fn check_document(
     kb: &KnowledgeBase,
     id: &str,
     text: &str,
     ids_after: &HashSet<String>,
-    secret_fields: &[(&str, String)],
+    scan_fields: &[(&str, String)],
     title_check: Option<TitleCheck>,
     problems: &mut Problems,
     notices: &mut Vec<String>,
-) {
+) -> Result<()> {
     let path = format!("{id}.md");
+    let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
     for f in format::check(&path, text, &kb.settings.documents, Some(ids_after)) {
         if f.is_error() {
-            problems.add(
-                f.message,
-                "Fix the problems that are listed, then call again.",
-            );
+            problems.add(f.message, crate::lint::next_for(f.rule));
         } else {
             notices.push(f.message);
         }
     }
-    let custom = secrets::compile(&kb.settings.extra_secret_patterns);
-    for (field, value) in secret_fields {
-        for hit in secrets::scan(value, &custom) {
+    for (field, value) in scan_fields {
+        for hit in crate::lint::secrets::scan(value, &custom) {
             problems.add(
                 format!(
-                    "The {field} looks like it contains a secret (rule {}, line {}).",
+                    "The {field} looks like it contains a secret ({}, line {}).",
                     hit.rule, hit.line
                 ),
                 "Remove the secret, or replace it with a placeholder.",
             );
         }
+        for line in crate::lint::personal::scan(value) {
+            problems.add(
+                format!("The {field} looks like it contains an IBAN or a payment card number (line {line})."),
+                "Remove the number.",
+            );
+        }
     }
-    if let Some(tc) = title_check {
-        if let Ok(doc) = format::parse(text) {
-            if let Some(title) = doc.frontmatter.get_text("title") {
-                for clash in titles::clashes(title, &active_titles(kb), tc.skip) {
-                    match clash {
-                        titles::Clash::Exact(other) => problems.add(
-                            format!("A document with this title exists: `{other}`."),
-                            "Update that document instead, or choose another title.",
-                        ),
-                        titles::Clash::Near(other) => problems.add(
-                            format!("A document with a similar title exists: `{other}`."),
-                            "Update that document instead, or choose another title.",
-                        ),
-                    }
+    if let Ok(doc) = format::parse(text) {
+        for field in ["created_by", "updated_by"] {
+            if let Some(a) = doc.frontmatter.get_text(field) {
+                if let Some(why) = crate::lint::authors::not_allowed(a, &kb.settings.people) {
+                    problems.add(
+                        format!("The author in {field} is not allowed. {why}"),
+                        "Set another author email in your Git settings.",
+                    );
+                }
+            }
+        }
+        if let (Some(tc), Some(title)) = (title_check, doc.frontmatter.get_text("title")) {
+            for clash in titles::clashes(title, &active_titles(kb), tc.skip) {
+                match clash {
+                    titles::Clash::Exact(other) => problems.add(
+                        format!("A document with this title exists: `{other}`."),
+                        "Update that document instead, or choose another title.",
+                    ),
+                    titles::Clash::Near(other) => problems.add(
+                        format!("A document with a similar title exists: `{other}`."),
+                        "Update that document instead, or choose another title.",
+                    ),
                 }
             }
         }
     }
+    Ok(())
 }
 
 // ---- the plan and its execution ----

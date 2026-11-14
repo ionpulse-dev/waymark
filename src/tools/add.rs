@@ -157,7 +157,7 @@ impl Tool for Add {
                 Some(TitleCheck { skip: &skip_refs }),
                 &mut problems,
                 &mut notices,
-            );
+            )?;
             if !problems.is_empty() {
                 return Err(problems.into_error());
             }

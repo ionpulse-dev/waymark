@@ -15,17 +15,16 @@ A `lint` module runs the checks of `format` and adds the checks that need more t
 
 ## New Files
 
-- `src/lint/mod.rs` — `run(store, scope, ctx) -> Report`, `check_candidate(...)`, and the conversion of a finding list to a `ToolError`.
+- `src/lint/mod.rs` — `run(...) -> Report` (with the duplicate-title and `index-stale` checks), `text_findings`, and the `next_for` table.
 - `src/lint/secrets.rs` — the built-in patterns and the extra patterns (`regex` crate). The finding never holds the matched text.
 - `src/lint/personal.rs` — IBAN (with the mod 97 check) and payment card numbers (Luhn).
-- `src/lint/duplicates.rs` — the title index and `find_title(store, title, except_id)`.
 - `src/lint/authors.rs` — `author-mismatch` and `author-not-allowed`.
-- `src/lint/index_stale.rs` — compares each generated index with the output of `indexgen`.
 - `src/indexgen/mod.rs` — builds the index document of one folder and decides what to write.
 - `src/tools/lint.rs` — the `lint` tool.
 - `src/tools/index.rs` — the `index` tool.
 - `tests/it_quality_checks.rs` — end-to-end tests.
 - `tests/lint_conformance.rs` — runs `lint::run` over `standard/conformance/`.
+- `src/lint/secrets.rs` was `src/writes/secrets.rs` (moved here, see `decisions.md`).
 
 ## Technical Approach
 

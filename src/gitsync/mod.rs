@@ -11,7 +11,7 @@ mod sync;
 mod write;
 
 pub use cmd::Author;
-pub use log::LogEntry;
+pub use log::{LogEntry, PathAuthors};
 pub use message::{commit_message, parse_subject, Verb};
 pub use sync::{conflict_copy, SyncResult};
 pub use write::{Change, Tx, WriteResult};

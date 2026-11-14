@@ -4,6 +4,8 @@ pub mod add;
 pub mod delete;
 pub mod deprecate;
 pub mod dispute;
+pub mod index;
+pub mod lint;
 pub mod list;
 pub mod read_common;
 pub mod search;
@@ -22,6 +24,8 @@ pub fn registry() -> Registry {
         Box::new(show::Show),
         Box::new(list::List),
         Box::new(stats::Stats),
+        Box::new(lint::Lint),
+        Box::new(index::Index),
         Box::new(add::Add),
         Box::new(update_document::UpdateDocument),
         Box::new(dispute::Dispute),

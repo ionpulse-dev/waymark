@@ -14,6 +14,13 @@ pub struct LogEntry {
     pub subject: String,
 }
 
+/// The authors of paths, from Git history (see `Repo::path_authors`).
+#[derive(Debug, Default, Clone)]
+pub struct PathAuthors {
+    pub first: std::collections::HashMap<String, String>,
+    pub last: std::collections::HashMap<String, String>,
+}
+
 const SEP: char = '\u{1f}';
 const FORMAT: &str = "--format=%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%s";
 
@@ -83,6 +90,73 @@ impl Repo {
             }
         }
         Ok(moved.then_some(current))
+    }
+
+    /// For each path in history: the email of the author of the commit that added it, and of the
+    /// commit that changed it last. One pass over the history. A rename moves the entries.
+    /// Emails are in lowercase. Paths are below the repository folder.
+    pub fn path_authors(&self) -> Result<PathAuthors> {
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &[
+                "log",
+                "--reverse",
+                "--no-merges",
+                "-M",
+                "--name-status",
+                "--format=%x1e%ae",
+            ],
+        )?;
+        let mut result = PathAuthors::default();
+        if !out.ok {
+            return Ok(result);
+        }
+        for commit in out.stdout.split('\u{1e}').skip(1) {
+            let mut lines = commit.lines();
+            let email = lines.next().unwrap_or("").trim().to_lowercase();
+            for line in lines.filter(|l| !l.trim().is_empty()) {
+                let mut p = line.split('\t');
+                let status = p.next().unwrap_or("");
+                match status.chars().next() {
+                    Some('A') => {
+                        if let Some(path) = p.next() {
+                            result.first.insert(path.to_string(), email.clone());
+                            result.last.insert(path.to_string(), email.clone());
+                        }
+                    }
+                    Some('M') | Some('T') => {
+                        if let Some(path) = p.next() {
+                            result.last.insert(path.to_string(), email.clone());
+                            result
+                                .first
+                                .entry(path.to_string())
+                                .or_insert_with(|| email.clone());
+                        }
+                    }
+                    Some('R') => {
+                        if let (Some(old), Some(new)) = (p.next(), p.next()) {
+                            let f = result.first.remove(old);
+                            let l = result.last.remove(old);
+                            if let Some(f) = f {
+                                result.first.insert(new.to_string(), f);
+                            }
+                            if let Some(l) = l {
+                                result.last.insert(new.to_string(), l);
+                            }
+                        }
+                    }
+                    Some('D') => {
+                        if let Some(path) = p.next() {
+                            result.first.remove(path);
+                            result.last.remove(path);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        Ok(result)
     }
 
     /// The text of a file at a commit. `None` if it did not exist there.

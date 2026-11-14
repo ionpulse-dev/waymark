@@ -102,3 +102,18 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `requires` is `search-and-read` (not `mcp-server`), because `lint` uses `Store`. `mcp-server` is implied. `gitsync::log` gets `first_authors` and `last_authors`. `Repo::write` step 5 calls `lint::check_candidate`. New dependency: `regex`.
 
 **Reason:** Reported to `git-sync` and `mcp-server`. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **Rule names in the output.** The format module keeps its names (`not-utf8`, `bad-line-ends`, `broken-property-link`). `lint` renames them to the names of this spec: `bad-encoding`, `bad-line-ending`, and `broken-link` (an error in a property). The fixtures and `document-format` are not changed.
+- **Duplicate titles compare active documents only,** by the words of the title (lowercase runs of letters and digits), as the write tools do. A deprecated document and its replacement may share a title. This is a small change from "compared without case and extra white space": punctuation no longer counts.
+- **`gitsync` does not call `lint`.** The write checks are made by the write tools (`writes::check_document`), which call the shared code in `lint`. The lower layer `gitsync` stays free of document rules. `manual-edits` calls `lint` on the pending files in the same way.
+- **Secret scan moved.** `src/writes/secrets.rs` is now `src/lint/secrets.rs`, with the built-in patterns of this spec (also Slack tokens, JSON Web Tokens, and connection strings). A value that holds `example` or `placeholder`, or starts with `$`, `{`, or a backtick is not an assignment. A bad extra pattern is a `setup_problem`, also in write tools.
+- **Scan unit.** `lint` scans the whole file and names the file line. Write tools scan the fields that the call sends and name the line inside the field.
+- **IBAN and card scan.** A valid IBAN (mod 97) or card number (Luhn) in any line is `personal-data`. A random long number has a 1 in 10 chance to pass Luhn. Accepted for the first release.
+- **`path_authors`** reads the whole history once (`git log --reverse --name-status -M`). A file with pending edits or no history is skipped.
+- **`commit_change` guard.** `Repo::write` with an empty list of paths commits nothing. This keeps `git add -A` from running without a path.
+- **Index title.** `waymark: update "Index"` is not used: a run that writes only the root index has the title "Index". A run that writes several files has "Indexes".
+- **Index links to subfolders** appear only for subfolders that are in scope of the call, so that no link points to a missing file.

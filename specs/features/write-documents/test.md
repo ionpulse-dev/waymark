@@ -39,7 +39,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] `dispute` twice gives `validation_failed` with the old reason in `message` (`tests/it_write_documents.rs`)
 - [x] [auto] File name rules: slug, 60-character cut, empty title, collision suffix (unit tests in `src/writes/slug.rs`)
 - [x] [auto] Near-duplicate boundary: 4 of 5 shared words fails, 3 of 5 passes, a 2-word title only fails on an exact match (unit tests in `src/writes/titles.rs`)
-- [x] [auto] Every built-in secret pattern matches its sample and the result never contains the secret (unit tests in `src/writes/secrets.rs`)
+- [x] [auto] Every built-in secret pattern matches its sample and the result never contains the secret (unit tests in `src/lint/secrets.rs`)
 - [x] [auto] Link removal keeps every other byte and skips code fences (unit tests in `src/writes/linkfix.rs`). Retarget is tested in `move-documents`.
 - [ ] [manual] A document written by `add` opens in Obsidian with its properties, links, and tags shown. Steps: run `add` through a real agent tool with `tags`, `related`, and a body link, open the clone as a vault in Obsidian. Expected: the Properties panel shows every field, the links are clickable, and no error shows.
 

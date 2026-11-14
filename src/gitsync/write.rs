@@ -201,6 +201,10 @@ impl Repo {
 
     /// Stage the paths and commit only them. Returns the short hash, or `None` if nothing changed.
     pub(crate) fn commit_change(&self, change: &Change) -> Result<Option<String>> {
+        // Never run `git add -A` without paths: it would stage everything.
+        if change.paths.is_empty() {
+            return Ok(None);
+        }
         let paths: Vec<&str> = change.paths.iter().map(String::as_str).collect();
         let mut add = vec!["add", "-A", "--"];
         add.extend(&paths);

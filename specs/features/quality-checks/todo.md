@@ -18,3 +18,8 @@ None.
 ## Open Questions
 
 - Is CI on the Git host allowed in the target organizations? This needs the product owner. It does not block the first release.
+
+## Done in the implementation (2026-11-14)
+
+- All 24 `[auto]` cases pass (`tests/it_quality_checks.rs`, `tests/lint_conformance.rs`).
+- Deferred: an allow list for the built-in patterns, when real use shows false findings.

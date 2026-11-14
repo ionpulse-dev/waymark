@@ -59,9 +59,9 @@ impl Tool for Deprecate {
                 return Err(Error::validation("This document is already deprecated.")
                     .with_next("Nothing to do."));
             }
-            let custom = writes::secrets::compile(&kb.settings.extra_secret_patterns);
+            let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
             let mut problems = writes::Problems::default();
-            for hit in writes::secrets::scan(&reason, &custom) {
+            for hit in crate::lint::secrets::scan(&reason, &custom) {
                 problems.add(
                     format!(
                         "The reason looks like it contains a secret (rule {}, line {}).",
@@ -83,7 +83,7 @@ impl Tool for Deprecate {
                 None,
                 &mut problems,
                 &mut notices,
-            );
+            )?;
             if !problems.is_empty() {
                 return Err(problems.into_error());
             }

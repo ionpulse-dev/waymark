@@ -171,7 +171,7 @@ impl Tool for UpdateDocument {
                     },
                     &mut problems,
                     &mut notices,
-                );
+                )?;
                 if !problems.is_empty() {
                     return Err(problems.into_error());
                 }
