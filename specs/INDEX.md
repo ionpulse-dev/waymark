@@ -7,9 +7,9 @@
 
 ## Next Up
 
-On 2026-11-11 the design changed to MCP only: one binary, local and server mode, no skill, no app (see [architecture direction](../docs/architecture-direction.md)). All specs are `draft` and match the new design. The next step is the review and approval of the requirements, foundation first:
+On 2026-11-11 the design changed to MCP only: one binary, local and server mode, no skill, no app (see [architecture direction](../docs/architecture-direction.md)). On 2026-11-14 `document-format` was approved and is `planned`. All other specs are `draft`. The next step is the review and approval of the requirements and plans, foundation first:
 
-1. `document-format`, `trust-model`, `knowledge-base-repo`
+1. `trust-model`, `knowledge-base-repo`
 2. `git-sync`, `mcp-server`
 3. `distribution`, then `server-mode` and `multi-tenancy`
 4. The feature specs, starting with `write-documents` and `search-and-read`
@@ -45,8 +45,8 @@ On 2026-11-11 the design changed to MCP only: one binary, local and server mode,
 
 | Item | Status | Updated |
 |:-----|:-------|:--------|
+| [document-format](foundation/document-format/requirements.md) | `planned` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `draft` | 2026-11-12 |
-| [document-format](foundation/document-format/requirements.md) | `draft` | 2026-11-11 |
 | [git-sync](foundation/git-sync/requirements.md) | `draft` | 2026-11-11 |
 | [knowledge-base-repo](foundation/knowledge-base-repo/requirements.md) | `draft` | 2026-11-11 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `draft` | 2026-11-11 |

@@ -1,6 +1,6 @@
 ---
 type: foundation
-status: draft
+status: planned
 created: 2026-11-08
 updated: 2026-11-14
 ---
@@ -70,6 +70,7 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 - The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.mkbase` (in a waymark repository: `knowledge/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
+- A link to a document that does not exist is a finding. In a property (`related`, `supersedes`) it is an error, and a write through waymark fails. In the body it is a warning, and the write goes through. The standard only says a link SHOULD point to an existing document, so this severity is a waymark rule.
 - Backlinks are computed on demand. No document stores its backlinks, and there is no central index file.
 
 ### Size limits
@@ -80,7 +81,11 @@ The format is defined by the [MKBase Document Standard 1.0](../../../standard/mk
 | `description` | 50 words | `documents.description_max_words` |
 | Whole document | 100 KB, hard cap | `documents.max_bytes` |
 
-There is no limit on words in the body. Headings are allowed. A full architecture decision record fits in one document. Counting rules for words, characters, and estimated tokens (words times a fixed factor) are fixed here so that the server and `lint` agree.
+There is no limit on words in the body. Headings are allowed. A full architecture decision record fits in one document. The counting rules are in section 9.1 of the standard, so that the server and `lint` agree:
+- Size is the number of UTF-8 bytes of the whole file.
+- A word is a run of characters that are not white space. Title and description are counted in their value.
+- Body word counts remove the markup of callouts, embeds, highlights, and comments.
+- Estimated tokens are words times 1.5, rounded up. Nothing depends on this estimate.
 
 ### Obsidian compatibility
 
@@ -96,8 +101,14 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 - **Given** a document without `description`, **When** it is written through waymark, **Then** the write fails with `validation_failed`.
 - **Given** a document over the hard cap, **When** it is written, **Then** the write fails and tells the agent to split the document or move details into a source.
 - **Given** a title change, **When** the document is saved, **Then** the file name and the ID stay the same.
+- **Given** a title of 16 words or a description of 51 words, **When** `lint` runs, **Then** it fails the document. **Given** exactly 15 and 50 words, **Then** it passes.
+- **Given** a body with callouts, embeds, highlights, and comments, **When** words are counted, **Then** the markup does not add words.
+- **Given** a `related` or `supersedes` link to a missing document, **When** a document is written through waymark, **Then** the write fails with `validation_failed`.
+- **Given** a body link to a missing document, **When** a document is written through waymark, **Then** the write succeeds and `lint` reports a warning.
 - **Given** a sample vault, **When** the test suite runs, **Then** every document in it passes `lint`.
 - **Given** the conformance fixtures in `standard/conformance/`, **When** the test suite runs, **Then** every valid document passes `lint` and every invalid document fails it with a finding that names the broken rule.
 
 ## Open Questions
+
+None. The Obsidian floor is checked at the release (see `decisions.md` and `todo.md`).
 

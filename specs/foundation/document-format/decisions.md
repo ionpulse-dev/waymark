@@ -177,3 +177,58 @@ A claim of conformance and the `version` file in `.mkbase` name only major.minor
 **Reason:** The standard and the product that implements it change together, under one spec workflow. One repository is one source of truth.
 
 **Source of the first text:** `waymark-trail` at commit `7828ae4` (the standard folder), copied on 2026-11-11.
+
+## Counting rules for size, words, and tokens — 2026-11-14
+
+**Decision:** The standard (section 9.1) fixes how to count. Size is UTF-8 bytes of the whole file. A word is a run of non-white-space characters. Title and description are counted in their value. Body counts remove the markup of callouts, embeds, highlights, and comments. Estimated tokens are words times 1.5, rounded up, and no rule depends on them.
+
+**Alternatives considered:** Counting characters instead of words (rejected: the limits are already in words). Counting real tokens with a model tokenizer (rejected: it ties the standard to one vendor and needs a library).
+
+**Reason:** The server and `lint` must give the same result. The factor 1.5 is a rough planning value and can change without a spec change, because nothing depends on it.
+
+## No shell checker in the standard — 2026-11-14
+
+**Decision:** Annex B of the standard no longer names `tests/check-document.sh`. It says a tool follows the standard when it accepts every document of `vault/` and rejects every document of `invalid/` with the rule named by the file name. The Rust test `tests/format_conformance.rs` runs this set.
+
+**Alternatives considered:** Write the shell checker here (rejected: a second implementation of the same rules that can drift, and a shell cannot check every rule).
+
+**Reason:** The standard stays neutral about tools, and there is one implementation to maintain. The script did not exist in this repository.
+
+## An unclosed comment runs to the end — 2026-11-14
+
+**Decision:** In word counts, a `%%` with no closing `%%` starts a comment that runs to the end of the document. Section 9.1 also says which markup is removed with its text (comments) and which only loses its markers (callouts, highlights, embeds).
+
+**Alternatives considered:** Treat an unclosed `%%` as plain text (rejected: it differs from what Obsidian shows).
+
+**Reason:** The count matches what a person sees in Obsidian. Body counts cannot fail a document, so a stray `%%` has a small effect.
+
+## Broken links: error in properties, warning in the body — 2026-11-14
+
+**Decision:** A link to a missing document is an error when it is in a property (`related`, `supersedes`), and a write through waymark fails. In the body it is a warning, and the write goes through. The standard is not changed: it says only that a link SHOULD point to an existing document. The severity is a waymark rule. `quality-checks` must use the same severities.
+
+**Alternatives considered:** Error for every broken link (rejected: two new documents that link to each other cannot be written one by one). Warning for every broken link (rejected: a missing `supersedes` target leaves the old document active, and `related` drives reading).
+
+**Reason:** Property links drive reading, the graph, and deprecation, so a broken one does real harm. A body link is only text.
+
+## The Obsidian floor is verified at the release — 2026-11-14
+
+**Supersedes:** The sentence "The floor must be verified before this spec is approved" in "Obsidian baseline for the release check". The rest of that decision stays.
+
+**Decision:** The check that Obsidian 1.4 is the right floor is part of the first release check, not a gate for approving this spec. The check opens `standard/conformance/vault/` in Obsidian 1.4 and looks at properties, list properties, the graph, and callouts. It also checks in the Obsidian changelog that 1.4 is the first version with the current property editor. Until then the floor is a claim, not a fact.
+
+**Alternatives considered:** Verify before approval (rejected: needs a person with Obsidian 1.4 installed, and no code depends on the floor). Drop the floor (rejected: a floor tells people which older versions are supported).
+
+**Reason:** Nothing in the code depends on the floor, and the real check needs Obsidian on a real machine.
+
+## One crate, and yaml-rust2 for frontmatter — 2026-11-14
+
+**Decision:** The format code is a module `format` in the one `waymark` crate. It moves into its own crate only when a second consumer exists. Frontmatter is parsed with `yaml-rust2` into its untyped value tree. The module checks types itself and writes frontmatter by hand, because the format is flat. Frontmatter does not use `serde`.
+
+**Alternatives considered:**
+- `serde_yaml` (rejected: archived since 2024).
+- `serde_yml` (rejected: RUSTSEC-2025-0068, unsound and unmaintained).
+- `serde_norway`, `serde_yaml_ng` (rejected: forks of `serde_yaml` on `unsafe-libyaml`, and reportedly no release since 2024).
+- `serde-saphyr` (rejected for now: it has no untyped value, and the checks must see nested maps and wrong types before any struct, e.g. a number as a title).
+- A separate `mkbase` crate in a workspace (rejected: more setup, and the standard is already open to other tools).
+
+**Reason:** The checks need the raw types, not a struct. `yaml-rust2` is pure Rust and follows YAML 1.2, so `yes` and `no` are not booleans, which removes one trap. It gets only basic maintenance, so the crate is used in one file (`src/format/frontmatter.rs`) and can be swapped for `saphyr` without a spec change. Source: web search on 2026-11-14, mostly secondary guides. Not checked on crates.io. Release dates are checked before the first implementation task (see `todo.md`).

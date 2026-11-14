@@ -172,6 +172,27 @@ Rules for the fields:
 There is no limit on the words in the body. A producer that would exceed the
 document limit MUST split the document or move details into a linked source.
 
+### 9.1 Counting rules
+
+A producer and a consumer MUST count in the same way.
+
+1. **Bytes.** The size of a document is the number of bytes of the whole file in
+   UTF-8, including the frontmatter.
+2. **Words.** A word is a maximal run of characters that are not Unicode white
+   space. A producer counts the words of a `title` or a `description` in the
+   value of the property, without the quotes of YAML.
+3. **Markup.** Before it counts the words of a body, a consumer removes:
+   - the marker of a callout (`[!type]`), the markers of a highlight (`==`),
+     and the markers of an embed (`![[` and `]]`). The text inside stays and
+     counts.
+   - a comment completely: the text from `%%` to the next `%%`. A `%%` with no
+     closing `%%` starts a comment that runs to the end of the document.
+
+   It keeps the other text. A word that is only markup does not count.
+4. **Estimated tokens.** The estimate is the number of words of the text
+   multiplied by 1.5, rounded up. It is an estimate for planning reads. No rule
+   of this standard depends on it.
+
 ## 10 Configurable parameters
 
 A knowledge base MAY change the values below. A producer MUST use the values of
@@ -250,9 +271,11 @@ The folder `standard/conformance/` holds:
   is used for the compatibility check of section 11.
 - `invalid/`: documents that are not conforming. Each file name names the broken
   rule.
-- A reference checker, `tests/check-document.sh`, checks the rules that a shell
-  can check, including that wikilinks in properties name existing documents. It
-  passes every document of `vault/` and fails every document of `invalid/`.
 
-The checker is a tool for this test set. A document is conforming when it follows
-this standard, whatever a tool says.
+A tool shows that it follows this standard when it accepts every document of
+`vault/` and rejects every document of `invalid/`, and when its finding for each
+invalid document names the rule that the file name names. The standard names no
+checker. This repository has its own test that runs the set (see the
+`document-format` spec).
+
+A document is conforming when it follows this standard, whatever a tool says.
