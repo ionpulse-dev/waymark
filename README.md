@@ -32,6 +32,8 @@ A **waymark** is a sign on a trail. A hiker leaves it so the next one finds the
 way. Your agents do the same: each one leaves a short mark of what it learned,
 and the next one does not get lost on the same path.
 
+<br/>
+
 ## Use cases
 
 - **Team knowledge base:** decisions, API contracts, owners, and known problems,
@@ -43,6 +45,8 @@ and the next one does not get lost on the same path.
   agent reads it, even in a different tool or session.
 - **Agent working memory:** pitfalls and decisions that a long-running agent
   leaves for its next session.
+
+<br/>
 
 ## Where the idea came from
 
@@ -59,6 +63,8 @@ information. That showed us how much agents depend on shared memory.
 
 waymark offers that memory in a safe form: plain Markdown in a Git repository
 that you own, with rules that the server enforces.
+
+<br/>
 
 ## Setup (macOS only)
 
@@ -88,6 +94,8 @@ Tell your agent:
 
 For all options and every step, follow the [install guide](docs/install.md).
 
+<br/>
+
 ## Documentation
 
 - [Development](docs/development.md): build, test, and release from source.
@@ -95,6 +103,8 @@ For all options and every step, follow the [install guide](docs/install.md).
 - [Waymark Memory Standard](standard/waymark-1.0.md): the document format.
 - [Specifications](specs/INDEX.md) and [how this project is built](specs/WORKFLOW.md).
 - [Roadmap](docs/next-steps/roadmap.md), [ideas](docs/ideas.md), [project decisions](docs/decisions.md).
+
+<br/>
 
 ## License
 
