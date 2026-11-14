@@ -1,3 +1,6 @@
 tmp/
 target/
 dist/
+
+# macOS
+.DS_Store
