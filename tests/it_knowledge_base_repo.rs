@@ -228,10 +228,14 @@ fn a_write_repairs_a_missing_schema_in_its_own_commit() {
     assert_eq!(lines[0], "waymark: add \"After repair\"", "{log}");
     assert_eq!(lines[1], "waymark: repair \"settings\"", "{log}");
     let settings = git(&w.remote, &["show", "main:knowledge/.mkbase/waymark.toml"]);
+    // A comment on top stays on top, and the key comes before the first setting.
     assert!(
-        settings.lines().next().unwrap().trim() == "schema = 1",
+        settings.lines().next().unwrap().starts_with('#'),
         "{settings}"
     );
+    let schema_at = settings.find("\nschema = 1\n").expect("the key");
+    let name_at = settings.find("\nname = ").expect("a name");
+    assert!(schema_at < name_at, "{settings}");
     // A second write has nothing to repair.
     let before = git(&w.remote, &["rev-list", "--count", "main"]);
     let r = c.call(

@@ -10,7 +10,7 @@ id = "{id}"
 # A short name for the default folder of the clone (~/Projects/<slug>-knowledge-base).
 slug = "{slug}"
 
-# true: owners verify documents. This adds the tools verify, review, and reject.
+# true: a person verifies documents. This adds the tools verify, review, and reject.
 verification = false
 
 # Limits for everyone who uses this knowledge base. A stricter limit in a personal file or in
