@@ -14,13 +14,21 @@
 
 **Reason:** One more thing to write and to keep current for little gain.
 
-## The tool for an empty folder is `add_empty_folder` — 2026-11-14
+## Three tools: `folders`, `add_empty_folder`, `remove_folder` — 2026-11-14
 
-**Decision (product owner):** The write tool is named `add_empty_folder`, with the input `path`. It writes a `.gitkeep`.
+**Decision (product owner):** `folders` reads. `add_empty_folder` creates an empty folder and `remove_folder` removes a folder with its content. Renaming and moving a folder stay in `move`. A person can structure the knowledge base as they like.
 
-**Alternatives considered:** `add_folder` or `create_folder` (an agent might call them before every `add`, which wastes a call and a commit). A parameter on `folders` (a read tool must not write, and the limits cannot then tell a read from a write).
+**Alternatives considered:** One tool for reading and writing (rejected: it breaks the `allow` list of the agent tool, `readOnlyHint`, and `access = "read-only"`). One write tool with the actions `add_empty` and `remove_empty` (rejected after the product owner asked for removal with content: a bulk delete needs `destructiveHint` and its own entry in `tools_denied` and `approval.required_for`, and creating a folder must not carry them). A parameter on `folders` (a read tool must not write).
 
-**Reason:** The name says when to use it. `add` already creates the folder of a document.
+**Reason:** The two write tools have different risk, like `add` and `delete`. The name `add_empty_folder` says when to use it: `add` creates the folder of a new document by itself. This replaces an earlier idea of removing only empty folders.
+
+## `remove_folder` needs the document count — 2026-11-14
+
+**Decision (decided autonomously):** The caller must pass `expect_documents`. A wrong number fails with the real number. The call refuses while a document outside the folder links into it, like `delete`.
+
+**Alternatives considered:** A `force` flag (an agent sets it without thought). No guard (one wrong path deletes a whole area). Only empty folders (the product owner wants whole folders removed).
+
+**Reason:** The agent must look at the number first, which is what `preview` shows. A wrong path or a folder that grew since the preview is caught. Everything is one commit, so `undo` is one step.
 
 ## A folder exists with a document, a subfolder, or a `.gitkeep` — 2026-11-14
 

@@ -23,11 +23,12 @@ requires:
 
 ## Behaviour
 
-Two tools: `folders` (read) and `add_empty_folder` (write). A folder has no description. Its name must say what it holds.
+Three tools: `folders` (read), `add_empty_folder` (write), and `remove_folder` (write, destructive). Renaming or moving a folder is `move` (see `move-documents`). 
+A folder has no description. Its name must say what it holds. A person can structure the knowledge base as they like: see the folders, create one (also an empty one), rename or move one with `move`, and remove one.
 
 ### What a folder is
 
-A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `add_empty_folder` or `init` made has a `.gitkeep` and stays. A `.gitkeep` is an empty file. It is not a document: `lint`, `list`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
+A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `add_empty_folder` or `init` made has a `.gitkeep` and stays until `remove_folder` removes it. A `.gitkeep` is an empty file. It is not a document: `lint`, `list`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
 
 ### `folders` (read)
 
@@ -77,6 +78,28 @@ Creates a folder that has no document yet. An agent needs it only for an empty f
 - `undo` can revert the commit.
 - Result `data`: `{ "path", "commit", "pushed", "preview" }`.
 
+### `remove_folder` (write, destructive)
+
+Removes a folder with everything in it: all documents in it and below it, and all `.gitkeep` files. Everything goes in one commit.
+
+| Input | Type | Required |
+|---|---|---|
+| `path` | string, the folder path below the root | yes |
+| `expect_documents` | integer, at least 0: how many documents the caller expects to delete (those in the folder and in all folders below it) | yes |
+| `preview` | boolean | no |
+
+- **Count guard.** If `expect_documents` differs from the real number, the call fails with `validation_failed` and changes nothing. The message gives the real number. An empty folder needs `0`. The normal flow is a call with `preview: true`, which shows the list and the number, and then the real call with that number.
+- **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), and `count`. `next`: "Remove or replace the links with update_document, then call remove_folder again." Links between documents inside the folder are no problem, because they go away together.
+- **Limits.** The `folders` limit applies to every document inside. If a limit does not allow one, the call fails with `access_denied` and names the first document.
+- **Other files.** If the folder holds a file that is not a document and not a `.gitkeep`, the call fails with `validation_failed` and names the file.
+- **Protected.** The root and `.mkbase` cannot be removed (`validation_failed`). A path that is not a folder is `not_found`.
+- **Approval.** The question shows the path, the number, and the list of IDs (at most 50, then "and N more").
+- **Commit.** `waymark: remove folder "<path>"`. The body of the message lists the number of documents. The files stay in the Git history, and `undo` reverts the whole commit.
+- **Preview.** `preview: true` runs all checks, writes nothing, and returns `data.documents` (the IDs) and `data.folders`.
+- **Read-only access, `paused`, and `tools_denied`** work as for every write tool. A team that does not want bulk removal sets `tools_denied = ["remove_folder"]`.
+
+Result `data`: `{ "path", "documents": [<IDs>], "folders": [<paths>], "commit", "pushed", "preview" }`.
+
 `move` of a folder carries its `.gitkeep`.
 
 ## Acceptance Criteria
@@ -94,13 +117,23 @@ Creates a folder that has no document yet. An agent needs it only for an empty f
 - **Given** `access = "read-only"`, **When** `add_empty_folder` runs, **Then** it fails with `access_denied`. **Given** `paused`, **Then** it fails with `paused`.
 - **Given** `preview: true`, **When** `add_empty_folder` runs, **Then** nothing is written.
 - **Given** a folder with a `.gitkeep`, **When** `lint`, `list`, `stats`, and `search` run, **Then** the file causes no finding and is not counted.
+- **Given** a folder with documents and subfolders, **When** `remove_folder` runs with the right `expect_documents`, **Then** all documents and `.gitkeep` files are gone in one pushed commit, and `undo` brings them back.
+- **Given** a wrong `expect_documents`, **When** `remove_folder` runs, **Then** it fails with `validation_failed`, the message has the real number, and nothing changes.
+- **Given** an empty folder, **When** `remove_folder` runs with `expect_documents: 0`, **Then** the folder is gone and `folders` no longer lists it.
+- **Given** a document outside the folder that links to one inside, **When** `remove_folder` runs, **Then** it fails with `validation_failed` and `linked_from` lists the linking document.
+- **Given** documents that link only to each other inside the folder, **When** `remove_folder` runs, **Then** it succeeds.
+- **Given** a document inside that the `folders` limit does not allow, **When** `remove_folder` runs, **Then** it fails with `access_denied` and nothing changes.
+- **Given** the root or `.mkbase`, **When** `remove_folder` runs, **Then** it fails with `validation_failed`.
+- **Given** `preview: true`, **When** `remove_folder` runs, **Then** nothing is written and the result lists the documents.
+- **Given** `tools_denied = ["remove_folder"]`, **When** the client lists tools, **Then** `remove_folder` is not listed and `add_empty_folder` is.
+- **Given** `remove_folder`, **When** the client lists tools, **Then** it has `destructiveHint: true`, and `folders` has `readOnlyHint: true`.
 - **Given** `add_empty_folder`, **When** the client lists tools, **Then** its description says that `add` creates the folder of a document by itself.
 
 ## Constraints & Edge Cases
 
 - Git does not store an empty folder. That is why the folder holds a `.gitkeep`.
-- There is no tool to remove an empty folder. Someone deletes its `.gitkeep` by hand (see `todo.md`).
-- The two tool descriptions add to the context of every session. Each stays under 300 characters.
+- Removing a folder is a bulk delete by one call. The guards are the count, the links rule, the approval question, `undo`, the Git history, and `tools_denied`.
+- The three tool descriptions add to the context of every session. Each stays under 300 characters.
 - A folder name that looks like a document ID of an existing document (`ops/deploy` and a document `ops/deploy.md`) is allowed by Git, but the tool refuses it: the call fails with `validation_failed`.
 
 ## Open Questions
