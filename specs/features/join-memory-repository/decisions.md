@@ -92,6 +92,16 @@ _Superseded 2026-11-14 by "Default folder `~/.waymark/<name>`"._
 - `status` shows `memory_repository.state` always (also `cloning` and `broken`, with `reason`). The registry computes the limits at the start of a call, so the first `status` after a clone can show limits without the shared layer. The next call is right.
 - `repo_is_empty` is in `kb::layout`. `Context::kb()` returns `setup_problem` with the `init` sentence for an empty repository.
 
+## `cloning` comes from a flag, not from the lock — 2026-11-14
+
+**Decision:** `Context` has a `cloning` flag. It is true only while a real `git clone` is needed or runs. `is_cloning()` reads the flag. The repository lock still makes other tools wait.
+
+**Bug fixed:** `is_cloning()` was true whenever the background start thread held the repository lock. That thread holds it also when it only opens an existing clone (path checks, `git remote`, `git config`). `initialize` raced with it, so the instructions said "The first clone is still running." for a clone that was done. Every session start showed the message.
+
+**Alternatives considered:** Report `cloning` for any wait on the lock (rejected: it is the bug). Build the instructions after the thread ends (rejected: `initialize` would wait for a real clone). A short time-out before the instructions (rejected: a guess).
+
+**Reason:** The flag is set in `start_in_background` before the thread starts, so there is no gap in which a real clone is not flagged. Decided autonomously.
+
 ## Default folder `~/.waymark/<name>` — 2026-11-14
 
 **Supersedes:** Default folder: `~/Projects/<repository-name>`

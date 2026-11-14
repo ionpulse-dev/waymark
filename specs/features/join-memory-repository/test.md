@@ -15,6 +15,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | **Given** the server started twice, **When** the second start ends, **Then** nothing is cloned twice. | A7 |
 | **Given** a path that holds another repository or a non-empty folder, **When** the server starts, **Then** it changes nothing and reports `setup_problem`. | A8 |
 | **Given** a clone that takes long, **When** the client connects, **Then** `initialize` answers at once and `status` shows `cloning`. | A9 |
+| **Given** a folder that is already a clone, **When** the client connects while the server opens it, **Then** the state is never `cloning`, and the instructions and `status` name the memory repository, not a running clone. | A14 |
 | **Given** the Git login gives no usable email, **When** `status` runs, **Then** the `author` check is not ok with a `fix`, and reads still work. | A10 |
 | **Given** `allowed_repo_hosts` without the host of `--repo`, **When** the server starts, **Then** it does not clone and reports `access_denied`. | A11 |
 
@@ -33,6 +34,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A11: personal `allowed_repo_hosts = ["github.com"]` and a `file://` URL: `access_denied`, and no folder is created (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A12: an empty remote (no commit): the state is `empty` and `search` returns `setup_problem` with the `init` hint (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A13: URL parsing of `https://`, `ssh://`, `git@host:path`, and `file://` forms (`src/join/url.rs`)
+- [x] [auto] A14: the first start clones. A second start finds the clone, with a `git` wrapper that sleeps 1 second on `remote` and `config`: the instructions name the memory repository and do not hold "clone", and `status` never shows `cloning` (`tests/it_join_memory_repository.rs`)
 - [ ] [manual] M1: real Git host, new Mac user or clean path. Steps: install waymark with Homebrew. Add the entry with the SSH URL of a private test repository to Claude Code. Start a session, and call `status`. Expected: the clone is at `~/.waymark/<name>`, `status` is ok, and the time from install to the first search is under 5 minutes.
 - [ ] [manual] M2: a Mac without the command line tools (or a test user without them). Steps: start a session with the entry. Call `status`. Expected: the check `git` is not ok, the fix says to install the tools, and the Apple dialog does not block the agent tool.
 

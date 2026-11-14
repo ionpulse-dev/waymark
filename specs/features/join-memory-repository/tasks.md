@@ -10,4 +10,5 @@
 - [x] `mcp-server`: call `join::start` in `main.rs`, and use the state in `mcp::context` (all tools except `status` wait for it).
 - [x] `status`: show the state (fields in `maintenance`).
 - [x] `tests/it_join_memory_repository.rs`: the acceptance criteria.
+- [x] `mcp::context`: the state `cloning` comes from a flag that is set only when a real clone is needed (bug: opening an existing clone showed `cloning`). Test A14.
 - [x] Run the full suite.

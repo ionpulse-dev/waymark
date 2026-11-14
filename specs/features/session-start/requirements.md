@@ -32,7 +32,7 @@ The instructions hold:
 
 The same facts are in the `status` tool, which an agent or a person can call at any time. Every tool result also carries the current `settings`, so a change of a limit applies at once.
 
-- The instructions are made once, at `initialize`, from local data only. They make no network call and never wait for a pull. A first clone (see `project-binding`) happens before `initialize`.
+- The instructions are made once, at `initialize`, from local data only. They make no network call and never wait for a pull or for a clone. A first clone runs in the background (see `join-memory-repository`). An existing clone is never reported as a running clone, so the instructions name the memory repository.
 - The instructions say "at session start". Later changes show in `settings` and `notices` of each result.
 - Whether the agent tells the person, and what it does first in a session, is the choice of the team, in its `AGENTS.md`.
 - The summary only informs. Every tool checks the same limits itself, so an ignored summary cannot allow a forbidden action.
@@ -138,6 +138,7 @@ A notice is a plain sentence. These can exist at start, from local data:
 - **Given** the instructions, **When** they are read, **Then** they hold no advice on when to read or write.
 - **Given** writes are paused, **When** a client connects, **Then** the instructions and a notice say so.
 - **Given** an agent that ignores the instructions, **When** it runs a write, **Then** the server still enforces all limits.
+- **Given** a memory repository that is already cloned, **When** a client connects, **Then** the instructions never say that a clone is running.
 - **Given** no memory repository is set up, **When** a client connects, **Then** the instructions say so and `status` shows how to fix it.
 - **Given** a limit changes during a session, **When** any tool runs, **Then** `settings` in the result shows the new value.
 - **Given** a remote that is not reachable, **When** a client connects, **Then** `initialize` still answers at once.

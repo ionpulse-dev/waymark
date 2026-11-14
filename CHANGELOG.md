@@ -2,6 +2,12 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.3.1 (2026-11-15)
+
+One fix. At the start of every session, the instructions said "No memory repository is set up: The first clone is still running.", also when the memory repository was already cloned. The server mixed up opening an existing clone with a real clone. Now the state `cloning` shows only while a real clone runs, so the instructions name your memory repository at once.
+
+What to do: update with `brew upgrade waymark` and restart your agent tool.
+
 ## 0.3.0 (2026-11-14)
 
 Two changes. You must act on the first one if your entry has no `--repo` or `--path`, or if you relied on the old clone folder.

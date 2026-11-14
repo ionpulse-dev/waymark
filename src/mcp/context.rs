@@ -6,6 +6,7 @@ use crate::error::{Error, Result};
 use crate::gitsync::{Author, Repo};
 use crate::memrepo::MemRepo;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 /// The state of the server after the start (see `join-memory-repository`).
@@ -46,6 +47,18 @@ pub struct Context {
     pub notices: crate::notices::NoticeBook,
     /// The last error text that a tool returned in this session (see `maintenance`).
     session_error: Mutex<Option<String>>,
+    /// True only while a real clone is needed or runs. Opening an existing clone does not set it,
+    /// although it holds the `repo` lock too (see `join-memory-repository`).
+    cloning: AtomicBool,
+}
+
+/// Clears the `cloning` flag when the open ends, also on an early return or a panic.
+struct CloneFlag<'a>(&'a AtomicBool);
+
+impl Drop for CloneFlag<'_> {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
 }
 
 /// The limits for one call, and the problem that stopped them from loading, if any.
@@ -70,6 +83,7 @@ impl Context {
             opened: Mutex::new(std::collections::HashSet::new()),
             notices: crate::notices::NoticeBook::default(),
             session_error: Mutex::new(None),
+            cloning: AtomicBool::new(false),
         }
     }
 
@@ -161,11 +175,13 @@ impl Context {
     }
 
     /// Is the first clone running now? `status` and `initialize` never wait for it.
+    /// The lock alone is not the answer: it is held also while an existing clone is opened.
     pub fn is_cloning(&self) -> bool {
-        matches!(
-            self.repo.try_lock(),
-            Err(std::sync::TryLockError::WouldBlock)
-        )
+        self.cloning.load(Ordering::SeqCst)
+            && matches!(
+                self.repo.try_lock(),
+                Err(std::sync::TryLockError::WouldBlock)
+            )
     }
 
     /// The state of the memory repository, without waiting (see `join-memory-repository`).
@@ -192,6 +208,10 @@ impl Context {
         if self.args.repo.is_none() {
             return;
         }
+        // Set the flag before the thread starts, so that no call sees a real clone as not running.
+        if super::binding::locate(&self.args).is_ok_and(|f| f.clone_url.is_some()) {
+            self.cloning.store(true, Ordering::SeqCst);
+        }
         let ctx = self.clone();
         std::thread::spawn(move || {
             let _ = ctx.repo();
@@ -200,6 +220,10 @@ impl Context {
 
     fn open_repo(&self) -> Result<Arc<Repo>> {
         let found = super::binding::locate(&self.args)?;
+        // Also set for a clone that a tool call starts, and cleared on every way out.
+        let _flag = CloneFlag(&self.cloning);
+        self.cloning
+            .store(found.clone_url.is_some(), Ordering::SeqCst);
         let limit = self.limits(None);
         let effective = &limit.effective;
         // A missing author does not stop reads. A write resolves and checks it again.

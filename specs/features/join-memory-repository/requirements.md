@@ -51,7 +51,7 @@ The **state** of the server after the start is one of:
 
 | State | Meaning | What works |
 |---|---|---|
-| `cloning` | The first clone runs. | `status`. Other tools wait up to 60 seconds, then return `setup_problem`: "The first clone is still running. Call again in a minute." |
+| `cloning` | The first clone runs now. Only a real `git clone` makes this state. Opening a folder that is already a clone is quick local work, and never shows `cloning`. | `status`. Other tools wait up to 60 seconds, then return `setup_problem`: "The first clone is still running. Call again in a minute." |
 | `ready` | A memory repository was found. | All tools. |
 | `empty` | The repository has no commit, or holds only files that a Git host creates (`README.md`, `README`, `LICENSE`, `LICENSE.md`). See `create-memory-repository`. | `status`, and `init` (see `create-memory-repository`). Other tools return `setup_problem` with the `next` sentence "This repository is empty. Call `init`." |
 | `not_a_memory_repository` | The repository has files but no `.waymark` folder. | `status`. Others return `setup_problem`. |
@@ -98,6 +98,7 @@ The MCP entry is the interface (see `mcp-server`). There is no `setup` command a
 - **Given** the server started twice, **When** the second start ends, **Then** nothing is cloned twice.
 - **Given** a path that holds another repository or a non-empty folder, **When** the server starts, **Then** it changes nothing and reports `setup_problem`.
 - **Given** a clone that takes long, **When** the client connects, **Then** `initialize` answers at once and `status` shows `cloning`.
+- **Given** a folder that is already a clone, **When** the client connects while the server opens it, **Then** the state is never `cloning`, and the instructions and `status` name the memory repository, not a running clone.
 - **Given** the Git login gives no usable email, **When** `status` runs, **Then** the `author` check is not ok with a `fix`, and reads still work.
 - **Given** `allowed_repo_hosts` without the host of `--repo`, **When** the server starts, **Then** it does not clone and reports `access_denied`.
 

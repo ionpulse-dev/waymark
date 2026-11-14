@@ -326,3 +326,28 @@ fn a12_an_empty_repository_is_the_empty_state() {
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.json["next"].as_str().unwrap().contains("init"));
 }
+
+#[test]
+fn a14_existing_clone_is_never_cloning() {
+    let w = World::new();
+    let h = home(&w, "h14");
+    let u = url(&w);
+    // The first start clones.
+    let mut c = start(&h, &["--repo", &u]);
+    let s = wait_state(&mut c);
+    assert_eq!(s["memory_repository"]["state"], "ready", "{s}");
+    drop(c);
+    // The second start only opens the clone. Slow local Git calls keep the open running.
+    let env = fake_git(
+        &w,
+        "fake14",
+        "#!/bin/sh\ncase \"$*\" in *remote*|*config*) sleep 1;; esac\nexec REAL_GIT \"$@\"\n",
+    );
+    let c = start_with(&h, &["--repo", &u], true, env);
+    let text = c.initialize_result["instructions"].as_str().unwrap();
+    assert!(text.contains("Memory repository:"), "{text}");
+    assert!(!text.to_lowercase().contains("clone"), "{text}");
+    let mut c = c;
+    let s = status(&mut c);
+    assert_ne!(s["memory_repository"]["state"], "cloning", "{s}");
+}

@@ -12,6 +12,7 @@ _The tests use the harness of `integration-testing`. The `McpClient` returns the
 | **Given** the instructions, **When** they are read, **Then** they hold no advice | `instructions_have_no_advice` |
 | **Given** writes are paused, **When** a client connects, **Then** the instructions and a notice say so | `paused_in_instructions_and_notice` |
 | **Given** an agent that ignores the instructions, **When** it runs a write, **Then** the limits still apply | `limits_hold_without_instructions` |
+| **Given** a memory repository that is already cloned, **When** a client connects, **Then** the instructions never say that a clone is running | A14 of `join-memory-repository` |
 | **Given** no memory repository is set up, **When** a client connects, **Then** the instructions say so and `status` shows the fix | `unbound_instructions_and_status` |
 | **Given** a limit changes during a session, **When** any tool runs, **Then** `settings` shows the new value | `settings_follow_changes` |
 | **Given** a remote that is not reachable, **When** a client connects, **Then** `initialize` answers at once | `initialize_needs_no_network` |
