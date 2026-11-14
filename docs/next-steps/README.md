@@ -4,7 +4,7 @@ Everything that is left to do for the first release is in this folder or one com
 
 | What | Where |
 |:--|:--|
-| Steps to publish: public repository, tap, tag, checksum, real `brew install`, signing | [release-checklist.md](release-checklist.md) |
+| Release status: what is done, what is left, and how to cut the next release | [release-checklist.md](release-checklist.md) |
 | Result of the scan for secrets and private details, before going public | [public-readiness.md](public-readiness.md) |
 | Project-level open questions (trademark, contributions, skills home, Obsidian version, CI) | [open-questions.md](open-questions.md) |
 | What comes after the first release (dogfooding, server mode, pilot) | [roadmap.md](roadmap.md) |

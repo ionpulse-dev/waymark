@@ -1,62 +1,40 @@
 # Release checklist
 
-Everything here is prepared and not done. The product owner runs these steps. Nothing in this list ran.
+Release 0.1.0 is published (2026-11-14). The steps below show what is done and what is left.
 
-## Before you start
+## Done
 
-```bash
-make check
-bash scripts/public-check.sh
-```
+- [x] Repository `ionpulse-dev/waymark` is public.
+- [x] Tap `ionpulse-dev/homebrew-tap` exists, with `Formula/waymark.rb` and a README.
+- [x] Tag `v0.1.0` is pushed. The GitHub release holds the archive and its `.sha256`, built by hand with `scripts/package.sh`.
+- [x] The formula has the real version and checksum.
+- [x] `brew audit --strict --new ionpulse-dev/tap/waymark` exits with 0.
+- [x] Real install (H8): `brew install ionpulse-dev/tap/waymark` works, and `waymark --version` prints `0.1.0`.
 
-Check that `git status` is clean and `main` is pushed.
+## Left
 
-## 1. Make the repository public
+- [ ] Run the manual tests with real agent tools (`make manual-tests`). Add the MCP entry from `docs/install.md` first.
+- [ ] Choose a license for the tap repository. It has no LICENSE file.
+- [ ] Check the trademark and the domains of the name (roadmap, phase 5).
+- [ ] Decide how to handle outside contributions.
+- [ ] Check the sample vault in Obsidian (`standard/conformance/vault`).
+- [ ] Rename `.github/workflows/release.yml.disabled` to `release.yml` once you want releases built by CI. The workflow is untested.
 
-1. Check the trademark and the domains of the name (roadmap, phase 5).
-2. Decide how to handle outside contributions.
-3. Check the sample vault in Obsidian (`standard/conformance/vault`).
-4. In GitHub: Settings, General, Danger Zone, "Change visibility", Public.
+## For the next release
 
-## 2. Create the tap repository
+1. Set the version in `Cargo.toml`, run `make check`, commit, push.
+2. Build and publish:
 
-```bash
-gh repo create ionpulse-dev/homebrew-tap --public --description "Homebrew formulas"
-```
+   ```bash
+   bash scripts/package.sh
+   git tag vX.Y.Z && git push origin vX.Y.Z
+   gh release create vX.Y.Z dist/*.tar.gz dist/*.sha256 --generate-notes
+   ```
 
-The tap holds only `Formula/waymark.rb` and a short README.
-
-## 3. Tag and build the release
-
-Set the version in `Cargo.toml`, commit, then:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-To use the workflow, rename `.github/workflows/release.yml.disabled` to `release.yml` first. Or build by hand:
-
-```bash
-bash scripts/package.sh
-gh release create v0.1.0 dist/*.tar.gz dist/*.sha256 --generate-notes
-```
-
-## 4. Update the formula
-
-Copy `packaging/homebrew/waymark.rb` to `Formula/waymark.rb` in the tap. Replace `VERSION` and `SHA256` (the value in `dist/*.sha256`). Commit and push.
-
-## 5. Test the real install (H8)
-
-```bash
-brew install ionpulse-dev/tap/waymark
-waymark --version
-```
-
-Then add the MCP entry from `docs/install.md` and run the open manual tests (`make manual-tests`).
+3. In the tap, copy `packaging/homebrew/waymark.rb` to `Formula/waymark.rb`, replace `VERSION` and `SHA256`, commit, push.
+4. Check with `brew upgrade waymark` and `waymark --version`.
 
 ## Not covered
 
 - Signing and notarization need a developer identity. Without it the formula installs an unsigned binary. Homebrew installs are not quarantined, so no Gatekeeper warning shows.
-- A test that `brew audit --strict --new` passes needs the public homepage URL (it returned 404 before the repository was public).
 - Linux and the container image are out of scope for local mode.
