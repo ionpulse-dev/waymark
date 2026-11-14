@@ -10,6 +10,8 @@ pub mod lint;
 pub mod list;
 pub mod move_documents;
 pub mod read_common;
+pub mod reject;
+pub mod review;
 pub mod search;
 pub mod show;
 pub mod stats;
@@ -17,6 +19,7 @@ pub mod status;
 pub mod sync;
 pub mod undo;
 pub mod update_document;
+pub mod verify;
 
 use crate::mcp::tool::{Registry, Tool};
 
@@ -34,6 +37,9 @@ pub fn registry() -> Registry {
         Box::new(move_documents::Move),
         Box::new(activity::Activity),
         Box::new(undo::Undo),
+        Box::new(verify::Verify),
+        Box::new(reject::Reject),
+        Box::new(review::Review),
         Box::new(add::Add),
         Box::new(update_document::UpdateDocument),
         Box::new(dispute::Dispute),

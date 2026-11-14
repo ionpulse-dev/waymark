@@ -15,3 +15,8 @@
 ## Open Questions
 
 - None for the product owner.
+
+## Done in the implementation (2026-11-14)
+
+- All `[auto]` cases pass in `tests/it_verification.rs`. The approval case (`verify_asks_approval`) waits for `write-approval` (`#[ignore]`).
+- The `[manual]` Obsidian check is for the product owner.

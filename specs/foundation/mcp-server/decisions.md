@@ -94,3 +94,9 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Decision:** A tool that does not exist (and a verification tool when verification is off) is a protocol error "Unknown tool". A tool that exists but a limit hides gives a tool error with `access_denied` or `paused`, a message, and a `next` sentence. Both are tested.
 
 **Reason:** The agent learns why a tool is missing and cannot guess a hidden control tool. Decided autonomously.
+
+## A direct call of a verification tool is `access_denied` — 2026-11-14
+
+**Decision (decided autonomously):** When verification is off, `verify`, `review`, and `reject` are not listed, and a direct call returns `access_denied` with the `next` sentence "The owner turns it on with verification = true in .mkbase/waymark.toml." This replaces the earlier choice that such a call is an unknown tool (code -32602). The tools that the limits hide (`tools_denied`, read-only) are unchanged.
+
+**Reason:** The `verification` spec says a direct call gives `access_denied`. A tool-level error tells the agent more than a protocol error. Found while implementing `verification`.

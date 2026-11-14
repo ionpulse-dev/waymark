@@ -18,15 +18,15 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 ## Test Cases
 
-- [ ] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_verification.rs`)
-- [ ] [auto] The `verify` commit is `waymark: update "<title>"` with the body line `Trust: verified` (`tests/it_verification.rs`)
-- [ ] [auto] The `reject` commit is `waymark: deprecate "<title>"` with `Reason:` and `Trust: rejected`, and `verified_by` and `verified` are gone (`tests/it_verification.rs`)
-- [ ] [auto] `verify` twice, on a deprecated document, and with an old `base` each fail with the right code (`tests/it_verification.rs`)
-- [ ] [auto] A document without `trust` shows in `review` as unverified (`tests/it_verification.rs`)
-- [ ] [auto] `review` respects `folder`, `limit`, `total`, and the `folders` limit (`tests/it_verification.rs`)
-- [ ] [auto] `dispute` and `deprecate` keep a verified mark (`tests/it_verification.rs`)
-- [ ] [auto] With verification turned off again, trust fields stay in the files and `add` stops setting `trust` (`tests/it_verification.rs`)
-- [ ] [auto] `undo` of a `verify` restores the document (`tests/it_verification.rs`, needs `activity-and-undo`; `#[ignore]` until then)
+- [x] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_verification.rs`). The approval case is `#[ignore]` until `write-approval`.
+- [x] [auto] The `verify` commit is `waymark: update "<title>"` with the body line `Trust: verified` (`tests/it_verification.rs`)
+- [x] [auto] The `reject` commit is `waymark: deprecate "<title>"` with `Reason:` and `Trust: rejected`, and `verified_by` and `verified` are gone (`tests/it_verification.rs`)
+- [x] [auto] `verify` twice, on a deprecated document, and with an old `base` each fail with the right code (`tests/it_verification.rs`)
+- [x] [auto] A document without `trust` shows in `review` as unverified (`tests/it_verification.rs`)
+- [x] [auto] `review` respects `folder`, `limit`, `total`, and the `folders` limit (`tests/it_verification.rs`)
+- [x] [auto] `dispute` and `deprecate` keep a verified mark (`tests/it_verification.rs`)
+- [x] [auto] With verification turned off again, trust fields stay in the files and `add` stops setting `trust` (`tests/it_verification.rs`)
+- [x] [auto] `undo` of a `verify` restores the document (`tests/it_verification.rs`)
 - [ ] [manual] Obsidian shows the trust fields. Steps: turn verification on in `.mkbase/waymark.toml`, run `verify` through a real agent tool, open the document in Obsidian. Expected: the Properties panel shows `trust`, `verified_by`, and `verified` without errors.
 
 ## Notes

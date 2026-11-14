@@ -68,3 +68,12 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Folder owners now (rejected: needs an owner list that does not exist, and server mode is out of scope).
 
 **Reason:** Answers the open question without building server-mode parts. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **Direct calls when verification is off** give `access_denied` from the registry, because the three tools have `needs_verification() = true`. See `mcp-server` `decisions.md` (this replaces "unknown tool" for these tools).
+- **`verify` and `reject`** use `writes::execute` like the other write tools. The commit body lines are `Trust: verified`, and `Reason: <reason>` with `Trust: rejected`. The reason of `reject` is scanned for secrets.
+- **`review` is a read tool** without the read budget. It needs one `git log` per listed entry for `version` (at most 50).
+- **Undo of a verify** works through `undo` (tested). The undo of a verify that a later update changed needs the later change undone first.

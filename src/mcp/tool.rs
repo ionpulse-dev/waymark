@@ -97,14 +97,24 @@ impl Registry {
             .find(|t| t.name() == name)
             .ok_or_else(|| UnknownTool(name.to_string()))?;
         let (env, verification, mut notices) = self.env(ctx);
-        if tool.needs_verification() && !verification {
-            return Err(UnknownTool(name.to_string()));
-        }
         let settings = env.effective.to_json();
         let fail = |e: Error, notices: &[String]| Outcome {
             json: error_json(&e, Some(settings.clone()), notices),
             is_error: true,
         };
+        // A tool of verification is not listed when verification is off. A direct call is denied.
+        if tool.needs_verification() && !verification {
+            return Ok(fail(
+                Error::new(
+                    Code::AccessDenied,
+                    "Verification is off in this knowledge base.",
+                )
+                .with_next(
+                    "The owner turns it on with verification = true in .mkbase/waymark.toml.",
+                ),
+                &notices,
+            ));
+        }
 
         if !tool.always_listed() {
             if let Some(p) = &env.problem {
@@ -231,9 +241,11 @@ mod tests {
     }
 
     #[test]
-    fn a_verification_tool_is_unknown_when_verification_is_off() {
+    fn a_verification_tool_is_denied_when_verification_is_off() {
         let c = ctx(&[]);
-        assert!(registry().call(&c, "verify", json!({})).is_err());
+        let out = registry().call(&c, "verify", json!({})).unwrap();
+        assert!(out.is_error);
+        assert_eq!(out.json["code"], "access_denied");
     }
 
     #[test]
