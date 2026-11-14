@@ -2,11 +2,13 @@
 
 ## Vision
 
-Waymark is an automated, AI-driven knowledge base and memory for AI agents
-and the people who use them. It serves companies, teams, and private
-people. The knowledge is plain Markdown in a Git repository that the owner
-controls. Unlike the memory of an AI vendor, the memory is yours, it is shared
-between all your AI tools, and it has a history and an undo.
+Waymark is long-term agent memory: memory that outlives the short context
+window of an agent. It serves companies, teams, and private people. The memory
+is plain Markdown in a Git repository that the owner controls. Unlike the
+memory of an AI vendor, it is yours, it is shared between all your AI tools,
+and it has a history and an undo. What it holds is up to the owner: a team
+memory repository, the personal memory of one person, or what a long-running agent
+leaves for its next session.
 
 Waymark is one program: an MCP server. Agent tools use it through MCP, on the
 person's own computer or on a shared server that anyone can host.
@@ -25,7 +27,7 @@ right document in seconds and uses little context.
 
 ### Team member without Git knowledge
 
-Uses an AI agent but does not know Git. Wants to read and add knowledge
+Uses an AI agent but does not know Git. Wants to read and add documents
 without ever seeing a branch or a merge conflict. IT prepares the Git login.
 Success: adds one MCP entry, and everything else works. On a shared server, the
 person signs in and approves writes in a web page.
@@ -35,10 +37,10 @@ person signs in and approves writes in a web page.
 Wants one memory for all their AI tools, in a repository they own. Success:
 switching the AI tool does not lose what the agents learned.
 
-### Knowledge base owner
+### Memory owner
 
-The first person of a company or team. Creates the knowledge base and sets the
-shared limits. Success: new people join in a few minutes and the knowledge base
+The first person of a company or team. Creates the memory repository and sets the
+shared limits. Success: new people join in a few minutes and the memory
 stays clean.
 
 ### Operator
@@ -50,12 +52,15 @@ _A single user may play more than one persona._
 
 ## Core Concepts
 
-### Knowledge base
+### Memory repository
 
-One Git repository with Markdown documents. It has its own repository (the
-content repository), separate from this project. It holds shared settings in a
-`.waymark/settings.toml` file and an `AGENTS.md` with plain-Git rules for agents
-that cannot use the MCP server. Every knowledge base is a valid Obsidian vault.
+One Git repository with Markdown documents. It is the container of the memory.
+It is separate from the code repository of this project. It holds shared
+settings in a `.waymark/settings.toml` file and an `AGENTS.md` with plain-Git
+rules for agents that cannot use the MCP server. Every memory repository is a
+valid Obsidian vault. A team can use one as its memory repository, a person as a
+personal memory, or an agent as its working memory (see the
+[terminology spec](foundation/terminology/requirements.md)).
 
 ### Document
 
@@ -106,8 +111,8 @@ undo it, review disputes, and pause writes.
 
 ### Project binding
 
-A project uses one knowledge base through a project-level MCP entry that names
-the repository. One server process serves exactly one knowledge base.
+A project uses one memory repository through a project-level MCP entry that names
+the repository. One server process serves exactly one memory repository.
 
 The long-term goal is a building block for a software factory, where agents do more of the delivery work with the right context.
 
@@ -137,7 +142,7 @@ The long-term goal is a building block for a software factory, where agents do m
 ## Scope
 
 **In scope:**
-- The knowledge base format and its rules: the Waymark Memory Standard in
+- The memory repository format and its rules: the Waymark Memory Standard in
   `standard/`, with its conformance fixtures.
 - The `waymark` binary (Rust): the MCP server, local mode and server mode.
 - Sign-in, roles, Git credentials, tenancy, and the audit log of server mode.
@@ -151,7 +156,7 @@ The long-term goal is a building block for a software factory, where agents do m
 - A desktop app.
 - Background or cloud agents. Every agent action happens in a session that a
   person starts or a person's login on a server.
-- Binary data in the knowledge base. A document describes it and links to it.
+- Binary data in the memory repository. A document describes it and links to it.
 - A wiki backend such as Confluence. Storage is Markdown in Git only.
 - Operating a service. The project ships the software and a deploy guide. Who
   runs a server is not decided here.
@@ -165,7 +170,7 @@ Its home after `waymark-trail` is retired is open (see the open questions).
 _Capabilities intentionally deferred. No specs exist yet — this section is a reminder only._
 
 - `connect-git-account` — a console page where an owner connects a Git account, with tokens stored encrypted.
-- `knowledge-browser` — a window to search and read documents without an agent.
+- `memory-browser` — a window to search and read documents without an agent.
 - `pull-request-gate` — approval of a write by a second person.
 - `anchor-check` — flag documents whose anchored code changed.
 - `message-channels` — email or webhook messages from a server.

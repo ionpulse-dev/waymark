@@ -56,8 +56,8 @@ One command sets up a new Mac for work on waymark, and a small set of commands c
 | `lint` | `cargo fmt --check` and `cargo clippy` with warnings as errors. |
 | `check` | `lint`, `test-all`, and `spec-check`. Run before each commit. |
 | `spec-check` | Check the spec folders (see below). |
-| `run` | Start the server on a sample knowledge base. |
-| `sample-kb` | Create a temporary sample knowledge base in `tmp/`. |
+| `run` | Start the server on a sample memory repository. |
+| `sample-memory` | Create a temporary sample memory repository in `tmp/`. |
 | `brew-local` | Install the binary from a local tap (see `distribution`). |
 | `clean` | Remove build output and `tmp/` test data. |
 

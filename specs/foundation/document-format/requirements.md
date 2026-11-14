@@ -9,7 +9,7 @@ updated: 2026-11-14
 
 ## Technical Goal
 
-Define what one document of a knowledge base looks like, so that every person, agent, and tool reads and writes it the same way. A knowledge base is a folder of Markdown files that is also a valid Obsidian vault.
+Define what one document of a memory repository looks like, so that every person, agent, and tool reads and writes it the same way. A memory repository is a folder of Markdown files that is also a valid Obsidian vault.
 
 The format is defined by the [Waymark Memory Standard 1.0](../../../standard/waymark-1.0.md). The standard is part of this project. It lives in `standard/` in this repository, together with its conformance fixtures, and it is maintained here. Any other tool may use it. This item implements the standard. If the two differ, the standard wins, and this item changes to match. A format change is made in the standard first.
 
@@ -63,11 +63,11 @@ The format is defined by the [Waymark Memory Standard 1.0](../../../standard/way
 | `related` | no | List of full-path wikilinks: read these too. |
 | `supersedes` | no | List of full-path wikilinks: this document replaces an older one. The older one becomes `deprecated`. |
 | `anchors` | no | List of strings `"<type>:<target>"` that point to the file or page the document describes. Types: `git` (`<repo>/<path>@<commit>`) and `url`. |
-| `trust`, `verified_by`, `verified` | no | Only when the knowledge base turns on verification. `trust` is `unverified` or `verified`. |
+| `trust`, `verified_by`, `verified` | no | Only when the memory repository turns on verification. `trust` is `unverified` or `verified`. |
 
 ### Document ID and links
 
-- The ID of a document is its path below the root of the knowledge base without `.md`. The root is the folder that contains the marker folder `.waymark` (in a waymark repository: `agent-memory/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
+- The ID of a document is its path below the root of the memory repository without `.md`. The root is the folder that contains the marker folder `.waymark` (in a waymark repository: `agent-memory/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - A link to a document that does not exist is a finding. In a property (`related`, `supersedes`) it is an error, and a write through waymark fails. In the body it is a warning, and the write goes through. The standard only says a link SHOULD point to an existing document, so this severity is a waymark rule.

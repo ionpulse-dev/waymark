@@ -17,7 +17,7 @@ impl Tool for Reject {
     }
 
     fn description(&self) -> &'static str {
-        "Rejects a document: sets its status to deprecated, clears its trust, and keeps the file. The reason goes into the commit message. Exists only when the knowledge base uses verification."
+        "Rejects a document: sets its status to deprecated, clears its trust, and keeps the file. The reason goes into the commit message. Exists only when the memory repository uses verification."
     }
 
     fn kind(&self) -> Kind {
@@ -50,7 +50,10 @@ impl Tool for Reject {
             .trim()
             .to_string();
         let preview = writes::get_bool(&args, "preview");
-        writes::check_reason(&reason, ctx.memrepo()?.settings.documents.description_max_words)?;
+        writes::check_reason(
+            &reason,
+            ctx.memrepo()?.settings.documents.description_max_words,
+        )?;
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();

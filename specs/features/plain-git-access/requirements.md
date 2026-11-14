@@ -13,7 +13,7 @@ requires:
 
 ## User Story
 
-> As a person, I want to open my knowledge base repository in any agent session and have the agent read and write it safely with ordinary Git, so that I can use it on the web or on my phone without installing anything, and so that agents without MCP support can still use it.
+> As a person, I want to open my memory repository repository in any agent session and have the agent read and write it safely with ordinary Git, so that I can use it on the web or on my phone without installing anything, and so that agents without MCP support can still use it.
 
 ## Personas
 
@@ -22,7 +22,7 @@ requires:
 
 ## Behaviour
 
-Every content repository has an `AGENTS.md` in its root. The `init` tool writes it (see `create-memory-repository`). It always contains the plain-Git rules. These are a copy of a standalone skill. The skills live in the folder `plain-git/` of this repository (see `decisions.md`). `init` copies `personal-agent-memory` for `audience: personal` and `team-agent-memory` for `audience: team`. The skill works on any Git repository of Markdown documents. It does not need `.waymark/settings.toml` or the waymark program.
+Every memory repository has an `AGENTS.md` in its root. The `init` tool writes it (see `create-memory-repository`). It always contains the plain-Git rules. These are a copy of a standalone skill. The skills live in the folder `plain-git/` of this repository (see `decisions.md`). `init` copies `personal-agent-memory` for `audience: personal` and `team-agent-memory` for `audience: team`. The skill works on any Git repository of Markdown documents. It does not need `.waymark/settings.toml` or the waymark program.
 
 The file has two modes:
 
@@ -37,12 +37,12 @@ waymark depends on the skill, never the other way. waymark pins a version of the
 
 ### The text of `AGENTS.md`
 
-The file has four parts: an introduction, an optional team part, the plain-Git rules between two marker lines, and a part for the team's own rules. The introduction is this text (the file `src/kb/templates/agents-intro.md`):
+The file has four parts: an introduction, an optional team part, the plain-Git rules between two marker lines, and a part for the team's own rules. The introduction is this text (the file `src/memrepo/templates/agents-intro.md`):
 
 ```markdown
 # Rules for agents
 
-This repository is a knowledge base: Markdown documents for people and AI agents. The documents are in the folder `agent-memory/`.
+This repository is a memory repository: Markdown documents for people and AI agents. The documents are in the folder `agent-memory/`.
 
 ## Which rules apply
 
@@ -56,7 +56,7 @@ For `audience: team` with `email_domains`, a part follows: `## Team settings`, a
 ```markdown
 ## Plain-Git rules
 
-<!-- plain-git-rules begin: team-agent-memory 1.5.1 -->
+<!-- plain-git-rules begin: team-agent-memory 1.6.0 -->
 (the text of plain-git/team-agent-memory/SKILL.md, without its frontmatter and without its section "Update of this skill")
 <!-- plain-git-rules end -->
 
@@ -69,7 +69,7 @@ The marker line names the skill and its version. The version in the example is t
 
 ## Interfaces & Contracts
 
-There is no tool. The contract is the text above and the function `kb::agents_file::render(audience, email_domains) -> String` that `init` calls. The files of the folder `plain-git/` are the source of the rules (see `plan.md`).
+There is no tool. The contract is the text above and the function `memrepo::agents_file::render(audience, email_domains) -> String` that `init` calls. The files of the folder `plain-git/` are the source of the rules (see `plan.md`).
 
 ## Acceptance Criteria
 
@@ -85,7 +85,7 @@ There is no tool. The contract is the text above and the function `kb::agents_fi
 
 - Without the MCP server the agent could ignore the rules. This is a fallback channel, not the main path.
 - The plain Claude chat tab and non-GitHub hosts are not verified for this mode.
-- Commits of the plain-Git rules use the message form `kb: add "<title>"`. Commits of the waymark tools use `waymark: add "<title>"`. A history can hold both (see `todo.md`).
+- Commits of the plain-Git rules use the message form `memory: add "<title>"`. Commits of the waymark tools use `waymark: add "<title>"`. A history can hold both (see `todo.md`).
 - The plain-Git rules of the team skill block the example domains in the author email (`example.com`, `example.org`, `example.net`). The waymark check does not block them by default (see `login-and-identity`).
 - The size of `AGENTS.md` is about 20 KB. Some agent tools read only the first part of such a file. The introduction is first for this reason.
 

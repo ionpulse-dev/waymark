@@ -56,11 +56,11 @@ client ⇄ MCP over HTTPS ⇄ [ identity | tenancy | policy | credentials | audi
 ```
 
 - **Identity.** Single sign-on (OIDC or SAML) for organizations. Email or Git host login for private people.
-- **Tenancy.** Each organization has its own knowledge bases, settings, and limits. Nothing is visible across tenants.
+- **Tenancy.** Each organization has its own memory repositories, settings, and limits. Nothing is visible across tenants.
 - **Git credentials.** A GitHub App installed on the organization is the preferred model: short-lived, scoped to chosen repositories, and no pasted tokens. A deploy key or a fine-grained token also works for a small setup.
 - **Commit author.** The commit author is the person who used the agent, taken from the login. The push credential only proves that the server may write. The two are separate.
-- **Authorization.** Who may read or write which knowledge base.
-- **Workspace.** One cache clone per knowledge base, with a write lock.
+- **Authorization.** Who may read or write which memory repository.
+- **Workspace.** One cache clone per memory repository, with a write lock.
 - **Audit log.** Who did what, and when.
 - **Web console.** A web page for approval of writes, the activity list, and undo. The person signs in separately, so the agent cannot answer it. It replaces the macOS app.
 
@@ -90,7 +90,7 @@ A ceiling is the most that the server ever allows. Layers, from loosest to stric
 |---|---|---|
 | MCP config of the user | The person | A safety default. An agent with file access could edit the file for the next session. |
 | Managed MCP config | IT, pushed to desktops | Stronger, if the agent tool supports managed config (to be verified) |
-| Shared file in the knowledge base (`.waymark/settings.toml`) | The team owner | The server refuses to change this file through its tools |
+| Shared file in the memory repository (`.waymark/settings.toml`) | The team owner | The server refuses to change this file through its tools |
 | Server config (server mode) | The operator | Hard. The user cannot touch it. |
 
 **The strictest layer wins.** A layer can tighten a limit and never loosen it. In server mode the client config can never be the ceiling, because the user controls it. The server enforces limits by user or role.
@@ -138,7 +138,7 @@ Done on 2026-11-11. All specs are `draft`.
 
 ## Open questions
 
-- How does the server find the knowledge base: the working folder, the MCP roots, or a flag?
+- How does the server find the memory repository: the working folder, the MCP roots, or a flag?
 - A read budget per session needs state in the server. How does this fit the earlier "no server state" rule?
 - Do Claude Code, GitHub Copilot, and OpenAI Codex all support remote MCP servers, managed MCP config, and per-tool permission prompts? Verify against current documentation.
 - Are documents also offered as MCP resources, besides the tools?

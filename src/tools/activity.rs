@@ -68,10 +68,10 @@ impl Tool for Activity {
                 .iter()
                 .position(|c| c.hash.starts_with(b) || b.starts_with(&c.short))
             else {
-                return Err(
-                    Error::invalid("\"before\" is not a commit of this knowledge base.")
-                        .with_next("Use a commit from an earlier activity result."),
-                );
+                return Err(Error::invalid(
+                    "\"before\" is not a commit of this memory repository.",
+                )
+                .with_next("Use a commit from an earlier activity result."));
             };
             entries.retain(|e| e.index > pos);
         }

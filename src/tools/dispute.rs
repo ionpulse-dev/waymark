@@ -80,7 +80,8 @@ impl Tool for Dispute {
                     ));
                 }
                 let mut problems = writes::Problems::default();
-                let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
+                let custom =
+                    crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
                 for hit in crate::lint::secrets::scan(r, &custom) {
                     problems.add(
                         format!(

@@ -13,10 +13,10 @@
 <br/>
 
 
-An automated, AI-driven knowledge base and memory for AI agents and the
-people who use them. For companies, teams, and you alone. Plain Markdown in
-your own Git repository. One program, an MCP server, that runs on your
-computer or on a shared server that anyone can host.
+**Long-term agent memory.** Plain Markdown in your own Git repository, shared
+by your agents, your team, and you. For companies, teams, and you alone. One
+program, an MCP server, that runs on your computer or on a shared server that
+anyone can host.
 
 The specification is in [specs/](specs/). This project is built spec first, with
 the workflow in [specs/WORKFLOW.md](specs/WORKFLOW.md).
@@ -41,12 +41,27 @@ The same is true for one person. Each AI tool has its own memory, or
 none. That memory sits with the AI vendor, not with you, and your other
 tools never see it.
 
+## What you can build with it
+
+One memory repository is a Git repository of Markdown documents. What it holds
+is up to you. Three uses:
+
+- **A team knowledge base.** Decisions, API contracts, owners, known problems,
+  and conventions, written down by agents and read by every agent of the team.
+  This is the use that the problem above describes. Start here if you are a
+  company or a team.
+- **A personal memory.** What each of your AI tools learned about you: your
+  preferences, your projects, and your habits. Switch tools and keep the
+  memory.
+- **An agent's working memory.** What a long-running agent learns in one
+  session and leaves for the next one, such as a pitfall or a decision.
+
 ## The idea
 
-waymark is an automated, AI-driven knowledge base. AI agents write it,
+waymark is automated, AI-driven agent memory. AI agents write it,
 AI agents read it, and AI agents keep it up to date, as far as you allow.
 
-- **Documents are small Markdown files in one Git repo per knowledge base:**
+- **Documents are small Markdown files in one Git repository per memory:**
   for a company, a team, or just you. One topic
   per document, with a header (title, description, status, authors, dates, sources).
 - **An open document standard.** The [Waymark Memory Standard](standard/waymark-1.0.md)
@@ -80,7 +95,7 @@ things down. waymark fixes both: agents write it down, and every agent reads
 it back, in your company, in your team, or across all the AI tools you use
 yourself.
 
-### Knowledge that agents can actually use
+### Memory that agents can actually use
 
 - **Cheap to read, by design.** One topic per document. Every document has a
   short title and description, so an agent sees them first and opens the
@@ -91,11 +106,11 @@ yourself.
   more than the limit, so context stays small.
 - **Fast search.** Documents are local files, so search takes milliseconds.
   No API calls to a wiki, no rate limits.
-- **Linked knowledge.** Documents link to related documents, and a new decision
+- **Linked documents.** Documents link to related documents, and a new decision
   marks the old one it replaces. Agents follow the trail to the current
   state.
 
-### Knowledge that stays clean
+### Memory that stays clean
 
 - **Rejections teach.** A bad write fails with a plain reason and the next
   step, for example "A document with this title exists. Update it instead."
@@ -137,7 +152,7 @@ yourself.
 
 - **Plain Markdown in Git.** Read it on GitHub, in any editor, or with any
   tool. No database, no proprietary format.
-- **Built for Obsidian.** Your knowledge base is also an Obsidian
+- **Built for Obsidian.** Your memory repository is also an Obsidian
   vault (the check in the real app is still open). Open it in Obsidian to browse documents, follow links, and explore
   the graph. No plugin, no export.
 - **No vendor lock-in.** The content is a normal Git repo that you own. A server
@@ -152,10 +167,10 @@ yourself.
 1. Install the `waymark` binary (`brew install ionpulse-dev/tap/waymark`). `git` must work and be signed in to your
    Git host (SSH key or `gh auth login`). IT can prepare this.
 2. Add one entry to the MCP config of your agent tool.
-3. Start a session. waymark clones the knowledge base on first start.
+3. Start a session. waymark clones the memory repository on first start.
 4. A team adds the same entry to the project config, so everyone uses the same
-   knowledge base.
-5. Update with `brew upgrade waymark` and restart your agent tool. waymark never writes into your agent tool and never changes a shared file without a rule. If an update needs a change of your MCP entry, or a team's knowledge base needs a newer waymark, the agent tells you ("WAYMARK NEEDS AN UPDATE") and `status` shows the exact fix. Details: [install guide](docs/install.md#update-waymark).
+   memory repository.
+5. Update with `brew upgrade waymark` and restart your agent tool. waymark never writes into your agent tool and never changes a shared file without a rule. If an update needs a change of your MCP entry, or a team's memory repository needs a newer waymark, the agent tells you ("WAYMARK NEEDS AN UPDATE") and `status` shows the exact fix. Details: [install guide](docs/install.md#update-waymark).
 
 <!-- snippet: generic -->
 ```json
@@ -181,7 +196,7 @@ empty private repository and calls the `init` tool once.
 
 | Tool | What it does |
 |---|---|
-| `status` | The knowledge base in use, the effective limits, health checks, and notices. |
+| `status` | The memory repository in use, the effective limits, health checks, and notices. |
 | `search` | Find the few documents that answer a question. |
 | `show` | Read one document, with the documents that link to it. |
 | `list`, `stats` | List documents by filter, and count their size. |
@@ -197,7 +212,7 @@ empty private repository and calls the `init` tool once.
 | `activity`, `undo` | See what your agent wrote and revert a write. |
 | `sync` | Commit manual edits, pull, and push. |
 | `lint`, `index` | Check documents, and generate index files. |
-| `init` | Create the structure of an empty knowledge base repository. |
+| `init` | Create the structure of an empty memory repository. |
 
 A limit can switch a tool off, and then it is not listed. There is no tool that
 changes limits, pause, approval, or credentials. The full list is in the
@@ -205,8 +220,8 @@ changes limits, pause, approval, or credentials. The full list is in the
 
 ## Project and default entry
 
-One waymark process serves one knowledge base, and no tool can change it. A
-project shares its knowledge base through the MCP entry in the project (for
+One waymark process serves one memory repository, and no tool can change it. A
+project shares its memory repository through the MCP entry in the project (for
 example `.mcp.json`), which holds the repository URL and no secret:
 
 ```json
@@ -214,7 +229,7 @@ example `.mcp.json`), which holds the repository URL and no secret:
 ```
 
 A personal default in the user-level config of your agent tool needs no
-arguments if the knowledge base is in `~/Projects/<name>-agent-memory`:
+arguments if the memory repository is in `~/Projects/<name>-agent-memory`:
 
 ```json
 { "mcpServers": { "waymark": { "command": "waymark" } } }
@@ -223,7 +238,7 @@ arguments if the knowledge base is in `~/Projects/<name>-agent-memory`:
 Use the same server name in both. In the agent tools that were checked, the
 project entry wins in the project. waymark finds the folder in this order:
 `--path`; `--repo` (cloned once to `~/Projects/<name>-agent-memory`); the
-working folder and the folders above it; the one knowledge base in
+working folder and the folders above it; the one memory repository in
 `~/Projects`. `--memory-repository-id` makes the server refuse a repository with another ID.
 `allowed_repo_hosts` in your personal config limits the Git hosts waymark may
 use. The first clone runs in the background, so your tool starts at once. `status`
@@ -321,13 +336,13 @@ wins.
 |---|---|---|
 | System file (`/etc/waymark/config.toml` or the macOS equivalent) | IT | Hard in local mode |
 | Server config | The operator | Hard in server mode |
-| Shared file in the knowledge base (`.waymark/settings.toml`) | The team owner | Tools cannot change it |
+| Shared file in the memory repository (`.waymark/settings.toml`) | The team owner | Tools cannot change it |
 | Personal file (`~/.config/waymark/config.toml`) | You | A safety default |
 | MCP entry | You | A safety default |
 
 ## Access without waymark: the plain-Git rules
 
-Every knowledge base is a Git repository with an `AGENTS.md` file in its
+Every memory repository is a Git repository with an `AGENTS.md` file in its
 root. The `init` tool writes this file. It contains plain-Git rules: how an
 agent reads, writes, edits, and moves documents with ordinary `git` and file
 commands. It names the document format, the pull-before-write step, the check
@@ -339,7 +354,7 @@ If not, it follows the plain-Git rules.
 **Advantages**
 
 - **No install.** Open the repository in Claude Code on the web or on
-  iPhone. The agent reads the whole knowledge base and the rules at once.
+  iPhone. The agent reads the whole memory repository and the rules at once.
   No binary, no MCP connector, no server.
 - **Safe by default.** An agent that finds the repository by chance
   still sees clear rules. It is less likely to damage the documents.

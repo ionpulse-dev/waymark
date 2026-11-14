@@ -1,4 +1,4 @@
-//! The `stats` tool: counts the size of the knowledge base.
+//! The `stats` tool: counts the size of the memory repository.
 
 use super::read_common::folders_arg;
 use crate::config::Kind;

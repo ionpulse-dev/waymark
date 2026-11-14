@@ -47,17 +47,23 @@ impl Tool for Delete {
         writes::require_visible(env, &id)?;
         writes::author_string(ctx)?;
 
-        writes::execute(ctx, env, "delete", Kind::Destructive, preview, |tx, memrepo| {
-            let (rel, doc) = writes::read_doc(tx, memrepo, &id)?;
-            tx.check_base(&rel, Some(&base))?;
-            let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
-            let linked = linked_from(memrepo, &id, &title);
-            if !linked.is_empty() {
-                if let Some(hidden) = linked
-                    .iter()
-                    .find(|l| !env.effective.allows_folder(l["id"].as_str().unwrap_or("")))
-                {
-                    return Err(Error::new(
+        writes::execute(
+            ctx,
+            env,
+            "delete",
+            Kind::Destructive,
+            preview,
+            |tx, memrepo| {
+                let (rel, doc) = writes::read_doc(tx, memrepo, &id)?;
+                tx.check_base(&rel, Some(&base))?;
+                let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
+                let linked = linked_from(memrepo, &id, &title);
+                if !linked.is_empty() {
+                    if let Some(hidden) = linked
+                        .iter()
+                        .find(|l| !env.effective.allows_folder(l["id"].as_str().unwrap_or("")))
+                    {
+                        return Err(Error::new(
                         Code::AccessDenied,
                         format!(
                             "The document \"{}\" links to this one and is outside the allowed folders.",
@@ -65,13 +71,13 @@ impl Tool for Delete {
                         ),
                     )
                     .with_next("Ask someone with wider access to remove that link."));
-                }
-                let n = linked
-                    .iter()
-                    .filter_map(|l| l["id"].as_str())
-                    .collect::<std::collections::BTreeSet<_>>()
-                    .len();
-                return Err(Error::validation(format!(
+                    }
+                    let n = linked
+                        .iter()
+                        .filter_map(|l| l["id"].as_str())
+                        .collect::<std::collections::BTreeSet<_>>()
+                        .len();
+                    return Err(Error::validation(format!(
                     "{n} document{} still link{} to `{id}`. Nothing was changed.",
                     if n == 1 { "" } else { "s" },
                     if n == 1 { "s" } else { "" },
@@ -80,36 +86,38 @@ impl Tool for Delete {
                     "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document.",
                 )
                 .with_data(json!({ "linked_from": linked })));
-            }
+                }
 
-            let mut notices = Vec::new();
-            if doc
-                .frontmatter
-                .get_list("supersedes")
-                .map(|l| !l.is_empty())
-                .unwrap_or(false)
-            {
-                notices.push("The documents that this one replaced stay deprecated.".to_string());
-            }
-            let mut data = Map::new();
-            data.insert("id".into(), json!(id));
-            data.insert("title".into(), json!(title));
-            Ok(Plan {
-                first: None,
-                revert: None,
-                changes: vec![FileChange::Remove { id: id.clone() }],
-                verb: Verb::Delete,
-                title: title.clone(),
-                commit_body: None,
-                summary: format!("Delete \"{title}\" ({id})\n\n{}", doc.body),
-                message: format!(
-                    "Deleted \"{title}\" (`{id}`). The file stays in the Git history."
-                ),
-                data,
-                text: None,
-                notices,
-            })
-        })
+                let mut notices = Vec::new();
+                if doc
+                    .frontmatter
+                    .get_list("supersedes")
+                    .map(|l| !l.is_empty())
+                    .unwrap_or(false)
+                {
+                    notices
+                        .push("The documents that this one replaced stay deprecated.".to_string());
+                }
+                let mut data = Map::new();
+                data.insert("id".into(), json!(id));
+                data.insert("title".into(), json!(title));
+                Ok(Plan {
+                    first: None,
+                    revert: None,
+                    changes: vec![FileChange::Remove { id: id.clone() }],
+                    verb: Verb::Delete,
+                    title: title.clone(),
+                    commit_body: None,
+                    summary: format!("Delete \"{title}\" ({id})\n\n{}", doc.body),
+                    message: format!(
+                        "Deleted \"{title}\" (`{id}`). The file stays in the Git history."
+                    ),
+                    data,
+                    text: None,
+                    notices,
+                })
+            },
+        )
     }
 }
 

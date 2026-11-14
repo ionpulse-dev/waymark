@@ -17,7 +17,7 @@ impl Tool for Verify {
     }
 
     fn description(&self) -> &'static str {
-        "Marks an active document as verified by you, with today's date. Needs the version from show as base. Exists only when the knowledge base uses verification."
+        "Marks an active document as verified by you, with today's date. Needs the version from show as base. Exists only when the memory repository uses verification."
     }
 
     fn kind(&self) -> Kind {

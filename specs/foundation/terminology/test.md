@@ -15,14 +15,14 @@ _`[auto]` items are verified by running the automated test suite or a script. `[
 
 ## Test Cases
 
-- [ ] [auto] `init` writes the marker line with `personal-agent-memory` or
+- [x] [auto] `init` writes the marker line with `personal-agent-memory` or
       `team-agent-memory`, and the default clone folder ends in `-agent-memory`.
-- [ ] [auto] The conformance fixtures pass against the renamed standard
+- [x] [auto] The conformance fixtures pass against the renamed standard
       (marker folder `.waymark/`).
-- [ ] [auto] The full test suite passes.
-- [ ] [auto] The `status` result and the "needs a newer waymark" message use
+- [x] [auto] The full test suite passes.
+- [x] [auto] The `status` result and the "needs a newer waymark" message use
       "memory repository".
-- [ ] [auto] `AGENTS.md` contains "memory repository" and the rule that "repository"
+- [x] [auto] `AGENTS.md` contains "memory repository" and the rule that "repository"
       alone means the code repository.
 - [ ] [manual] Read the README from top to bottom. Steps: open `README.md`. Expected:
       the first sentence is the tagline; "What you can build with it" lists the
@@ -34,6 +34,8 @@ _`[auto]` items are verified by running the automated test suite or a script. `[
       "memory".
 
 ## Notes
+
+Checked on 2026-11-14: the full suite passes (586 tests). The `status` text, the "needs a newer waymark" message, and the rules in `AGENTS.md` were checked by search, not by a new test, because the spec asks for no automated guard against the old phrase.
 
 The final search is manual: `grep -ri "knowledge base"`, then read each hit.
 The manual items exist because a script cannot judge whether a sentence reads

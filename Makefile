@@ -10,7 +10,7 @@ UNIT_ARGS := $(patsubst tests/%.rs,--test %,$(UNIT_FILES))
 INTEGRATION_ARGS := $(patsubst tests/%.rs,--test %,$(INTEGRATION_FILES))
 
 .DEFAULT_GOAL := help
-.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-kb brew-local public-check clean
+.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local public-check clean
 
 help: ## List all targets
 	@echo "waymark: development commands"
@@ -54,11 +54,11 @@ check: lint test-all spec-check ## Everything to run before a commit
 spec-check: ## Check the spec folders against INDEX.md
 	@bash scripts/spec-check.sh
 
-run: ## Start the server on a sample knowledge base
-	@bash scripts/sample-kb.sh run
+run: ## Start the server on a sample memory repository
+	@bash scripts/sample-memory.sh run
 
-sample-kb: ## Create a sample knowledge base in tmp/
-	@bash scripts/sample-kb.sh create
+sample-memory: ## Create a sample memory repository in tmp/
+	@bash scripts/sample-memory.sh create
 
 manual-tests: ## List the open [manual] tests of all specs
 	@grep -rn --include=test.md "^- \[ \] \[manual\]" specs/features specs/foundation | sed "s|specs/||"
@@ -71,4 +71,4 @@ public-check: ## Scan tracked files for secrets and private details
 
 clean: ## Remove build output and test data
 	@$(CARGO) clean
-	@rm -rf tmp/sample-kb
+	@rm -rf tmp/sample-memory

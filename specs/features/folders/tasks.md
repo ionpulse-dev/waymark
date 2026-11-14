@@ -1,6 +1,6 @@
 # Tasks: Folders
 
-- [x] `src/kb/folders.rs`: the folder model (`KnowledgeBase::folders`, `GITKEEP`).
+- [x] `src/memrepo/folders.rs`: the folder model (`MemRepo::folders`, `GITKEEP`).
 - [x] `src/gitsync/message.rs`: the verbs `add-folder` and `remove-folder`.
 - [x] `src/gitsync/write.rs`: `Tx::remove_file` removes the empty parent folders.
 - [x] `src/writes/mod.rs`: `FileChange::WriteFile` and `RemoveFile`, and `check_folder_path`.

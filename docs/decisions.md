@@ -167,3 +167,12 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Implementation order:** write-documents, search-and-read, quality-checks, manual-edits, move-documents, activity-and-undo, verification, pause-and-resume, write-approval, project-binding, session-start, agent-tool-setup, login-and-identity, join-memory-repository, plain-git-access, create-memory-repository, updates, notifications-and-review, maintenance.
 
 **Reason:** `requires` says a spec may start only when its prerequisites are `implemented`.
+
+## Vocabulary: agent memory and memory repository — 2026-11-14
+
+**Decision:** The words "knowledge base" and "content repository" are replaced by
+"memory repository" in normative text, code, and messages. "Knowledge base" stays
+only as a use case. The earlier entries of this file keep their original words,
+because they record what was said at the time. The rules and the reasons are in
+the spec [terminology](../specs/foundation/terminology/decisions.md).
+

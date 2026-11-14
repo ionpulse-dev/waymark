@@ -11,7 +11,7 @@ bad() { echo "  FAIL $1"; fail=1; }
 
 # make help lists every target
 out=$(make help 2>&1)
-for t in help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-kb brew-local clean; do
+for t in help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local clean; do
   echo "$out" | grep -qE "^ +$t +" || bad "help lists $t"
 done
 [ "$fail" -eq 0 ] && ok "help lists every target"

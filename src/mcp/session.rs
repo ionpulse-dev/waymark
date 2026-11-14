@@ -1,4 +1,4 @@
-//! The facts of a session: the knowledge base, the limits, and the notices (see `session-start`).
+//! The facts of a session: the memory repository, the limits, and the notices (see `session-start`).
 
 use super::binding::FoundBy;
 use super::context::Context;
@@ -44,10 +44,10 @@ fn local_notices(
     out.extend(memrepo_notices.iter().cloned());
     match found_by {
         Some(FoundBy::WorkingFolder) => {
-            out.push("The knowledge base was found in the working folder.".to_string())
+            out.push("The memory repository was found in the working folder.".to_string())
         }
         Some(FoundBy::DefaultFolder) => {
-            out.push("The knowledge base was found in the default folder.".to_string())
+            out.push("The memory repository was found in the default folder.".to_string())
         }
         _ => {}
     }
@@ -84,7 +84,7 @@ fn facts_inner(ctx: &Context, allow_clone: bool) -> Facts {
         match super::binding::locate(&ctx.args) {
             Ok(f) if f.clone_url.is_some() => {
                 return build_unbound(
-                    Error::setup("The knowledge base is cloned at the first tool call.")
+                    Error::setup("The memory repository is cloned at the first tool call.")
                         .with_next("Call status after the first tool call."),
                 )
             }

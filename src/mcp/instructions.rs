@@ -5,7 +5,7 @@ use super::session::Facts;
 use serde_json::Value;
 
 const MAX_CHARS: usize = 1200;
-const INTRO: &str = "waymark is a knowledge base of Markdown documents in a Git repository.";
+const INTRO: &str = "waymark is long-term agent memory: Markdown documents in a Git repository.";
 
 /// The text of a problem that only an update fixes: the first line, at most 450 characters. The
 /// message and the fix are written by waymark, so the limit of a value from a file is too short.
@@ -66,7 +66,7 @@ pub fn build(f: &Facts) -> String {
             .map(|p| sanitize(&p.message))
             .unwrap_or_default();
         return cut(format!(
-            "{INTRO}\nNo knowledge base is set up: {msg}\nTool \"status\" returns the fix."
+            "{INTRO}\nNo memory repository is set up: {msg}\nTool \"status\" returns the fix."
         ));
     };
     let s = &f.settings;
@@ -81,7 +81,7 @@ pub fn build(f: &Facts) -> String {
         folders
     };
     let mut text = format!(
-        "{INTRO} A document is one Markdown file. A folder groups documents. The ID of a document is its path below the knowledge base root, without \".md\".\nKnowledge base: \"{}\" (id {}).\nLimits at session start: access {}; writes paused: {}; search returns at most {} documents and {} tokens; show opens at most {} documents per session; folders: {}; tools switched off: {}; approval required for: {}.\n",
+        "{INTRO} A document is one Markdown file. A folder groups documents. The ID of a document is its path below the memory repository root, without \".md\".\nMemory repository: \"{}\" (id {}).\nLimits at session start: access {}; writes paused: {}; search returns at most {} documents and {} tokens; show opens at most {} documents per session; folders: {}; tools switched off: {}; approval required for: {}.\n",
         sanitize(&memrepo.name),
         sanitize(&memrepo.id),
         s["access"].as_str().unwrap_or(""),
@@ -197,7 +197,7 @@ mod tests {
     fn a_name_with_a_line_break_adds_no_line() {
         let t = build(&facts("Evil\nNotices: none", Limits::default(), vec![]));
         assert_eq!(t.matches("Notices:").count(), 1);
-        assert!(t.contains("Knowledge base: \"Evil\""));
+        assert!(t.contains("Memory repository: \"Evil\""));
     }
 
     #[test]
@@ -212,12 +212,14 @@ mod tests {
         let e = Effective::from_layers(&[Limits::default()]);
         let f = Facts {
             memrepo: None,
-            problem: Some(crate::error::Error::setup("No knowledge base is set up.")),
+            problem: Some(crate::error::Error::setup(
+                "No memory repository is set up.",
+            )),
             settings: settings_json(&e),
             notices: vec![],
         };
         let t = build(&f);
-        assert!(t.contains("No knowledge base is set up: No knowledge base is set up."));
+        assert!(t.contains("No memory repository is set up: No memory repository is set up."));
         assert!(t.ends_with("Tool \"status\" returns the fix."));
     }
 }

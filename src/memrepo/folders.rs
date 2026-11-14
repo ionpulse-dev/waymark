@@ -1,4 +1,4 @@
-//! The folders of a knowledge base (see `specs/features/folders`).
+//! The folders of a memory repository (see `specs/features/folders`).
 //!
 //! A folder exists when it holds a document, a file, a subfolder, or a `.gitkeep`. Git stores no
 //! empty folder, so an empty folder on disk is not a folder.

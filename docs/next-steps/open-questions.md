@@ -15,7 +15,7 @@ See [architecture-direction.md](../architecture-direction.md) for the full list.
 - Do Claude Code, GitHub Copilot, and OpenAI Codex support remote MCP servers, managed MCP config, per-tool permission prompts, elicitation, and server instructions?
 - Does a project MCP entry override a user entry of the same name in all three tools, and do they ask before they start a project server?
 - Which login flows do Claude and ChatGPT accept for a self-hosted MCP server?
-- How does a read budget per session fit a stateless server, and how does the server find the knowledge base?
+- How does a read budget per session fit a stateless server, and how does the server find the memory repository?
 - Should the built-in default of the limit `access` be `read-only`?
 
 - **Home of the plain-Git skills.** The standard now lives in `standard/`. Where do the standalone plain-Git skills (`personal-agent-memory`, `team-agent-memory`) live once `waymark-trail` is retired? Options: a folder in this repository, or another repository.

@@ -1,16 +1,16 @@
-//! The `init` tool: set up an empty repository as a knowledge base, or add the settings file to a
+//! The `init` tool: set up an empty repository as a memory repository, or add the settings file to a
 //! folder that has the marker `.waymark` but no `settings.toml`
 //! (see `specs/features/create-memory-repository`).
 
 use crate::config::Kind;
 use crate::error::Error;
 use crate::gitsync::{commit_message, Change, Verb};
-use crate::memrepo::agents_file::Audience;
-use crate::memrepo::init::{derive_slug, files, settings_text, InitInput};
-use crate::memrepo::layout::{MARKER, SETTINGS_FILE};
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
+use crate::memrepo::agents_file::Audience;
+use crate::memrepo::init::{derive_slug, files, settings_text, InitInput};
+use crate::memrepo::layout::{MARKER, SETTINGS_FILE};
 use crate::writes;
 use serde_json::{json, Value};
 
@@ -167,7 +167,7 @@ impl Tool for Init {
     }
 
     fn description(&self) -> &'static str {
-        "Set up an empty repository as a knowledge base. Also adds the settings file to a folder that has the older `.waymark` marker but no settings file."
+        "Set up an empty repository as a memory repository. Also adds the settings file to a folder that has the older `.waymark` marker but no settings file."
     }
 
     fn kind(&self) -> Kind {
@@ -210,7 +210,7 @@ impl Tool for Init {
                 Some(base) => {
                     if repo.dir().join(format!("{base}{MARKER}/{SETTINGS_FILE}")).exists() {
                         return Err(Error::validation(
-                            "This repository is already a knowledge base. Nothing was changed.",
+                            "This repository is already a memory repository. Nothing was changed.",
                         )
                         .with_next("Use the other tools, or choose another repository."));
                     }
@@ -246,7 +246,7 @@ impl Tool for Init {
             }
             if !preview {
                 let summary = format!(
-                    "Set up the knowledge base \"{}\"\n\nFiles: {}",
+                    "Set up the memory repository \"{}\"\n\nFiles: {}",
                     input.name,
                     paths.join(", ")
                 );
@@ -276,12 +276,12 @@ impl Tool for Init {
 
         let message = if preview {
             format!(
-                "Preview, nothing was written. This would set up the knowledge base \"{}\".",
+                "Preview, nothing was written. This would set up the memory repository \"{}\".",
                 input.name
             )
         } else {
             format!(
-                "The knowledge base \"{}\" is set up and pushed.",
+                "The memory repository \"{}\" is set up and pushed.",
                 input.name
             )
         };

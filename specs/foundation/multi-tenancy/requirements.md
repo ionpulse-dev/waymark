@@ -19,7 +19,7 @@ Let one running server serve many separate organizations (tenants) and private p
 
 ## Deliverables
 
-- The tenant model: tenant, user, knowledge base, role.
+- The tenant model: tenant, user, memory repository, role.
 - Isolation of data, credentials, limits, and logs per tenant.
 - Provisioning of a tenant.
 - Per-tenant sign-in.
@@ -33,7 +33,7 @@ Let one running server serve many separate organizations (tenants) and private p
 
 **Out of scope:**
 - Commercial and legal matters. This spec covers technical isolation and administration only.
-- Sharing a knowledge base across tenants.
+- Sharing a memory repository across tenants.
 
 ## Constraints
 
@@ -48,11 +48,11 @@ Let one running server serve many separate organizations (tenants) and private p
 
 ### Provisioning
 
-A server administrator creates a tenant through the web console or an admin API. Steps: name, sign-in provider, knowledge bases (repository URL), Git credential (GitHub App installation), roles, limits.
+A server administrator creates a tenant through the web console or an admin API. Steps: name, sign-in provider, memory repositories (repository URL), Git credential (GitHub App installation), roles, limits.
 
 ### Quotas
 
-Per tenant: knowledge bases, users, calls per minute, and clone size. A quota failure is `access_denied` with a plain message.
+Per tenant: memory repositories, users, calls per minute, and clone size. A quota failure is `access_denied` with a plain message.
 
 ### Export and deletion
 

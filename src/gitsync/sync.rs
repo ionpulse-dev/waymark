@@ -109,7 +109,7 @@ impl Repo {
                 "Cannot bring the local copy up to date: {}",
                 cmd::first_line(&out.stderr)
             ))
-            .with_next("Look at the local files in the knowledge base folder."));
+            .with_next("Look at the local files in the memory repository folder."));
         }
         Ok(())
     }
@@ -170,7 +170,7 @@ impl Repo {
             );
             if for_write {
                 return Err(Error::sync(msg).with_next(
-                    "Run sync, or look at the local changes in the knowledge base folder.",
+                    "Run sync, or look at the local changes in the memory repository folder.",
                 ));
             }
             return Ok(vec![format!("{msg}. The local copy may be behind.")]);
@@ -322,15 +322,16 @@ impl Repo {
         let _ = run(&self.dir, None, &["merge", "--abort"]);
         if paths.is_empty() {
             return Err(
-                Error::sync("The local copy and the remote cannot be joined.")
-                    .with_next("Look at the knowledge base folder, or ask someone who knows Git."),
+                Error::sync("The local copy and the remote cannot be joined.").with_next(
+                    "Look at the memory repository folder, or ask someone who knows Git.",
+                ),
             );
         }
         if let Some(bad) = paths.iter().find(|p| !p.ends_with(".md")) {
             return Err(Error::sync(format!(
                 "The file {bad} was changed on both sides and is not a document."
             ))
-            .with_next("Join the two changes by hand in the knowledge base folder."));
+            .with_next("Join the two changes by hand in the memory repository folder."));
         }
         let mut to_commit = Vec::new();
         for p in &paths {
@@ -372,7 +373,7 @@ impl Repo {
                 "The merge failed: {}",
                 cmd::first_line(&merged.stderr)
             ))
-            .with_next("Look at the knowledge base folder, or ask someone who knows Git."));
+            .with_next("Look at the memory repository folder, or ask someone who knows Git."));
         }
         for (orig, copy) in &result.conflicts {
             result.notices.push(format!(

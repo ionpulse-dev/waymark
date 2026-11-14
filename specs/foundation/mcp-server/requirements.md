@@ -64,7 +64,7 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 
 | Tool | Task | Kind | Specified in |
 |---|---|---|---|
-| `status` | State of the setup, the knowledge base in use, the effective limits, open notices | read | `maintenance`, `session-start` |
+| `status` | State of the setup, the memory repository in use, the effective limits, open notices | read | `maintenance`, `session-start` |
 | `search`, `show`, `list`, `stats` | Find and read documents | read | `search-and-read` |
 | `updates` | What changed since a date | read | `updates` |
 | `lint` | Check documents | read | `quality-checks` |
@@ -75,7 +75,7 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | `undo` | Revert one write | write | `activity-and-undo` |
 | `sync` | Commit pending manual edits, pull, push | write | `git-sync`, `manual-edits` |
 | `index` | Generate index files | write | `quality-checks` |
-| `init` | Create the structure of an empty knowledge base repository | write | `create-memory-repository` |
+| `init` | Create the structure of an empty memory repository repository | write | `create-memory-repository` |
 | `verify`, `review`, `reject` | Owner verification. Present only when verification is on. | write | `verification` |
 
 Every tool has a JSON input schema and a kind hint (read-only, write, or destructive) so that clients can ask the person per tool. A tool that the limits switch off is not listed (see `trust-model`).
@@ -102,11 +102,11 @@ A failure sets the MCP error flag. The structured result has `code`, `message`, 
 |---|---|
 | `validation_failed` | Format, size, link, duplicate, or secret check failed |
 | `sync_failed` | No network, Git login, or push rejected |
-| `setup_problem` | The knowledge base is not set up or not reachable. Run `status`. |
+| `setup_problem` | The memory repository is not set up or not reachable. Run `status`. |
 | `access_denied` | A limit blocks the call (access, folder, tool switched off) |
 | `stale_base` | The document changed since the agent read it |
 | `approval_denied` | The person said no, or no answer came in time |
-| `not_found` | The document or the knowledge base item does not exist |
+| `not_found` | The document or the memory repository item does not exist |
 | `invalid_arguments` | The call has a missing or wrong argument. The `next` sentence names it. |
 | `approval_unavailable` | Approval is required but cannot be asked (client lacks the feature, or the console is not connected) |
 | `paused` | Writes are paused |
@@ -129,7 +129,7 @@ The agent tool starts the server from an entry in its MCP config. The entry pass
 
 | Argument or variable | Meaning |
 |---|---|
-| `--repo` | Git URL of the knowledge base. The server clones it on first start. |
+| `--repo` | Git URL of the memory repository. The server clones it on first start. |
 | `--memory-repository-id` | Optional. The ID that `.waymark/settings.toml` must have. A different ID is `setup_problem` (see `project-binding`). |
 | `--path` | Local folder of the clone. Default `~/Projects/<slug>-agent-memory`. |
 | `--author-name`, `--author-email` (or `WAYMARK_AUTHOR_NAME`, `WAYMARK_AUTHOR_EMAIL`) | Commit author. Default: the Git settings of the person. |
@@ -143,7 +143,7 @@ The entry of the agent tool (the command and its arguments) belongs to the perso
 
 - **The server does not exit on a bad argument.** An argument that this waymark does not know, or a wrong value, never stops the process. The server starts, answers `initialize`, and lists `status`. (`--help` and `--version` work as before.)
 - **Deprecated arguments.** The binary has a list of arguments that no longer have an effect (`DEPRECATED_FLAGS` in `src/mcp/args.rs`), each with a sentence. Such an argument is ignored, the tools work, and every result has a notice: "The MCP entry uses `--x`. <sentence>". `status` shows it in the check `entry` (ok). An argument is removed from the program only after it was in this list for at least one minor version.
-- **Any other unknown argument blocks the tools.** It may come from a newer waymark, and it may be a limit that this build would ignore. The server then needs an update: see below. The same holds for a wrong value of a known argument (for example `--max-results many`): the server must not guess a knowledge base, so it starts with no arguments at all.
+- **Any other unknown argument blocks the tools.** It may come from a newer waymark, and it may be a limit that this build would ignore. The server then needs an update: see below. The same holds for a wrong value of a known argument (for example `--max-results many`): the server must not guess a memory repository, so it starts with no arguments at all.
 - **A new required argument** is handled like an unknown one from the other side: a build that needs an argument and does not find it starts with the same state and says what to add. A release must not add a required argument without this check.
 - **"Needs an update" state.** It exists for three causes: an unknown or wrong argument in the entry, a settings file of a higher schema (see `memory-repository`), and a required argument that is missing. In this state:
   - `initialize` sends `instructions` that start with "WAYMARK NEEDS AN UPDATE:", then the message and the fix, and then "Tool "status" returns the fix."
@@ -171,7 +171,7 @@ A fixture repository, a tool call, and the expected result fix the behavior, so 
 ## Acceptance Criteria
 
 - **Given** an argument in the entry that this waymark does not know, **When** the session starts, **Then** the server starts, `instructions` start the problem with "WAYMARK NEEDS AN UPDATE", `tools/list` lists only `status` with the problem in its description, and every other tool fails with `setup_problem` and the fix.
-- **Given** a wrong value of a known argument, **When** the session starts, **Then** the same state holds and no knowledge base is guessed.
+- **Given** a wrong value of a known argument, **When** the session starts, **Then** the same state holds and no memory repository is guessed.
 - **Given** a deprecated argument, **When** a tool runs, **Then** it works and the result has a notice.
 - **Given** a settings file of a higher schema, **When** the session starts, **Then** the same state holds with the message "needs a newer waymark".
 - **Given** a working setup, **When** the session starts, **Then** there is no warning and all tools are listed.

@@ -2,8 +2,8 @@
 #![allow(dead_code)]
 
 pub mod git;
-pub mod memrepo;
 pub mod mcp;
+pub mod memrepo;
 pub mod world;
 
 #[allow(unused_imports)]

@@ -39,7 +39,7 @@ Test the real `waymark` binary end to end, with no network and no credentials. E
 
 ### The world
 
-A `World` has: a bare repository (the remote), a first clone (person A), a second clone (person B), each with its own author and its own `waymark` process on request, and a config home. The knowledge base is initialized in the remote with the layout of `memory-repository`.
+A `World` has: a bare repository (the remote), a first clone (person A), a second clone (person B), each with its own author and its own `waymark` process on request, and a config home. The memory repository is initialized in the remote with the layout of `memory-repository`.
 
 ### MCP client
 

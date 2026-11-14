@@ -8,13 +8,13 @@ requires:
   - agent-tool-setup
 ---
 
-# Join a knowledge base
+# Join a memory repository
 
-> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. A server workspace for each knowledge base, the HTTPS connection of a client, and the choice of a knowledge base by sign-in are out of scope for now (see [project decisions](../../../docs/decisions.md)). They are in `todo.md`.
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. A server workspace for each memory repository, the HTTPS connection of a client, and the choice of a memory repository by sign-in are out of scope for now (see [project decisions](../../../docs/decisions.md)). They are in `todo.md`.
 
 ## User Story
 
-> As a new person, I want to install waymark and add one entry to my agent tool, so that my agents can use the knowledge base without any Git knowledge.
+> As a new person, I want to install waymark and add one entry to my agent tool, so that my agents can use the memory repository without any Git knowledge.
 
 ## Personas
 
@@ -43,7 +43,7 @@ The server answers `initialize` and `tools/list` at once. It does the first-star
    - The path is a Git repository whose `origin` is the same repository: use it, and pull.
    - The path is a Git repository with another `origin`, or a folder that is not empty and not a repository: stop with `setup_problem`. The server never overwrites anything.
 4. **Clone.** `git clone <url>` into a temporary folder next to the path, then rename it to the path. Two servers that start at the same time clone once: the second one finds the path and uses it. The clone has a time-out of 5 minutes.
-5. **Read the knowledge base.** Find the root (the folder with `.waymark`) and read `.waymark/settings.toml` with the shared limits.
+5. **Read the memory repository.** Find the root (the folder with `.waymark`) and read `.waymark/settings.toml` with the shared limits.
 6. **ID.** If `--memory-repository-id` is given, it must equal `id` of the file. A different ID is `setup_problem` (see `project-binding`).
 7. **Author.** Resolve and check the author (see `login-and-identity`). A problem does not stop the start. It stops writes and shows in `status`.
 
@@ -52,12 +52,12 @@ The **state** of the server after the start is one of:
 | State | Meaning | What works |
 |---|---|---|
 | `cloning` | The first clone runs. | `status`. Other tools wait up to 60 seconds, then return `setup_problem`: "The first clone is still running. Call again in a minute." |
-| `ready` | A knowledge base was found. | All tools. |
+| `ready` | A memory repository was found. | All tools. |
 | `empty` | The repository has no commit, or holds only files that a Git host creates (`README.md`, `README`, `LICENSE`, `LICENSE.md`). See `create-memory-repository`. | `status`, and `init` (see `create-memory-repository`). Other tools return `setup_problem` with the `next` sentence "This repository is empty. Call `init`." |
 | `not_a_memory_repository` | The repository has files but no `.waymark` folder. | `status`. Others return `setup_problem`. |
 | `broken` | Git, host, path, ID, or a settings file failed. | `status` with the reason and the fix. Others return the same `setup_problem`. |
 
-A server without `--repo` and `--path` looks for a knowledge base (see `project-binding`). It never clones then. waymark never clones without an entry that the person (or the project and the person's agent tool) approved.
+A server without `--repo` and `--path` looks for a memory repository (see `project-binding`). It never clones then. waymark never clones without an entry that the person (or the project and the person's agent tool) approved.
 
 ### Shared and personal settings
 
@@ -84,7 +84,7 @@ A personal value can only tighten the shared one (see `trust-model`). Other stat
 The MCP entry is the interface (see `mcp-server`). There is no `setup` command and no tool. The result of `status` carries the state (see `maintenance`):
 
 ```json
-{ "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "path": "/Users/jane/Projects/knowledge" } }
+{ "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "path": "/Users/jane/Projects/waymark-agent-memory" } }
 ```
 
 ## Acceptance Criteria
@@ -93,7 +93,7 @@ The MCP entry is the interface (see `mcp-server`). There is no `setup` command a
 - **Given** a valid URL and a Git login, **When** the first session starts, **Then** the repository is cloned and `status` is ok.
 - **Given** a repository URL and no `--path`, **When** the first session starts, **Then** the clone is in `~/Projects/<repository-name>`.
 - **Given** a personal value looser than the shared limit, **When** the server reads both, **Then** the stricter value applies.
-- **Given** a person who adds a second entry for another knowledge base, **When** a session starts, **Then** the first one is unchanged.
+- **Given** a person who adds a second entry for another memory repository, **When** a session starts, **Then** the first one is unchanged.
 - **Given** a repository whose `.waymark/settings.toml` has no `id`, **When** the server reads it, **Then** it reports `setup_problem`.
 - **Given** the server started twice, **When** the second start ends, **Then** nothing is cloned twice.
 - **Given** a path that holds another repository or a non-empty folder, **When** the server starts, **Then** it changes nothing and reports `setup_problem`.

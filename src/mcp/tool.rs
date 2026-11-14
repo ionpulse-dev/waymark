@@ -25,7 +25,7 @@ pub trait Tool: Send + Sync {
     fn always_listed(&self) -> bool {
         false
     }
-    /// A tool that exists only when the knowledge base uses verification.
+    /// A tool that exists only when the memory repository uses verification.
     fn needs_verification(&self) -> bool {
         false
     }
@@ -127,7 +127,7 @@ impl Registry {
             return Ok(fail(
                 Error::new(
                     Code::AccessDenied,
-                    "Verification is off in this knowledge base.",
+                    "Verification is off in this memory repository.",
                 )
                 .with_next(
                     "The owner turns it on with verification = true in .waymark/settings.toml.",

@@ -160,7 +160,16 @@ fn an_id_that_changes_after_a_pull_stops_the_tools() {
     let w = World::new();
     let h = home(&w, "h5");
     let id = memory_repository_id(&w);
-    let mut c = start(&h, &["--path", w.a.to_str().unwrap(), "--memory-repository-id", &id], None);
+    let mut c = start(
+        &h,
+        &[
+            "--path",
+            w.a.to_str().unwrap(),
+            "--memory-repository-id",
+            &id,
+        ],
+        None,
+    );
     assert!(!c.call("list", json!({})).is_error);
     let f = w.a.join("agent-memory/.waymark/settings.toml");
     let t = std::fs::read_to_string(&f)

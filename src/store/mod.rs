@@ -1,4 +1,4 @@
-//! The documents of a knowledge base, loaded from the working tree for one call.
+//! The documents of a memory repository, loaded from the working tree for one call.
 //!
 //! `search-and-read`, `quality-checks`, `updates`, and others share this loader.
 

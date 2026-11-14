@@ -1,6 +1,6 @@
 # Tasks: Trust model
 
-`requires`: none. Needs `memory-repository` for the shared file schema (the types are defined in `src/kb`, see its plan).
+`requires`: none. Needs `memory-repository` for the shared file schema (the types are defined in `src/memrepo`, see its plan).
 
 - [x] `src/config/limits.rs`: `Limits`, the defaults, and `strictest`.
 - [x] Unit and property tests for `strictest` (`tests/` and inline).

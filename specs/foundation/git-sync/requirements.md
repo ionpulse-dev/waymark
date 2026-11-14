@@ -20,7 +20,7 @@ Define how waymark keeps the local clone and the remote in step and how every wr
 - `mcp-server` — every write tool uses the write flow.
 - `write-documents`, `move-documents`, `verification`, `manual-edits`, `activity-and-undo` — use the write flow.
 - `search-and-read` — reads pull first.
-- `server-mode` — adds the background pull and the workspace per knowledge base.
+- `server-mode` — adds the background pull and the workspace per memory repository.
 
 ## Deliverables
 

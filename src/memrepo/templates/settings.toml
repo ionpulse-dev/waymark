@@ -1,10 +1,10 @@
 # Version of the format of this file. waymark writes it. Do not change it by hand.
 schema = 1
 
-# The name of this knowledge base. Agents see it at the start of a session.
+# The name of this memory repository. Agents see it at the start of a session.
 name = {name}
 
-# Identifies this knowledge base. Required. Never change it.
+# Identifies this memory repository. Required. Never change it.
 id = "{id}"
 
 # A short name for the default folder of the clone (~/Projects/<slug>-agent-memory).
@@ -13,7 +13,7 @@ slug = "{slug}"
 # true: a person verifies documents. This adds the tools verify, review, and reject.
 verification = false
 
-# Limits for everyone who uses this knowledge base. A stricter limit in a personal file or in
+# Limits for everyone who uses this memory repository. A stricter limit in a personal file or in
 # an MCP entry wins. Every key is optional.
 [limits]
 # read-only: agents can only read. read-write: agents can also write.

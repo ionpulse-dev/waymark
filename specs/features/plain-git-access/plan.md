@@ -2,11 +2,11 @@
 
 ## Overview
 
-The rules are text. The two standalone skills move into the folder `plain-git/` of this repository. A small function in the `kb` module builds `AGENTS.md` from a fixed introduction, an optional team part, and the text of the skill, and `init` calls it. Tests check the text, the pin, and the independence of the skill from waymark.
+The rules are text. The two standalone skills move into the folder `plain-git/` of this repository. A small function in the `memrepo` module builds `AGENTS.md` from a fixed introduction, an optional team part, and the text of the skill, and `init` calls it. Tests check the text, the pin, and the independence of the skill from waymark.
 
 ## Components Affected
 
-- `memory-repository` — the template `src/kb/templates/AGENTS.md` is replaced by `src/kb/templates/agents-intro.md`. `kb::init` calls `kb::agents_file::render`.
+- `memory-repository` — the template `src/memrepo/templates/AGENTS.md` is replaced by `src/memrepo/templates/agents-intro.md`. `memrepo::init` calls `memrepo::agents_file::render`.
 - `create-memory-repository` — passes `audience` and `email_domains` to `render`.
 - `docs/next-steps/open-questions.md` — the question about the home of the skills is answered (a later edit by the owner of that file, see the report).
 
@@ -14,8 +14,8 @@ The rules are text. The two standalone skills move into the folder `plain-git/` 
 
 - `plain-git/personal-agent-memory/SKILL.md` — the standalone skill for one person. Copied from `waymark-trail` at version 1.5.1.
 - `plain-git/team-agent-memory/SKILL.md` — the standalone skill for a team. Copied from `waymark-trail` at version 1.5.1.
-- `src/kb/templates/agents-intro.md` — the introduction of `AGENTS.md` (the text is in the requirements).
-- `src/kb/agents_file.rs` — `render(audience, email_domains) -> String`, the stripping of the skill text, and the version reader.
+- `src/memrepo/templates/agents-intro.md` — the introduction of `AGENTS.md` (the text is in the requirements).
+- `src/memrepo/agents_file.rs` — `render(audience, email_domains) -> String`, the stripping of the skill text, and the version reader.
 - `tests/it_plain_git_access.rs` — end-to-end and text tests.
 
 The two skill files are long. They are copied, not written new. This spec does not create them. The first task of `tasks.md` copies them.

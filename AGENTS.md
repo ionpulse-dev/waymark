@@ -35,7 +35,7 @@ The short version of the rules (the full rules are in `WORKFLOW.md`):
 
 ## What waymark is
 
-A generic, open source knowledge base and AI memory for AI agents and the
+Long-term agent memory: generic and open source, for AI agents and the
 people who use them: companies, teams, and private people. Plain Markdown in a
 Git repository that the owner controls. One program, an MCP server: it runs
 locally with no server, or as a shared server that anyone can host.
@@ -60,7 +60,11 @@ Maintainers keep non-public notes outside this repository.
 
 - Use Simple English (ASD-STE100 style): short sentences, active voice.
 - Use Markdown. Use relative links between files.
-- Say "document", not "note", for the unit of a knowledge base.
+- Say "document", not "note", for the unit of a memory repository.
+- Use these terms (see [specs/foundation/terminology](specs/foundation/terminology/requirements.md)):
+  - **agent memory** (or "memory"): the idea, what outlives the context window of an agent.
+  - **memory repository**: the Git repository that holds it. Write it in full. Never "memory repo" in prose. "Repository" alone means the code repository.
+  - **knowledge base** is a use case only (for example "use a memory repository as your team's knowledge base"), or a way to describe other tools. It is never the name of what waymark creates.
 - Ask the user one question at a time. Never list several questions in one
   message.
 - Write all code, comments, documentation, and commit messages in English.

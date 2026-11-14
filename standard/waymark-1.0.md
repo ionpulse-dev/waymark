@@ -2,19 +2,19 @@
 
 **Version:** 1.0
 **Date:** 2026-11-08
-**Short name:** MKBase 1.0
+**Short name:** Waymark 1.0
 
 ---
 
 ## 1 Scope
 
-This standard defines one document of a knowledge base: a Markdown file with a
+This standard defines one document of a memory repository: a Markdown file with a
 YAML header. It defines the file name, the header fields, the body, the links,
-and the size limits. It defines which values are fixed and which a knowledge
-base may change.
+and the size limits. It defines which values are fixed and which a memory
+repository may change.
 
 This standard does not define how a person or a program reads or writes
-documents, how a repository is laid out outside the root folder of a knowledge base, or
+documents, how a repository is laid out outside the root folder of a memory repository, or
 how a document is shown.
 
 ## 2 Conformance
@@ -28,19 +28,19 @@ described in RFC 2119.
 
 - **Conforming document.** A document that follows every MUST and MUST NOT of
   sections 6 to 9.
-- **Conforming knowledge base.** A root folder with a marker folder (section 5) in
-  which every document is a conforming document. A conforming knowledge base
+- **Conforming memory repository.** A root folder with a marker folder (section 5) in
+  which every document is a conforming document. A conforming memory repository
   MUST NOT need a central index file that writers edit. Generated index files MAY
   exist.
 - **Conforming producer.** A person or a program that creates or changes
   documents. A conforming producer MUST produce conforming documents. It MUST set
   `updated` and `updated_by` on every change. It MUST NOT create or change a
-  document outside the root of the knowledge base. It MUST NOT move or rename
+  document outside the root of the memory repository. It MUST NOT move or rename
   an existing document without fixing every link that the change breaks. It MUST keep the parts of a document that it does not
   understand, such as callouts and comments written by people.
 
-A claim of conformance MUST name the version, for example "conforms to MKBase
-1.0".
+A claim of conformance MUST name the version, for example "conforms to the Waymark Memory
+Standard 1.0".
 
 ## 3 Normative references
 
@@ -51,37 +51,37 @@ A claim of conformance MUST name the version, for example "conforms to MKBase
 
 ## 4 Terms and definitions
 
-- **document.** One Markdown file of a knowledge base. It holds one topic.
-- **knowledge base.** The set of documents below one root.
+- **document.** One Markdown file of a memory repository. It holds one topic.
+- **memory repository.** The set of documents below one root.
 - **root.** The folder that contains the marker folder `.waymark`.
-- **marker folder.** The folder `.waymark` in the root. It defines the root and holds the metadata and the configuration of the knowledge base.
+- **marker folder.** The folder `.waymark` in the root. It defines the root and holds the metadata and the configuration of the memory repository.
 - **frontmatter.** The YAML header at the start of a document.
 - **property.** One key and its value in the frontmatter.
 - **ID.** The path of a document below the root, without `.md`.
 - **producer.** A person or a program that writes documents.
 - **consumer.** A person or a program that reads documents.
 
-## 5 Knowledge base root and marker folder
+## 5 Memory repository root and marker folder
 
-1. A knowledge base has a root: a folder that contains a folder named `.waymark`.
+1. A memory repository has a root: a folder that contains a folder named `.waymark`.
    This folder is the marker folder.
-2. The marker folder holds the metadata and the configuration of the knowledge
-   base. Its content is open. This version of the standard defines only the
+2. The marker folder holds the metadata and the configuration of the memory
+   repository. Its content is open. This version of the standard defines only the
    files in rule 3 and rule 4.
 3. The marker folder MUST contain a file `version`. It holds the version of this
-   standard that the knowledge base follows, for example `1.0`, in UTF-8 text.
+   standard that the memory repository follows, for example `1.0`, in UTF-8 text.
    (A file is needed because Git does not store an empty folder.)
 4. The marker folder MAY contain a file `exclude`. It is UTF-8 text. A line that
    is empty or starts with `#` is ignored. Every other line names a file or a
    folder, as a path relative to the root and without a leading `/`. A named file
-   or folder, and everything below a named folder, is not part of the knowledge
-   base.
+   or folder, and everything below a named folder, is not part of the memory
+   repository.
 5. A tool SHOULD keep its own files in the marker folder in a subfolder or with
    a name that carries the name of the tool, for example
    `.waymark/example-tool/settings.toml`. A consumer MUST ignore files in the
    marker folder that it does not know. A producer MUST keep them.
-6. A file or a folder whose name starts with `.` is not part of the knowledge
-   base. This includes the marker folder.
+6. A file or a folder whose name starts with `.` is not part of the memory
+   repository. This includes the marker folder.
 7. Every file with the extension `.md` below the root is a document, except the
    files that are excluded by rule 4 or rule 6. A file with another extension is
    not a document.
@@ -89,7 +89,7 @@ A claim of conformance MUST name the version, for example "conforms to MKBase
    `backend/payments/idempotency-keys`.
 9. The root MAY be the root of a repository, or any folder in it. This standard
     names no folder. To keep other Markdown files, such as a `README.md`, out of
-    the knowledge base, a knowledge base excludes them in `exclude`, or puts the
+    the memory repository, a memory repository excludes them in `exclude`, or puts the
     marker folder in a subfolder.
 10. A program finds the root as the first folder that contains a marker folder,
     going up from the file or folder in question.
@@ -108,7 +108,7 @@ A claim of conformance MUST name the version, for example "conforms to MKBase
    when the title changes. A rename changes the ID of the document, like a move
    (section 5), and the producer MUST fix the links that it breaks.
 7. The ID of a document is defined in section 5.
-8. A knowledge base MUST NOT hold binary data. A document describes it and links
+8. A memory repository MUST NOT hold binary data. A document describes it and links
    to it.
 
 ## 7 Frontmatter fields
@@ -133,7 +133,7 @@ quotes. A producer SHOULD quote every `title` and `description`.
 | `related` | no | List of full-path wikilinks: read these too. |
 | `supersedes` | no | List of full-path wikilinks: this document replaces an older one. The older one becomes `deprecated`. |
 | `anchors` | no | List of strings `"<type>:<target>"` that point to the file or page the document describes. Types: `git` (`<repo>/<path>@<commit>`) and `url`. |
-| `trust`, `verified_by`, `verified` | no | Only when the knowledge base uses verification. Never set these yourself. Keep them as they are. |
+| `trust`, `verified_by`, `verified` | no | Only when the memory repository uses verification. Never set these yourself. Keep them as they are. |
 
 Rules for the fields:
 
@@ -149,7 +149,7 @@ Rules for the fields:
 7. `supersedes` MUST name the replaced document, and the replaced document
    SHOULD have `status: deprecated`.
 8. A producer MUST NOT set `trust`, `verified_by`, or `verified` unless the
-   knowledge base uses verification. A producer MUST keep these fields as they
+   memory repository uses verification. A producer MUST keep these fields as they
    are when it changes a document, unless a verification process changes them.
 9. A consumer MUST ignore properties that it does not know. A producer MUST keep
    them.
@@ -197,9 +197,9 @@ A producer and a consumer MUST count in the same way.
 
 ## 10 Configurable parameters
 
-A knowledge base MAY change the values below. A producer MUST use the values of
-the knowledge base it writes to. If the knowledge base names no value, the
-default applies. How a knowledge base names its values is not defined here.
+A memory repository MAY change the values below. A producer MUST use the values of
+the memory repository it writes to. If the memory repository names no value, the
+default applies. How a memory repository names its values is not defined here.
 
 | Parameter | Default | Note |
 |---|---|---|
@@ -207,14 +207,14 @@ default applies. How a knowledge base names its values is not defined here.
 | Title limit | 15 words | |
 | Description limit | 50 words | |
 
-Everything else in this standard is fixed. A knowledge base MUST NOT change the
+Everything else in this standard is fixed. A memory repository MUST NOT change the
 field names, the field types, the file name rules, or the link forms.
 
 ## 11 Obsidian compatibility
 
 Obsidian is a product. It has no formal specification, and it can change. This
 standard does not use it as a normative reference. Obsidian finds a vault by
-its `.obsidian` folder. MKBase finds a knowledge base by its `.waymark` folder.
+its `.obsidian` folder. The Waymark Memory Standard finds a memory repository by its `.waymark` folder.
 
 1. A conforming document SHOULD open in Obsidian without errors. Its properties,
    links, tags, and graph SHOULD work.
@@ -224,7 +224,7 @@ its `.obsidian` folder. MKBase finds a knowledge base by its `.waymark` folder.
 3. A consumer and a producer MUST accept callouts, embeds, highlights, and
    comments that people wrote in the body. They are not errors. A word count
    ignores their markup.
-4. A knowledge base that is used with Obsidian SHOULD set the options
+4. A memory repository that is used with Obsidian SHOULD set the options
    `"useMarkdownLinks": true` and `"newLinkFormat": "relative"` in
    `.obsidian/app.json`. Then Obsidian writes the link form that section 8
    requires. Without them, Obsidian writes wikilinks with short paths in the body.

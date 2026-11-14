@@ -8,7 +8,7 @@ pub mod limits;
 pub use layers::{load_file_layers, parse_layer, read_layer, ConfigError, Paths};
 pub use limits::{Access, ApprovalVia, Denied, Effective, Kind, Limits};
 
-/// Merge the layers in order: the file layers, the shared layer from the knowledge base,
+/// Merge the layers in order: the file layers, the shared layer from the memory repository,
 /// and the layer from the MCP entry.
 pub fn effective(
     file_layers: &[Limits],

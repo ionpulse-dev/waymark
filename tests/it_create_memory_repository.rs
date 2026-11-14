@@ -132,7 +132,7 @@ fn a3_init_twice_changes_nothing() {
     let head = remote_head(&w);
     let r = init(&mut c, json!({"name": "Example"}));
     assert_eq!(r.code(), Some("validation_failed"));
-    assert!(r.message().contains("already a knowledge base"));
+    assert!(r.message().contains("already a memory repository"));
     assert_eq!(remote_head(&w), head);
 }
 
@@ -336,7 +336,7 @@ fn undo_refuses_an_init_commit() {
     assert!(u.is_error, "{}", u.json);
 }
 
-/// A folder made for the older MKBase standard: the marker and documents, no `settings.toml`.
+/// A folder with the marker and documents but no `settings.toml`.
 fn old_marker_repo(w: &World, base: &str) {
     let dir = w.a.join(base);
     std::fs::create_dir_all(dir.join(".waymark")).unwrap();
@@ -379,13 +379,16 @@ fn a16_a_folder_with_the_marker_and_no_settings_file_gets_only_that_file() {
 }
 
 #[test]
-fn a17_the_marker_in_knowledge_gets_the_file_there() {
+fn a17_the_marker_in_agent_memory_gets_the_file_there() {
     let w = World::empty();
     old_marker_repo(&w, "agent-memory");
     let mut c = client(&w, Person::A);
     let r = init(&mut c, json!({"name": "Mine"}));
     assert!(!r.is_error, "{}", r.json);
-    assert_eq!(r.json["files"], json!(["agent-memory/.waymark/settings.toml"]));
+    assert_eq!(
+        r.json["files"],
+        json!(["agent-memory/.waymark/settings.toml"])
+    );
 }
 
 #[test]

@@ -82,10 +82,10 @@ impl Tool for Add {
                 .with_next("Choose a folder that the limits allow."));
             }
             if memrepo.is_excluded(&id) {
-                return Err(
-                    Error::validation("This folder is excluded from the knowledge base.")
-                        .with_next("Choose another folder."),
-                );
+                return Err(Error::validation(
+                    "This folder is excluded from the memory repository.",
+                )
+                .with_next("Choose another folder."));
             }
 
             let mut doc = Document::new(&writes::make_body(&body));

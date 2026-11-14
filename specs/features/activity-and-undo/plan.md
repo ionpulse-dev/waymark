@@ -7,7 +7,7 @@ Two tool files. Both read the Git history through `gitsync::log`. `undo` runs in
 ## Components Affected
 
 - `gitsync` (`git-sync`) — `log` gets two helpers (see below), and `message` gets the message body (also needed by `write-documents`). `Repo::write` runs `undo` in its closure.
-- `config` — `folders` globs. `kb` — the root and the document test (a path below the root that ends in `.md`, not excluded).
+- `config` — `folders` globs. `memrepo` — the root and the document test (a path below the root that ends in `.md`, not excluded).
 - `writes` (`write-documents`) — preview and result helpers.
 - `mcp` — the `Tool` trait. `src/tools/mod.rs` — two lines in the registry.
 

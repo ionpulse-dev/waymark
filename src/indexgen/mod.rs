@@ -135,7 +135,7 @@ pub fn plan(store: &Store, scope: &Scope, author: &str, today: &str) -> Vec<Acti
                 let (title, description) = if folder.is_empty() {
                     (
                         "Index".to_string(),
-                        "Generated list of the documents in the knowledge base.".to_string(),
+                        "Generated list of the documents in the memory repository.".to_string(),
                     )
                 } else {
                     (

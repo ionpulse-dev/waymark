@@ -35,11 +35,11 @@ small and new. The big ones are single-user memory tools.
 - A runtime such as Node or Python. A native app with no runtime is an advantage.
 - Support for only one agent tool.
 - A cloud or database dependency.
-- A full dump of the knowledge base into the agent context.
+- A full dump of the memory into the agent context.
 
 ### Different on purpose
 
-- One content repo per organization, not notes inside each code repo. Only repertory does the same.
+- One memory repository per organization, not notes inside each code repository. Only repertory does the same.
 - Users need no Git knowledge. Other tools need pull request skills.
 - Wiki model with personal responsibility. Owner verification is optional. No other project has this.
 - Autonomy is a personal setting. teamlore always needs a human pull request merge, which is strong but slow.
@@ -103,7 +103,7 @@ Compared on 2026-11-06.
 
 | | Obsidian Sync | waymark |
 |---|---|---|
-| Purpose | Sync a personal Obsidian vault across devices | Knowledge base and memory for AI agents, with write rules |
+| Purpose | Sync a personal Obsidian vault across devices | Long-term agent memory, with write rules |
 | Who writes | The person, by hand | Mainly agents, as a side effect of work |
 | Storage | Markdown on the devices, synced end-to-end encrypted | Markdown in the person's own Git repo (the Git host can read it) |
 | History | Version history per file, limited time | Full Git history, blame, undo |
@@ -112,7 +112,7 @@ Compared on 2026-11-06.
 | Teams | Shared vaults, no ownership or review | Team folders, authors, disputes, optional review |
 | Price | $4–5 per user per month, app free | Free, open source |
 
-**Lesson:** a waymark content repo is a valid Obsidian vault (Markdown,
+**Lesson:** a waymark memory repository is a valid Obsidian vault (Markdown,
 YAML frontmatter, relative links). People can read and browse the
-knowledge base in Obsidian today, including the link graph. Edits in
+memory repository in Obsidian today, including the link graph. Edits in
 Obsidian bypass the waymark checks. `waymark lint` reports problems later.

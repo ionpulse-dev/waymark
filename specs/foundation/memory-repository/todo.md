@@ -1,4 +1,4 @@
-# Todo: Knowledge base repository
+# Todo: Memory repository repository
 
 ## Bugs
 

@@ -1,4 +1,4 @@
-//! The knowledge base: its root, its settings, and its documents (see `memory-repository`).
+//! The memory repository: its root, its settings, and its documents (see `memory-repository`).
 //!
 //! This module reads files. It does not run Git (see `gitsync`).
 
@@ -16,7 +16,7 @@ use crate::error::{Error, Result};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-/// A knowledge base on disk.
+/// A memory repository on disk.
 #[derive(Debug, Clone)]
 pub struct MemRepo {
     /// The folder of the repository (the working tree).
@@ -26,7 +26,7 @@ pub struct MemRepo {
     pub settings: Settings,
 }
 
-/// A document in the knowledge base.
+/// A document in the memory repository.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocRef {
     /// The path below the root without `.md`.
@@ -34,13 +34,13 @@ pub struct DocRef {
 }
 
 impl MemRepo {
-    /// Open the knowledge base in a repository folder.
+    /// Open the memory repository in a repository folder.
     pub fn open(repo_dir: &Path) -> Result<MemRepo> {
         let root = find_root(repo_dir)?;
         let path = root.join(MARKER).join(layout::SETTINGS_FILE);
         let text = fs::read_to_string(&path).map_err(|e| {
             Error::setup(format!("Cannot read {}: {e}", path.display())).with_next(
-                "Create the knowledge base with the init tool, or restore the file from Git.",
+                "Create the memory repository with the init tool, or restore the file from Git.",
             )
         })?;
         let settings = settings::parse(&text, ".waymark/settings.toml")?;

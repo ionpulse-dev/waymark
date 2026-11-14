@@ -97,7 +97,10 @@ mod tests {
 
     #[test]
     fn hosts() {
-        assert_eq!(host("git@github.com:example/waymark-agent-memory.git"), "github.com");
+        assert_eq!(
+            host("git@github.com:example/waymark-agent-memory.git"),
+            "github.com"
+        );
         assert_eq!(host("ssh://git@example.org:2222/team/k.git"), "example.org");
         assert_eq!(
             host("https://user:secret@Git.Example.org/a/b.git"),

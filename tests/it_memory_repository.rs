@@ -1,4 +1,4 @@
-//! End-to-end tests of the knowledge base layout (see `specs/foundation/memory-repository/test.md`).
+//! End-to-end tests of the memory repository layout (see `specs/foundation/memory-repository/test.md`).
 
 mod common;
 use common::git::git;
@@ -88,7 +88,7 @@ fn unknown_keys_give_a_notice_and_no_error() {
 }
 
 #[test]
-fn the_layout_has_the_root_in_knowledge_and_no_owners_field() {
+fn the_layout_has_the_root_in_agent_memory_and_no_owners_field() {
     let w = World::new();
     let memrepo = waymark::memrepo::MemRepo::open(&w.a).unwrap();
     assert!(memrepo.root.ends_with("agent-memory"));
@@ -227,7 +227,10 @@ fn a_write_repairs_a_missing_schema_in_its_own_commit() {
     let lines: Vec<&str> = log.lines().collect();
     assert_eq!(lines[0], "waymark: add \"After repair\"", "{log}");
     assert_eq!(lines[1], "waymark: repair \"settings\"", "{log}");
-    let settings = git(&w.remote, &["show", "main:agent-memory/.waymark/settings.toml"]);
+    let settings = git(
+        &w.remote,
+        &["show", "main:agent-memory/.waymark/settings.toml"],
+    );
     // A comment on top stays on top, and the key comes before the first setting.
     assert!(
         settings.lines().next().unwrap().starts_with('#'),
@@ -266,7 +269,10 @@ fn a_repair_keeps_the_values_that_the_owner_set() {
         json!({"folder": "ops", "title": "Keep limits", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
-    let settings = git(&w.remote, &["show", "main:agent-memory/.waymark/settings.toml"]);
+    let settings = git(
+        &w.remote,
+        &["show", "main:agent-memory/.waymark/settings.toml"],
+    );
     assert!(settings.contains("max_results = 2 # tight"), "{settings}");
     assert!(
         settings.contains("\nschema = 1\n") || settings.starts_with("schema = 1\n"),
@@ -279,7 +285,7 @@ fn the_template_explains_every_setting_and_keeps_no_wrong_header() {
     let w = World::new();
     let text = std::fs::read_to_string(w.a.join("agent-memory/.waymark/settings.toml")).unwrap();
     assert!(!text.contains("Every key in the sections below is optional"));
-    assert!(text.contains("Identifies this knowledge base. Required."));
+    assert!(text.contains("Identifies this memory repository. Required."));
     // Every line that sets a key has a comment line right above it.
     let lines: Vec<&str> = text.lines().collect();
     for (i, l) in lines.iter().enumerate() {

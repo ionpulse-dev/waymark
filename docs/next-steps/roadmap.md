@@ -12,7 +12,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 |---|---|---|
 | 0. Close the design | All specs have reviewed requirements, and the facts about the agent tools are verified | Building on wrong assumptions |
 | 1. Core and local mode | Agents read and write documents through MCP over stdio | Do the tool descriptions and limits produce useful documents? |
-| 2. Dogfooding | Real use on own knowledge bases for some weeks | Noise, context cost, sync problems |
+| 2. Dogfooding | Real use on own memory repositories for some weeks | Noise, context cost, sync problems |
 | 3. Server mode | A shared server for one organization, with sign-in, roles, and a web console | Does it work for a team and for chat apps? |
 | 4. Pilot | A team and private users use it daily | Does it work beyond the author? |
 | 5. Public release | Open source release, signed binary, container image, docs | — |
@@ -25,7 +25,7 @@ No dates. Each phase ends with a clear result. The status of each spec is in [sp
 - [ ] Test write approval in Claude Code, GitHub Copilot, and OpenAI Codex: does elicitation ask when the tool runs without permission prompts, can a client answer it automatically, and do explicit `ask` rules still prompt (`write-approval`, `agent-tool-setup`).
 - [ ] Verify the login flows that Claude and ChatGPT accept for a self-hosted MCP server (`server-mode`).
 - [ ] Write the document schema and the sample vault (`document-format`), and check the vault in Obsidian.
-- [ ] Write the `.waymark/settings.toml` schema and the templates for a content repository (`memory-repository`).
+- [ ] Write the `.waymark/settings.toml` schema and the templates for a memory repository (`memory-repository`).
 - [ ] Decide where the standalone plain-Git skills live after `waymark-trail` is retired, pin a version, and test it in Claude Code on the web (`plain-git-access`).
 - [ ] Decide the build environment: Rust toolchain version, MCP library, and the signing identity.
 - [ ] Install Obsidian on a test machine for the sample vault check.
@@ -49,7 +49,7 @@ Result: an agent in Claude Code, Copilot, or Codex can search, read, write, and 
 
 Use waymark for real, before anyone else does:
 
-- A private knowledge base of the author.
+- A private memory repository of the author.
 - The documents of this project as a second test.
 
 Measure and fix:
@@ -95,5 +95,5 @@ See [ideas.md](../ideas.md). The largest items:
 
 - Multi-tenancy (`multi-tenancy`): separate organizations on one server.
 - A console page to connect a Git account.
-- Knowledge browser, company rollout through device management.
+- Memory browser, company rollout through device management.
 - Anchor check, device login.

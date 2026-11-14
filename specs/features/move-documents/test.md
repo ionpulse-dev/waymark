@@ -32,4 +32,4 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 ## Notes
 
-The tests use the `World` harness. A test builds a knowledge base with a nested folder and cross links first.
+The tests use the `World` harness. A test builds a memory repository with a nested folder and cross links first.

@@ -1,6 +1,6 @@
 # Rules for agents
 
-This repository is a knowledge base: Markdown documents for people and AI agents. The documents are in the folder `agent-memory/`.
+This repository is a memory repository: Markdown documents for people and AI agents. The documents are in the folder `agent-memory/`.
 
 ## Which rules apply
 

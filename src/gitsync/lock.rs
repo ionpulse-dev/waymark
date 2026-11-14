@@ -29,7 +29,7 @@ impl Lock {
                 Err(TryLockError::WouldBlock) => {
                     if start.elapsed() >= wait {
                         return Err(Error::sync(
-                            "Another waymark call holds the lock on this knowledge base.",
+                            "Another waymark call holds the lock on this memory repository.",
                         )
                         .with_next("Wait a moment and try again."));
                     }

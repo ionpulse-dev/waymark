@@ -6,7 +6,7 @@ Date: 2026-11-14. Scope: the `waymark` binary in local mode on macOS. The review
 
 | Area | Result |
 |---|---|
-| Document IDs and folders that leave the root (`..`, absolute paths, hidden parts, backslash, NUL, `.md` suffix) | Refused by `KnowledgeBase::path_of` for every tool. Test S1. |
+| Document IDs and folders that leave the root (`..`, absolute paths, hidden parts, backslash, NUL, `.md` suffix) | Refused by `MemRepo::path_of` for every tool. Test S1. |
 | Symbolic links | A document that is a link is never read or written, also a dangling link. A link in a folder that leads out of the root is refused. **Found and fixed:** a dangling link to a file outside the root passed the old check, so a write would have created that file. Test S2. |
 | Text from a caller in `git` calls | `git` runs with an argument list, never through a shell. Paths follow `--`. Commit hashes and dates are parsed before use. Test S3. |
 | Repository URL | **Found and fixed:** a `--repo` that starts with a dash could be read as a `git clone` option. The URL is refused, and the call has `--`. |

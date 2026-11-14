@@ -37,7 +37,11 @@ fn activity_lists_newest_first_and_only_my_writes() {
     add(&mut b, "ops", "Ben document", "x");
     add(&mut a, "ops", "Second document", "x");
     // A plain Git commit does not show.
-    std::fs::write(w.a.join("agent-memory/ops/plain.md"), "---\ntitle: P\n---\n").unwrap();
+    std::fs::write(
+        w.a.join("agent-memory/ops/plain.md"),
+        "---\ntitle: P\n---\n",
+    )
+    .unwrap();
     git(&w.a, &["add", "-A"]);
     git(&w.a, &["commit", "-q", "-m", "plain commit"]);
     let e = entries(&mut a, json!({}));

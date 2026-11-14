@@ -15,12 +15,12 @@ Plain Rust integration tests in `tests/`, with a shared module `tests/common/`. 
 - `tests/common/world.rs` — `World`: remote, clones, authors, environment isolation.
 - `tests/common/git.rs` — helpers: run `git` in a clone, list commits, read a file at a commit, check the working tree is clean.
 - `tests/common/mcp.rs` — `McpClient`: spawn, `initialize`, `list_tools`, `call(tool, args)`, and a hook to answer elicitation.
-- `tests/common/kb.rs` — builders for a knowledge base layout and for documents.
+- `tests/common/memrepo.rs` — builders for a memory repository layout and for documents.
 - `tests/it_harness.rs` — tests of the harness itself.
 
 ## Technical Approach
 
-1. `World::new()` creates a temp root, `git init --bare remote.git`, clones to `a/` and `b/`, writes a minimal knowledge base (marker folder, `settings.toml`, a few documents) in `a/`, commits, and pushes.
+1. `World::new()` creates a temp root, `git init --bare remote.git`, clones to `a/` and `b/`, writes a minimal memory repository (marker folder, `settings.toml`, a few documents) in `a/`, commits, and pushes.
 2. Environment isolation: `HOME`, `XDG_CONFIG_HOME`, `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_SYSTEM=/dev/null`, `GIT_AUTHOR_*` and `GIT_COMMITTER_*` are set for every child process.
 3. `McpClient::spawn(world, person, args)` starts `waymark --repo <path> --path <clone> ...` and speaks newline-delimited JSON-RPC on stdio. A read thread collects messages. `call` waits for the response with a timeout.
 4. A test keeps the temp folder when it fails (a guard object checks `std::thread::panicking()`).

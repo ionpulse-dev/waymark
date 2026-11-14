@@ -1,4 +1,4 @@
-//! The `AGENTS.md` of a new knowledge base: an introduction and the plain-Git rules
+//! The `AGENTS.md` of a new memory repository: an introduction and the plain-Git rules
 //! (see `specs/features/plain-git-access`).
 //!
 //! The rules are the standalone skills in `plain-git/`. They never depend on waymark.
@@ -126,6 +126,10 @@ mod tests {
             // The skills may name the marker folder and the standard, but not the program.
             let without = s
                 .replace("waymark-trail", "")
+                .replace(
+                    "https://github.com/ionpulse-dev/waymark/blob/main/standard/waymark-1.0.md",
+                    "",
+                )
                 .replace(".waymark", "")
                 .replace("Waymark Memory Standard", "");
             assert!(!without.to_lowercase().contains("waymark"));

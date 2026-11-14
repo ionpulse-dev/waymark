@@ -18,7 +18,7 @@ requires:
 ## Personas
 
 - **Every person** — has Git signed in once and a real email in the Git settings.
-- **Knowledge base owner** — can limit the allowed email domains.
+- **Memory owner** — can limit the allowed email domains.
 
 ## Behaviour
 
@@ -52,7 +52,7 @@ waymark accepts only an address that reaches a person. It checks in `status` and
    | Non-personal | `nobody@`, `null@`, `devnull`, `mailer-daemon`, `postmaster@`, `bounce`, `bounces`, `notifications@`, `notification@`, `automated`, `bot@`, `[bot]` |
    | Fake | `test@`, `placeholder`, `changeme`, `unknown@`, `none@` |
 
-   A knowledge base adds its own parts in `people.email_blocklist`. To block the reserved example domains (`example.com`, `example.org`, `example.net`, and the endings `.invalid`, `.local`, `.localhost`, `.test`, `.example`), a knowledge base lists them there. They are not blocked by default (see `decisions.md`).
+   A memory repository adds its own parts in `people.email_blocklist`. To block the reserved example domains (`example.com`, `example.org`, `example.net`, and the endings `.invalid`, `.local`, `.localhost`, `.test`, `.example`), a memory repository lists them there. They are not blocked by default (see `decisions.md`).
 3. **Allowed domains (optional).** If `people.email_domains` is set, the address must use one of them. This is the strongest check.
 
 Not in the current scope: the MX record check and the check against the verified emails of the Git host account.

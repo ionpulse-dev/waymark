@@ -116,3 +116,12 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Alternatives considered:** Ignore unknown arguments (rejected: a newer limit would be dropped without a word). Exit as before (rejected: the agent tool shows only "failed to connect", with no cause). Write the entry ourselves (rejected: waymark never writes into an agent tool).
 
 **Reason:** The description of a tool is always in the context of the agent, so it is the one channel that does not depend on the client showing `instructions`. How each agent tool shows the three channels is open until the manual test runs.
+
+## Vocabulary: agent memory and memory repository — 2026-11-14
+
+**Decision:** The words "knowledge base" and "content repository" are replaced by
+"memory repository" in normative text, code, and messages. "Knowledge base" stays
+only as a use case. The earlier entries of this file keep their original words,
+because they record what was said at the time. The rules and the reasons are in
+the spec [terminology](../terminology/decisions.md).
+

@@ -10,7 +10,7 @@ requires:
 
 # Pause and resume
 
-> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. The console switch, the owner pause of a whole knowledge base on a server, and the operator pause are out of scope for now. They stay in `todo.md` (see [project decisions](../../../docs/decisions.md)).
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. The console switch, the owner pause of a whole memory repository on a server, and the operator pause are out of scope for now. They stay in `todo.md` (see [project decisions](../../../docs/decisions.md)).
 
 ## User Story
 
@@ -19,7 +19,7 @@ requires:
 ## Personas
 
 - **Every person** — uses the switch.
-- **Knowledge base owner** — can pause writes for everyone through the shared file of the knowledge base.
+- **Memory owner** — can pause writes for everyone through the shared file of the memory repository.
 - **IT** — can pause writes through the system config file.
 
 ## Behaviour
@@ -38,7 +38,7 @@ requires:
 - **A write that already waits** for an answer (see `write-approval`) checks the limits again after the answer. If a pause was set meanwhile, the write fails with `paused` and nothing is written.
 - **Which code wins.** If `access` is `read-only` and `paused` is true, a write fails with `access_denied`, because a resume would not help.
 - The person can also stop the MCP entry in the agent tool. This stops all tools of waymark.
-- Pause is global for the person. It is not per knowledge base. The shared file pauses one knowledge base for all its people.
+- Pause is global for the person. It is not per memory repository. The shared file pauses one memory repository for all its people.
 
 ## Interfaces & Contracts
 

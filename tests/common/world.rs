@@ -35,7 +35,7 @@ pub struct World {
 }
 
 impl World {
-    /// A bare remote with no commit and two clones of it. No knowledge base exists.
+    /// A bare remote with no commit and two clones of it. No memory repository exists.
     pub fn empty() -> World {
         isolate();
         let root = tempfile::Builder::new()
@@ -57,7 +57,7 @@ impl World {
         }
     }
 
-    /// A remote with one commit (a knowledge base from `init`) and two clones.
+    /// A remote with one commit (a memory repository from `init`) and two clones.
     pub fn new() -> World {
         isolate();
         let root = tempfile::Builder::new()

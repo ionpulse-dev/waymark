@@ -24,7 +24,7 @@ fn commit_all(w: &World, msg: &str) {
     git(&w.a, &["push", "-q"]);
 }
 
-/// A knowledge base with a folder and cross links.
+/// A memory repository with a folder and cross links.
 fn setup(w: &World) {
     write_doc(
         &w.a,
@@ -75,7 +75,7 @@ fn a_folder_move_keeps_links_and_history_in_two_commits() {
     assert_eq!(r.json["pushed"], true);
     assert!(r.json["notices"]
         .to_string()
-        .contains("outside this knowledge base are not checked"));
+        .contains("outside this memory repository are not checked"));
     let commits = r.json["commits"].as_array().unwrap();
     assert_eq!(commits.len(), 2);
     // The files moved, including the image.
@@ -338,7 +338,11 @@ fn the_other_clone_sees_the_new_layout_and_a_second_move_is_not_found() {
 fn a_document_with_a_blocked_manual_edit_cannot_move() {
     let w = World::new();
     setup(&w);
-    std::fs::write(w.a.join("agent-memory/ops/unrelated.md"), "no frontmatter\n").unwrap();
+    std::fs::write(
+        w.a.join("agent-memory/ops/unrelated.md"),
+        "no frontmatter\n",
+    )
+    .unwrap();
     let mut c = client(&w);
     let r = c.call(
         "move",

@@ -182,7 +182,9 @@ impl Tool for Move {
             for d in &all {
                 let old_id = &d.id;
                 let new_id = remap.new_id(old_id).to_string();
-                let Ok(text) = memrepo.read(old_id) else { continue };
+                let Ok(text) = memrepo.read(old_id) else {
+                    continue;
+                };
                 let Ok(mut doc) = format::parse(&text) else {
                     continue;
                 };
@@ -256,7 +258,7 @@ impl Tool for Move {
             let fixed = links_updated.len();
             data.insert("links_updated".into(), json!(links_updated));
             let notices =
-                vec!["Links from outside this knowledge base are not checked.".to_string()];
+                vec!["Links from outside this memory repository are not checked.".to_string()];
             let docs = if total == 1 { "document" } else { "documents" };
             Ok(Plan {
                 revert: None,
@@ -281,7 +283,8 @@ impl Tool for Move {
 
 /// The title of a document, for the commit message. The ID if it has none.
 fn text_title(memrepo: &crate::memrepo::MemRepo, id: &str) -> String {
-    memrepo.read(id)
+    memrepo
+        .read(id)
         .ok()
         .and_then(|t| format::parse(&t).ok())
         .and_then(|d| d.frontmatter.get_text("title").map(str::to_string))

@@ -1,4 +1,4 @@
-//! End-to-end scenarios across features (task G1 of the plan). One knowledge base is created, two
+//! End-to-end scenarios across features (task G1 of the plan). One memory repository is created, two
 //! people use it, and every limit layer is tried. Each step names the spec it covers.
 
 mod common;
@@ -207,7 +207,11 @@ fn project_binding_refuses_another_memory_repository() {
     ok(a.call("init", json!({"name": "Team KB"})));
     drop(a);
     let other = "123e4567-e89b-42d3-a456-426614174000";
-    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--memory-repository-id", other]));
+    let mut c = McpClient::for_person(
+        &w,
+        Person::A,
+        Spawn::args(&["--memory-repository-id", other]),
+    );
     assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
     let s = ok(c.call("status", json!({})));
     assert_eq!(s["healthy"], false);

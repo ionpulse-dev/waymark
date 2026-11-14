@@ -89,7 +89,8 @@ fn s2_symbolic_links_are_never_read_or_written() {
     std::fs::create_dir_all(memrepo.join("ops")).unwrap();
     // A file link to an existing file, a dangling file link, and a folder link.
     std::os::unix::fs::symlink(outside.join("secret.md"), memrepo.join("ops/linked.md")).unwrap();
-    std::os::unix::fs::symlink(outside.join("new-file.md"), memrepo.join("ops/dangling.md")).unwrap();
+    std::os::unix::fs::symlink(outside.join("new-file.md"), memrepo.join("ops/dangling.md"))
+        .unwrap();
     std::os::unix::fs::symlink(&outside, memrepo.join("escape")).unwrap();
     let mut c = client(&w);
     let r = c.call("show", json!({"id": "ops/linked"}));

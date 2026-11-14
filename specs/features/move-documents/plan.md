@@ -9,7 +9,7 @@
 - `gitsync` (`git-sync`) — `Repo::write` must allow an ordered list of commits in one transaction, and a check step that runs before the push (see `decisions.md`).
 - `writes` (`write-documents`) — `linkfix` (retarget), the `folders` check, preview and result helpers.
 - `format` — `parse`, `render`, `links` (spans), `id` (file name rules).
-- `kb` — the root and the list of documents. `config` — the `folders` globs.
+- `memrepo` — the root and the list of documents. `config` — the `folders` globs.
 - `src/tools/mod.rs` — one line in the registry.
 
 ## New Files

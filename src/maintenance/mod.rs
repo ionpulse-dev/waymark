@@ -6,8 +6,8 @@ use crate::config::{self, Limits};
 use crate::gitsync::cmd;
 use crate::gitsync::probe::Probe;
 use crate::identity::{self, redact_text, LOGIN_NEXT};
-use crate::memrepo::MemRepo;
 use crate::mcp::context::{Context, JoinState};
+use crate::memrepo::MemRepo;
 use serde_json::{json, Value};
 use sources::Layer;
 

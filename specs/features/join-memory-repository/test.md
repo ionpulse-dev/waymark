@@ -1,4 +1,4 @@
-# Tests: Join a knowledge base
+# Tests: Join a memory repository
 
 _`[auto]` items are verified by running the automated test suite. `[manual]` items require human verification in a real environment._
 
@@ -10,7 +10,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | **Given** a valid URL and a Git login, **When** the first session starts, **Then** the repository is cloned and `status` is ok. | A2, M1 |
 | **Given** a repository URL and no `--path`, **When** the first session starts, **Then** the clone is in `~/Projects/<repository-name>`. | A3 |
 | **Given** a personal value looser than the shared limit, **When** the server reads both, **Then** the stricter value applies. | A4 |
-| **Given** a person who adds a second entry for another knowledge base, **When** a session starts, **Then** the first one is unchanged. | A5 |
+| **Given** a person who adds a second entry for another memory repository, **When** a session starts, **Then** the first one is unchanged. | A5 |
 | **Given** a repository whose `.waymark/settings.toml` has no `id`, **When** the server reads it, **Then** it reports `setup_problem`. | A6 |
 | **Given** the server started twice, **When** the second start ends, **Then** nothing is cloned twice. | A7 |
 | **Given** a path that holds another repository or a non-empty folder, **When** the server starts, **Then** it changes nothing and reports `setup_problem`. | A8 |
@@ -21,8 +21,8 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 ## Test Cases
 
 - [x] [auto] A1: put a fake `git` that exits 1 first in `PATH`; start with `--repo`: `status` shows check `git` not ok with a `fix`, and the path does not exist (`tests/it_join_memory_repository.rs`)
-- [x] [auto] A2: `World` remote with a knowledge base, `--repo file://<remote>` and `--path <new folder>`: after `status` the state is `ready` and the folder is a clone (`tests/it_join_memory_repository.rs`)
-- [x] [auto] A3: `HOME` is a temporary folder, no `--path`, URL `.../team-knowledge.git`: the clone is in `$HOME/Projects/team-knowledge` (`tests/it_join_memory_repository.rs`)
+- [x] [auto] A2: `World` remote with a memory repository, `--repo file://<remote>` and `--path <new folder>`: after `status` the state is `ready` and the folder is a clone (`tests/it_join_memory_repository.rs`)
+- [x] [auto] A3: `HOME` is a temporary folder, no `--path`, URL `.../remote.git`: the clone is in `$HOME/Projects/remote-agent-memory` (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A4: shared `access = "read-only"`, personal `read-write`: `settings.access` is `read-only` and `add` fails with `access_denied` (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A5: two servers with two `--repo` values and two paths: both are `ready`, and the files of the first clone do not change (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A6: a remote whose `settings.toml` has no `id`: the state is `broken` and `search` returns `setup_problem` (`tests/it_join_memory_repository.rs`)

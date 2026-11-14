@@ -1,4 +1,4 @@
-# Tasks: Join a knowledge base
+# Tasks: Join a memory repository
 
 `requires`: `login-and-identity`, `agent-tool-setup`.
 

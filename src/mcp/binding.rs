@@ -1,8 +1,8 @@
-//! How the server finds its knowledge base (see `project-binding`).
+//! How the server finds its memory repository (see `project-binding`).
 //!
-//! One process serves one knowledge base. The folder is found at the first use and then kept.
+//! One process serves one memory repository. The folder is found at the first use and then kept.
 //! The rules, in order: `--path`, `--repo` (default folder), the working folder and its parents,
-//! and the one folder `~/Projects/*-agent-memory` that holds a knowledge base.
+//! and the one folder `~/Projects/*-agent-memory` that holds a memory repository.
 
 use super::args::Args;
 use super::repo_url;
@@ -64,7 +64,7 @@ fn git_root(dir: &Path) -> PathBuf {
 
 fn no_kb() -> Error {
     Error::setup(
-        "No knowledge base is set up. waymark found none in the working folder, and none or several in ~/Projects.",
+        "No memory repository is set up. waymark found none in the working folder, and none or several in ~/Projects.",
     )
     .with_next("Add --repo <git url> or --path <folder> to the MCP entry.")
 }
@@ -130,7 +130,7 @@ pub fn locate(args: &Args) -> Result<Found> {
         _ => {
             let names: Vec<String> = found.iter().map(|p| p.display().to_string()).collect();
             Err(Error::setup(format!(
-                "Several knowledge bases are in ~/Projects: {}.",
+                "Several memory repositories are in ~/Projects: {}.",
                 names.join(", ")
             ))
             .with_next("Add --repo <git url> or --path <folder> to the MCP entry."))
@@ -168,7 +168,7 @@ pub fn check_folder(args: &Args, dir: &Path, effective: &Effective) -> Result<()
             "{} is a linked Git worktree, which waymark does not support.",
             dir.display()
         ))
-        .with_next("Use the main clone of the knowledge base."));
+        .with_next("Use the main clone of the memory repository."));
     }
     if !git.is_dir() {
         return Err(
@@ -228,7 +228,7 @@ fn remove_stale_clones(dir: &Path, name: &str) {
 }
 
 /// Clone to a temporary folder next to the target, then rename it, so that a cut clone never
-/// counts as a knowledge base.
+/// counts as a memory repository.
 pub fn clone_checked(
     url: &str,
     dir: &Path,

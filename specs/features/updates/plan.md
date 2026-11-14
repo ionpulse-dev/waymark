@@ -16,7 +16,7 @@ A function `changes_since` compares the tree at the start of the window with `HE
 - `src/tools/updates.rs` — the `updates` tool.
 - `src/store/changes.rs` — `changes_since(repo, root, since) -> Vec<Change>` and the classification.
 - `src/gitsync/diff.rs` — `base_commit_before(ts)`, `changed_paths(base, root)` (`git diff --name-status -M`), and `last_change_by_others(path, base, own_email)`.
-- `src/state/mod.rs` — `State`: a JSON file for each person and knowledge base. Read, update one key, write atomically (temp file and rename).
+- `src/state/mod.rs` — `State`: a JSON file for each person and memory repository. Read, update one key, write atomically (temp file and rename).
 - `tests/it_updates.rs` — end-to-end tests with two clones.
 
 ## Technical Approach

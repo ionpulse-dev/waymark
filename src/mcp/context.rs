@@ -90,7 +90,11 @@ impl Context {
         };
         match config::load_file_layers(&self.paths) {
             Ok(files) => Limit {
-                effective: config::effective(&files, memrepo.map(|k| &k.settings.limits), Some(&entry)),
+                effective: config::effective(
+                    &files,
+                    memrepo.map(|k| &k.settings.limits),
+                    Some(&entry),
+                ),
                 problem: None,
             },
             Err(e) => Limit {
@@ -164,7 +168,7 @@ impl Context {
         )
     }
 
-    /// The state of the knowledge base, without waiting (see `join-memory-repository`).
+    /// The state of the memory repository, without waiting (see `join-memory-repository`).
     pub fn join_state(&self) -> JoinState {
         if self.is_cloning() {
             return JoinState::Cloning;
@@ -253,7 +257,7 @@ impl Context {
         Ok(resolved)
     }
 
-    /// The knowledge base if it is ready now. It never waits for a clone.
+    /// The memory repository if it is ready now. It never waits for a clone.
     pub fn memrepo_if_ready(&self) -> Option<MemRepo> {
         if self.is_cloning() {
             None
@@ -263,7 +267,7 @@ impl Context {
     }
 
     /// A problem that only an update fixes: an argument of the MCP entry that this waymark cannot
-    /// use, or a knowledge base that needs a newer waymark. It never waits for a clone.
+    /// use, or a memory repository that needs a newer waymark. It never waits for a clone.
     pub fn update_needed(&self) -> Option<Error> {
         if let Some(i) = self.args.blocking_issue() {
             return Some(Error::needs_update(i.message.clone(), i.next.clone()));
@@ -277,7 +281,7 @@ impl Context {
         }
     }
 
-    /// The knowledge base in the repository, read from disk at every call.
+    /// The memory repository in the repository, read from disk at every call.
     /// A different ID than `--memory-repository-id` is a `setup_problem`.
     pub fn memrepo(&self) -> Result<MemRepo> {
         let repo = self.repo()?;
@@ -295,7 +299,7 @@ impl Context {
         if let Some(want) = &self.args.memory_repository_id {
             if !want.eq_ignore_ascii_case(&memrepo.settings.id) {
                 return Err(Error::setup(
-                    "This repository is not the knowledge base that the entry names.",
+                    "This repository is not the memory repository that the entry names.",
                 )
                 .with_next("Check --memory-repository-id and --repo in the MCP entry."));
             }

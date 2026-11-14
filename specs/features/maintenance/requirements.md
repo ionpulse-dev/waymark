@@ -28,7 +28,7 @@ waymark has no commands for people. Health checks are a tool, and update and rem
 
 ### The `status` tool
 
-`status` is read-only. It runs in every limit state: `read-only`, `paused`, and also when the knowledge base is not set up. `tools_denied` does not hide it. It takes no input. It returns the state of the knowledge base, a list of `checks`, and the facts below. A failed check carries a plain-words `fix`.
+`status` is read-only. It runs in every limit state: `read-only`, `paused`, and also when the memory repository is not set up. `tools_denied` does not hide it. It takes no input. It returns the state of the memory repository, a list of `checks`, and the facts below. A failed check carries a plain-words `fix`.
 
 Checks, in this fixed order and with these fixed names:
 
@@ -55,7 +55,7 @@ The network call (`remote` and `git_login`) is one read call to the remote with 
 {
   "healthy": false,
   "version": "0.1.0",
-  "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/Projects/knowledge", "root": "knowledge" },
+  "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/Projects/waymark-agent-memory", "root": "knowledge" },
   "checks": [
     { "name": "git", "ok": true, "detail": "git version 2.50.1", "fix": null },
     { "name": "clone", "ok": true, "detail": "ready", "fix": null },

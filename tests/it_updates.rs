@@ -274,9 +274,15 @@ fn t14_the_state_file_keeps_other_keys() {
     let mut a = client(&w, Person::A);
     let memory_repository_id = {
         let s = a.call("status", json!({}));
-        s.json["memory_repository"]["id"].as_str().unwrap().to_string()
+        s.json["memory_repository"]["id"]
+            .as_str()
+            .unwrap()
+            .to_string()
     };
-    let file = w.root.join("home-a/state").join(format!("{memory_repository_id}.json"));
+    let file = w
+        .root
+        .join("home-a/state")
+        .join(format!("{memory_repository_id}.json"));
     std::fs::create_dir_all(file.parent().unwrap()).unwrap();
     std::fs::write(&file, "{\"other\": \"stays\"}").unwrap();
     updates(&mut a, json!({}));

@@ -18,7 +18,7 @@ pub struct Settings {
     /// The schema of the file. A file without the key has schema 1.
     pub schema: i64,
     pub name: String,
-    /// The UUID that identifies the knowledge base.
+    /// The UUID that identifies the memory repository.
     pub id: String,
     pub slug: String,
     pub verification: bool,
@@ -94,7 +94,7 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
     if schema > SCHEMA_VERSION {
         return Err(Error::needs_update(
             format!(
-                "This knowledge base needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
+                "This memory repository needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
             ),
             "Update waymark with `brew upgrade waymark`, then restart your agent tool.",
         ));

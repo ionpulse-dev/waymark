@@ -18,7 +18,7 @@ impl Tool for Folders {
     }
 
     fn description(&self) -> &'static str {
-        "Shows the folders of the knowledge base as a tree, with the number of documents in each. Use depth to go deeper, and folder to start below a folder. Changes nothing."
+        "Shows the folders of the memory repository as a tree, with the number of documents in each. Use depth to go deeper, and folder to start below a folder. Changes nothing."
     }
 
     fn kind(&self) -> Kind {

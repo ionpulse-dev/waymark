@@ -1,6 +1,6 @@
-//! A small state file for each person and knowledge base (see `specs/features/updates`).
+//! A small state file for each person and memory repository (see `specs/features/updates`).
 //!
-//! It holds facts that belong to this machine, not to the knowledge base: for example the time of
+//! It holds facts that belong to this machine, not to the memory repository: for example the time of
 //! the last `updates` call. The folder is `$WAYMARK_STATE_DIR`, else `$XDG_STATE_HOME/waymark`,
 //! else `~/.local/state/waymark`.
 
@@ -25,7 +25,7 @@ fn state_dir() -> PathBuf {
 }
 
 impl State {
-    /// The state of one knowledge base, by its ID.
+    /// The state of one memory repository, by its ID.
     pub fn for_memrepo(memory_repository_id: &str) -> State {
         State {
             path: state_dir().join(format!("{memory_repository_id}.json")),

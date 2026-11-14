@@ -2,13 +2,13 @@
 
 ## Overview
 
-A new `store` module loads the documents of the knowledge base from the working tree and answers questions about them: filter, rank, backlinks. Four thin tools (`search`, `show`, `list`, `stats`) call it. The read budget lives in the `Context` of `mcp-server`. `search-and-read` also adds the document-set loader that `quality-checks` and `updates` reuse (see `decisions.md`).
+A new `store` module loads the documents of the memory repository from the working tree and answers questions about them: filter, rank, backlinks. Four thin tools (`search`, `show`, `list`, `stats`) call it. The read budget lives in the `Context` of `mcp-server`. `search-and-read` also adds the document-set loader that `quality-checks` and `updates` reuse (see `decisions.md`).
 
 ## Components Affected
 
 - `format` — `parse`, `count` (words, tokens, chars), `links` (finds links for backlinks). No change.
 - `config` — `EffectiveSettings` gives `max_results`, `max_tokens`, `max_documents_opened`, and `folders`. `config::glob` matches folder globs.
-- `kb` — the root and the `exclude` list.
+- `memrepo` — the root and the `exclude` list.
 - `gitsync` — `Repo::refresh_if_stale` before every read. `gitsync::log` gives the last commit of a path. This spec adds `last_commit_info` and `renamed_to` to `src/gitsync/log.rs`.
 - `mcp` — `Context` gets the read budget (`opened: HashSet<String>`). The registry gets four tools.
 

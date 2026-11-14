@@ -3,10 +3,10 @@
 use crate::config::Kind;
 use crate::error::{Code, Error};
 use crate::format;
-use crate::memrepo::MemRepo;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
+use crate::memrepo::MemRepo;
 use crate::store::backlinks::backlinks;
 use crate::store::{Scope, Store};
 use serde_json::{json, Value};

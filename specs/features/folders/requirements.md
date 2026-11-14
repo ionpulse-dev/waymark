@@ -14,17 +14,17 @@ requires:
 
 ## User Story
 
-> As a person, I want my agent to see how the knowledge base is organized and to create a folder before it has a document for it, so that it files each document in the right place.
+> As a person, I want my agent to see how the memory repository is organized and to create a folder before it has a document for it, so that it files each document in the right place.
 
 ## Personas
 
 - **Agent** — looks at the folders before it writes, and puts a document in the right folder.
-- **Knowledge base owner** — prepares the structure of a knowledge base before anyone writes documents.
+- **Memory owner** — prepares the structure of a memory repository before anyone writes documents.
 
 ## Behaviour
 
 Three tools: `folders` (read), `add_empty_folder` (write), and `remove_folder` (write, destructive). Renaming or moving a folder is `move` (see `move-documents`). 
-A folder has no description. Its name must say what it holds. A person can structure the knowledge base as they like: see the folders, create one (also an empty one), rename or move one with `move`, and remove one.
+A folder has no description. Its name must say what it holds. A person can structure the memory repository as they like: see the folders, create one (also an empty one), rename or move one with `move`, and remove one.
 
 ### What a folder is
 
@@ -32,7 +32,7 @@ A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A f
 
 ### `folders` (read)
 
-Shows the folders of the knowledge base as a tree, with the number of documents of each folder.
+Shows the folders of the memory repository as a tree, with the number of documents of each folder.
 
 | Input | Type | Required | Default |
 |---|---|---|---|
@@ -105,7 +105,7 @@ Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit"
 
 ## Acceptance Criteria
 
-- **Given** a knowledge base with nested folders, **When** `folders` runs with no input, **Then** it lists the folders down to depth 2 with `documents` and `total`.
+- **Given** a memory repository with nested folders, **When** `folders` runs with no input, **Then** it lists the folders down to depth 2 with `documents` and `total`.
 - **Given** `depth: 1`, **When** `folders` runs, **Then** only the top level is listed, and a folder with subfolders has `has_more: true`.
 - **Given** more than 200 folders, **When** `folders` runs, **Then** 200 are listed, `truncated` is true, and `next` names the way to narrow the call.
 - **Given** the `folders` limit `["ops/**"]`, **When** `folders` runs, **Then** no folder outside `ops` is listed.

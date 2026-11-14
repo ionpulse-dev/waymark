@@ -18,11 +18,11 @@ requires:
 ## Personas
 
 - **Every person** — edits documents by hand.
-- **Obsidian user** — browses and edits the knowledge base as a vault.
+- **Obsidian user** — browses and edits the memory repository as a vault.
 
 ## Behaviour
 
-In local mode, the clone of the knowledge base is a normal folder. A person can open it as an Obsidian vault and edit it. waymark has no background job, so manual edits are published when the server runs. A manual edit is a change to a document that was made outside waymark: a changed, new, deleted, or moved `.md` file in the working tree.
+In local mode, the clone of the memory repository is a normal folder. A person can open it as an Obsidian vault and edit it. waymark has no background job, so manual edits are published when the server runs. A manual edit is a change to a document that was made outside waymark: a changed, new, deleted, or moved `.md` file in the working tree.
 
 | Tool | Task | Kind |
 |---|---|---|
@@ -112,7 +112,7 @@ A document moved or renamed by hand (a delete and a new file) and a document del
 ## Constraints & Edge Cases
 
 - Edits made in Obsidian bypass the write checks until they are committed. `lint` is the safety net.
-- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of [MKBase 1.0 section 11](../../../standard/waymark-1.0.md), is kept.
+- Files that Obsidian creates for personal use are ignored by Git. Only `.obsidian/app.json`, with the link options of [Waymark Memory Standard 1.0, section 11](../../../standard/waymark-1.0.md), is kept.
 - A person who edits and never runs a session leaves edits unpublished. This is a known limit of having no background job. waymark does not commit on a timer.
 - A new file from Obsidian has no frontmatter. It is blocked with `no-frontmatter` until the person adds the required fields.
 - A repository without a remote commits locally and skips pull and push, with a notice (see `git-sync`).

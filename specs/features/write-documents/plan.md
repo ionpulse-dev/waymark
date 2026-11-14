@@ -7,7 +7,7 @@ Five tools, one file each in `src/tools/`. Each tool builds a plan of file chang
 ## Components Affected
 
 - `format` (`document-format`) — `parse`, `render`, `check`, `Limits`, `Finding`. This feature never writes frontmatter by hand.
-- `kb` (`memory-repository`) — the root, `documents.*` settings, `lint.extra_secret_patterns`, `verification`.
+- `memrepo` (`memory-repository`) — the root, `documents.*` settings, `lint.extra_secret_patterns`, `verification`.
 - `config` (`trust-model`) — `EffectiveSettings`: `folders`, `approval`. Folder globs use `config::glob`.
 - `gitsync` (`git-sync`) — `Repo::write`. See "What this feature needs from `git-sync`".
 - `mcp` (`mcp-server`) — the `Tool` trait, `ToolOutput`, `ToolError`, and the registry.
@@ -29,10 +29,10 @@ Five tools, one file each in `src/tools/`. Each tool builds a plan of file chang
 
 ## Technical Approach
 
-1. **Common path.** A tool parses its arguments (`invalid_arguments` on a missing or wrong field). It resolves the knowledge base and the `folders` limit. Then it calls `Repo::write` with a closure.
+1. **Common path.** A tool parses its arguments (`invalid_arguments` on a missing or wrong field). It resolves the memory repository and the `folders` limit. Then it calls `Repo::write` with a closure.
 2. **The closure** runs inside the lock, after fetch and fast-forward. It reads the current file, compares `version` with `base` (`gitsync` does the hash, see below), builds the new document with `format::parse` and `format::render`, runs the checks, and returns a `DocPlan`: the files to write, delete, or leave, the commit subject (`waymark: <verb> "<title>"`), an optional message body, and a short approval summary (title, folder, and the full body for `add` and `update_document`).
 3. **Checks** run on the rendered result in a fixed order: `format::check` (all `error` findings), size, duplicate and near-duplicate titles (`titles.rs`), property links (`format::links` with the document set), body links (the links that are new compared with the old body; `format::links`), secrets (`secrets.rs`). Findings from all checks are collected, so the agent fixes the call in one pass.
-4. **`add`.** Build the frontmatter in the order of the field table. `status: active`, dates, and authors are set. If `kb` has `verification = true`, add `trust: unverified`. Make the file name with `slug.rs`. With `supersedes`, read the old document, set `status: deprecated`, `updated`, and `updated_by`, and put both files in the plan.
+4. **`add`.** Build the frontmatter in the order of the field table. `status: active`, dates, and authors are set. If `memrepo` has `verification = true`, add `trust: unverified`. Make the file name with `slug.rs`. With `supersedes`, read the old document, set `status: deprecated`, `updated`, and `updated_by`, and put both files in the plan.
 5. **`update_document`.** Parse the current file, replace only the fields that were sent, and set `updated` and `updated_by`. If verification is on and the document is verified and `title`, `description`, or `body` changed, reset the trust fields. The body is carried over byte for byte if it was not sent.
 6. **`dispute`, `deprecate`.** Set or remove the fields and set `updated` and `updated_by`. `deprecate` passes `Reason: <reason>` as the commit message body.
 7. **`delete`.** Scan all other documents for links to the target (`format::links`). If any exists, fail with `validation_failed` and put the list in `data.linked_from`. Otherwise remove the file. `linkfix.rs` keeps the retarget function for `move`.

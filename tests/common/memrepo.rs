@@ -1,4 +1,4 @@
-//! Builders for documents and knowledge base content in tests.
+//! Builders for documents and memory repository content in tests.
 
 use super::git::git;
 use std::path::Path;

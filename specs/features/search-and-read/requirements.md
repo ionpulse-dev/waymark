@@ -35,7 +35,7 @@ All four are read tools. They work when writes are paused or `access` is `read-o
 
 - **Result caps.** `search` and `list` return at most `max_results` documents (default 5) and `max_tokens` tokens (default 800). A call may ask for fewer, never for more. The token count is the estimate of section 9.1 of the standard over the text of the returned entries. If nothing matches, the result is empty and is not an error.
 - **Read budget.** `show` opens at most `max_documents_opened` different documents per session (default 20). Opening the same document again costs nothing. After that, `show` fails with `access_denied`.
-- **Folders.** The `folders` limit narrows every read. A document outside it is not found. A `folders` argument narrows the call more. No folder means the whole knowledge base. A folder includes its subfolders.
+- **Folders.** The `folders` limit narrows every read. A document outside it is not found. A `folders` argument narrows the call more. No folder means the whole memory repository. A folder includes its subfolders.
 - **Levels.** Level `0` returns only the `id`. Level `1` adds `title`, `status`, `updated`, and, for a disputed document, `disputed` and `dispute_reason`. Level `2` adds `description`. `search` returns a `snippet` at level 2.
 - **Pull before read.** If the last good fetch is older than 3 minutes, a read fetches first. If that fails, the result carries a notice that the clone may be behind. The read still works.
 - **No stored index.** Search reads the local files. It sees manual edits that are not committed yet.
@@ -191,7 +191,7 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 
 ### Errors
 
-`invalid_arguments` (empty `query`, bad `level`, unknown `in` part), `not_found` (no document with this ID, or outside the `folders` limit), `access_denied` (read budget used up), `setup_problem` (no knowledge base).
+`invalid_arguments` (empty `query`, bad `level`, unknown `in` part), `not_found` (no document with this ID, or outside the `folders` limit), `access_denied` (read budget used up), `setup_problem` (no memory repository).
 
 ## Acceptance Criteria
 

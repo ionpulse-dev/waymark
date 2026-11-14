@@ -55,7 +55,10 @@ pub fn email_of(person: &str) -> String {
 }
 
 fn root_prefix(memrepo: &MemRepo) -> String {
-    let rel = memrepo.root.strip_prefix(&memrepo.repo_dir).unwrap_or(&memrepo.root);
+    let rel = memrepo
+        .root
+        .strip_prefix(&memrepo.repo_dir)
+        .unwrap_or(&memrepo.root);
     rel.to_string_lossy().trim_matches('/').to_string()
 }
 
@@ -95,7 +98,9 @@ pub fn changes_since(
     let mut out = Vec::new();
     for pc in repo.changed_paths(base, &prefix)? {
         let PathChange { status, path, from } = pc;
-        let Some(id) = id_of(memrepo, &path) else { continue };
+        let Some(id) = id_of(memrepo, &path) else {
+            continue;
+        };
         let at_head = repo
             .show_at("HEAD", &path)?
             .and_then(|t| format::parse(&t).ok());

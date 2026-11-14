@@ -11,7 +11,7 @@ requires:
 
 ## Technical Goal
 
-Run the same binary as a shared MCP server over HTTPS, so that a whole organization, and chat apps and phones, can use one knowledge base through one address. Anyone can host it: a company on its own infrastructure, or a provider for others. The core and the tools are the same as in local mode. This item adds the transport, the login, the roles, the Git credentials, the workspace, and the audit log, for one organization. `multi-tenancy` adds many organizations.
+Run the same binary as a shared MCP server over HTTPS, so that a whole organization, and chat apps and phones, can use one memory repository through one address. Anyone can host it: a company on its own infrastructure, or a provider for others. The core and the tools are the same as in local mode. This item adds the transport, the login, the roles, the Git credentials, the workspace, and the audit log, for one organization. `multi-tenancy` adds many organizations.
 
 ## Dependents
 
@@ -24,7 +24,7 @@ Run the same binary as a shared MCP server over HTTPS, so that a whole organizat
 - Sign-in with OAuth 2.1 and single sign-on (OIDC).
 - Roles and the limits per user or role.
 - Git credentials for the server (GitHub App, deploy key, or token).
-- The workspace: one clone per knowledge base, a lock, and a background pull.
+- The workspace: one clone per memory repository, a lock, and a background pull.
 - The audit log.
 - A health endpoint and logs for operators.
 - A container image and a deploy guide.
@@ -32,7 +32,7 @@ Run the same binary as a shared MCP server over HTTPS, so that a whole organizat
 ## Scope
 
 **In scope:**
-- One organization with one or more knowledge bases on one server.
+- One organization with one or more memory repositories on one server.
 
 **Out of scope:**
 - Many organizations on one server (see `multi-tenancy`).
@@ -62,7 +62,7 @@ Run the same binary as a shared MCP server over HTTPS, so that a whole organizat
 | `writer` | Read and write tools |
 | `owner` | Also verify documents, see all activity, and use the console settings |
 
-The operator maps directory groups to roles for each knowledge base. The role limits the tool list. A tool that the role does not allow is not listed.
+The operator maps directory groups to roles for each memory repository. The role limits the tool list. A tool that the role does not allow is not listed.
 
 **Option for later: separate connections for each permission level.** A server could offer more than one MCP connection, for example `read` and `write`, each with its own sign-in and its own OAuth scope. The person signs in to the level they want, in a browser, and the agent cannot change it. The agent tool can then also treat each connection differently (always allow the read one, ask for the write one). The hard limit comes from the sign-in and not from a file. This is not decided. It is recorded here so that it is not forgotten. Local mode does not need it (see `trust-model`).
 
@@ -78,18 +78,18 @@ The credential comes from the secret store of the host. A later stage may offer 
 
 ### Workspace
 
-- One clone per knowledge base, in the data folder.
+- One clone per memory repository, in the data folder.
 - One write lock per clone (see `git-sync`).
 - A background pull at an interval, default 5 minutes.
 - The result of a write is pushed at once.
 
 ### Audit log
 
-Every tool call writes one JSON line: time, person ID, knowledge base, tool, outcome, and the document ID. It contains no document text and no secret. The operator chooses where it goes (standard output or a file).
+Every tool call writes one JSON line: time, person ID, memory repository, tool, outcome, and the document ID. It contains no document text and no secret. The operator chooses where it goes (standard output or a file).
 
 ### Config
 
-The server reads one config file and environment variables: public URL, OIDC provider, knowledge bases and their roles, credentials, server limits, and the data folder.
+The server reads one config file and environment variables: public URL, OIDC provider, memory repositories and their roles, credentials, server limits, and the data folder.
 
 ## Acceptance Criteria
 
@@ -99,7 +99,7 @@ The server reads one config file and environment variables: public URL, OIDC pro
 - **Given** a server limit `access = "read-only"`, **When** a person sets `read-write` in their own client config, **Then** writes still fail.
 - **Given** a restart with an empty data folder, **When** the first call arrives, **Then** the server clones again and works.
 - **Given** any tool call, **When** it ends, **Then** one audit line exists and it holds no document text.
-- **Given** two writers on one knowledge base, **When** they write at the same time, **Then** both commits reach the remote and neither is lost.
+- **Given** two writers on one memory repository, **When** they write at the same time, **Then** both commits reach the remote and neither is lost.
 - **Given** a secret in the config file, **When** the image is inspected, **Then** no secret is inside.
 
 ## Open Questions

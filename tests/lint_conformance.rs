@@ -3,8 +3,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use waymark::config::{Effective, Limits};
-use waymark::memrepo::{self, MemRepo};
 use waymark::lint;
+use waymark::memrepo::{self, MemRepo};
 use waymark::store::{Scope, Store};
 
 fn conformance_dir() -> PathBuf {

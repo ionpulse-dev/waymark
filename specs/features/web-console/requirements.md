@@ -16,8 +16,8 @@ requires:
 ## Personas
 
 - **Every person** — approves, reviews, and undoes their own writes.
-- **Knowledge base owner** — sees all activity, pauses writes, and verifies documents.
-- **Operator** — sees the connection state of the knowledge bases.
+- **Memory owner** — sees all activity, pauses writes, and verifies documents.
+- **Operator** — sees the connection state of the memory repositories.
 
 ## UI / Visual Design
 
@@ -28,8 +28,8 @@ The console is a small web application that the server itself serves. It works o
 - **Approvals.** The open requests of `write-approval` with the full document or the summary, and the buttons **Publish** and **Cancel**.
 - **Activity.** The writes made under the person's account, newest first, each with **Undo** (see `activity-and-undo`). Owners can see all people.
 - **Review.** Open items: disputes on the person's documents, and documents waiting for verification (see `notifications-and-review` and `verification`).
-- **Pause.** One switch that pauses all writes of the person. An owner can pause a whole knowledge base. Resuming needs the console, not an agent (see `pause-and-resume`).
-- **Knowledge bases.** For each: state of the clone, last good pull, last error, Git credential state.
+- **Pause.** One switch that pauses all writes of the person. An owner can pause a whole memory repository. Resuming needs the console, not an agent (see `pause-and-resume`).
+- **Memory repositories.** For each: state of the clone, last good pull, last error, Git credential state.
 
 ### Error States
 

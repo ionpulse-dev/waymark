@@ -17,7 +17,7 @@ impl Tool for Review {
     }
 
     fn description(&self) -> &'static str {
-        "Lists active documents that are unverified or disputed, disputed first, oldest first. Changes nothing. Exists only when the knowledge base uses verification."
+        "Lists active documents that are unverified or disputed, disputed first, oldest first. Changes nothing. Exists only when the memory repository uses verification."
     }
 
     fn kind(&self) -> Kind {

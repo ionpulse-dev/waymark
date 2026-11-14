@@ -419,7 +419,11 @@ fn sync_asks_before_it_commits_manual_edits() {
     require(&w, "[\"sync\"]");
     let seen: Seen = Default::default();
     let mut c = asking(&w, yes(), 0, &seen);
-    common::memrepo::write_doc(&w.a, "ops/manual", &common::memrepo::doc("Manual", "Hand made."));
+    common::memrepo::write_doc(
+        &w.a,
+        "ops/manual",
+        &common::memrepo::doc("Manual", "Hand made."),
+    );
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
     assert_eq!(requests(&seen), 1);

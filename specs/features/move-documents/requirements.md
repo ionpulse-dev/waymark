@@ -18,7 +18,7 @@ requires:
 
 ## Personas
 
-- **Knowledge base owner** — reorganizes the folder tree.
+- **Memory owner** — reorganizes the folder tree.
 - **Every person** — keeps links that work.
 
 ## Behaviour
@@ -80,7 +80,7 @@ Links between documents that move together stay valid and are not rewritten, unl
 }
 ```
 
-`kind` is `document` or `folder`. `moved` shows at most 100 entries. `moved_total` is the full count. With `preview: true`, `commits`, `pushed`, and `history_checked` are `null`, and nothing changes. The `notices` always say: "Links from outside this knowledge base are not checked."
+`kind` is `document` or `folder`. `moved` shows at most 100 entries. `moved_total` is the full count. With `preview: true`, `commits`, `pushed`, and `history_checked` are `null`, and nothing changes. The `notices` always say: "Links from outside this memory repository are not checked."
 
 If approval is required (see `write-approval`), the request shows a summary, for example "Move 42 documents, update links in 17 documents".
 
@@ -116,4 +116,4 @@ If approval is required (see `write-approval`), the request shows a summary, for
 
 ## Open Questions
 
-None. Answered on 2026-11-14 (see `decisions.md`): links from outside the knowledge base are not checked, and a fixed notice says so.
+None. Answered on 2026-11-14 (see `decisions.md`): links from outside the memory repository are not checked, and a fixed notice says so.

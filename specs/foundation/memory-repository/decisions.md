@@ -49,3 +49,12 @@
 **Alternatives considered:** Rewrite the comments of existing files by a repair (rejected: a repair never changes what a person may have edited; the files from older versions keep their text). One header comment that lists what is required (rejected: it goes stale, and a comment above the key is read where the key is).
 
 **Reason:** Found when the first repair put the key above the header comment of a real file. Files written before 0.1.5 keep their old header. That is only a comment, and no tool depends on it.
+
+## Vocabulary: agent memory and memory repository — 2026-11-14
+
+**Decision:** The words "knowledge base" and "content repository" are replaced by
+"memory repository" in normative text, code, and messages. "Knowledge base" stays
+only as a use case. The earlier entries of this file keep their original words,
+because they record what was said at the time. The rules and the reasons are in
+the spec [terminology](../terminology/decisions.md).
+

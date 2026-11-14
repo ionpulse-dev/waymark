@@ -555,7 +555,13 @@ fn delete_outside_folders_for_a_linking_document_is_denied() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--folders", "eng/**"]));
     let version = git(
         &w.a,
-        &["log", "-1", "--format=%h", "--", "agent-memory/eng/target.md"],
+        &[
+            "log",
+            "-1",
+            "--format=%h",
+            "--",
+            "agent-memory/eng/target.md",
+        ],
     );
     let r = c.call(
         "delete",

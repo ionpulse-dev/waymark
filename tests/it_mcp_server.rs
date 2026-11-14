@@ -201,7 +201,10 @@ fn a_wrong_memory_repository_id_is_a_setup_problem() {
     let mut c = McpClient::for_person(
         &w,
         Person::A,
-        Spawn::args(&["--memory-repository-id", "00000000-0000-4000-8000-000000000000"]),
+        Spawn::args(&[
+            "--memory-repository-id",
+            "00000000-0000-4000-8000-000000000000",
+        ]),
     );
     let r = c.call("status", json!({}));
     assert_eq!(r.json["healthy"], false);

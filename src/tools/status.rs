@@ -19,7 +19,7 @@ impl Tool for Status {
     }
 
     fn description(&self) -> &'static str {
-        "Shows the state of the setup: the knowledge base in use, the limits that apply, and a list of checks with a fix for each problem. Changes nothing."
+        "Shows the state of the setup: the memory repository in use, the limits that apply, and a list of checks with a fix for each problem. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -44,7 +44,7 @@ impl Tool for Status {
             .collect();
         let healthy = failed.is_empty();
 
-        // The facts of the knowledge base, when it is ready.
+        // The facts of the memory repository, when it is ready.
         let mut memrepo_json = json!({
             "state": report.state.name(),
             "name": null, "id": null, "slug": null, "path": null, "root": null,
@@ -59,7 +59,10 @@ impl Tool for Status {
                     memrepo_json["state"] = json!("ready");
                     if let Some(memrepo) = &report.memrepo {
                         memrepo_json["verification"] = json!(memrepo.settings.verification);
-                        let root = memrepo.root.strip_prefix(&memrepo.repo_dir).unwrap_or(&memrepo.root);
+                        let root = memrepo
+                            .root
+                            .strip_prefix(&memrepo.repo_dir)
+                            .unwrap_or(&memrepo.root);
                         memrepo_json["root"] = json!(root.to_string_lossy());
                     }
                 }

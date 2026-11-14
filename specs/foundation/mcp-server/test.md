@@ -22,11 +22,11 @@
 - [x] [auto] `--version` and `--help` work and no other command exists (`tests/it_mcp_server.rs`)
 - [x] [auto] The size of `tools/list` stays under the budget (`tests/it_mcp_server.rs`)
 - [x] [auto] The release binary links only to system libraries (`otool -L` check in `scripts/tests/`)
-- [x] [auto] `status` shows `setup_problem` details for a missing `git` and for a path that is not a knowledge base (`tests/it_mcp_server.rs`)
-- [x] [auto] The lenient parser: known arguments make no issue, an unknown argument (`--x v`, `--x=v`, `--x`) blocks and names the fix without the bad argument, a deprecated argument is a notice, a wrong value blocks and guesses no knowledge base (`src/mcp/args.rs`)
+- [x] [auto] `status` shows `setup_problem` details for a missing `git` and for a path that is not a memory repository (`tests/it_mcp_server.rs`)
+- [x] [auto] The lenient parser: known arguments make no issue, an unknown argument (`--x v`, `--x=v`, `--x`) blocks and names the fix without the bad argument, a deprecated argument is a notice, a wrong value blocks and guesses no memory repository (`src/mcp/args.rs`)
 - [x] [auto] An unknown argument and a wrong value: `instructions`, `tools/list` (only `status`, with the problem in its description), the error of every other tool, and the failing check `entry` of `status`. A higher schema does the same. A healthy setup shows no warning (`tests/it_updates_needed.rs`)
 - [ ] [manual] An agent tool shows the warning. Steps: start a session with an unknown argument in the entry (for example `--future-flag 1`) in Claude Code, GitHub Copilot, and OpenAI Codex. Expected: the agent tells the person that waymark needs an update, with the fix. Note which of the three channels each tool shows (`instructions`, the description of `status`, the error).
-- [ ] [manual] A real agent tool lists the tools. Steps: add the MCP entry from the README to Claude Code, GitHub Copilot, and OpenAI Codex, start a session, ask the agent to call `status`. Expected: the tool list shows and `status` returns the knowledge base name.
+- [ ] [manual] A real agent tool lists the tools. Steps: add the MCP entry from the README to Claude Code, GitHub Copilot, and OpenAI Codex, start a session, ask the agent to call `status`. Expected: the tool list shows and `status` returns the memory repository name.
 
 ## Notes
 

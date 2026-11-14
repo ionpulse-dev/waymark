@@ -140,7 +140,13 @@ fn t6_a_write_to_a_document_with_a_blocked_edit_is_stale() {
     write_doc(&w.a, "ops/deploy", &text(long, "2020-01-02", "x"));
     let version = git(
         &w.a,
-        &["log", "-1", "--format=%h", "--", "agent-memory/ops/deploy.md"],
+        &[
+            "log",
+            "-1",
+            "--format=%h",
+            "--",
+            "agent-memory/ops/deploy.md",
+        ],
     );
     let mut c = client(&w);
     let r = c.call(

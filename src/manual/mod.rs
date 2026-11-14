@@ -6,8 +6,8 @@ use crate::config::Effective;
 use crate::error::Result;
 use crate::format::{self, Finding};
 use crate::gitsync::{commit_message, Change, Tx, Verb};
-use crate::memrepo::MemRepo;
 use crate::lint;
+use crate::memrepo::MemRepo;
 use crate::store::{Scope, Store};
 pub use pending::{Edit, Kind, Skip};
 use std::collections::HashSet;
@@ -49,7 +49,13 @@ pub fn prepare(
     } else {
         let store = Store::load(memrepo);
         let limit = Scope::limit(effective);
-        Some(lint::run(memrepo, &store, &|id| ids.contains(id), &limit, None)?)
+        Some(lint::run(
+            memrepo,
+            &store,
+            &|id| ids.contains(id),
+            &limit,
+            None,
+        )?)
     };
 
     let all_ids = memrepo.id_set();

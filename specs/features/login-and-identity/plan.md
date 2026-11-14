@@ -8,7 +8,7 @@ A small `identity` module resolves the commit author from the arguments, the env
 
 - `git-sync` (`gitsync`) — takes a checked `Author` as an input of `Repo::write`. Step 2 of its approach moves here (see `decisions.md`). `gitsync::cmd` sets `GIT_TERMINAL_PROMPT=0` already.
 - `mcp-server` (`mcp::args`, `mcp::context`) — passes the argument values to `identity`, and gets an `Author` from the `Context` at every write. `mcp::error` calls `redact_url` for messages.
-- `memory-repository` (`kb::settings`) — the `[people]` section (`email_domains`, `email_blocklist`) is the input of the check.
+- `memory-repository` (`memrepo::settings`) — the `[people]` section (`email_domains`, `email_blocklist`) is the input of the check.
 - `maintenance` — the `status` checks `author` and `git_login` call this module.
 
 ## New Files

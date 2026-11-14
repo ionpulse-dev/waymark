@@ -1,4 +1,4 @@
-//! The files of a new knowledge base (see `specs/features/create-memory-repository`).
+//! The files of a new memory repository (see `specs/features/create-memory-repository`).
 
 use super::agents_file::{self, Audience};
 use super::layout::{MARKER, SETTINGS_FILE};
@@ -9,9 +9,9 @@ const GITIGNORE_TEMPLATE: &str = include_str!("templates/gitignore");
 const OBSIDIAN_TEMPLATE: &str = include_str!("templates/obsidian-app.json");
 const SETTINGS_TEMPLATE: &str = include_str!("templates/settings.toml");
 const EXCLUDE_TEMPLATE: &str =
-    "# Files and folders below the root that are not part of the knowledge base.\n";
+    "# Files and folders below the root that are not part of the memory repository.\n";
 
-/// What a person can set when a knowledge base is created.
+/// What a person can set when a memory repository is created.
 #[derive(Debug, Clone)]
 pub struct InitInput {
     pub name: String,
@@ -128,7 +128,10 @@ pub fn files(input: &InitInput, id: &str) -> Result<Vec<(String, String)>> {
             ".obsidian/app.json".to_string(),
             OBSIDIAN_TEMPLATE.to_string(),
         ),
-        (format!("agent-memory/{MARKER}/version"), "1.0\n".to_string()),
+        (
+            format!("agent-memory/{MARKER}/version"),
+            "1.0\n".to_string(),
+        ),
         (
             format!("agent-memory/{MARKER}/{SETTINGS_FILE}"),
             settings_text(input, id)?,

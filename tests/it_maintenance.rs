@@ -145,7 +145,11 @@ fn a4_status_cannot_be_hidden() {
 fn a5_another_memory_repository_id_is_reported() {
     let w = World::new();
     let other = "123e4567-e89b-42d3-a456-426614174000";
-    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--memory-repository-id", other]));
+    let mut c = McpClient::for_person(
+        &w,
+        Person::A,
+        Spawn::args(&["--memory-repository-id", other]),
+    );
     let s = status(&mut c);
     let k = check(&s, "memory_repository_id");
     assert_eq!(k["ok"], false);

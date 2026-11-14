@@ -26,7 +26,7 @@ requires:
 |---|---|
 | `updates` | Lists the documents that others added, changed, moved, deprecated, disputed, or deleted since a time. A read tool. |
 
-- Without `since`, `updates` uses the time of the last `updates` call without `since` for this person and knowledge base. If there is none, it uses 7 days ago. A call without `since` then stores the time of this call.
+- Without `since`, `updates` uses the time of the last `updates` call without `since` for this person and memory repository. If there is none, it uses 7 days ago. A call without `since` then stores the time of this call.
 - A call with `since` only reads. It does not move the stored time.
 - Changes by the person themselves are not listed. The person knows them (see `activity` for their own writes).
 - A document is "mine" when `created_by` has the email of the person.
@@ -35,7 +35,7 @@ requires:
 - The output is honest. The message says that waymark did not check the changes for truth. A document with a `trust` property shows it.
 - The same facts that matter most arrive as `notices` in other results (see `notifications-and-review`). When an agent runs `updates` is the choice of the team.
 - Generated index files are not listed.
-- The stored time is one small file for each person and knowledge base. All agent tools of the person on this machine share it. The last call without `since` wins.
+- The stored time is one small file for each person and memory repository. All agent tools of the person on this machine share it. The last call without `since` wins.
 
 ## Interfaces & Contracts
 

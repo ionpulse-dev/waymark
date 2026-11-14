@@ -13,18 +13,18 @@ requires:
 
 ## User Story
 
-> As a person, I want every document to be checked for format, size, links, and secrets, so that the knowledge base stays clean and safe.
+> As a person, I want every document to be checked for format, size, links, and secrets, so that the memory repository stays clean and safe.
 
 ## Personas
 
 - **Every person** — gets a clear message when a document fails.
-- **Knowledge base owner** — adds company-specific secret patterns.
+- **Memory owner** — adds company-specific secret patterns.
 
 ## Behaviour
 
 | Tool | Task | Kind |
 |---|---|---|
-| `lint` | Checks documents and lists findings. Whole knowledge base or some folders. | read |
+| `lint` | Checks documents and lists findings. Whole memory repository or some folders. | read |
 | `index` | Generates index files. | write |
 
 `lint` also runs automatically in every write flow before the commit, on the document that the write changes, and in `sync` on pending manual edits (see `manual-edits`). A failed check stops a write with `validation_failed`. The message is plain and the `next` sentence says what to fix.
@@ -47,7 +47,7 @@ Every finding is `{ path, rule, severity, message }`. `path` is the file path be
 
 Built-in secret patterns: a private key block, an AWS access key ID, a GitHub token, a Slack token, an `sk-` API key, a JSON Web Token, a connection string with a password, and an assignment like `password = ...` or `api_key: ...` with a value of 8 or more characters. A placeholder such as `<password>` or `***` is not a secret. A finding never repeats the matched text. It names the pattern and the line.
 
-A knowledge base adds patterns as regular expressions in `lint.extra_secret_patterns`, for example for customer ID formats. An invalid expression makes `lint` fail with `setup_problem` and names the entry.
+A memory repository adds patterns as regular expressions in `lint.extra_secret_patterns`, for example for customer ID formats. An invalid expression makes `lint` fail with `setup_problem` and names the entry.
 
 `lint` accepts callouts, embeds, highlights, and comments that people wrote. It does not check files that are not documents: files that start with `.`, entries of `.waymark/exclude`, and files that do not end in `.md`.
 
@@ -65,7 +65,7 @@ An index file is a normal document that waymark generates. It lists the document
 - `updated` and `updated_by` change only when the body changes.
 - `index` is a write tool. Limits, approval, and `preview` apply. It makes one commit: `waymark: update "Index of backend"` for one folder, or `waymark: update "Indexes"` for several.
 - Search, list, stats, backlinks, and `updates` ignore index files (see `search-and-read`).
-- `index` runs only when someone calls it. No write tool refreshes the index files, and there is no setting for it. `lint` reports a stale index as the warning `index-stale`. The files help readers who browse the knowledge base without waymark, such as Obsidian or GitHub. waymark's own tools ignore them (see `decisions.md`).
+- `index` runs only when someone calls it. No write tool refreshes the index files, and there is no setting for it. `lint` reports a stale index as the warning `index-stale`. The files help readers who browse the memory repository without waymark, such as Obsidian or GitHub. waymark's own tools ignore them (see `decisions.md`).
 
 ## Interfaces & Contracts
 
@@ -94,7 +94,7 @@ An index file is a normal document that waymark generates. It lists the document
 }
 ```
 
-Findings are sorted: errors first, then by `path`. At most 100 findings. `truncated` is true when more exist. A clean knowledge base returns `findings: []`.
+Findings are sorted: errors first, then by `path`. At most 100 findings. `truncated` is true when more exist. A clean memory repository returns `findings: []`.
 
 ### `index`
 
@@ -118,7 +118,7 @@ With `preview: true`, `written` lists the files that would change and there is n
 
 ### Errors
 
-`lint`: `setup_problem` (bad extra pattern, no knowledge base). `index`: `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `sync_failed`, `validation_failed`, `invalid_arguments`.
+`lint`: `setup_problem` (bad extra pattern, no memory repository). `index`: `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `sync_failed`, `validation_failed`, `invalid_arguments`.
 
 ### API for write tools
 
@@ -138,8 +138,8 @@ Write tools check the text that they will write with the same code (see `plan.md
 - **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `personal-data`.
 - **Given** the conformance fixtures, **When** `lint` runs on them, **Then** valid ones have no error and invalid ones have the rule that their file name names.
 - **Given** `people.email_domains = ["example.org"]` and an author with another domain, **When** `lint` runs, **Then** it reports `author-not-allowed`.
-- **Given** a knowledge base, **When** `index` runs, **Then** each folder gets an index file that lists its documents and links to them.
-- **Given** an unchanged knowledge base, **When** `index` runs twice, **Then** the second run makes no commit.
+- **Given** a memory repository, **When** `index` runs, **Then** each folder gets an index file that lists its documents and links to them.
+- **Given** an unchanged memory repository, **When** `index` runs twice, **Then** the second run makes no commit.
 - **Given** a hand-written `index.md` without the tag `index`, **When** `index` runs, **Then** it is not changed and is listed under `skipped`.
 - **Given** `preview: true`, **When** `index` runs, **Then** nothing is written.
 - **Given** `access = "read-only"`, **When** the client lists tools, **Then** `index` is not listed and `lint` is.
@@ -147,7 +147,7 @@ Write tools check the text that they will write with the same code (see `plan.md
 
 ## Constraints & Edge Cases
 
-- Secrets and customer data never belong in a knowledge base. The scan reduces the risk but cannot guarantee it.
+- Secrets and customer data never belong in a memory repository. The scan reduces the risk but cannot guarantee it.
 - A secret in a code block is still a finding.
 - A duplicate title blocks only the newer document. The older document stays valid.
 - The author check needs Git history. A new file that is not committed has no history, so the check skips it.

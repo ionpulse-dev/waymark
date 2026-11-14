@@ -12,10 +12,10 @@ use crate::config::Kind;
 use crate::error::{Code, Error, Result};
 use crate::format::{self, Document};
 use crate::gitsync::{commit_message, Change, Tx, Verb};
-use crate::memrepo::MemRepo;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::Env;
+use crate::memrepo::MemRepo;
 use serde_json::{json, Map, Value};
 use std::collections::HashSet;
 
@@ -112,7 +112,8 @@ pub fn read_doc(tx: &Tx, memrepo: &MemRepo, id: &str) -> Result<(String, Documen
 
 /// The ID and title of every active document.
 pub fn active_titles(memrepo: &MemRepo) -> Vec<(String, String)> {
-    memrepo.documents()
+    memrepo
+        .documents()
         .into_iter()
         .filter_map(|d| {
             let text = memrepo.read(&d.id).ok()?;
@@ -221,11 +222,13 @@ pub fn check_document_links(
     let path = format!("{id}.md");
     let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
     let old_broken: Vec<String> = match new_links {
-        NewLinks::Since(old) => format::check(&path, old, &memrepo.settings.documents, Some(ids_after))
-            .into_iter()
-            .filter(|f| f.rule == "broken-link")
-            .map(|f| f.message)
-            .collect(),
+        NewLinks::Since(old) => {
+            format::check(&path, old, &memrepo.settings.documents, Some(ids_after))
+                .into_iter()
+                .filter(|f| f.rule == "broken-link")
+                .map(|f| f.message)
+                .collect()
+        }
         _ => Vec::new(),
     };
     for f in format::check(&path, text, &memrepo.settings.documents, Some(ids_after)) {
@@ -371,7 +374,7 @@ pub(crate) fn approve(
     )
 }
 
-/// `approve` with a name for the question, for a call before the knowledge base exists (`init`).
+/// `approve` with a name for the question, for a call before the memory repository exists (`init`).
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn approve_named(
     ctx: &Context,

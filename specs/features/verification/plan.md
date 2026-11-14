@@ -6,7 +6,7 @@ Three small tool files on top of the helpers of `write-documents`. The setting `
 
 ## Components Affected
 
-- `kb` (`memory-repository`) — `settings.verification` (already in the schema).
+- `memrepo` (`memory-repository`) — `settings.verification` (already in the schema).
 - `mcp` (`mcp-server`) — the registry already hides `verify`, `review`, and `reject` unless verification is on. A direct call of a hidden tool is `access_denied`.
 - `format` — the trust fields in the field table, and `render`.
 - `writes` (`write-documents`) — `DocPlan`, `Repo::write` glue, preview and result helpers, the `folders` check.
@@ -30,7 +30,7 @@ Three small tool files on top of the helpers of `write-documents`. The setting `
 
 ## Cross-Feature Dependencies
 
-- `write-documents` — `add` sets `trust: unverified`, and `update_document` resets trust. Both read `kb.settings.verification`.
+- `write-documents` — `add` sets `trust: unverified`, and `update_document` resets trust. Both read `memrepo.settings.verification`.
 - `write-approval` — approval for `verify` and `reject` works like for any write tool.
 - `activity-and-undo` — `undo` reverts a `verify` like any other `update` commit. Nothing special.
 - `search-and-read` — `show` and `list` can show the `trust` fields. Not required here.

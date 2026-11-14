@@ -54,7 +54,7 @@ pub struct Hit {
     pub line: usize,
 }
 
-/// Compile the extra patterns of a knowledge base. A bad expression is a `setup_problem`.
+/// Compile the extra patterns of a memory repository. A bad expression is a `setup_problem`.
 pub fn compile(patterns: &[String]) -> Result<Vec<Regex>> {
     patterns
         .iter()

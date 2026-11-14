@@ -14,11 +14,11 @@ requires:
 
 ## User Story
 
-> As a person or a team owner, I want some writes to need a human yes before they run, so that nothing leaves the knowledge base by an agent's mistake.
+> As a person or a team owner, I want some writes to need a human yes before they run, so that nothing leaves the memory repository by an agent's mistake.
 
 ## Personas
 
-- **Knowledge base owner** — sets which tools need approval, in the shared file.
+- **Memory owner** — sets which tools need approval, in the shared file.
 - **Every person** — sees what the agent wants to publish and answers in the agent tool.
 
 ## Behaviour

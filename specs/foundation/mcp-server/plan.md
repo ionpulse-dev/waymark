@@ -2,12 +2,12 @@
 
 ## Overview
 
-The `waymark` binary parses its arguments, builds a `Context` (settings, repository, knowledge base), and serves MCP over stdio with `rmcp`. A small `Tool` trait and a registry hold every tool. Feature specs add one file each under `src/tools/`. All logic sits in the library crate. `main.rs` only starts the server.
+The `waymark` binary parses its arguments, builds a `Context` (settings, repository, memory repository), and serves MCP over stdio with `rmcp`. A small `Tool` trait and a registry hold every tool. Feature specs add one file each under `src/tools/`. All logic sits in the library crate. `main.rs` only starts the server.
 
 ## Components Affected
 
 - Every feature spec adds a tool file and one line in the registry.
-- `trust-model` (`config`), `memory-repository` (`kb`), `git-sync` (`gitsync`), and `document-format` (`format`) are used from here.
+- `trust-model` (`config`), `memory-repository` (`memrepo`), `git-sync` (`gitsync`), and `document-format` (`format`) are used from here.
 
 ## New Files
 
@@ -17,7 +17,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 - `src/mcp/tool.rs` — the `Tool` trait, `ToolKind`, and the registry.
 - `src/mcp/result.rs` — `ToolOutput` (`message`, `notices`, `settings`, `data`) and its JSON form.
 - `src/mcp/error.rs` — `ToolError` with the `code`, `message`, and `next`, and the mapping to the MCP error result.
-- `src/mcp/context.rs` — `Context`: effective settings, repository, knowledge base, session state (read budget).
+- `src/mcp/context.rs` — `Context`: effective settings, repository, memory repository, session state (read budget).
 - `src/mcp/args.rs` — the command line and environment variables of the requirements.
 - `src/tools/mod.rs` — the registry list.
 - `src/tools/status.rs` — the `status` tool (specified in `maintenance` and `session-start`).
@@ -36,7 +36,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 8. **First start.** If `--repo` is a URL and the path does not exist, clone it (see `git-sync`). If the path exists and is not a repository, `setup_problem`.
 9. **Instructions.** The server `instructions` field holds a short, neutral text: what waymark is and that results carry `settings` and `notices`. No behavior advice.
 10. **Logging.** To stderr only, never to stdout, because stdout is the protocol. Default level `warn`.
-11. **Status tool.** Returns the state of the setup, the knowledge base name and id, the effective limits, the Git version check, and open notices. It is the first tool, so every later spec can be tested through the real server.
+11. **Status tool.** Returns the state of the setup, the memory repository name and id, the effective limits, the Git version check, and open notices. It is the first tool, so every later spec can be tested through the real server.
 
 ## Dependencies on Other Foundation Items
 

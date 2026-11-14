@@ -47,7 +47,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [x] [auto] T18: a repository with no remote commits locally and the result has a notice that there is no remote.
 - [x] [auto] T19: a `preview: true` write does not commit pending edits.
 - [ ] [manual] T20: edit in a real Obsidian vault and publish.
-  - Setup: install the current Obsidian. Create a knowledge base with `init` and a real Git remote (a private repository on a Git host that you control). Open the knowledge base folder as a vault. Add the MCP entry to a real agent tool.
+  - Setup: install the current Obsidian. Create a memory repository with `init` and a real Git remote (a private repository on a Git host that you control). Open the memory repository folder as a vault. Add the MCP entry to a real agent tool.
   - Steps: in Obsidian, open `ops/deploy`, change one sentence, and save. Create a new document through Obsidian with all required properties (use the properties panel). In the agent tool, ask it to run `sync`.
   - Expected: the agent reports 2 documents published. The remote has one commit `waymark: sync "2 manual edits"` under your name. Obsidian shows no error and still shows the properties and links. `git status` in the folder is clean.
   - Teardown: delete the test documents with `delete`.
@@ -61,4 +61,4 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 ## Notes
 
 - T7 needs `write-approval`. Until that spec is implemented, it stays unchecked and the rest can run.
-- The harness writes the manual edits with `tests/common/kb.rs` helpers that write files without Git.
+- The harness writes the manual edits with `tests/common/memrepo.rs` helpers that write files without Git.

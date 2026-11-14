@@ -8,18 +8,18 @@ requires:
   - plain-git-access
 ---
 
-# Create a knowledge base
+# Create a memory repository
 
 > **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Creating the remote repository through a Git host API, and a check whether the repository is public, are out of scope for now (see [project decisions](../../../docs/decisions.md)). They are in `todo.md`.
 
 ## User Story
 
-> As the first person of a company, a team, or just myself, I want to create a knowledge base in a few minutes, so that others and my agents can use it.
+> As the first person of a company, a team, or just myself, I want to create a memory repository in a few minutes, so that others and my agents can use it.
 
 ## Personas
 
-- **Knowledge base owner** — creates the knowledge base and sets the shared settings.
-- **Private person** — creates a private knowledge base for their own AI memory.
+- **Memory owner** — creates the memory repository and sets the shared settings.
+- **Private person** — creates a private memory repository for their own AI memory.
 
 ## Behaviour
 
@@ -36,7 +36,7 @@ A repository is empty when it has no commit, or when all tracked files are among
 
 ### A folder with the marker and no settings file
 
-A repository that has a `.waymark` folder at its root or in `agent-memory/`, and no `settings.toml` there, was made for the older MKBase standard. `init` adopts it. It writes only `.waymark/settings.toml` (or `agent-memory/.waymark/settings.toml`) and commits and pushes that one file. It touches no document and no other file, and it does not create `AGENTS.md`, `.gitignore`, `.obsidian`, or folders. The inputs `name`, `slug`, `email_domains`, `limits`, `approval`, and `preview` work as below. The inputs `folders` and `audience` have no meaning here and give `invalid_arguments`. The result has `adopted: true` and `files` with the one path. If `settings.toml` exists, the repository is already a knowledge base (`validation_failed`, no change).
+A repository that has a `.waymark` folder at its root or in `agent-memory/`, and no `settings.toml` there, has the marker folder of the Waymark Memory Standard but no settings file. `init` adopts it. It writes only `.waymark/settings.toml` (or `agent-memory/.waymark/settings.toml`) and commits and pushes that one file. It touches no document and no other file, and it does not create `AGENTS.md`, `.gitignore`, `.obsidian`, or folders. The inputs `name`, `slug`, `email_domains`, `limits`, `approval`, and `preview` work as below. The inputs `folders` and `audience` have no meaning here and give `invalid_arguments`. The result has `adopted: true` and `files` with the one path. If `settings.toml` exists, the repository is already a memory repository (`validation_failed`, no change).
 
 ### Inputs
 
@@ -55,13 +55,13 @@ An unknown key, a wrong type, a bad slug, or a folder path with `..`, an absolut
 
 ### What `init` does
 
-1. Generates the UUID of the knowledge base (version 4) once.
+1. Generates the UUID of the memory repository (version 4) once.
 2. Writes these files, relative to the repository root:
 
    | File | Content |
    |---|---|
    | `AGENTS.md` | The plain-Git rules for the audience (see `plain-git-access`). |
-   | `.obsidian/app.json` | `{ "useMarkdownLinks": true, "newLinkFormat": "relative" }` (as [MKBase 1.0 section 11](../../../standard/waymark-1.0.md) recommends). |
+   | `.obsidian/app.json` | `{ "useMarkdownLinks": true, "newLinkFormat": "relative" }` (as [Waymark Memory Standard 1.0, section 11](../../../standard/waymark-1.0.md) recommends). |
    | `.gitignore` | The lines `.obsidian/*` and `!.obsidian/app.json`. |
    | `agent-memory/.waymark/version` | `1.0` and a final line end. |
    | `agent-memory/.waymark/settings.toml` | `schema = 1`, `name`, `id`, `slug`, `verification = false`, and the sections that the inputs set. |
@@ -87,14 +87,14 @@ Result (`data` fields, besides `message`, `settings`, and `notices`):
   "name": "Example",
   "slug": "example",
   "audience": "team",
-  "root": "knowledge",
+  "root": "agent-memory",
   "files": ["AGENTS.md", ".gitignore", ".obsidian/app.json", "agent-memory/.waymark/version", "agent-memory/.waymark/settings.toml", "agent-memory/.waymark/exclude", "agent-memory/backend/.gitkeep", "agent-memory/ops/.gitkeep"],
   "commit": "a1b2c3d",
   "pushed": true
 }
 ```
 
-With `preview: true`, `id` and `commit` are `null`, `pushed` is `false`, and nothing is written. Errors: `validation_failed` (not empty, or already a knowledge base), `invalid_arguments`, `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `setup_problem` (no author, Git not working, state `broken`), `sync_failed`. A `validation_failed` result for a repository that is already a knowledge base says: "This repository is already a knowledge base. Nothing was changed."
+With `preview: true`, `id` and `commit` are `null`, `pushed` is `false`, and nothing is written. Errors: `validation_failed` (not empty, or already a memory repository), `invalid_arguments`, `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `setup_problem` (no author, Git not working, state `broken`), `sync_failed`. A `validation_failed` result for a repository that is already a memory repository says: "This repository is already a memory repository. Nothing was changed."
 
 ## Acceptance Criteria
 
@@ -115,7 +115,7 @@ With `preview: true`, `id` and `commit` are `null`, `pushed` is `false`, and not
 ## Constraints & Edge Cases
 
 - The repository should be private. This is advice in the README. The server does not check it.
-- A private person can create a knowledge base on github.com in the same flow.
+- A private person can create a memory repository on github.com in the same flow.
 - There is no terminal flow and no prompt. The agent or a client form collects the inputs.
 - `undo` cannot revert an `init` commit (see `activity-and-undo`). The person deletes the repository or resets it on the Git host.
 - The default branch is whatever the clone has. `init` pushes to it and sets the upstream.

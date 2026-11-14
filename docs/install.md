@@ -20,7 +20,7 @@ brew install ionpulse-dev/tap/waymark
 
 waymark installs nothing into your agent tools and ships no skill. You add one MCP entry, and you write your own rules in `AGENTS.md`. Every entry uses the server name `waymark`, so that an entry in a project can override an entry of the same name for the user (see `project-binding`).
 
-Replace the repository URL with the URL of your knowledge base. The author name and email are optional. Without them, waymark uses the Git name and email of the person. The examples use `example.org`.
+Replace the repository URL with the URL of your memory repository. The author name and email are optional. Without them, waymark uses the Git name and email of the person. The examples use `example.org`.
 
 The first time a tool starts a server from a project file, the tool may ask you to approve it. Claude Code does. GitHub Copilot CLI asks you to trust the folder.
 
@@ -232,7 +232,7 @@ Never write secrets, tokens, or personal data.
 
 ### Tighten the limits
 
-Limits come from layers, and the strictest layer wins. Your personal file is `~/.config/waymark/config.toml`. The team's shared file is `.waymark/settings.toml` in the knowledge base. IT owns the system file. See the README, section "Limits", and the `trust-model` spec.
+Limits come from layers, and the strictest layer wins. Your personal file is `~/.config/waymark/config.toml`. The team's shared file is `.waymark/settings.toml` in the memory repository. IT owns the system file. See the README, section "Limits", and the `trust-model` spec.
 
 ## Update waymark
 
@@ -244,7 +244,7 @@ brew upgrade waymark
 
 The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
 
-**When a team's knowledge base needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
+**When a team's memory repository needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This memory repository needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
 
 **When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
 

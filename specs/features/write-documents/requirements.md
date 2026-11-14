@@ -15,7 +15,7 @@ requires:
 
 ## User Story
 
-> As a person, I want my agent to write, correct, dispute, replace, and retire documents safely, so that the knowledge base stays accurate and nothing I own is overwritten by mistake.
+> As a person, I want my agent to write, correct, dispute, replace, and retire documents safely, so that the memory repository stays accurate and nothing I own is overwritten by mistake.
 
 ## Personas
 
@@ -64,7 +64,7 @@ The server never prints the matched secret.
 
 **Body links.** A write never creates a broken link. For `add`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute`, `deprecate`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning. `sync` applies the same rule to documents that people edit by hand (see `manual-edits`).
 
-Secret patterns (built in): `-----BEGIN ... PRIVATE KEY-----`, `AKIA` plus 16 letters or digits, `ghp_` or `github_pat_` plus a token, `sk-` plus 20 or more letters or digits, `password`, `passwd`, `secret`, `token`, or `api_key` followed by `=` or `:` and a value, and `://user:password@`. A knowledge base adds regular expressions in `lint.extra_secret_patterns`.
+Secret patterns (built in): `-----BEGIN ... PRIVATE KEY-----`, `AKIA` plus 16 letters or digits, `ghp_` or `github_pat_` plus a token, `sk-` plus 20 or more letters or digits, `password`, `passwd`, `secret`, `token`, or `api_key` followed by `=` or `:` and a value, and `://user:password@`. A memory repository adds regular expressions in `lint.extra_secret_patterns`.
 
 ### `add`
 

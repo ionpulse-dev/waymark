@@ -27,7 +27,7 @@ requires:
 | `activity` | read | Lists the recent writes under the person's account, newest first. |
 | `undo` | write | Reverts one write with a revert commit and pushes it. |
 
-- The list comes from the Git history of the knowledge base. It holds the commits whose author email is the email of the person (compared without case) and whose subject starts with `waymark: `. This includes the verbs `add`, `update`, `dispute`, `deprecate`, `delete`, `move`, `undo`, `sync`, and `init`.
+- The list comes from the Git history of the memory repository. It holds the commits whose author email is the email of the person (compared without case) and whose subject starts with `waymark: `. This includes the verbs `add`, `update`, `dispute`, `deprecate`, `delete`, `move`, `undo`, `sync`, and `init`.
 - An undo is a new commit. History stays.
 - A write that changes files that later commits also changed cannot be undone by `undo`, unless Git can revert it cleanly (see below). `undo` never overwrites newer changes silently, and it has no `force`.
 

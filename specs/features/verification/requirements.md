@@ -13,11 +13,11 @@ requires:
 
 ## User Story
 
-> As a knowledge base owner, I want owners to verify important documents, so that readers can tell checked knowledge from agent guesses when my organization needs it.
+> As a memory repository owner, I want owners to verify important documents, so that readers can tell checked knowledge from agent guesses when my organization needs it.
 
 ## Personas
 
-- **Knowledge base owner** — turns verification on in `.waymark/settings.toml`.
+- **Memory owner** — turns verification on in `.waymark/settings.toml`.
 - **Document owner** — verifies documents.
 
 ## Behaviour
@@ -120,7 +120,7 @@ How readers treat the trust state is advice for the team's `AGENTS.md`. A sugges
 - In local mode, `verify` is a policy with an audit trail (the commit author), not a hard control.
 - When a team turns verification off, the trust fields stay in the files and are kept as they are.
 - When a team turns verification on, existing documents have no `trust` field. They count as unverified, and `review` lists them. No bulk write happens.
-- The standard says a producer must not set trust fields unless the knowledge base uses verification. These tools set them only when it does.
+- The standard says a producer must not set trust fields unless the memory repository uses verification. These tools set them only when it does.
 
 ## Open Questions
 

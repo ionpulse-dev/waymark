@@ -1,4 +1,4 @@
-//! The layout of a content repository and its root (see `memory-repository`).
+//! The layout of a memory repository and its root (see `memory-repository`).
 
 use super::agents_file::Audience;
 use super::settings;
@@ -26,7 +26,7 @@ pub fn repo_is_empty(dir: &Path) -> bool {
         .all(|f| matches!(f, "README.md" | "README" | "LICENSE" | "LICENSE.md"))
 }
 
-/// Find the root of a knowledge base: the folder that contains the marker folder `.waymark`.
+/// Find the root of a memory repository: the folder that contains the marker folder `.waymark`.
 /// Looks at the folder itself, then `agent-memory/`, then below it (up to 3 levels), then above it.
 pub fn find_root(start: &Path) -> Result<PathBuf> {
     let has_marker = |p: &Path| p.join(MARKER).is_dir();
@@ -70,10 +70,11 @@ pub fn find_root(start: &Path) -> Result<PathBuf> {
         }
         cur = p.parent();
     }
-    Err(
-        Error::setup(format!("No knowledge base found at {}.", start.display()))
-            .with_next("Check the path, or create a knowledge base with the init tool."),
-    )
+    Err(Error::setup(format!(
+        "No memory repository found at {}.",
+        start.display()
+    ))
+    .with_next("Check the path, or create a memory repository with the init tool."))
 }
 
 /// The files that `init` writes, as (path below the repository folder, content).
@@ -91,7 +92,7 @@ pub fn init_files(
     .expect("plain settings are valid")
 }
 
-/// Write the layout of a new knowledge base into a folder. Writes nothing and fails with
+/// Write the layout of a new memory repository into a folder. Writes nothing and fails with
 /// `validation_failed` if a file of the layout exists already.
 /// Returns the paths that were written, below the repository folder.
 pub fn init(repo_dir: &Path, name: &str, slug: &str) -> Result<Vec<String>> {
@@ -152,7 +153,8 @@ mod tests {
         for rel in &written {
             assert!(dir.path().join(rel).is_file(), "{rel}");
         }
-        let text = fs::read_to_string(dir.path().join("agent-memory/.waymark/settings.toml")).unwrap();
+        let text =
+            fs::read_to_string(dir.path().join("agent-memory/.waymark/settings.toml")).unwrap();
         let s = settings::parse(&text, "settings.toml").unwrap();
         assert_eq!(s.name, "Example Company");
         assert_eq!(s.slug, "example");
@@ -192,7 +194,8 @@ mod tests {
     fn a_name_with_quotes_is_written_as_valid_toml() {
         let dir = tempfile::tempdir().unwrap();
         init(dir.path(), "The \"Best\" Team\\x", "team").unwrap();
-        let text = fs::read_to_string(dir.path().join("agent-memory/.waymark/settings.toml")).unwrap();
+        let text =
+            fs::read_to_string(dir.path().join("agent-memory/.waymark/settings.toml")).unwrap();
         assert_eq!(
             settings::parse(&text, "w").unwrap().name,
             "The \"Best\" Team\\x"

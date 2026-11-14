@@ -8,7 +8,7 @@ None.
 
 ## Deferred
 
-- [ ] A local search index or cache of `Store`, if a scan takes too long on a large knowledge base. Blocked by real numbers from use.
+- [ ] A local search index or cache of `Store`, if a scan takes too long on a large memory repository. Blocked by real numbers from use.
 - [ ] Word-boundary matching and stemming in `search`.
 - [ ] The read budget on a shared server, where a session is an HTTP session. Out of scope for now (server mode).
 - [ ] Per-user read limits on a server. Out of scope for now (server mode).
@@ -25,4 +25,4 @@ None.
 ## Done in the implementation (2026-11-14)
 
 - All 22 `[auto]` cases pass in `tests/it_search_and_read.rs`. A scan of 2 000 documents takes well under 500 ms in a debug build.
-- Deferred: a cache for `Store` if a knowledge base grows past some thousand files.
+- Deferred: a cache for `Store` if a memory repository grows past some thousand files.

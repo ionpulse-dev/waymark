@@ -46,68 +46,79 @@ impl Tool for Deprecate {
             .trim()
             .to_string();
         let preview = writes::get_bool(&args, "preview");
-        writes::check_reason(&reason, ctx.memrepo()?.settings.documents.description_max_words)?;
+        writes::check_reason(
+            &reason,
+            ctx.memrepo()?.settings.documents.description_max_words,
+        )?;
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "deprecate", Kind::Write, preview, |tx, memrepo| {
-            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
-            tx.check_base(&rel, Some(&base))?;
-            let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
-            if doc.frontmatter.get_text("status") == Some("deprecated") {
-                return Err(Error::validation("This document is already deprecated.")
-                    .with_next("Nothing to do."));
-            }
-            let custom = crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
-            let mut problems = writes::Problems::default();
-            for hit in crate::lint::secrets::scan(&reason, &custom) {
-                problems.add(
-                    format!(
-                        "The reason looks like it contains a secret (rule {}, line {}).",
-                        hit.rule, hit.line
-                    ),
-                    "Remove the secret, or replace it with a placeholder.",
-                );
-            }
-            doc.frontmatter.set_text("status", "deprecated");
-            writes::touch(&mut doc, &today, &author);
-            let text = doc.render();
-            let mut notices = Vec::new();
-            writes::check_document(
-                memrepo,
-                &id,
-                &text,
-                &memrepo.id_set(),
-                &[],
-                None,
-                &mut problems,
-                &mut notices,
-            )?;
-            if !problems.is_empty() {
-                return Err(problems.into_error());
-            }
-            let mut data = Map::new();
-            data.insert("id".into(), json!(id));
-            data.insert("title".into(), json!(title));
-            data.insert("status".into(), json!("deprecated"));
-            Ok(Plan {
-                first: None,
-                revert: None,
-                changes: vec![FileChange::Write {
-                    id: id.clone(),
-                    text,
-                    action: "deprecate",
-                }],
-                verb: Verb::Deprecate,
-                title: title.clone(),
-                commit_body: Some(format!("Reason: {reason}")),
-                summary: format!("Deprecate \"{title}\" ({id}): {reason}"),
-                message: format!("Deprecated \"{title}\" (`{id}`). The file stays."),
-                data,
-                text: None,
-                notices,
-            })
-        })
+        writes::execute(
+            ctx,
+            env,
+            "deprecate",
+            Kind::Write,
+            preview,
+            |tx, memrepo| {
+                let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
+                tx.check_base(&rel, Some(&base))?;
+                let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
+                if doc.frontmatter.get_text("status") == Some("deprecated") {
+                    return Err(Error::validation("This document is already deprecated.")
+                        .with_next("Nothing to do."));
+                }
+                let custom =
+                    crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
+                let mut problems = writes::Problems::default();
+                for hit in crate::lint::secrets::scan(&reason, &custom) {
+                    problems.add(
+                        format!(
+                            "The reason looks like it contains a secret (rule {}, line {}).",
+                            hit.rule, hit.line
+                        ),
+                        "Remove the secret, or replace it with a placeholder.",
+                    );
+                }
+                doc.frontmatter.set_text("status", "deprecated");
+                writes::touch(&mut doc, &today, &author);
+                let text = doc.render();
+                let mut notices = Vec::new();
+                writes::check_document(
+                    memrepo,
+                    &id,
+                    &text,
+                    &memrepo.id_set(),
+                    &[],
+                    None,
+                    &mut problems,
+                    &mut notices,
+                )?;
+                if !problems.is_empty() {
+                    return Err(problems.into_error());
+                }
+                let mut data = Map::new();
+                data.insert("id".into(), json!(id));
+                data.insert("title".into(), json!(title));
+                data.insert("status".into(), json!("deprecated"));
+                Ok(Plan {
+                    first: None,
+                    revert: None,
+                    changes: vec![FileChange::Write {
+                        id: id.clone(),
+                        text,
+                        action: "deprecate",
+                    }],
+                    verb: Verb::Deprecate,
+                    title: title.clone(),
+                    commit_body: Some(format!("Reason: {reason}")),
+                    summary: format!("Deprecate \"{title}\" ({id}): {reason}"),
+                    message: format!("Deprecated \"{title}\" (`{id}`). The file stays."),
+                    data,
+                    text: None,
+                    notices,
+                })
+            },
+        )
     }
 }

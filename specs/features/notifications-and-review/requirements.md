@@ -13,7 +13,7 @@ requires:
 
 ## User Story
 
-> As a person, I want to hear about problems with my documents and my knowledge base, so that I can act without watching anything.
+> As a person, I want to hear about problems with my documents and my memory repository, so that I can act without watching anything.
 
 ## Personas
 

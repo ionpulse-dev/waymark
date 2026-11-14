@@ -35,7 +35,7 @@ The write flow of `git-sync` gets an `Approver`. The tool builds an `ApprovalReq
 5. **After a yes**, `Repo::write` computes the effective settings again and calls `write_block` (see `pause-and-resume`). Then it writes, commits, and pushes.
 6. **Result.** The tool adds `approval: "approved"` to `data` after a yes. With `preview: true` and an applicable rule, it adds `approval: "required"`.
 7. **The lock** stays held during the wait (step 2 of the write flow). A second process fails after 30 seconds with `sync_failed`.
-8. **Render rules** (`approval_text.rs`): the first line is `waymark asks to <verb> a document in "<kb name>".` for the document tools. The other tools use the one-line summary of their `ApprovalRequest`. The lines `Tool`, `Folder`, `Title`, `Document`, and `Author` come next. The body follows after `--- Body ---`. A cut message ends with the notice of `requirements.md`.
+8. **Render rules** (`approval_text.rs`): the first line is `waymark asks to <verb> a document in "<memory repository name>".` for the document tools. The other tools use the one-line summary of their `ApprovalRequest`. The lines `Tool`, `Folder`, `Title`, `Document`, and `Author` come next. The body follows after `--- Body ---`. A cut message ends with the notice of `requirements.md`.
 
 ## Cross-Feature Dependencies
 

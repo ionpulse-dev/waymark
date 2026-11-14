@@ -54,7 +54,7 @@ fn instructions_name_kb_and_limits() {
     );
     let c = client(&w);
     let t = instructions(&c);
-    assert!(t.contains("Knowledge base: \"Test\" (id "), "{t}");
+    assert!(t.contains("Memory repository: \"Test\" (id "), "{t}");
     assert!(
         t.contains("search returns at most 3 documents and 800 tokens"),
         "{t}"
@@ -102,7 +102,7 @@ fn unbound_instructions_and_status() {
     let mut c = McpClient::start(&h, Spawn::default());
     let t = instructions(&c);
     assert!(
-        t.contains("No knowledge base is set up: No knowledge base is set up."),
+        t.contains("No memory repository is set up: No memory repository is set up."),
         "{t}"
     );
     let s = c.call("status", json!({}));
@@ -139,7 +139,7 @@ fn initialize_needs_no_network() {
     let start = Instant::now();
     let c = client(&w);
     assert!(start.elapsed().as_secs() < 2);
-    assert!(instructions(&c).contains("Knowledge base:"));
+    assert!(instructions(&c).contains("Memory repository:"));
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn initialize_does_not_wait_for_a_clone() {
     // The clone runs in the background (see `join-memory-repository`). `initialize` does not wait.
     let t = instructions(&c);
     assert!(
-        t.contains("No knowledge base is set up") || t.contains("Knowledge base:"),
+        t.contains("No memory repository is set up") || t.contains("Memory repository:"),
         "{t}"
     );
 }

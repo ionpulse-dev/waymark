@@ -8,7 +8,7 @@ A `lint` module runs the checks of `format` and adds the checks that need more t
 
 - `format` — `check` gives the single-document findings. `count` gives words and bytes. No change.
 - `store` — `Store` provides all documents. This spec adds no change.
-- `kb` — `kb::settings` gives `documents.*`, `people.*`, and `lint.extra_secret_patterns`.
+- `memrepo` — `memrepo::settings` gives `documents.*`, `people.*`, and `lint.extra_secret_patterns`.
 - `gitsync` — `gitsync::log` gets `first_authors()` and `last_authors()` (one `git log` pass each). `Repo::write` runs the checks of this spec in step 5.
 - `mcp` — the registry gets two tools. `index` is a write tool, `lint` is read-only.
 - Write tools of `write-documents`, `move-documents`, and `manual-edits` call `lint::check_candidate`.
@@ -51,10 +51,10 @@ A `lint` module runs the checks of `format` and adds the checks that need more t
 
 ## Risks
 
-- A false secret finding blocks a good document. Mitigation: the placeholder skip, a message with the line number, and the `next` sentence to rewrite the value. A knowledge base cannot turn built-in patterns off in the first release (see `decisions.md`).
+- A false secret finding blocks a good document. Mitigation: the placeholder skip, a message with the line number, and the `next` sentence to rewrite the value. A memory repository cannot turn built-in patterns off in the first release (see `decisions.md`).
 - A false personal-data finding on a long number. Mitigation: IBAN and Luhn checks.
 - Slow author checks in large histories. Mitigation: one `git log` pass, run only by `lint`, not by writes.
-- Index files cause many commits in big knowledge bases. Mitigation: unchanged files are not touched, and `index` runs only on demand.
+- Index files cause many commits in big memory repositories. Mitigation: unchanged files are not touched, and `index` runs only on demand.
 
 ## Open Questions
 

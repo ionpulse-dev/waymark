@@ -6,7 +6,7 @@ Features that we want later, but not in the first release. When an idea moves in
 
 | Idea | What it does |
 |---|---|
-| Knowledge browser | A console page to search and read documents, rendered, with author and history. People can read without an agent. Until then: open the content repo as an Obsidian vault (see [similar-projects.md](similar-projects.md#obsidian-and-obsidian-sync)). |
+| Memory browser | A console page to search and read documents, rendered, with author and history. People can read without an agent. Until then: open the memory repository as an Obsidian vault (see [similar-projects.md](similar-projects.md#obsidian-and-obsidian-sync)). |
 | Quick capture | A console page where a person writes a document, with a live size counter and the same checks as `add`. |
 | Message channels | Email or webhook messages from a server, for example when someone disputes a document. |
 | Connect a Git account | An owner connects a Git account with "Sign in with GitHub". The server stores the token encrypted. Needs a key plan and a review of the attack surface. |
@@ -44,13 +44,13 @@ Features that we want later, but not in the first release. When an idea moves in
 
 | Idea | What it does | Limit |
 |---|---|---|
-| Pull request gate | A write becomes a pull request on the Git host. A second person approves it, shown in the console. Could be one setting for the whole knowledge base. Reviewers come from the code owners file. | The only server-side control for approval. Needs branch protection on the content repo. |
+| Pull request gate | A write becomes a pull request on the Git host. A second person approves it, shown in the console. Could be one setting for the whole memory repository. Reviewers come from the code owners file. | The only server-side control for approval. Needs branch protection on the content repo. |
 
 ## Enforce that writes go through waymark
 
 | Idea | What it does | Limit |
 |---|---|---|
-| Server as the only writer | On a server, people have read access to the content repository and only the credential of the server may write to `main`. A raw `git push` by a person or agent fails. | Needs branch protection on the content repo. Local mode cannot do this. |
+| Server as the only writer | On a server, people have read access to the memory repository and only the credential of the server may write to `main`. A raw `git push` by a person or agent fails. | Needs branch protection on the content repo. Local mode cannot do this. |
 | Git hooks | `pre-commit` and `pre-push` in the clone reject unless `waymark` started them. | Stops accidents. `--no-verify` or editing the hooks gets around it. |
 | Signed commits plus branch protection | `waymark` signs every commit with a key that other programs cannot use. The Git host rejects unsigned pushes to `main`. Optional hard mode for companies. | Needs branch protection on the content repo. Verify the details per Git host. |
 
@@ -69,4 +69,4 @@ Features that we want later, but not in the first release. When an idea moves in
 
 ## Access without waymark
 
-The plain-Git rules are no longer an idea. They are a standalone skill, copied into the `AGENTS.md` of every content repo (see `specs/features/plain-git-access`). Checked: Claude Code in the cloud (web and iPhone app) runs `git` and reaches GitHub through the environment's GitHub integration. Not verified: the plain Claude chat tab, and non-GitHub hosts. Obsidian skills for Claude exist, but they use local file tools or the Obsidian CLI, or sit on an MCP server. None teaches plain Git for a vault in a chat sandbox.
+The plain-Git rules are no longer an idea. They are a standalone skill, copied into the `AGENTS.md` of every memory repository (see `specs/features/plain-git-access`). Checked: Claude Code in the cloud (web and iPhone app) runs `git` and reaches GitHub through the environment's GitHub integration. Not verified: the plain Claude chat tab, and non-GitHub hosts. Obsidian skills for Claude exist, but they use local file tools or the Obsidian CLI, or sit on an MCP server. None teaches plain Git for a vault in a chat sandbox.

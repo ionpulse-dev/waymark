@@ -7,24 +7,24 @@ requires:
   - document-format
 ---
 
-# Knowledge base repository
+# Memory repository repository
 
 > **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. This spec is fully in scope. Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
-Define the content repository of a knowledge base: its layout, its shared settings file, and its rules file for agents. One knowledge base is one Git repository, whoever owns it: a company, a team, or one person.
+Define the memory repository of a memory repository: its layout, its shared settings file, and its rules file for agents. One memory repository is one Git repository, whoever owns it: a company, a team, or one person.
 
 ## Dependents
 
 - `create-memory-repository` and `join-memory-repository` — create or clone this layout.
 - `mcp-server` — reads the shared settings and the limits.
-- `project-binding` — the UUID in `.waymark/settings.toml` identifies the knowledge base.
+- `project-binding` — the UUID in `.waymark/settings.toml` identifies the memory repository.
 - `plain-git-access` — the `AGENTS.md` in the repository root carries the plain-Git rules.
 
 ## Deliverables
 
-- The layout of a content repository, with the marker folder `.waymark` that marks the root of the knowledge base and holds its metadata and configuration (see the [Waymark Memory Standard](../../../standard/waymark-1.0.md)).
+- The layout of a memory repository, with the marker folder `.waymark` that marks the root of the memory repository and holds its metadata and configuration (see the [Waymark Memory Standard](../../../standard/waymark-1.0.md)).
 - The schema of `.waymark/settings.toml`.
 - The templates for `.waymark/settings.toml` and `AGENTS.md`.
 - The Obsidian vault settings and Git ignore rules that `init` writes (the `init` tool, see `create-memory-repository`).
@@ -38,11 +38,11 @@ Define the content repository of a knowledge base: its layout, its shared settin
 
 **Out of scope:**
 - The format of one document (see `document-format`).
-- The tooling repository. The content lives in a separate repository per knowledge base.
+- The tooling repository. The content lives in a separate repository per memory repository.
 
 ## Constraints
 
-- The Git remote is private and belongs to the owner of the knowledge base.
+- The Git remote is private and belongs to the owner of the memory repository.
 - Everyone with read access to the repository sees every document. Git has no read permission per folder. One repository has one audience.
 - The repository holds no secrets and no personal settings.
 
@@ -53,7 +53,7 @@ Define the content repository of a knowledge base: its layout, its shared settin
   AGENTS.md                   rules for agents
   .obsidian/app.json          Markdown links and relative paths as defaults
   .gitignore                  .obsidian/* except .obsidian/app.json
-  agent-memory/                  root of the knowledge base
+  agent-memory/                  root of the memory repository
     .waymark/                   marker folder: metadata and configuration, committed
       version                 version of the document standard, for example 1.0
       settings.toml            shared settings of waymark
@@ -62,11 +62,11 @@ Define the content repository of a knowledge base: its layout, its shared settin
         idempotency-keys.md
 ```
 
-- The lock and the sync state are in `.git/` of the clone (for example `.git/waymark.lock`). Git never commits `.git/`, and Obsidian never sees it. The content repository has no `.waymark/` folder.
-- `AGENTS.md` is allowed in the repository root, outside the knowledge base.
-- The `init` tool writes the marker folder `agent-memory/.waymark/` with the file `version`. The folder that contains `.waymark/` is the root of the knowledge base. The ID of a document is its path below that root. The marker folder is defined by the Waymark Memory Standard and is not specific to waymark.
-- Everything that describes or configures the knowledge base lives in `.waymark/`. waymark keeps its shared settings in `.waymark/settings.toml`. Other tools may keep their own files there. waymark keeps its local state (lock and sync status) in `.git/`, because the state is never committed.
-- **The organization builds the tree.** waymark has no built-in folders. The folder structure may mirror the team structure if the organization decides so. waymark does not care. A knowledge base can add a `shared/` folder. It is a normal folder.
+- The lock and the sync state are in `.git/` of the clone (for example `.git/waymark.lock`). Git never commits `.git/`, and Obsidian never sees it. The memory repository has no `.waymark/` folder.
+- `AGENTS.md` is allowed in the repository root, outside the memory repository.
+- The `init` tool writes the marker folder `agent-memory/.waymark/` with the file `version`. The folder that contains `.waymark/` is the root of the memory repository. The ID of a document is its path below that root. The marker folder is defined by the Waymark Memory Standard and is not specific to waymark.
+- Everything that describes or configures the memory repository lives in `.waymark/`. waymark keeps its shared settings in `.waymark/settings.toml`. Other tools may keep their own files there. waymark keeps its local state (lock and sync status) in `.git/`, because the state is never committed.
+- **The organization builds the tree.** waymark has no built-in folders. The folder structure may mirror the team structure if the organization decides so. waymark does not care. A memory repository can add a `shared/` folder. It is a normal folder.
 - **No `owners` field.** The author is in Git history, with name and email.
 - Reorganizations use `move-documents`.
 
@@ -75,7 +75,7 @@ Define the content repository of a knowledge base: its layout, its shared settin
 ```toml
 schema = 1                      # version of this file format, written by init
 name = "Example Company"        # asked by init
-id = "<uuid>"                   # generated by init, identifies the knowledge base
+id = "<uuid>"                   # generated by init, identifies the memory repository
 slug = "example"                # default folder ~/Projects/example-agent-memory
 verification = false            # true: owners verify documents
 
@@ -104,7 +104,7 @@ description_max_words = 50
 extra_secret_patterns = []      # regular expressions
 ```
 
-**Schema version.** The key `schema` is a whole number of 1 or more. It is the version of the format of this file. A file without the key has schema 1. Every build of waymark knows the highest schema that it supports (now 1). If the file has a higher schema, the server refuses every tool except `status`, with the error `setup_problem`, the message "This knowledge base needs a newer waymark. Its settings file has schema N, and this waymark supports schema M.", and the `next` sentence "Update waymark with `brew upgrade waymark`, then restart your agent tool." `status` shows the same problem and both numbers, so a person can see why the tools fail. This holds for reads too: nobody works on a file that an older waymark might read wrongly. A `schema` that is not a whole number of 1 or more is a `setup_problem`. A build never raises the schema by itself. There is no migration yet. The number is raised only by a later release that needs a change of this file, and only through a deliberate step of the owner (a normal commit that `undo` can revert). The check protects only builds that contain it: waymark 0.1.2 and older ignore the key, so the number is not raised before the team had time to update.
+**Schema version.** The key `schema` is a whole number of 1 or more. It is the version of the format of this file. A file without the key has schema 1. Every build of waymark knows the highest schema that it supports (now 1). If the file has a higher schema, the server refuses every tool except `status`, with the error `setup_problem`, the message "This memory repository needs a newer waymark. Its settings file has schema N, and this waymark supports schema M.", and the `next` sentence "Update waymark with `brew upgrade waymark`, then restart your agent tool." `status` shows the same problem and both numbers, so a person can see why the tools fail. This holds for reads too: nobody works on a file that an older waymark might read wrongly. A `schema` that is not a whole number of 1 or more is a `setup_problem`. A build never raises the schema by itself. There is no migration yet. The number is raised only by a later release that needs a change of this file, and only through a deliberate step of the owner (a normal commit that `undo` can revert). The check protects only builds that contain it: waymark 0.1.2 and older ignore the key, so the number is not raised before the team had time to update.
 
 The file that `init` writes has a short comment above every setting: what it does, and its default or the values it takes. The file has no header comment, because the comments above the keys say what is required: only `id` is required, and `schema` is written by waymark. A settings file that `init` writes with limits or approval rules keeps the comments of the top keys. The sections that were set are written without comments.
 
@@ -112,7 +112,7 @@ The shared file holds no behavior rules. There is no read level, write level, or
 
 ## Versions and updates
 
-This section is the one place that says how a knowledge base and the waymark binary stay compatible over time. Other documents link here.
+This section is the one place that says how a memory repository and the waymark binary stay compatible over time. Other documents link here.
 
 ### The versions
 
@@ -134,7 +134,7 @@ The repository holds the data and its two version labels. The binary holds the h
 
 ### Automatic repairs
 
-- The repairs are a list in the binary (`src/kb/repairs.rs`). Each one takes the text of the settings file and returns the fixed text, or nothing if the file needs nothing.
+- The repairs are a list in the binary (`src/memrepo/repairs.rs`). Each one takes the text of the settings file and returns the fixed text, or nothing if the file needs nothing.
 - A repair runs at the first call that writes: a write tool, with read-write access, not paused, and not a preview. A read, a preview, and a call under read-only access never repair. No approval is asked, because a repair adds only keys that the binary defines.
 - It goes in its own commit before the change of the caller: `waymark: repair "settings"`, under the author of the person, and it is pushed with that change. `undo` can revert it. The result of the call has a notice, for example "Repaired the settings file: added the missing schema key."
 - A repair never touches `[limits]`, `[approval]`, or any value that the owner set. It comes only from the list in the binary, never from the input of a tool or from a document. An agent cannot use it to loosen a limit.
@@ -148,7 +148,7 @@ The repository holds the data and its two version labels. The binary holds the h
 - A migration never runs on a read or on its own. It is a tool, `migrate`, that is listed only when the file has an older schema than the binary supports (like the verification tools), so it costs no context otherwise. `status` and a notice tell the owner that a migration is available. It is a normal write: one commit under the author, `preview`, approval rules, and `undo`.
 - A newer binary reads the previous schema as it is, until the owner migrates, so one person who updates waymark does not lock the team out. After the migration, older builds are blocked by the rule for a higher schema.
 - The rule that tools never change this file has two exceptions, both from code in the binary and not from input: the repairs and `migrate`.
-- If steps are dropped one day, a file that is too old gets the message "Open this knowledge base once with waymark X to migrate it first."
+- If steps are dropped one day, a file that is too old gets the message "Open this memory repository once with waymark X to migrate it first."
 - The check for a higher schema must ship before the first schema bump, because builds without it ignore the key. Releases up to 0.1.2 do. The number is not raised before the team had time to update.
 
 ### Updates of the MCP entry
@@ -168,7 +168,7 @@ A settings file with no `id` (or one that is not valid TOML) blocks every tool, 
 - **Given** a new repository from `init`, **When** it is opened in Obsidian, **Then** it opens as a vault and new links use Markdown links with relative paths.
 - **Given** a repository, **When** `git status` runs after Obsidian was used, **Then** personal Obsidian files do not show as changes.
 - **Given** a `.waymark/settings.toml` without `id`, **When** the server reads it, **Then** the server reports `setup_problem`.
-- **Given** a `.waymark/settings.toml` with a `schema` higher than the build supports, **When** any tool except `status` runs, **Then** it fails with `setup_problem` and the message "This knowledge base needs a newer waymark", and `status` shows the file's schema, the supported one, and the fix.
+- **Given** a `.waymark/settings.toml` with a `schema` higher than the build supports, **When** any tool except `status` runs, **Then** it fails with `setup_problem` and the message "This memory repository needs a newer waymark", and `status` shows the file's schema, the supported one, and the fix.
 - **Given** a file without `schema`, **When** the server reads it, **Then** it works as schema 1.
 - **Given** a `schema` of 0, a negative number, or a text, **When** the server reads it, **Then** it fails with `setup_problem`.
 - **Given** a new repository from `init`, **When** `settings.toml` is read, **Then** it has `schema = 1`.

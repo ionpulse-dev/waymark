@@ -4,10 +4,10 @@
 use crate::config::Kind;
 use crate::error::{Code, Error};
 use crate::gitsync::Verb;
-use crate::memrepo::folders::GITKEEP;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
+use crate::memrepo::folders::GITKEEP;
 use crate::writes::{self, FileChange, Plan};
 use serde_json::{json, Map, Value};
 

@@ -20,8 +20,8 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `personal-data`. | T10 |
 | **Given** the conformance fixtures, **When** `lint` runs, **Then** valid ones have no error and invalid ones the named rule. | T11 |
 | **Given** `people.email_domains` and an author with another domain, **When** `lint` runs, **Then** it reports `author-not-allowed`. | T12 |
-| **Given** a knowledge base, **When** `index` runs, **Then** each folder gets an index file with links. | T13 |
-| **Given** an unchanged knowledge base, **When** `index` runs twice, **Then** the second run makes no commit. | T14 |
+| **Given** a memory repository, **When** `index` runs, **Then** each folder gets an index file with links. | T13 |
+| **Given** an unchanged memory repository, **When** `index` runs twice, **Then** the second run makes no commit. | T14 |
 | **Given** a hand-written `index.md`, **When** `index` runs, **Then** it is unchanged and listed under `skipped`. | T15 |
 | **Given** `preview: true`, **When** `index` runs, **Then** nothing is written. | T16 |
 | **Given** `access = "read-only"`, **When** the client lists tools, **Then** `index` is hidden and `lint` is listed. | T17 |
