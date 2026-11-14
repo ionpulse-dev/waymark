@@ -170,3 +170,99 @@ fn a_file_without_schema_works_as_schema_1() {
     let r = c.call("list", json!({}));
     assert!(!r.is_error, "{}", r.json);
 }
+
+fn remove_schema_and_commit(w: &World) {
+    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let text = std::fs::read_to_string(&path).unwrap();
+    let without: String = text
+        .lines()
+        .filter(|l| !l.starts_with("schema"))
+        .map(|l| format!("{l}\n"))
+        .collect();
+    std::fs::write(&path, without).unwrap();
+    git(&w.a, &["add", "-A"]);
+    git(
+        &w.a,
+        &[
+            "-c",
+            "user.name=Host",
+            "-c",
+            "user.email=host@corp.org",
+            "commit",
+            "-q",
+            "-m",
+            "old settings",
+        ],
+    );
+    git(&w.a, &["push", "-q", "origin", "HEAD"]);
+}
+
+#[test]
+fn a_write_repairs_a_missing_schema_in_its_own_commit() {
+    let w = World::new();
+    remove_schema_and_commit(&w);
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    // Reads and previews never write.
+    let head = git(&w.remote, &["rev-parse", "main"]);
+    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c
+        .call(
+            "add",
+            json!({"folder": "ops", "title": "T", "description": "D.", "body": "B.", "preview": true})
+        )
+        .is_error);
+    assert_eq!(git(&w.remote, &["rev-parse", "main"]), head);
+    // A write repairs first, then makes its own commit.
+    let r = c.call(
+        "add",
+        json!({"folder": "ops", "title": "After repair", "description": "D.", "body": "B."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    assert!(
+        r.json.to_string().contains("added the missing schema key"),
+        "{}",
+        r.json
+    );
+    let log = git(&w.remote, &["log", "--format=%s", "-3", "main"]);
+    let lines: Vec<&str> = log.lines().collect();
+    assert_eq!(lines[0], "waymark: add \"After repair\"", "{log}");
+    assert_eq!(lines[1], "waymark: repair \"settings\"", "{log}");
+    let settings = git(&w.remote, &["show", "main:knowledge/.mkbase/waymark.toml"]);
+    assert!(
+        settings.lines().next().unwrap().trim() == "schema = 1",
+        "{settings}"
+    );
+    // A second write has nothing to repair.
+    let before = git(&w.remote, &["rev-list", "--count", "main"]);
+    let r = c.call(
+        "add",
+        json!({"folder": "ops", "title": "Again", "description": "D.", "body": "B."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    assert!(!r.json.to_string().contains("Repaired"));
+    let after = git(&w.remote, &["rev-list", "--count", "main"]);
+    assert_eq!(
+        after.trim().parse::<i32>().unwrap(),
+        before.trim().parse::<i32>().unwrap() + 1
+    );
+}
+
+#[test]
+fn a_repair_keeps_the_values_that_the_owner_set() {
+    let w = World::new();
+    let path = w.a.join("knowledge/.mkbase/waymark.toml");
+    let text = std::fs::read_to_string(&path).unwrap();
+    let edited = text.replace("# max_results = 5", "max_results = 2 # tight");
+    assert_ne!(edited, text);
+    std::fs::write(&path, edited).unwrap();
+    remove_schema_and_commit(&w);
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = c.call(
+        "add",
+        json!({"folder": "ops", "title": "Keep limits", "description": "D.", "body": "B."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    let settings = git(&w.remote, &["show", "main:knowledge/.mkbase/waymark.toml"]);
+    assert!(settings.contains("max_results = 2 # tight"), "{settings}");
+    assert!(settings.starts_with("schema = 1\n"), "{settings}");
+}

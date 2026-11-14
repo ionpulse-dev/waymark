@@ -486,6 +486,28 @@ pub fn execute(
         } else if preview && env.effective.needs_approval(tool, kind) {
             plan.data.insert("approval".into(), Value::String("required".into()));
         }
+        // A repair of the settings file goes in its own commit, before the change of the caller.
+        if !preview {
+            let rel = kb
+                .root
+                .join(crate::kb::layout::MARKER)
+                .join(crate::kb::layout::SETTINGS_FILE)
+                .strip_prefix(&kb.repo_dir)
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default();
+            if let Some(text) = tx.read(&rel)? {
+                if let Some((fixed, done)) = crate::kb::repairs::repair(&text) {
+                    tx.write_file(&rel, &fixed)?;
+                    tx.repo().commit_change(&Change {
+                        paths: vec![rel],
+                        message: commit_message(Verb::Repair, "settings"),
+                    })?;
+                    for r in done {
+                        plan.notices.push(r.notice.to_string());
+                    }
+                }
+            }
+        }
         let mut paths = Vec::new();
         let mut first_hash: Option<String> = None;
         let mut history_checked = false;

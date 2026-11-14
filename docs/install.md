@@ -244,7 +244,7 @@ brew upgrade waymark
 
 The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
 
-**When a team's knowledge base needs a newer waymark.** The settings file `.mkbase/waymark.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself.
+**When a team's knowledge base needs a newer waymark.** The settings file `.mkbase/waymark.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This knowledge base needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [knowledge-base-repo spec](../specs/foundation/knowledge-base-repo/requirements.md).
 
 ## Check that waymark works
 

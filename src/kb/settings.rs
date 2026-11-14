@@ -112,11 +112,8 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
         .unwrap_or("")
         .to_string();
     if id.is_empty() {
-        return Err(
-            Error::setup(format!("{path_for_messages} has no id.")).with_next(
-                "Add an id (a UUID) to the file, or create the knowledge base again with init.",
-            ),
-        );
+        return Err(Error::setup(format!("{path_for_messages} has no id."))
+            .with_next("Add an id (a UUID) to the file by hand, then commit it."));
     }
     if !is_uuid(&id) {
         return Err(

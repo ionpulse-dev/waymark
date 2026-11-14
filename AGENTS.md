@@ -46,6 +46,7 @@ Read [specs/PROJECT.md](specs/PROJECT.md) for the details.
 - `specs/`: the specification (the source of truth). Decisions that belong to one spec are in its `decisions.md`.
 - `standard/`: the MKBase Document Standard and its conformance fixtures. Part of this project. A change starts here, in the standard, and then in `specs/foundation/document-format`.
 - `docs/`: roadmap, ideas, similar projects, project-wide decisions, and open questions.
+- Versions and automatic updates (settings schema, repairs, migrations): [specs/foundation/knowledge-base-repo](specs/foundation/knowledge-base-repo/requirements.md), section "Versions and updates".
 - `README.md`: the public project page. Keep it in sync with the specs. Only list advantages that a spec supports.
 
 ## What does not belong in this repository

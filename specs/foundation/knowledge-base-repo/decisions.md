@@ -33,3 +33,11 @@
 **Alternatives considered:** Use `.mkbase/version` (it holds the version of the document standard, which changes for other reasons). Block only writes (rejected by the product owner: nobody should work on a file that an older waymark might read wrongly). Migrate automatically on read (rejected: a read must never change a shared file).
 
 **Reason:** In a team, one person's update must not leave the others with a build that corrupts the file. The check has to ship before the first bump, because builds without it ignore the key. Releases up to 0.1.2 do. The key is added now, while no migration exists. Files written earlier have no key and count as schema 1.
+
+## Repairs are automatic, migrations are manual — 2026-11-14
+
+**Decision (product owner):** New versions of waymark repair the settings file by themselves when something is missing, without bothering the person. A change that older builds cannot read is a migration and stays a deliberate step of the owner (a tool `migrate`, designed and not built). All of it is described in the section "Versions and updates" of `requirements.md`.
+
+**Alternatives considered:** Repair on a read, or at the start of the session (rejected: a person who only reads would cause a commit to a shared repository, and `initialize` must stay fast and free of writes). Let `init` complete an existing settings file (rejected: it is not what `init` is for, and it would be a second way to edit the file). Migrate automatically too (rejected: the first person on a new build would move the whole team's file and lock out everyone on an older build).
+
+**Reason:** A repair only adds what is missing, so it is safe and the result stays readable for older builds. The repairs come from a list in the binary and never touch the limits that an owner set, so the trust model holds. The first repair adds the key `schema` to files that were written before it existed. A file with no `id` cannot be repaired this way, because it blocks every tool (see the section).

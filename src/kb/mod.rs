@@ -6,6 +6,7 @@ pub mod agents_file;
 pub mod folders;
 pub mod init;
 pub mod layout;
+pub mod repairs;
 pub mod settings;
 
 pub use layout::{find_root, init, init_with, slug_from_name, MARKER};

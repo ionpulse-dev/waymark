@@ -108,6 +108,55 @@ extra_secret_patterns = []      # regular expressions
 
 The shared file holds no behavior rules. There is no read level, write level, or agent tool list. Behavior is written in the `AGENTS.md` of the team.
 
+## Versions and updates
+
+This section is the one place that says how a knowledge base and the waymark binary stay compatible over time. Other documents link here.
+
+### The versions
+
+| What | Where it lives | Today | Checked by waymark |
+|---|---|---|---|
+| Program version | the binary (`waymark --version`) | 0.1.x | no, it is information |
+| Settings schema | `schema` in `.mkbase/waymark.toml` | 1 | yes: a higher number blocks every tool except `status` |
+| Document standard | `.mkbase/version` and `standard/mkbase-1.0.md` | 1.0 | no. Nothing reads `.mkbase/version` yet (see `todo.md`) |
+| Tool interface | the tool descriptions that the binary sends at the start of a session | follows the program version | not stored anywhere, so it needs no migration |
+
+The repository holds the data and its two version labels. The binary holds the highest schema it supports and compares the two at every call. There is no database, so the only stored formats are the documents and the settings file.
+
+### Two kinds of update
+
+| Kind | What it is | Who decides | State |
+|---|---|---|---|
+| **Repair** | Adds what is missing in the settings file (for example the key `schema`). Never changes a value that exists. Safe to run twice. Older builds can still read the result. | Automatic | implemented |
+| **Migration** | A change of the format that older builds cannot read (schema 1 to 2, 2 to 3, and so on). | The owner, by a deliberate step | designed, not built (no schema 2 exists) |
+
+### Automatic repairs
+
+- The repairs are a list in the binary (`src/kb/repairs.rs`). Each one takes the text of the settings file and returns the fixed text, or nothing if the file needs nothing.
+- A repair runs at the first call that writes: a write tool, with read-write access, not paused, and not a preview. A read, a preview, and a call under read-only access never repair. No approval is asked, because a repair adds only keys that the binary defines.
+- It goes in its own commit before the change of the caller: `waymark: repair "settings"`, under the author of the person, and it is pushed with that change. `undo` can revert it. The result of the call has a notice, for example "Repaired the settings file: added the missing schema key."
+- A repair never touches `[limits]`, `[approval]`, or any value that the owner set. It comes only from the list in the binary, never from the input of a tool or from a document. An agent cannot use it to loosen a limit.
+- Two people who trigger the same repair at once are handled by the write flow of `git-sync`: it fetches first, so the second finds the file fixed and does nothing.
+- The first repair: a file without the key `schema` gets `schema = 1` as its first line. Every other line stays as it was, with its comments.
+
+### Migrations (designed, not built)
+
+- One small function for each step: 1 to 2, 2 to 3, and so on. A file at schema 1 and a binary that supports 4 run three steps in order. A step takes the text of version N and returns the text of version N+1. It is pure (no Git, no network), safe to run twice, and keeps comments (it edits text in place, for example with `toml_edit`).
+- Each schema has a sample file in the tests, and one test runs the whole chain.
+- A migration never runs on a read or on its own. It is a tool, `migrate`, that is listed only when the file has an older schema than the binary supports (like the verification tools), so it costs no context otherwise. `status` and a notice tell the owner that a migration is available. It is a normal write: one commit under the author, `preview`, approval rules, and `undo`.
+- A newer binary reads the previous schema as it is, until the owner migrates, so one person who updates waymark does not lock the team out. After the migration, older builds are blocked by the rule for a higher schema.
+- The rule that tools never change this file has two exceptions, both from code in the binary and not from input: the repairs and `migrate`.
+- If steps are dropped one day, a file that is too old gets the message "Open this knowledge base once with waymark X to migrate it first."
+- The check for a higher schema must ship before the first schema bump, because builds without it ignore the key. Releases up to 0.1.2 do. The number is not raised before the team had time to update.
+
+### The start of a session
+
+`initialize` checks the settings file when it builds the `instructions` text. A schema problem is in that text. The text is not enough on its own, because a client may not show it, so every tool call also fails with the same message. A migration is never run during `initialize`: it must not write, and it must not wait for the network.
+
+### A file that cannot be read
+
+A settings file with no `id` (or one that is not valid TOML) blocks every tool, so no repair can run. The error tells the person to fix the file by hand and commit it. `init` does not repair an existing settings file.
+
 ## Acceptance Criteria
 
 - **Given** a new repository from `init`, **When** it is opened in Obsidian, **Then** it opens as a vault and new links use Markdown links with relative paths.
@@ -117,6 +166,10 @@ The shared file holds no behavior rules. There is no read level, write level, or
 - **Given** a file without `schema`, **When** the server reads it, **Then** it works as schema 1.
 - **Given** a `schema` of 0, a negative number, or a text, **When** the server reads it, **Then** it fails with `setup_problem`.
 - **Given** a new repository from `init`, **When** `waymark.toml` is read, **Then** it has `schema = 1`.
+- **Given** a settings file without `schema`, **When** a write tool runs, **Then** `schema = 1` is added as its first line in a commit `waymark: repair "settings"` before the commit of the write, every other line is unchanged, and the result has a notice.
+- **Given** a settings file without `schema`, **When** a read tool runs or a write runs with `preview: true`, **Then** nothing is committed.
+- **Given** a current settings file, **When** a write tool runs, **Then** no repair commit is made.
+- **Given** a settings file with values in `[limits]`, **When** a repair runs, **Then** those values and the comments are unchanged.
 - **Given** a shared limit and a looser personal value, **When** the server reads both, **Then** the stricter value applies.
 - **Given** a folder reorganization, **When** it is done through waymark, **Then** no `owners` field or team list needs an update.
 

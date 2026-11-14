@@ -13,6 +13,7 @@ pub enum Verb {
     Init,
     AddFolder,
     RemoveFolder,
+    Repair,
 }
 
 impl Verb {
@@ -27,6 +28,7 @@ impl Verb {
             Verb::Undo => "undo",
             Verb::Sync => "sync",
             Verb::Init => "init",
+            Verb::Repair => "repair",
             Verb::AddFolder => "add-folder",
             Verb::RemoveFolder => "remove-folder",
         }
@@ -43,6 +45,7 @@ impl Verb {
             "undo" => Verb::Undo,
             "sync" => Verb::Sync,
             "init" => Verb::Init,
+            "repair" => Verb::Repair,
             "add-folder" => Verb::AddFolder,
             "remove-folder" => Verb::RemoveFolder,
             _ => return None,

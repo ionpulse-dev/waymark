@@ -86,7 +86,7 @@ Limits come from layers. All layers use the same keys.
 |---|---|---|---|
 | System config file (`/Library/Application Support/waymark/config.toml` on macOS, `/etc/waymark/config.toml` on Linux). Optional. | IT. The file belongs to an administrator. | at every call | **Hard in local mode**, where a company needs it. A normal user and their agent cannot change it. Most people do not use it. |
 | Server config | The operator of a server (see `server-mode`) | at every call | **Hard in server mode.** Users cannot touch it. |
-| Shared settings in the knowledge base (`.mkbase/waymark.toml`, section `[limits]`) | The team owner | at every sync | The server refuses to change this file through its tools. A person with Git access can still change it. |
+| Shared settings in the knowledge base (`.mkbase/waymark.toml`, section `[limits]`) | The team owner | at every sync | The server refuses to change this file through its tools. Two exceptions come from code in the binary and never from input: the automatic repairs and, later, `migrate` (see `knowledge-base-repo`, section "Versions and updates"). A person with Git access can still change it. |
 | Personal config (`~/.config/waymark/config.toml`) | The person | at every call | A safety default. An agent with file access could edit it. |
 | MCP entry (arguments and environment variables) | The person | at start | A safety default. |
 
