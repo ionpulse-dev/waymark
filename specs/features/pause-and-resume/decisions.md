@@ -73,3 +73,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The decision "Two states, no timer" of 2026-11-06 stays valid. There is no automatic resume.
 
 **Reason:** A forgotten timer silently re-enables writes.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously:** There is no `src/config/pause.rs`. The rules are in `check_tool` (`src/config/limits.rs`). Read-only is checked before paused, so a resume never turns into a false hope. The server sends `tools/list_changed` after any call that changes the visible tool list. `status` works with a broken config file and reports the problem in `settings`.

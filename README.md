@@ -198,6 +198,22 @@ A limit can switch a tool off, and then it is not listed. There is no tool that
 changes limits, pause, approval, or credentials. The full list is in the
 [MCP server spec](specs/foundation/mcp-server/requirements.md).
 
+## Pause writes
+
+To stop all writes at once, add this to `~/.config/waymark/config.toml`:
+
+```toml
+[limits]
+paused = true
+```
+
+The agent can still read. Write tools disappear from the tool list, and a direct
+write call fails with `paused`. The change works at the next call, with no
+restart. There is no timer. To resume, set `paused = false` (or remove the
+line) in the file that set it. A lower file cannot undo a pause from a higher
+one. You can also start the server with `--paused`. An agent cannot pause or
+resume: no tool does it. `access = "read-only"` wins over a pause.
+
 ## Your rules: `AGENTS.md`
 
 waymark ships no behavior text. You decide how your agent uses the tools, in

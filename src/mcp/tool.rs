@@ -97,6 +97,9 @@ impl Registry {
             .find(|t| t.name() == name)
             .ok_or_else(|| UnknownTool(name.to_string()))?;
         let (env, verification, mut notices) = self.env(ctx);
+        if env.effective.paused {
+            notices.insert(0, "Writes are paused.".to_string());
+        }
         let settings = env.effective.to_json();
         let fail = |e: Error, notices: &[String]| Outcome {
             json: error_json(&e, Some(settings.clone()), notices),
@@ -136,8 +139,8 @@ impl Registry {
                     Denied::AccessDenied(m) => Error::new(Code::AccessDenied, m).with_next(
                         "A limit blocks this tool. Ask the owner of the setup to change it.",
                     ),
-                    Denied::Paused => Error::new(Code::Paused, "Writes are paused.")
-                        .with_next("Writes work again when the person resumes them."),
+                    Denied::Paused => Error::new(Code::Paused, "Writes are paused. Reads still work.")
+                        .with_next("Only the person can resume writes: set paused = false in the file that set it, for example ~/.config/waymark/config.toml."),
                 };
                 return Ok(fail(e, &notices));
             }

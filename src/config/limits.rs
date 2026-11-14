@@ -195,13 +195,14 @@ impl Effective {
             )));
         }
         if kind != Kind::Read {
-            if self.paused {
-                return Err(Denied::Paused);
-            }
+            // Read-only comes first: a resume would not help (see `pause-and-resume`).
             if self.access == Access::ReadOnly {
                 return Err(Denied::AccessDenied(
                     "Writing is not allowed: access is read-only.".to_string(),
                 ));
+            }
+            if self.paused {
+                return Err(Denied::Paused);
             }
         }
         Ok(())

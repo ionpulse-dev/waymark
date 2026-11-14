@@ -27,6 +27,9 @@ pub struct Args {
     /// `read-only` or `read-write`.
     #[arg(long)]
     pub access: Option<String>,
+    /// Pause all writes from the start of the server.
+    #[arg(long)]
+    pub paused: bool,
     /// Switch off the delete tool.
     #[arg(long)]
     pub no_delete: bool,
@@ -63,6 +66,7 @@ impl Args {
         }
         Ok(Limits {
             access,
+            paused: self.paused.then_some(true),
             tools_denied: (!denied.is_empty()).then_some(denied),
             folders: (!self.folders.is_empty()).then(|| self.folders.clone()),
             max_results: self.max_results,

@@ -22,21 +22,21 @@ _The tests use the harness of `integration-testing`. The personal config file is
 
 ## Test Cases
 
-- [ ] [auto] A paused write gives code `paused`, a `next` sentence, and no new commit in the clone or the remote (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] `status` and a read tool work while paused (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] System file `paused = true` and personal `paused = false`: a write fails (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] The config file has a modification time two days old, and a write still fails. Two calls with a pause between give the same answer (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] `status` has `settings.paused = true` and the notice "Writes are paused." (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] `tools/list` has no tool with a name that contains `pause`, `resume`, or `limit` (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] One server process: write works, the test writes `paused = true`, the write fails, the test writes `paused = false`, the write works (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] `access = "read-only"` in the shared file and `paused = true`: a write gives `access_denied` (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] While paused, `tools/list` has no write tool, and the client received `notifications/tools/list_changed` once. After the resume, it received it again (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] A direct call of a hidden write tool while paused gives `paused`, not "unknown tool" (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] A syntax error in the personal file gives `setup_problem` with the path, for a read and for a write (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] Every result while paused has the notice "Writes are paused." as the first notice (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] `--paused` in the arguments pauses from the start (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] Person B pushes a document while A is paused. `Repo::refresh_if_stale` on the clone of A brings it in (`tests/it_pause_and_resume.rs`)
-- [ ] [auto] Unit tests of `write_block` (inline in `src/config/pause.rs`)
+- [x] [auto] A paused write gives code `paused`, a `next` sentence, and no new commit in the clone or the remote (`tests/it_pause_and_resume.rs`)
+- [x] [auto] `status` and a read tool work while paused (`tests/it_pause_and_resume.rs`)
+- [x] [auto] System file `paused = true` and personal `paused = false`: a write fails (`tests/it_pause_and_resume.rs`)
+- [x] [auto] The config file has a modification time two days old, and a write still fails. Two calls with a pause between give the same answer (`tests/it_pause_and_resume.rs`)
+- [x] [auto] `status` has `settings.paused = true` and the notice "Writes are paused." (`tests/it_pause_and_resume.rs`)
+- [x] [auto] `tools/list` has no tool with a name that contains `pause`, `resume`, or `limit` (`tests/it_pause_and_resume.rs`)
+- [x] [auto] One server process: write works, the test writes `paused = true`, the write fails, the test writes `paused = false`, the write works (`tests/it_pause_and_resume.rs`)
+- [x] [auto] `access = "read-only"` in the shared file and `paused = true`: a write gives `access_denied` (`tests/it_pause_and_resume.rs`)
+- [x] [auto] While paused, `tools/list` has no write tool, and the client received `notifications/tools/list_changed` once. After the resume, it received it again (`tests/it_pause_and_resume.rs`)
+- [x] [auto] A direct call of a hidden write tool while paused gives `paused`, not "unknown tool" (`tests/it_pause_and_resume.rs`)
+- [x] [auto] A syntax error in the personal file gives `setup_problem` with the path, for a read and for a write (`tests/it_pause_and_resume.rs`)
+- [x] [auto] Every result while paused has the notice "Writes are paused." as the first notice (`tests/it_pause_and_resume.rs`)
+- [x] [auto] `--paused` in the arguments pauses from the start (`tests/it_pause_and_resume.rs`)
+- [x] [auto] Person B pushes a document while A is paused. `Repo::refresh_if_stale` on the clone of A brings it in (`tests/it_pause_and_resume.rs`)
+- [x] [auto] Unit tests of the pause rules: the existing tests in `src/config/limits.rs` (`paused_if_any_layer_says_so`, check order) replace `write_block`
 - [ ] [manual] The kill switch with a real agent tool. Steps: (1) Add the MCP entry to Claude Code and start a session. (2) Ask the agent to add a test document. It works. (3) In a terminal, add `paused = true` under `[limits]` in `~/.config/waymark/config.toml`. (4) Ask the agent to add another document. Expected: the agent reports that writes are paused, and no commit appears in the clone. (5) Set `paused = false` and ask again. Expected: the write works.
 - [ ] [manual] The README steps work as written, on a Mac with no config file and on a Mac with a config file that has `[limits]`. Expected: no `setup_problem`.
 

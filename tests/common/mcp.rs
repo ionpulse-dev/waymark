@@ -41,6 +41,8 @@ pub struct McpClient {
     pub home: PathBuf,
     pub system_config: PathBuf,
     pub initialize_result: Value,
+    /// Notifications from the server, in the order they came.
+    notes: Arc<Mutex<Vec<Value>>>,
 }
 
 #[derive(Default)]
@@ -108,6 +110,8 @@ impl McpClient {
         let stdin = Arc::new(Mutex::new(child.stdin.take()));
         let stdout = child.stdout.take().unwrap();
         let (tx, rx) = channel::<Value>();
+        let notes: Arc<Mutex<Vec<Value>>> = Arc::new(Mutex::new(Vec::new()));
+        let notes_writer = notes.clone();
         let mut hook = spawn.hook;
         let writer = stdin.clone();
         std::thread::spawn(move || {
@@ -129,6 +133,9 @@ impl McpClient {
                     }
                     continue;
                 }
+                if msg.get("method").is_some() && msg.get("id").is_none() {
+                    notes_writer.lock().unwrap().push(msg.clone());
+                }
                 if tx.send(msg).is_err() {
                     break;
                 }
@@ -142,6 +149,7 @@ impl McpClient {
             home: home.to_path_buf(),
             system_config,
             initialize_result: Value::Null,
+            notes,
         };
         let caps = if spawn.elicitation {
             json!({"elicitation": {}})
@@ -187,6 +195,18 @@ impl McpClient {
                 }
             }
         }
+    }
+
+    /// How many notifications with this method arrived so far. Call after a request, so that the
+    /// reader thread has had time to read them.
+    pub fn notifications(&self, method: &str) -> usize {
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        self.notes
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|m| m["method"] == method)
+            .count()
     }
 
     pub fn list_tools(&mut self) -> Vec<Value> {
