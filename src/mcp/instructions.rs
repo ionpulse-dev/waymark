@@ -7,6 +7,18 @@ use serde_json::Value;
 const MAX_CHARS: usize = 1200;
 const INTRO: &str = "waymark is a knowledge base of Markdown documents in a Git repository.";
 
+/// The text of a problem that only an update fixes: the first line, at most 450 characters. The
+/// message and the fix are written by waymark, so the limit of a value from a file is too short.
+fn long(s: &str) -> String {
+    s.lines()
+        .next()
+        .unwrap_or("")
+        .trim()
+        .chars()
+        .take(450)
+        .collect()
+}
+
 /// A value from a file: the first line only, at most 80 characters.
 pub fn sanitize(s: &str) -> String {
     let first = s.lines().next().unwrap_or("").trim();
@@ -44,8 +56,8 @@ pub fn build(f: &Facts) -> String {
         if let Some(e) = f.problem.as_ref().filter(|p| p.is_update_needed()) {
             return cut(format!(
                 "{INTRO}\nWAYMARK NEEDS AN UPDATE: {} {}\nTool \"status\" returns the fix.",
-                sanitize(&e.message),
-                e.next.as_deref().map(sanitize).unwrap_or_default()
+                long(&e.message),
+                e.next.as_deref().map(long).unwrap_or_default()
             ));
         }
         let msg = f

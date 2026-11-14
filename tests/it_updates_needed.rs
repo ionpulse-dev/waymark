@@ -29,6 +29,7 @@ fn an_unknown_argument_reaches_the_person_and_blocks_the_tools() {
     let ins = instructions(&c);
     assert!(ins.contains("WAYMARK NEEDS AN UPDATE"), "{ins}");
     assert!(ins.contains("--future-flag"), "{ins}");
+    assert!(ins.contains("restart your agent tool"), "{ins}");
     // tools/list: only status, and its description carries the problem.
     assert_eq!(c.tool_names(), vec!["status".to_string()]);
     let d = status_description(&mut c);
