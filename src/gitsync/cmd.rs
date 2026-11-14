@@ -27,6 +27,9 @@ fn to_output(o: ProcOutput) -> Output {
     }
 }
 
+/// The transports that waymark lets `git` use. This excludes `ext::`, which runs a command.
+const ALLOWED_PROTOCOLS: &str = "file:git:http:https:ssh";
+
 /// The first useful line of git's error text.
 pub fn first_line(stderr: &str) -> String {
     stderr
@@ -53,6 +56,7 @@ pub fn run(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output>
     cmd.args(args);
     cmd.env("GIT_TERMINAL_PROMPT", "0")
         .env("LC_ALL", "C")
+        .env("GIT_ALLOW_PROTOCOL", ALLOWED_PROTOCOLS)
         .env_remove("GIT_ASKPASS");
     if std::env::var_os("GIT_SSH_COMMAND").is_none() {
         cmd.env("GIT_SSH_COMMAND", "ssh -o BatchMode=yes");
@@ -72,6 +76,7 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
     cmd.arg("-C").arg(dir).args(args);
     cmd.env("GIT_TERMINAL_PROMPT", "0")
         .env("LC_ALL", "C")
+        .env("GIT_ALLOW_PROTOCOL", ALLOWED_PROTOCOLS)
         .env_remove("GIT_ASKPASS")
         .stdin(Stdio::null())
         .stdout(Stdio::piped())

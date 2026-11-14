@@ -23,6 +23,8 @@ fn builtin() -> &'static Vec<Builtin> {
             p("GitHub token", r"github_pat_[A-Za-z0-9_]{22,}"),
             p("Slack token", r"xox[abprs]-[A-Za-z0-9-]{10,}"),
             p("API key", r"sk-[A-Za-z0-9_-]{20,}"),
+            p("API key", r"[sr]k_live_[A-Za-z0-9]{16,}"),
+            p("Google API key", r"AIza[0-9A-Za-z_-]{35}"),
             p(
                 "JSON Web Token",
                 r"eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}",

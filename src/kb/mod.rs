@@ -84,6 +84,10 @@ impl KnowledgeBase {
         }
         let mut abs = self.root.join(rel);
         abs.set_extension("md");
+        // A document that is a symbolic link is never read or written, also a dangling one.
+        if fs::symlink_metadata(&abs).is_ok_and(|m| m.file_type().is_symlink()) {
+            return Err(bad());
+        }
         // A symbolic link must not lead out of the root.
         if let (Ok(real), Ok(root)) = (
             abs.parent()

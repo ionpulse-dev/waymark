@@ -54,6 +54,12 @@ impl Repo {
 
     /// Clone a remote into a folder, then open it.
     pub fn clone_from(url: &str, dir: &Path, author: Author) -> Result<Repo> {
+        if url.trim_start().starts_with('-') {
+            return Err(
+                Error::setup("The repository URL must not start with a dash.")
+                    .with_next("Check --repo in the MCP entry."),
+            );
+        }
         cmd::check_git()?;
         if let Some(parent) = dir.parent() {
             std::fs::create_dir_all(parent)
@@ -65,7 +71,8 @@ impl Repo {
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(300);
-        let Some(out) = cmd::run_timeout(parent, &["clone", "--quiet", url, &target], seconds)?
+        let Some(out) =
+            cmd::run_timeout(parent, &["clone", "--quiet", "--", url, &target], seconds)?
         else {
             return Err(
                 Error::sync("The clone took longer than 5 minutes.").with_next(
