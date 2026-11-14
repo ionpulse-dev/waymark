@@ -88,7 +88,7 @@ If approval is required (see `write-approval`), the request shows a summary, for
 
 | Code | When |
 |---|---|
-| `not_found` | `from` does not exist, or a folder holds no document. |
+| `not_found` | `from` does not exist, or the folder does not exist. A folder with only a `.gitkeep` can move. |
 | `validation_failed` | `to` exists, is inside `from`, has a bad name, or the history check failed. |
 | `invalid_arguments` | `from` and `to` are of different kinds, are equal, or `to` ends with `.md`. |
 | `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `sync_failed` | As in `mcp-server` and `git-sync`. |

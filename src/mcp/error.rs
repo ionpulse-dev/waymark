@@ -22,6 +22,9 @@ pub fn error_json(e: &Error, settings: Option<Value>, notices: &[String]) -> Val
     if let Some(next) = &next {
         v["next"] = json!(redact_text(next));
     }
+    if let Some(d) = &e.data {
+        v["data"] = d.clone();
+    }
     if let Some(s) = settings {
         v["settings"] = s;
     }

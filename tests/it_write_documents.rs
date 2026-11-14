@@ -344,7 +344,7 @@ fn add_supersedes_one_commit() {
 }
 
 #[test]
-fn delete_fixes_links() {
+fn delete_refuses_linked_document() {
     let w = World::new();
     let mut c = client(&w, Person::A);
     let old = add(&mut c, "ops", "Old deploy process", "Old.");
@@ -358,27 +358,64 @@ fn delete_fixes_links() {
         }),
     );
     assert!(!linking.is_error, "{}", linking.json);
-    let lid = linking.json["id"].as_str().unwrap();
+    let lid = linking.json["id"].as_str().unwrap().to_string();
+    let head = remote_log(&w);
+    let d = c.call("delete", json!({"id": old_id, "base": old["version"]}));
+    assert_eq!(d.code(), Some("validation_failed"), "{}", d.json);
+    assert!(
+        d.message().contains("1 document still links"),
+        "{}",
+        d.message()
+    );
+    let from = d.json["data"]["linked_from"].as_array().unwrap();
+    assert!(from
+        .iter()
+        .any(|f| f["id"] == lid.as_str() && f["where"] == "body" && f["count"] == 2));
+    assert!(from
+        .iter()
+        .any(|f| f["id"] == lid.as_str() && f["where"] == "property" && f["count"] == 1));
+    assert!(d.json["next"].as_str().unwrap().contains("update_document"));
+    // Nothing changed.
+    assert!(exists(&w.a, old_id));
+    assert_eq!(remote_log(&w), head);
+    // A preview fails the same way.
+    let p = c.call(
+        "delete",
+        json!({"id": old_id, "base": old["version"], "preview": true}),
+    );
+    assert_eq!(p.code(), Some("validation_failed"));
+}
+
+#[test]
+fn delete_after_links_removed() {
+    let w = World::new();
+    let mut c = client(&w, Person::A);
+    let old = add(&mut c, "ops", "Old deploy process", "Old.");
+    let old_id = old["id"].as_str().unwrap();
+    let linking = add(&mut c, "ops", "Runbook", &format!("See [[{old_id}]]."));
+    let lid = linking["id"].as_str().unwrap();
+    let shown = c.call("show", json!({"id": lid}));
+    let u = c.call(
+        "update_document",
+        json!({"id": lid, "base": shown.json["version"], "body": "See nothing."}),
+    );
+    assert!(!u.is_error, "{}", u.json);
     let d = c.call("delete", json!({"id": old_id, "base": old["version"]}));
     assert!(!d.is_error, "{}", d.json);
     assert!(!exists(&w.a, old_id));
-    let text = file(&w.a, lid);
-    assert!(
-        text.contains("See Old deploy process and the old one."),
-        "{text}"
-    );
-    assert!(!text.contains("related"));
-    // A link in a code fence stays.
-    assert!(text.contains(&format!("```\n[[{old_id}]]\n```")));
-    let fixed = d.json["links_fixed"].as_array().unwrap();
-    assert!(fixed
-        .iter()
-        .any(|f| f["where"] == "body" && f["count"] == 2));
-    assert!(fixed
-        .iter()
-        .any(|f| f["where"] == "property" && f["count"] == 1));
     assert_eq!(remote_log(&w)[0], "waymark: delete \"Old deploy process\"");
     assert!(d.message().contains("Git history"));
+}
+
+#[test]
+fn delete_ignores_a_generated_index_file() {
+    let w = World::new();
+    let mut c = client(&w, Person::A);
+    let a = add(&mut c, "ops", "Alpha", "A.");
+    assert!(!c.call("index", json!({})).is_error);
+    assert!(exists(&w.a, "ops/index"));
+    let d = c.call("delete", json!({"id": a["id"], "base": a["version"]}));
+    assert!(!d.is_error, "{}", d.json);
 }
 
 #[test]
@@ -411,13 +448,53 @@ fn read_only_blocks_writes() {
 }
 
 #[test]
-fn add_warns_on_body_link() {
+fn add_refuses_broken_body_link() {
     let w = World::new();
     let mut c = client(&w, Person::A);
-    let r = add(&mut c, "ops", "Linker", "See [[ops/missing-one]] for more.");
-    let notices = r["notices"].to_string();
-    assert!(notices.contains("ops/missing-one"), "{notices}");
-    assert!(exists(&w.a, "ops/linker"));
+    let r = c.call(
+        "add",
+        json!({"folder": "ops", "title": "Linker", "description": "D.", "body": "See [[ops/missing-one]] for more."}),
+    );
+    assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
+    assert!(r.message().contains("ops/missing-one"), "{}", r.message());
+    assert!(r.json["next"]
+        .as_str()
+        .unwrap()
+        .contains("Write the linked document first"));
+    assert!(!exists(&w.a, "ops/linker"));
+}
+
+#[test]
+fn add_accepts_urls_other_files_and_code_in_the_body() {
+    let w = World::new();
+    let mut c = client(&w, Person::A);
+    let body = "See [site](https://example.org/x.md), ![pic](img.png), [top](#top).\n\n`[x](gone.md)`\n\n```\n[[ops/gone]]\n```";
+    add(&mut c, "ops", "Plain links", body);
+    assert!(exists(&w.a, "ops/plain-links"));
+}
+
+#[test]
+fn update_keeps_an_old_broken_link_and_refuses_a_new_one() {
+    let w = World::new();
+    commit_doc(&w.a, "ops/old", "Old", "See [x](gone.md).");
+    let mut c = client(&w, Person::A);
+    let shown = c.call("show", json!({"id": "ops/old"}));
+    let base = shown.json["version"].clone();
+    // An unrelated change goes through.
+    let u = c.call(
+        "update_document",
+        json!({"id": "ops/old", "base": base, "title": "Old two"}),
+    );
+    assert!(!u.is_error, "{}", u.json);
+    let shown = c.call("show", json!({"id": "ops/old"}));
+    let base = shown.json["version"].clone();
+    // A new broken link is refused.
+    let r = c.call(
+        "update_document",
+        json!({"id": "ops/old", "base": base, "body": "See [x](gone.md) and [y](other-gone.md)."}),
+    );
+    assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
+    assert!(r.message().contains("other-gone"), "{}", r.message());
 }
 
 #[test]

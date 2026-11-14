@@ -11,6 +11,8 @@ pub enum Verb {
     Undo,
     Sync,
     Init,
+    AddFolder,
+    RemoveFolder,
 }
 
 impl Verb {
@@ -25,6 +27,8 @@ impl Verb {
             Verb::Undo => "undo",
             Verb::Sync => "sync",
             Verb::Init => "init",
+            Verb::AddFolder => "add-folder",
+            Verb::RemoveFolder => "remove-folder",
         }
     }
 
@@ -39,6 +43,8 @@ impl Verb {
             "undo" => Verb::Undo,
             "sync" => Verb::Sync,
             "init" => Verb::Init,
+            "add-folder" => Verb::AddFolder,
+            "remove-folder" => Verb::RemoveFolder,
             _ => return None,
         })
     }
@@ -104,6 +110,8 @@ mod tests {
             Verb::Move,
             Verb::Undo,
             Verb::Sync,
+            Verb::AddFolder,
+            Verb::RemoveFolder,
         ] {
             assert_eq!(Verb::parse(v.as_str()), Some(v));
         }

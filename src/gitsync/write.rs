@@ -92,7 +92,10 @@ impl<'a> Tx<'a> {
     pub fn remove_file(&self, rel: &str) -> Result<()> {
         self.remember(rel);
         fs::remove_file(self.abs(rel))
-            .map_err(|e| Error::setup(format!("Cannot remove {rel}: {e}")))
+            .map_err(|e| Error::setup(format!("Cannot remove {rel}: {e}")))?;
+        // Git keeps no empty folder, so the disk must not keep one either.
+        self.remove_empty_parents(&self.abs(rel));
+        Ok(())
     }
 
     /// Move a file. Git sees a rename when the content is the same.

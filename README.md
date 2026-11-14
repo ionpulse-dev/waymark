@@ -184,12 +184,14 @@ empty private repository and calls the `init` tool once.
 | `search` | Find the few documents that answer a question. |
 | `show` | Read one document, with the documents that link to it. |
 | `list`, `stats` | List documents by filter, and count their size. |
+| `folders` | Show the folders as a tree, with the number of documents in each. |
 | `updates` | What changed since a date, in some folders or all. |
-| `add` | Write a new document. |
+| `add` | Write a new document. It refuses a link to a document that does not exist. |
 | `update_document` | Change a document. |
 | `dispute` | Mark a document as wrong, with a reason, or clear the mark. |
 | `deprecate` | Retire a document that is no longer true. |
-| `delete` | Delete a document. A team can switch it off. Links to it are fixed. |
+| `delete` | Delete a document. It refuses while another document links to it. A team can switch it off. |
+| `add_empty_folder`, `remove_folder` | Create an empty folder, or remove a folder with its documents (the agent must name how many). |
 | `move` | Move or rename a document or a folder. Links are fixed. |
 | `activity`, `undo` | See what your agent wrote and revert a write. |
 | `sync` | Commit manual edits, pull, and push. |

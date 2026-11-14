@@ -38,14 +38,14 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] Property link to a missing document fails with `validation_failed`, and every finding is in `message` (`tests/it_write_documents.rs`)
 - [x] [auto] Two people write different documents at the same time and both reach the remote (`tests/it_write_documents.rs`)
 - [x] [auto] The same `add` twice leaves the repository as after the first call (`tests/it_write_documents.rs`)
-- [x] [auto] `delete` of a document outside `folders` gives `not_found` or `access_denied` and no commit (`tests/it_write_documents.rs`). Needs a check against the new rule.
+- [x] [auto] `delete` of a document outside `folders` gives `not_found` or `access_denied` and no commit (`tests/it_write_documents.rs`). 
 - [x] [auto] An id outside `folders` gives `not_found` (`tests/it_write_documents.rs`)
 - [x] [auto] `dispute` twice gives `validation_failed` with the old reason in `message` (`tests/it_write_documents.rs`)
 - [x] [auto] File name rules: slug, 60-character cut, empty title, collision suffix (unit tests in `src/writes/slug.rs`)
 - [x] [auto] Near-duplicate boundary: 4 of 5 shared words fails, 3 of 5 passes, a 2-word title only fails on an exact match (unit tests in `src/writes/titles.rs`)
 - [x] [auto] Every built-in secret pattern matches its sample and the result never contains the secret (unit tests in `src/lint/secrets.rs`)
 - [x] [auto] Retarget keeps every other byte and skips code fences (unit tests in `src/writes/linkfix.rs`). Retarget is tested in `move-documents`.
-- [ ] [auto] Body link check: a link to a missing document fails `add` and a new one fails `update_document`. URLs, other file types, `#heading` parts, and code fences are ignored. `linked_from` of `delete` lists each linking document with `where` and `count` (unit tests in `src/writes/`, and the cases of the table above in `tests/it_write_documents.rs`)
+- [x] [auto] Body link check: a link to a missing document fails `add` and a new one fails `update_document`. URLs, other file types, `#heading` parts, and code fences are ignored. `linked_from` of `delete` lists each linking document with `where` and `count` (unit tests in `src/writes/`, and the cases of the table above in `tests/it_write_documents.rs`)
 - [ ] [manual] A document written by `add` opens in Obsidian with its properties, links, and tags shown. Steps: run `add` through a real agent tool with `tags`, `related`, and a body link, open the clone as a vault in Obsidian. Expected: the Properties panel shows every field, the links are clickable, and no error shows.
 
 ## Notes

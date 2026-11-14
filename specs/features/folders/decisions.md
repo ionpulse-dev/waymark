@@ -35,3 +35,9 @@
 **Decision (decided autonomously):** A folder that was made on purpose stays after its last document is gone. A folder that only came from `add` does not. There is no tool to remove an empty folder yet.
 
 **Reason:** Git stores no empty folders, and the person who creates a folder wants it to stay. Nobody asked for the folders that appear only because of a document.
+
+## The parameter is `folder`, the commit verbs are `add-folder` and `remove-folder` — 2026-11-14
+
+**Decision (decided autonomously):** The tools take `folder`, not `path`. The commit subjects are `waymark: add-folder "<folder>"` and `waymark: remove-folder "<folder>"`.
+
+**Reason:** `project-binding` forbids a tool parameter named `path`, because it names a repository (the test `tools_take_no_repository_argument`). A verb in a commit subject is one word, so that `activity` and `undo` read it back (`parse_subject`).

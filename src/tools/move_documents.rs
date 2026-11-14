@@ -109,18 +109,17 @@ impl Tool for Move {
                     let new_id = format!("{to_key}/{}", &d.id[prefix.len()..]);
                     pairs.push((d.id.clone(), new_id));
                 }
-                if pairs.is_empty() {
-                    return Err(Error::not_found(format!(
-                        "The folder \"{from}\" holds no document."
-                    ))
-                    .with_next("Use list to see the folders."));
-                }
                 let dir = kb.root.join(&from_key);
                 let mut files = Vec::new();
                 files_below(&dir, &kb.root, &mut files);
                 for f in files {
                     let new_f = format!("{to_key}/{}", &f[from_key.len() + 1..]);
                     file_moves.push((f, new_f));
+                }
+                // An empty folder (only a `.gitkeep`) can move too.
+                if pairs.is_empty() && file_moves.is_empty() {
+                    return Err(Error::not_found(format!("There is no folder \"{from}\"."))
+                        .with_next("Use folders to see the folders."));
                 }
                 if kb.root.join(&to_key).exists() {
                     return Err(

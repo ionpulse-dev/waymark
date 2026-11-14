@@ -2,9 +2,11 @@
 
 pub mod activity;
 pub mod add;
+pub mod add_empty_folder;
 pub mod delete;
 pub mod deprecate;
 pub mod dispute;
+pub mod folders;
 pub mod index;
 pub mod init;
 pub mod lint;
@@ -12,6 +14,7 @@ pub mod list;
 pub mod move_documents;
 pub mod read_common;
 pub mod reject;
+pub mod remove_folder;
 pub mod review;
 pub mod search;
 pub mod show;
@@ -32,6 +35,7 @@ pub fn registry() -> Registry {
         Box::new(search::Search),
         Box::new(show::Show),
         Box::new(list::List),
+        Box::new(folders::Folders),
         Box::new(stats::Stats),
         Box::new(updates::Updates),
         Box::new(lint::Lint),
@@ -48,6 +52,8 @@ pub fn registry() -> Registry {
         Box::new(dispute::Dispute),
         Box::new(deprecate::Deprecate),
         Box::new(delete::Delete),
+        Box::new(add_empty_folder::AddEmptyFolder),
+        Box::new(remove_folder::RemoveFolder),
         Box::new(init::Init),
     ];
     Registry::new(tools)

@@ -1,6 +1,6 @@
 ---
 type: feature
-status: draft
+status: implemented
 created: 2026-11-14
 updated: 2026-11-14
 requires:
@@ -41,6 +41,7 @@ Shows the folders of the knowledge base as a tree, with the number of documents 
 
 - `documents` of a folder counts the documents directly in it. `total` counts the documents in it and in all folders below it.
 - A folder below the depth is not listed. Its parent shows `has_more: true` when folders below the depth exist.
+- The parameter is named `folder`, not `path`, because `path` is the name of a repository argument that no tool may take (see `project-binding`).
 - At most 200 folders are listed, in path order, a parent before its children. If more exist, `truncated: true` and the `next` sentence says to start below a folder, or to use a lower depth.
 - The `folders` limit applies. A folder that no limit allows is not listed. A parent of an allowed folder is listed with its own counts for the allowed part only.
 - Index files and `.gitkeep` files are not counted as documents.
@@ -67,16 +68,16 @@ Creates a folder that has no document yet. An agent needs it only for an empty f
 
 | Input | Type | Required |
 |---|---|---|
-| `path` | string, the folder path below the root. Nested parts are created too | yes |
+| `folder` | string, the folder path below the root. Nested parts are created too | yes |
 | `preview` | boolean | no |
 
-- The tool writes `<path>/.gitkeep` (empty). It commits `waymark: add folder "<path>"` and pushes, under the author of the person. It follows the write flow of `git-sync`: limits, lock, fetch, approval, commit, push.
+- The tool writes `<folder>/.gitkeep` (empty). It commits `waymark: add-folder "<folder>"` and pushes, under the author of the person. It follows the write flow of `git-sync`: limits, lock, fetch, approval, commit, push.
 - If the folder exists (it holds a document, a subfolder, or a `.gitkeep`), the call fails with `validation_failed` and changes nothing.
-- The path must follow the folder name rule above, and at most 8 levels deep. A bad path is `invalid_arguments` and names the field.
+- The path must follow the folder name rule above, and at most 8 levels deep. A bad path is `invalid_arguments` and names the field `folder`.
 - The `folders` limit applies to the path (`access_denied`).
 - `preview: true` writes nothing.
 - `undo` can revert the commit.
-- Result `data`: `{ "path", "commit", "pushed", "preview" }`.
+- Result `data`: `{ "folder", "folders": [<the folder>], "commit", "pushed", "preview" }`.
 
 ### `remove_folder` (write, destructive)
 
@@ -84,21 +85,21 @@ Removes a folder with everything in it: all documents in it and below it, and al
 
 | Input | Type | Required |
 |---|---|---|
-| `path` | string, the folder path below the root | yes |
+| `folder` | string, the folder path below the root | yes |
 | `expect_documents` | integer, at least 0: how many documents the caller expects to delete (those in the folder and in all folders below it) | yes |
 | `preview` | boolean | no |
 
 - **Count guard.** If `expect_documents` differs from the real number, the call fails with `validation_failed` and changes nothing. The message gives the real number. An empty folder needs `0`. The normal flow is a call with `preview: true`, which shows the list and the number, and then the real call with that number.
-- **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), and `count`. `next`: "Remove or replace the links with update_document, then call remove_folder again." Links between documents inside the folder are no problem, because they go away together.
+- **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), `count`, and `to` (the document inside that it links to). `next`: "Remove or replace the links with update_document, then call remove_folder again." Links between documents inside the folder are no problem, because they go away together.
 - **Limits.** The `folders` limit applies to every document inside. If a limit does not allow one, the call fails with `access_denied` and names the first document.
 - **Other files.** If the folder holds a file that is not a document and not a `.gitkeep`, the call fails with `validation_failed` and names the file.
-- **Protected.** The root and `.mkbase` cannot be removed (`validation_failed`). A path that is not a folder is `not_found`.
+- **Protected.** The root and `.mkbase` are not valid folder names (`invalid_arguments`). A path that is not a folder is `not_found`.
 - **Approval.** The question shows the path, the number, and the list of IDs (at most 50, then "and N more").
-- **Commit.** `waymark: remove folder "<path>"`. The body of the message lists the number of documents. The files stay in the Git history, and `undo` reverts the whole commit.
+- **Commit.** `waymark: remove-folder "<folder>"`. The body of the message lists the number of documents. The files stay in the Git history, and `undo` reverts the whole commit.
 - **Preview.** `preview: true` runs all checks, writes nothing, and returns `data.documents` (the IDs) and `data.folders`.
 - **Read-only access, `paused`, and `tools_denied`** work as for every write tool. A team that does not want bulk removal sets `tools_denied = ["remove_folder"]`.
 
-Result `data`: `{ "path", "documents": [<IDs>], "folders": [<paths>], "commit", "pushed", "preview" }`.
+Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit", "pushed", "preview" }`.
 
 `move` of a folder carries its `.gitkeep`.
 
@@ -123,7 +124,7 @@ Result `data`: `{ "path", "documents": [<IDs>], "folders": [<paths>], "commit", 
 - **Given** a document outside the folder that links to one inside, **When** `remove_folder` runs, **Then** it fails with `validation_failed` and `linked_from` lists the linking document.
 - **Given** documents that link only to each other inside the folder, **When** `remove_folder` runs, **Then** it succeeds.
 - **Given** a document inside that the `folders` limit does not allow, **When** `remove_folder` runs, **Then** it fails with `access_denied` and nothing changes.
-- **Given** the root or `.mkbase`, **When** `remove_folder` runs, **Then** it fails with `validation_failed`.
+- **Given** the root or `.mkbase`, **When** `remove_folder` runs, **Then** it fails with `invalid_arguments`.
 - **Given** `preview: true`, **When** `remove_folder` runs, **Then** nothing is written and the result lists the documents.
 - **Given** `tools_denied = ["remove_folder"]`, **When** the client lists tools, **Then** `remove_folder` is not listed and `add_empty_folder` is.
 - **Given** `remove_folder`, **When** the client lists tools, **Then** it has `destructiveHint: true`, and `folders` has `readOnlyHint: true`.

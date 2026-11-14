@@ -3,6 +3,7 @@
 //! This module reads files. It does not run Git (see `gitsync`).
 
 pub mod agents_file;
+pub mod folders;
 pub mod init;
 pub mod layout;
 pub mod settings;
@@ -108,6 +109,11 @@ impl KnowledgeBase {
             }
         }
         Ok(abs)
+    }
+
+    /// The paths of `.mkbase/exclude`.
+    pub(crate) fn excluded_paths(&self) -> Vec<String> {
+        self.excluded()
     }
 
     fn excluded(&self) -> Vec<String> {

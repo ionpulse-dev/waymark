@@ -50,9 +50,20 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     assert_eq!(s["settings"]["max_results"], 3);
 
     // write-documents, search-and-read: A writes, B finds and reads.
-    let added = ok(a.call(
+    // write-documents: a body link to a document that does not exist is refused.
+    let refused = a.call(
         "add",
         json!({"folder": "ops", "title": "Deploy pipeline", "description": "How code reaches production.", "body": "Use the pipeline. See [rollback](rollback.md)."}),
+    );
+    assert_eq!(
+        refused.code(),
+        Some("validation_failed"),
+        "{}",
+        refused.json
+    );
+    let added = ok(a.call(
+        "add",
+        json!({"folder": "ops", "title": "Deploy pipeline", "description": "How code reaches production.", "body": "Use the pipeline."}),
     ));
     let id = added["id"].as_str().unwrap().to_string();
     assert_eq!(id, "ops/deploy-pipeline");
@@ -68,9 +79,9 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
             || shown.to_string().contains("anna@example.org")
     );
 
-    // quality-checks: the document has a broken body link (a warning, not an error).
+    // quality-checks: the written documents pass the checks.
     let lint = ok(a.call("lint", json!({})));
-    assert!(lint.to_string().contains("broken-link"), "{lint}");
+    assert!(!lint.to_string().contains("broken-link"), "{lint}");
 
     // write-documents: B changes it, with the version of the read.
     let base = shown["version"].as_str().unwrap().to_string();

@@ -148,13 +148,14 @@ impl Tool for Add {
             secret_fields.push(("sources", sources.join("\n")));
             secret_fields.push(("tags", tags.join("\n")));
             let skip_refs: Vec<&str> = skip.iter().map(String::as_str).collect();
-            writes::check_document(
+            writes::check_document_links(
                 kb,
                 &id,
                 &text,
                 &ids_after,
                 &secret_fields,
                 Some(TitleCheck { skip: &skip_refs }),
+                writes::NewLinks::All,
                 &mut problems,
                 &mut notices,
             )?;

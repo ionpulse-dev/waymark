@@ -74,6 +74,7 @@ impl Tool for UpdateDocument {
             preview,
             |tx, kb| {
                 let (rel, mut doc) = writes::read_doc(tx, kb, &id)?;
+                let old_text = doc.render();
                 tx.check_base(&rel, Some(&base))?;
                 let old_title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
                 let mut changed: Vec<&str> = Vec::new();
@@ -160,7 +161,7 @@ impl Tool for UpdateDocument {
                 let mut problems = writes::Problems::default();
                 let mut notices = Vec::new();
                 let skip = [id.as_str()];
-                writes::check_document(
+                writes::check_document_links(
                     kb,
                     &id,
                     &text,
@@ -171,6 +172,7 @@ impl Tool for UpdateDocument {
                     } else {
                         None
                     },
+                    writes::NewLinks::Since(&old_text),
                     &mut problems,
                     &mut notices,
                 )?;

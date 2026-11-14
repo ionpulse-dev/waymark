@@ -167,6 +167,17 @@ pub struct TitleCheck<'a> {
     pub skip: &'a [&'a str],
 }
 
+/// Which broken body links stop a write (see `specs/features/write-documents`).
+#[derive(Clone, Copy)]
+pub enum NewLinks<'a> {
+    /// The write does not change the body: a broken body link stays a notice.
+    Ignore,
+    /// A new document: every broken body link is a problem.
+    All,
+    /// A changed document: only a broken body link that the old text did not have is a problem.
+    Since(&'a str),
+}
+
 /// Check the full text of a document as it will be written.
 /// `ids_after` is the set of document IDs after the write. `scan_fields` are the texts to scan for
 /// secrets and personal data. Warnings go to `notices`.
@@ -181,11 +192,56 @@ pub fn check_document(
     problems: &mut Problems,
     notices: &mut Vec<String>,
 ) -> Result<()> {
+    check_document_links(
+        kb,
+        id,
+        text,
+        ids_after,
+        scan_fields,
+        title_check,
+        NewLinks::Ignore,
+        problems,
+        notices,
+    )
+}
+
+/// `check_document`, with the rule for broken body links of the write.
+#[allow(clippy::too_many_arguments)]
+pub fn check_document_links(
+    kb: &KnowledgeBase,
+    id: &str,
+    text: &str,
+    ids_after: &HashSet<String>,
+    scan_fields: &[(&str, String)],
+    title_check: Option<TitleCheck>,
+    new_links: NewLinks,
+    problems: &mut Problems,
+    notices: &mut Vec<String>,
+) -> Result<()> {
     let path = format!("{id}.md");
     let custom = crate::lint::secrets::compile(&kb.settings.extra_secret_patterns)?;
+    let old_broken: Vec<String> = match new_links {
+        NewLinks::Since(old) => format::check(&path, old, &kb.settings.documents, Some(ids_after))
+            .into_iter()
+            .filter(|f| f.rule == "broken-link")
+            .map(|f| f.message)
+            .collect(),
+        _ => Vec::new(),
+    };
     for f in format::check(&path, text, &kb.settings.documents, Some(ids_after)) {
         if f.is_error() {
             problems.add(f.message, crate::lint::next_for(f.rule));
+        } else if f.rule == "broken-link"
+            && match new_links {
+                NewLinks::Ignore => false,
+                NewLinks::All => true,
+                NewLinks::Since(_) => !old_broken.contains(&f.message),
+            }
+        {
+            problems.add(
+                f.message,
+                "Write the linked document first, or remove the link now and add it back after.",
+            );
         } else {
             notices.push(f.message);
         }
@@ -251,6 +307,15 @@ pub enum FileChange {
     /// Part of the commit, but not changed. Used when a call finds nothing to change.
     Keep {
         id: String,
+    },
+    /// A file that is not a document, such as `.gitkeep`. `path` is below the root.
+    WriteFile {
+        path: String,
+        text: String,
+        action: &'static str,
+    },
+    RemoveFile {
+        path: String,
     },
 }
 
@@ -389,6 +454,7 @@ pub fn execute(
                 FileChange::Write { id, .. }
                 | FileChange::Remove { id }
                 | FileChange::Keep { id } => id,
+                FileChange::WriteFile { .. } | FileChange::RemoveFile { .. } => continue,
             };
             if blocked.contains(&kb.repo_relative(id)?) {
                 return Err(Error::new(
@@ -408,6 +474,9 @@ pub fn execute(
                     FileChange::Write { id, .. }
                     | FileChange::Remove { id }
                     | FileChange::Keep { id } => id.clone(),
+                    FileChange::WriteFile { path, .. } | FileChange::RemoveFile { path } => {
+                        path.clone()
+                    }
                 })
                 .collect();
             approved = approve(ctx, env, &kb, tool, kind, &plan.summary, &paths)?;
@@ -478,6 +547,16 @@ pub fn execute(
                         paths.push(rel);
                     }
                     FileChange::Keep { id } => paths.push(kb.repo_relative(id)?),
+                    FileChange::WriteFile { path, text, .. } => {
+                        let rel = kb.repo_relative_file(path);
+                        tx.write_file(&rel, text)?;
+                        paths.push(rel);
+                    }
+                    FileChange::RemoveFile { path } => {
+                        let rel = kb.repo_relative_file(path);
+                        tx.remove_file(&rel)?;
+                        paths.push(rel);
+                    }
                 }
             }
         }
@@ -532,6 +611,10 @@ pub fn execute(
             .filter_map(|c| match c {
                 FileChange::Write { id, action, .. } => Some(json!({"id": id, "action": action})),
                 FileChange::Remove { id } => Some(json!({"id": id, "action": "delete"})),
+                FileChange::WriteFile { path, action, .. } => {
+                    Some(json!({"id": path, "action": action}))
+                }
+                FileChange::RemoveFile { path } => Some(json!({"id": path, "action": "delete"})),
                 FileChange::Keep { .. } => None,
             })
             .collect();
@@ -591,9 +674,57 @@ pub fn clean_folder(folder: &str) -> Result<String> {
     Ok(trimmed.to_string())
 }
 
+/// A folder path for the folder tools: parts of lowercase letters, digits, and `-`, joined by `/`,
+/// at most 8 levels deep. Returns the path without a trailing `/`.
+pub fn check_folder_path(path: &str) -> Result<String> {
+    let bad = |why: &str| {
+        Error::invalid(format!("The field `folder` is wrong: {why}"))
+            .with_next("Fix the field `folder` and call again.")
+    };
+    let trimmed = path.trim_end_matches('/');
+    if trimmed.is_empty() {
+        return Err(bad("it must name a folder below the root"));
+    }
+    let parts: Vec<&str> = trimmed.split('/').collect();
+    if parts.len() > 8 {
+        return Err(bad("at most 8 levels"));
+    }
+    for seg in &parts {
+        let ok = !seg.is_empty()
+            && !seg.starts_with('-')
+            && seg
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
+        if !ok {
+            return Err(bad(&format!(
+                "\"{path}\" must use lowercase letters, digits, and `-` only, in parts joined by `/`"
+            )));
+        }
+    }
+    Ok(trimmed.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn folder_paths_are_checked() {
+        assert_eq!(check_folder_path("ops/deploy/").unwrap(), "ops/deploy");
+        for bad in [
+            "",
+            "/a",
+            "a/../b",
+            "A",
+            "a b",
+            "-a",
+            "a//b",
+            ".mkbase",
+            "a/b/c/d/e/f/g/h/i",
+        ] {
+            assert!(check_folder_path(bad).is_err(), "{bad}");
+        }
+    }
 
     #[test]
     fn body_is_normalized() {

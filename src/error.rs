@@ -38,6 +38,8 @@ pub struct Error {
     pub code: Code,
     pub message: String,
     pub next: Option<String>,
+    /// Facts that help the caller fix the call, for example the documents that link to a target.
+    pub data: Option<serde_json::Value>,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -48,11 +50,17 @@ impl Error {
             code,
             message: message.into(),
             next: None,
+            data: None,
         }
     }
 
     pub fn with_next(mut self, next: impl Into<String>) -> Error {
         self.next = Some(next.into());
+        self
+    }
+
+    pub fn with_data(mut self, data: serde_json::Value) -> Error {
+        self.data = Some(data);
         self
     }
 

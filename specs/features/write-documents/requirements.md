@@ -1,6 +1,6 @@
 ---
 type: feature
-status: in-progress
+status: implemented
 created: 2026-11-08
 updated: 2026-11-14
 requires:
@@ -62,7 +62,7 @@ The server never prints the matched secret.
 
 **Near-duplicate rule.** A title is split into lowercase words: runs of letters and digits. The overlap is the number of distinct words that both titles share, divided by the number of distinct words of the shorter title. At 0.8 or more the title is a near-duplicate. If the shorter title has fewer than 3 words, only an exact match counts. The check ignores deprecated documents and the document named in `supersedes`, so a replacement can reuse a title. On `update_document`, the document itself is ignored.
 
-**Body links.** A write never creates a broken link. For `add`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute`, `deprecate`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning.
+**Body links.** A write never creates a broken link. For `add`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute`, `deprecate`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning. The rule covers the write tools only. A document that a person edits by hand and `sync` publishes keeps the lint rule: a broken body link is a warning (see `manual-edits`).
 
 Secret patterns (built in): `-----BEGIN ... PRIVATE KEY-----`, `AKIA` plus 16 letters or digits, `ghp_` or `github_pat_` plus a token, `sk-` plus 20 or more letters or digits, `password`, `passwd`, `secret`, `token`, or `api_key` followed by `=` or `:` and a value, and `://user:password@`. A knowledge base adds regular expressions in `lint.extra_secret_patterns`.
 
@@ -135,7 +135,7 @@ Result `data`: `{ "id", "title", "version", "commit", "pushed", "status": "depre
 
 Input: `id` (string, required), `base` (string, required), `preview` (boolean).
 
-Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document. `preview: true` runs the same check and fails the same way, so an agent can ask what would break without a risk.
+Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document. Generated index files (see `quality-checks`) are ignored, because they list every document and `lint` reports a stale one. `preview: true` runs the same check and fails the same way, so an agent can ask what would break without a risk.
 
 The `folders` limit applies to the document that is deleted. If the deleted document has `supersedes`, a notice says that the older documents stay deprecated. The message says that the file stays in the Git history.
 
