@@ -19,5 +19,5 @@ None.
 ## Notes 2026-11-14
 
 - The `git --version` time-out of 5 seconds is not built (A1 uses a fake `git` that fails fast).
-- Decide whether the default folder should be `~/Projects/<repository-name>` (see `decisions.md`).
+- The default folder is now `~/.waymark/<name>` (see `decisions.md`, 2026-11-14 rework).
 - The shared layer is missing from the limits of the very first call after a clone (see `decisions.md`). Re-read the limits after the wait if it matters.

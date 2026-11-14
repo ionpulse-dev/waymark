@@ -38,6 +38,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** Private use works everywhere. Binding a folder changes which knowledge base is used, so an agent must not do it.
 
+_Note 2026-11-14: the personal default is a user-level entry that names `--repo` or `--path`. An entry without both is no longer valid (see "Explicit location: `--repo`, `--path`, or both")._
+
 ## The binding is an MCP entry — 2026-11-11
 
 **Decision:** A project binds a knowledge base by a project-level MCP entry with `--repo`. A user-level entry is the personal default. There is no `.waymark/` folder and no `link` command.
@@ -55,6 +57,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** Predictable, short rules, and a clear failure. The working folder is read only to find a marker. The binding itself never depends on it after start. Decided autonomously.
 
+**Superseded by:** Explicit location: `--repo`, `--path`, or both
+
 ## The slug of a URL — 2026-11-14
 
 **Decision:** The default folder name comes from the last part of the URL, by the rule in `requirements.md`. The `slug` in `settings.toml` is not used before the first clone, because the file does not exist yet.
@@ -62,6 +66,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Clone to a temporary folder, read the slug, and move it. Rejected: more steps, and a path that depends on file content is harder to predict.
 
 **Reason:** The person can predict the path from the URL. Decided autonomously.
+
+**Superseded by:** Explicit location: `--repo`, `--path`, or both
 
 ## One decision table of start errors — 2026-11-14
 
@@ -125,3 +131,42 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - A knowledge base found in the working folder uses the Git root of the matching folder as the repository folder.
 - A URL goes into a message only through `repo_url::redact`.
 - The identity check runs at every `Context::kb` call, because the shared file is read from disk at each call.
+
+## Explicit location: `--repo`, `--path`, or both — 2026-11-14
+
+**Supersedes:** How the server finds the knowledge base; The slug of a URL
+
+**Decision:** The entry must name the memory repository with `--repo`, `--path`, or both. The server has no default folder under `~/Projects`, no scan, and no search of the working folder and the folders above it. Without `--path`, `--repo` clones into `~/.waymark/<name>`, where `<name>` is the last part of the URL without `.git`. The owner is not part of the name. The table in `requirements.md` has the nine cases. An entry with neither argument is `setup_problem`. `found_by` has two values: `path_argument` and `repo_argument`.
+
+**Alternatives considered:**
+- Keep `~/Projects/<slug>-agent-memory`. Rejected by the product owner: too opinionated for people who do not use `~/Projects`.
+- Keep the scan and the working-folder search as a fallback. Rejected: it is a guess, and a guess can pick the wrong memory repository.
+- Put the owner in the name (`~/.waymark/<owner>/<name>`). Rejected: SSH and HTTPS URLs of one repository must give one folder, and the owner is not always in the URL. A name collision is a clear error with the fix `--path`.
+
+**Reason:** People without Git knowledge paste one URL and never handle a clone. People who want a visible folder add `--path`. The rules are short and have no guessing.
+
+## An entry with neither argument starts the server and reports the problem — 2026-11-14
+
+**Decision:** "Fails at start" means that the server starts, `status` works, and every other tool returns `setup_problem` with the sentence "The MCP entry names no memory repository" and a `next` that names `--repo` and `--path`. The process does not exit.
+
+**Alternatives considered:** Exit with a non-zero code and a message on stderr. Rejected: agent tools show a dead server as "failed to connect" and hide stderr, so the person sees no hint. This is the reason of the earlier decision "How the server finds the knowledge base". Reopen it if the product owner wants an exit.
+
+## Same remote: compare `host/path` of `origin` — 2026-11-14
+
+**Decision:** The check reads only the `origin` remote. Both URLs are turned into `host/path`: scheme, user, password, port, a trailing `/`, and a trailing `.git` are removed, and the host is lower case. The path keeps its case. So `git@github.com:acme/k.git`, `ssh://git@github.com/acme/k`, and `https://github.com/acme/k.git` are the same. A folder without an `origin` remote passes, as before.
+
+**Alternatives considered:** Compare the raw strings after removing `.git` (the old rule). Rejected: SSH and HTTPS forms of one repository would count as different, and people would see a false mismatch. Compare all remotes. Rejected: the clone always has `origin`, and other remotes are the person's own.
+
+**Reason:** The person may paste the URL in the other form than the one that made the clone.
+
+## The `slug` setting stays — 2026-11-14
+
+**Decision:** `slug` in `.waymark/settings.toml` stays as a short label of the memory repository (`init` and `status` use it). It no longer names a folder, and the comment in the template says so.
+
+**Alternatives considered:** Remove the key. Rejected: it changes the Waymark Memory Standard and every existing settings file for no gain.
+
+## A folder that is empty counts as missing — 2026-11-14
+
+**Decision:** An existing folder with no entries is a clone target. This covers a folder that the person made for the vault or that Git left behind.
+
+**Reason:** The table of the product owner treats "missing or empty" the same. The clone goes to a temporary folder and is renamed, so the empty folder is replaced and never mixed.

@@ -97,7 +97,7 @@ Tagline: **Long-term agent memory.**
   there is no migration and no fallback for old names:
   - The default local clone folder: `~/Projects/<slug>-knowledge-base` becomes
     `~/Projects/<slug>-agent-memory`. The search for existing clones looks for
-    the new suffix only.
+    the new suffix only. _(Superseded 2026-11-14: the default clone folder is `~/.waymark/<name>` and there is no search. See `project-binding`.)_
   - The two plain-Git skills: `personal-knowledge-base` and
     `team-knowledge-base` become `personal-agent-memory` and
     `team-agent-memory`. This covers the folders in `plain-git/`, the `name` in

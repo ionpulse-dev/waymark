@@ -1,6 +1,6 @@
 ---
 type: feature
-status: implemented
+status: draft
 created: 2026-11-08
 updated: 2026-11-14
 requires:
@@ -38,8 +38,8 @@ The server answers `initialize` and `tools/list` at once. It does the first-star
 
 1. **Git.** Check that `git --version` works. If not, stop with the state `broken` (`setup_problem`). No clone starts.
 2. **Host.** If `allowed_repo_hosts` is set in any limit layer (see `trust-model`), the host of `--repo` must be in it. If not, `access_denied`.
-3. **Path.** `--path`, or the default `~/Projects/<repository-name>`. The repository name is the last part of the URL without `.git`.
-   - The path does not exist: clone into it (step 4).
+3. **Path.** `--path`, or the default `~/.waymark/<name>`. `<name>` is the last part of the URL without `.git`. The full table of cases is in `project-binding`.
+   - The path is missing or empty: clone into it (step 4).
    - The path is a Git repository whose `origin` is the same repository: use it, and pull.
    - The path is a Git repository with another `origin`, or a folder that is not empty and not a repository: stop with `setup_problem`. The server never overwrites anything.
 4. **Clone.** `git clone <url>` into a temporary folder next to the path, then rename it to the path. Two servers that start at the same time clone once: the second one finds the path and uses it. The clone has a time-out of 5 minutes.
@@ -57,7 +57,7 @@ The **state** of the server after the start is one of:
 | `not_a_memory_repository` | The repository has files but no `.waymark` folder. | `status`. Others return `setup_problem`. |
 | `broken` | Git, host, path, ID, or a settings file failed. | `status` with the reason and the fix. Others return the same `setup_problem`. |
 
-A server without `--repo` and `--path` looks for a memory repository (see `project-binding`). It never clones then. waymark never clones without an entry that the person (or the project and the person's agent tool) approved.
+A server without `--repo` and `--path` has no memory repository and clones nothing (see `project-binding`). waymark never clones without an entry that the person (or the project and the person's agent tool) approved.
 
 ### Shared and personal settings
 
@@ -84,14 +84,14 @@ A personal value can only tighten the shared one (see `trust-model`). Other stat
 The MCP entry is the interface (see `mcp-server`). There is no `setup` command and no tool. The result of `status` carries the state (see `maintenance`):
 
 ```json
-{ "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "path": "/Users/jane/Projects/waymark-agent-memory" } }
+{ "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "path": "/Users/jane/.waymark/waymark-agent-memory" } }
 ```
 
 ## Acceptance Criteria
 
 - **Given** a Mac without working `git`, **When** the server starts, **Then** `status` reports it with a fix and no clone starts.
 - **Given** a valid URL and a Git login, **When** the first session starts, **Then** the repository is cloned and `status` is ok.
-- **Given** a repository URL and no `--path`, **When** the first session starts, **Then** the clone is in `~/Projects/<repository-name>`.
+- **Given** a repository URL and no `--path`, **When** the first session starts, **Then** the clone is in `~/.waymark/<name>`.
 - **Given** a personal value looser than the shared limit, **When** the server reads both, **Then** the stricter value applies.
 - **Given** a person who adds a second entry for another memory repository, **When** a session starts, **Then** the first one is unchanged.
 - **Given** a repository whose `.waymark/settings.toml` has no `id`, **When** the server reads it, **Then** it reports `setup_problem`.

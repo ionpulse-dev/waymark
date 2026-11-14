@@ -34,7 +34,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A13: a half-done rebase (`.git/rebase-merge` exists): `working_tree` is not ok with the fix (`tests/it_maintenance.rs`)
 - [x] [auto] A14: `status` makes no commit and no fetch: the clone and the remote are unchanged (`tests/it_maintenance.rs`)
 - [ ] [manual] M1: real Git host. Steps: with a private test repository, sign out of Git (or use a key without access). Start a session and call `status`. Expected: `git_login` is not ok with the sign-in fix, in under 15 seconds. Sign in with `gh auth login`, call `status` again. Expected: `healthy` is true.
-- [ ] [manual] M2: a real Mac. Steps: install waymark with Homebrew, add the entry to Claude Code, start a session, call `search`. Then follow the "Remove waymark" steps. Then run `find ~ /opt/homebrew -iname '*waymark*' -not -path '*/Projects/*' 2>/dev/null`. Expected: no result, except the memory repository folder that you chose to keep, and `~/.claude.json` has no `waymark` entry.
+- [ ] [manual] M2: a real Mac. Steps: install waymark with Homebrew, add the entry to Claude Code, start a session, call `search`. Then follow the "Remove waymark" steps. Then run `find ~ /opt/homebrew -iname '*waymark*' -not -path '*/.waymark/*' 2>/dev/null`. Expected: no result, except the memory repository folder that you chose to keep (a default clone is in `~/.waymark/<name>`, so `find` skips `.waymark`; check it by hand), and `~/.claude.json` has no `waymark` entry.
 
 ## Notes
 

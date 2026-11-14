@@ -48,6 +48,8 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 **Reason:** Answers the open question of the original spec. Decided autonomously.
 
+**Superseded by:** Explicit location (`project-binding`, 2026-11-14)
+
 ## What `rmcp` 3.10 looks like, and how we use it — 2026-11-14
 
 **Decision:** We use `rmcp` 3.10.0 with `default-features = false` and the features `server`, `macros`, and `transport-io`. All `rmcp` code is in `src/mcp/mod.rs`. We implement `ServerHandler` by hand: `get_info` returns a `ServerConfig` (an alias of `InitializeResult`), `list_tools` returns `ListToolsResult::with_all_items`, and `call_tool` returns a `CallToolResponse`. A success is `CallToolResult::structured`, a failure is `CallToolResult::structured_error`. A call to an unknown tool is a protocol error (`invalid_params`, code -32602). The transport is `rmcp::transport::stdio()`, started with `ServiceExt::serve`, and `waiting()` ends when the client closes stdin. The tool schemas are plain `serde_json` values, so we do not use the `#[tool]` macros and `schemars`.
@@ -80,6 +82,8 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 **Decision:** The folder of the clone is `--path`; else the default folder of `--repo` (`~/Projects/<slug>-agent-memory`, where the slug comes from the last part of the URL without `.git` and without a trailing `-agent-memory`); else the Git root of the working folder if it holds a knowledge base; else the only `~/Projects/*-agent-memory` that is a Git repository. The server clones `--repo` on the first call that needs the repository, not at start, so a slow clone never delays `initialize`. The repository is opened once. The knowledge base files (`.waymark/settings.toml`) are read again at every call.
 
 **Reason:** Matches the decision "One knowledge base per process", and a change of the shared limits applies at once. Decided autonomously.
+
+_Superseded 2026-11-14 for the order of the folder (see "Explicit location" below). The rest of this entry stays: the clone on the first call, and the settings read at every call._
 
 ## The conformance fixtures are the integration tests — 2026-11-14
 
@@ -125,3 +129,11 @@ only as a use case. The earlier entries of this file keep their original words,
 because they record what was said at the time. The rules and the reasons are in
 the spec [terminology](../terminology/decisions.md).
 
+
+## Explicit location (`project-binding`) — 2026-11-14
+
+**Supersedes:** One knowledge base per process, found by `--repo` and `--path`; One server process finds its knowledge base in a fixed order (the order of the folder only)
+
+**Decision:** One of `--repo` and `--path` is required. The server has no default folder under `~/Projects`, no scan, and no search of the working folder. `--repo` alone clones into `~/.waymark/<name>`. The rules are in `specs/features/project-binding/requirements.md`.
+
+**Reason:** Decided by the product owner: the old default was too opinionated and the scan was a guess.

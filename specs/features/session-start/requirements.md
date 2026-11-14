@@ -1,6 +1,6 @@
 ---
 type: feature
-status: implemented
+status: draft
 created: 2026-11-08
 updated: 2026-11-14
 requires:
@@ -88,7 +88,7 @@ Tool "status" returns the fix.
     "name": "Example Company",
     "id": "6f1c2a9e-3b7d-4c55-9a0e-1d2f3a4b5c6d",
     "slug": "example",
-    "path": "/Users/jane/Projects/example-agent-memory",
+    "path": "/Users/jane/.waymark/example-agent-memory",
     "remote": "git@example.org:team/waymark-agent-memory.git",
     "found_by": "repo_argument"
   }
@@ -100,7 +100,7 @@ Tool "status" returns the fix.
 | `memory_repository.name`, `id`, `slug` | string | From `.waymark/settings.toml` |
 | `memory_repository.path` | string | Absolute path of the clone |
 | `memory_repository.remote` | string or null | The `origin` URL with no user and no password. `null` if there is no remote. |
-| `memory_repository.found_by` | string | One of `path_argument`, `repo_argument`, `working_folder`, `default_folder` |
+| `memory_repository.found_by` | string | `path_argument` (the entry has `--path`) or `repo_argument` (only `--repo`, default folder `~/.waymark/<name>`) |
 | `settings` | object | The effective limits. The same object is in every result. |
 
 The `settings` object has exactly the keys above, in that order. It holds the limits that matter to an agent. It does not hold `allowed_repo_hosts`.
@@ -113,7 +113,7 @@ If no memory repository is bound, `memory_repository` is `null` and the result h
   "memory_repository": null,
   "problem": {
     "code": "setup_problem",
-    "message": "No memory repository is set up. waymark found none in the working folder, and none or several in ~/Projects.",
+    "message": "The MCP entry names no memory repository.",
     "next": "Add --repo <git url> or --path <folder> to the MCP entry."
   },
   "settings": { "access": "read-write", "paused": false, "tools_denied": [], "folders": [], "max_results": 5, "max_tokens": 800, "max_documents_opened": 20, "approval": { "required_for": [], "via": "elicitation" } },

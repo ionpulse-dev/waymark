@@ -1,6 +1,6 @@
 ---
 type: foundation
-status: implemented
+status: draft
 created: 2026-11-11
 updated: 2026-11-14
 requires:
@@ -129,9 +129,9 @@ The agent tool starts the server from an entry in its MCP config. The entry pass
 
 | Argument or variable | Meaning |
 |---|---|
-| `--repo` | Git URL of the memory repository. The server clones it on first start. |
+| `--repo` | Git URL of the memory repository. The server clones it on first start, into `--path` or into `~/.waymark/<name>`. One of `--repo` and `--path` is required (see `project-binding`). |
 | `--memory-repository-id` | Optional. The ID that `.waymark/settings.toml` must have. A different ID is `setup_problem` (see `project-binding`). |
-| `--path` | Local folder of the clone. Default `~/Projects/<slug>-agent-memory`. |
+| `--path` | Local folder of the memory repository. `~` is the home folder. With `--repo`, a missing or empty folder is the clone target. Without `--path`, `--repo` uses `~/.waymark/<name>`. |
 | `--author-name`, `--author-email` (or `WAYMARK_AUTHOR_NAME`, `WAYMARK_AUTHOR_EMAIL`) | Commit author. Default: the Git settings of the person. |
 | Any limit of `trust-model` | For example `--access`, `--no-delete`, `--folders`. |
 

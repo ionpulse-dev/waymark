@@ -46,6 +46,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The URL gives a stable name before the clone. A person who does not use `~/Projects` passes `--path`. Decided autonomously.
 
+**Superseded by:** Default folder `~/.waymark/<name>`
+
 ## Clone in the background, with a state — 2026-11-14
 
 **Decision:** The server answers `initialize` at once and clones in a background thread. The state is `cloning`, `ready`, `empty`, `not_a_memory_repository`, or `broken`. Tools other than `status` wait up to 60 seconds for the clone, then return `setup_problem`.
@@ -80,6 +82,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 - No `src/join/` module. The code sits where the earlier specs put it: `mcp::binding` (path, host check, clone), `mcp::repo_url` (URL parts, A13), `mcp::context` (state), `gitsync::cmd::run_timeout` (time-out). The plan's file list was a proposal. Decided autonomously.
 - **The default folder stays `~/Projects/<slug>-agent-memory`** (the form of `project-binding`, which was implemented first and is documented in the README). The entry "Default folder: `~/Projects/<repository-name>`" above is not applied. A3 checks the implemented form. Reopen it if the product owner wants the other form. Decided autonomously.
+
+_Superseded 2026-11-14 by "Default folder `~/.waymark/<name>`"._
 - The state lives in `Context`: `repo()` holds a mutex during the clone. Other calls poll `try_lock` for up to 60 seconds (`WAYMARK_CLONE_WAIT_SECONDS` for tests), then return `setup_problem`. `status`, `initialize`, and `tools/list` never wait (`is_cloning`, `kb_if_ready`). Decided autonomously.
 - The background clone starts at process start only when `--repo` is set (`Server::start_join`). Without `--repo` nothing is cloned, so the discovery of `project-binding` still happens at the first tool call.
 - A failed clone with `sync_failed` is not tried again for 30 seconds. Other failures are tried again at once.
@@ -87,3 +91,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - The temporary clone folder is `<name>.waymark-clone-<pid>`. At each clone, folders of dead processes and the old form `<name>.waymark-clone` are removed. If the rename fails because another server won, the existing clone is used when its origin is the same.
 - `status` shows `memory_repository.state` always (also `cloning` and `broken`, with `reason`). The registry computes the limits at the start of a call, so the first `status` after a clone can show limits without the shared layer. The next call is right.
 - `repo_is_empty` is in `kb::layout`. `Context::kb()` returns `setup_problem` with the `init` sentence for an empty repository.
+
+## Default folder `~/.waymark/<name>` — 2026-11-14
+
+**Supersedes:** Default folder: `~/Projects/<repository-name>`
+
+**Decision:** Without `--path`, the clone goes to `~/.waymark/<name>`. `<name>` is the last part of the URL without `.git`. A missing or empty folder is a clone target. The full rules, and the decision to remove all guessing, are in `specs/features/project-binding` (decision "Explicit location: `--repo`, `--path`, or both").
+
+**Reason:** `~/Projects` is too opinionated. A hidden folder in the home folder is a neutral default, and a person who wants a visible folder (an Obsidian vault) adds `--path`. Decided by the product owner.

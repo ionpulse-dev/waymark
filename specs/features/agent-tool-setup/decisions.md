@@ -14,7 +14,7 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## A static block, found by id — 2026-11-07
 
-**Decision:** The block and the skill hold no path. The agent finds the knowledge base by the id in `.waymark/id`. The first design used a fixed path in the block, `~/Projects/<slug>-agent-memory`; the id binding replaced it.
+**Decision:** The block and the skill hold no path. The agent finds the knowledge base by the id in `.waymark/id`. The first design used a fixed path in the block, `~/Projects/<slug>-agent-memory`; the id binding replaced it. _(Note 2026-11-14: `~/Projects/<slug>-agent-memory` is no longer a default anywhere. See `project-binding`.)_
 
 **Reason:** The text stays static and version-matched, and several knowledge bases can coexist. A known location of the id still lets agents in other repositories find the knowledge base without an MCP server.
 

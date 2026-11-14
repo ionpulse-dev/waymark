@@ -55,7 +55,7 @@ The network call (`remote` and `git_login`) is one read call to the remote with 
 {
   "healthy": false,
   "version": "0.1.0",
-  "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/Projects/waymark-agent-memory", "root": "knowledge" },
+  "memory_repository": { "state": "ready", "name": "Example", "id": "0b1f3c9e-5a77-4d1e-9a41-2f6f0c8d7e11", "slug": "example", "path": "/Users/jane/.waymark/waymark-agent-memory", "root": "knowledge" },
   "checks": [
     { "name": "git", "ok": true, "detail": "git version 2.50.1", "fix": null },
     { "name": "clone", "ok": true, "detail": "ready", "fix": null },
@@ -88,7 +88,7 @@ The network call (`remote` and `git_login`) is one read call to the remote with 
 The README (the section "Remove waymark" of `docs/install.md`) lists the steps. waymark does not remove itself:
 
 1. Remove the MCP entry from the agent tool (the command for each tool is in the section "Agent tools").
-2. Check the clone for changes that are not pushed (`git status` and `git log @{u}..` in the folder). Delete the folder if it is no longer needed. The remote repository stays.
+2. Check the clone for changes that are not pushed (`git status` and `git log @{u}..` in the folder). The folder is `~/.waymark/<name>`, or the `--path` of the entry. Delete the folder if it is no longer needed. The remote repository stays.
 3. Delete `~/.config/waymark/`. If IT set a system file, `/Library/Application Support/waymark/config.toml` belongs to IT.
 4. Remove the binary: `brew uninstall waymark`.
 
