@@ -1,6 +1,8 @@
 //! The `search` tool: full-text search, ranked.
 
-use super::read_common::{cap, entry, folders_arg, level_arg, limit_arg, status_ok};
+use super::read_common::{
+    cap, entry, folders_arg, level_arg, limit_arg, offset_arg, status_ok, Filter,
+};
 use crate::config::Kind;
 use crate::error::Error;
 use crate::mcp::context::Context;
@@ -18,7 +20,7 @@ impl Tool for Search {
     }
 
     fn description(&self) -> &'static str {
-        "Searches the documents for words and returns the best matches, ranked, with a snippet. Returns only a few results. Changes nothing."
+        "Searches the documents for words and returns the best matches, ranked, with a snippet. Returns results (id, title, status, updated, description, snippet), total_matches, truncated, and next_offset. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -29,15 +31,81 @@ impl Tool for Search {
         json!({
             "type": "object",
             "properties": {
-                "query": {"type": "string", "description": "One or more words. A document must contain all of them."},
-                "in": {"type": "array", "items": {"type": "string", "enum": ["path", "title", "description", "tags", "body"]}},
-                "level": {"type": "integer", "enum": [0, 1, 2]},
-                "folders": {"type": "array", "items": {"type": "string"}},
-                "tag": {"type": "string"},
-                "status": {"type": "string", "enum": ["active", "deprecated", "any"]},
-                "limit": {"type": "integer"}
+                "query": {
+                    "type": "string",
+                    "description": "One or more words. A document must contain all of them."
+                },
+                "in": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "path",
+                            "title",
+                            "description",
+                            "tags",
+                            "body"
+                        ]
+                    },
+                    "description": "Where to look. Default: all of them."
+                },
+                "level": {
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2
+                    ],
+                    "description": "Detail of each result: 0 ID only, 1 adds title, status, and updated, 2 adds description and snippet. Default 2."
+                },
+                "folders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Only these folders. Default: all."
+                },
+                "tag": {
+                    "type": "string",
+                    "description": "Only documents with this tag."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "deprecated",
+                        "any"
+                    ],
+                    "description": "Which documents: active, deprecated, or any. Default active."
+                },
+                "disputed": {
+                    "type": "boolean",
+                    "description": "true returns only disputed documents."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Only documents whose created_by or updated_by contains this text, ignoring case."
+                },
+                "updated_after": {
+                    "type": "string",
+                    "description": "Only documents updated on this day or later. YYYY-MM-DD."
+                },
+                "updated_before": {
+                    "type": "string",
+                    "description": "Only documents updated on this day or earlier. YYYY-MM-DD."
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "How many results. Default and maximum: the max_results limit."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "How many results to skip. Default 0."
+                }
             },
-            "required": ["query"],
+            "required": [
+                "query"
+            ],
             "additionalProperties": false
         })
     }
@@ -57,6 +125,8 @@ impl Tool for Search {
         let status = crate::writes::get_str(&args, "status").unwrap_or("active");
         let tag = crate::writes::get_str(&args, "tag");
         let limit = limit_arg(&args, env.effective.max_results)?;
+        let offset = offset_arg(&args)?;
+        let filter = Filter::from_args(&args)?;
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
@@ -68,12 +138,14 @@ impl Tool for Search {
             .docs()
             .filter(|d| scope.allows(&d.id) && status_ok(status, d.status()))
             .filter(|d| tag.is_none_or(|t| d.tags().iter().any(|x| x == t)))
+            .filter(|d| filter.matches(d))
             .filter_map(|d| rank::score(d, &terms, &parts).map(|s| (d, s)))
             .collect();
         rank::sort(&mut hits);
         let total = hits.len();
         let entries = hits
             .iter()
+            .skip(offset)
             .take(limit + 1)
             .map(|(d, _)| {
                 let mut e = entry(d, level);
@@ -84,16 +156,18 @@ impl Tool for Search {
             })
             .collect();
         let results = cap(entries, limit, env.effective.max_tokens);
-        let truncated = results.len() < total;
+        let next = offset + results.len();
+        let truncated = next < total;
         let message = match total {
             0 => "No document found.".to_string(),
             1 => "1 document found.".to_string(),
             n => format!("{n} documents found."),
         };
-        let mut out = ToolOutput::new(
-            message,
-            json!({"results": results, "total_matches": total, "truncated": truncated}),
-        );
+        let mut data = json!({"results": results, "total_matches": total, "truncated": truncated});
+        if truncated {
+            data["next_offset"] = json!(next);
+        }
+        let mut out = ToolOutput::new(message, data);
         for n in notices {
             out = out.notice(n);
         }

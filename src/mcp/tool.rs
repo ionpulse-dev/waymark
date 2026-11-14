@@ -4,6 +4,7 @@ use super::context::Context;
 use super::error::error_json;
 use super::result::ToolOutput;
 use super::schema::check_arguments;
+use crate::config::limits::canonical_tool;
 use crate::config::{ConfigError, Denied, Effective, Kind};
 use crate::error::{Code, Error};
 use serde_json::{json, Value};
@@ -95,12 +96,19 @@ impl Registry {
     }
 
     pub fn call(&self, ctx: &Context, name: &str, args: Value) -> Result<Outcome, UnknownTool> {
+        // An old name of a renamed tool runs the new tool, with a notice (see `tool-conventions`).
+        let current = canonical_tool(name);
         let tool = self
             .tools
             .iter()
-            .find(|t| t.name() == name)
+            .find(|t| t.name() == current)
             .ok_or_else(|| UnknownTool(name.to_string()))?;
         let (env, verification, mut notices) = self.env(ctx);
+        if current != name {
+            notices.push(format!(
+                "The tool \"{name}\" is now \"{current}\". The old name stops working in 0.5.0."
+            ));
+        }
         if env.effective.paused {
             notices.insert(0, "Writes are paused.".to_string());
         }
@@ -216,9 +224,9 @@ mod tests {
     fn registry() -> Registry {
         Registry::new(vec![
             Box::new(Fake("search", Kind::Read, false)),
-            Box::new(Fake("add", Kind::Write, false)),
-            Box::new(Fake("delete", Kind::Destructive, false)),
-            Box::new(Fake("verify", Kind::Write, true)),
+            Box::new(Fake("add_document", Kind::Write, false)),
+            Box::new(Fake("delete_document", Kind::Destructive, false)),
+            Box::new(Fake("verify_document", Kind::Write, true)),
         ])
     }
 
@@ -243,7 +251,10 @@ mod tests {
     #[test]
     fn read_write_lists_write_tools_but_not_verification_tools() {
         let c = ctx(&[]);
-        assert_eq!(names(&registry(), &c), ["search", "add", "delete"]);
+        assert_eq!(
+            names(&registry(), &c),
+            ["search", "add_document", "delete_document"]
+        );
     }
 
     #[test]
@@ -251,7 +262,7 @@ mod tests {
         let c = ctx(&["--access", "read-only"]);
         let r = registry();
         assert_eq!(names(&r, &c), ["search"]);
-        let out = r.call(&c, "add", json!({})).unwrap();
+        let out = r.call(&c, "add_document", json!({})).unwrap();
         assert!(out.is_error);
         assert_eq!(out.json["code"], "access_denied");
         assert!(out.json["next"].is_string());
@@ -260,13 +271,13 @@ mod tests {
     #[test]
     fn no_delete_hides_only_delete() {
         let c = ctx(&["--no-delete"]);
-        assert_eq!(names(&registry(), &c), ["search", "add"]);
+        assert_eq!(names(&registry(), &c), ["search", "add_document"]);
     }
 
     #[test]
     fn a_verification_tool_is_denied_when_verification_is_off() {
         let c = ctx(&[]);
-        let out = registry().call(&c, "verify", json!({})).unwrap();
+        let out = registry().call(&c, "verify_document", json!({})).unwrap();
         assert!(out.is_error);
         assert_eq!(out.json["code"], "access_denied");
     }

@@ -50,7 +50,7 @@ fn yes() -> Value {
 
 fn add(c: &mut McpClient, title: &str) -> common::Reply {
     c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": title, "description": format!("About {title}."), "body": "The body text."}),
     )
 }
@@ -99,14 +99,17 @@ fn the_request_has_the_text_and_the_schema() {
 fn delete_asks_before_commit() {
     let w = World::new();
     commit_doc(&w.a, "ops/old", "Old doc", "Old body.");
-    require(&w, "[\"delete\"]");
+    require(&w, "[\"delete_document\"]");
     let seen: Seen = Default::default();
     let mut c = asking(&w, yes(), 0, &seen);
     let version = common::git::git(
         &w.a,
         &["log", "-1", "--format=%h", "--", "agent-memory/ops/old.md"],
     );
-    let r = c.call("delete", json!({"id": "ops/old", "base": version.trim()}));
+    let r = c.call(
+        "delete_document",
+        json!({"id": "ops/old", "base": version.trim()}),
+    );
     assert!(!r.is_error, "{}", r.json);
     let m = seen.lock().unwrap()[0].0["params"]["message"]
         .as_str()
@@ -287,7 +290,7 @@ fn progress_messages_come_while_waiting() {
         )
     };
     let r = c.call_with_progress(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Doc one", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -329,7 +332,7 @@ fn preview_never_asks() {
     let seen: Seen = Default::default();
     let mut c = asking(&w, yes(), 0, &seen);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B.", "preview": true}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -351,7 +354,7 @@ fn pause_during_approval() {
             let _ = &remote;
             std::fs::write(
                 &path,
-                format!("[approval]\nrequired_for = [\"add\"]\n{text}"),
+                format!("[approval]\nrequired_for = [\"add_document\"]\n{text}"),
             )
             .unwrap();
             yes()
@@ -393,7 +396,7 @@ fn the_shared_and_personal_rules_are_a_union() {
     assert!(!r.is_error, "{}", r.json);
     assert_eq!(
         r.json["settings"]["approval"]["required_for"],
-        json!(["add", "delete"])
+        json!(["add_document", "delete_document"])
     );
     assert_eq!(requests(&seen), 1);
 }
@@ -457,7 +460,7 @@ fn verify_asks_approval() {
     let added = add(&mut c, "Doc one");
     assert_eq!(requests(&seen), 0);
     let v = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": added.json["version"]}),
     );
     assert!(!v.is_error, "{}", v.json);

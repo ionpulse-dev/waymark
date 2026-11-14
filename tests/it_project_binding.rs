@@ -59,7 +59,7 @@ fn memory_repository_id(w: &World) -> String {
 
 fn add(c: &mut McpClient) -> common::Reply {
     c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Doc one", "description": "D.", "body": "B."}),
     )
 }
@@ -323,7 +323,7 @@ fn memrepo_id_equal_works_and_different_serves_nothing() {
     assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
     assert_eq!(
         c.call(
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."})
         )
         .code(),

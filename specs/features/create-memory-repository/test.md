@@ -14,7 +14,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | **Given** the new repository, **When** it is opened in Obsidian, **Then** it works as a vault. | A7, M1 |
 | **Given** `access = "read-only"`, **When** `init` runs, **Then** it fails with `access_denied`. | A8 |
 | **Given** `preview: true`, **When** `init` runs, **Then** nothing is written or committed. | A9 |
-| **Given** `init` succeeded, **When** the same session calls `search` or `add`, **Then** the tools work with no restart. | A10 |
+| **Given** `init` succeeded, **When** the same session calls `search` or `add_document`, **Then** the tools work with no restart. | A10 |
 | **Given** a bad input, **When** `init` runs, **Then** it fails with `invalid_arguments`, names the field, and changes nothing. | A11 |
 | **Given** two people who call `init` at the same time, **When** both end, **Then** exactly one commit of `init` exists. | A12 |
 | **Given** a repository with a `.waymark` marker and documents but no `settings.toml`, **When** `init` runs with a name, **Then** only the `settings.toml` is added and the state is `ready` in the same session. | A16, A17 |
@@ -31,7 +31,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A7: the files `.obsidian/app.json` (both keys) and `.gitignore` (both lines) have the exact content; after a file `.obsidian/workspace.json` is created in the clone, `git status --porcelain` does not list it (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A8: `access = "read-only"` in the personal config: `access_denied`, and with `tools_denied = ["init"]` the tool is not in `tools/list`. With `paused = true`: `paused` (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A9: `preview: true`: no file in the clone, no commit, the result has `commit: null` and `pushed: false` (`tests/it_create_memory_repository.rs`)
-- [x] [auto] A10: after `init`, `add` a document and `search` it in the same session (`tests/it_create_memory_repository.rs`)
+- [x] [auto] A10: after `init`, `add_document` a document and `search` it in the same session (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A11: bad slug, a folder `../x`, a folder with an uppercase letter, an unknown key in `limits`, a blank name: each is `invalid_arguments` with the field in `next` (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A12: two servers (clones A and B of one empty remote) call `init` at once: one succeeds, the other returns `validation_failed`, and `git log` shows one `init` commit (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A13: `derive_slug` for "Example Company", "  Ünï Corp ", "!!!" (`src/memrepo/init.rs`)

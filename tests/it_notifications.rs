@@ -24,7 +24,7 @@ fn pause() {
 
 fn add(c: &mut McpClient, title: &str) -> (String, String) {
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": title, "description": "About it.", "body": "Text."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -65,7 +65,7 @@ fn disputed_world() -> (World, String) {
     let mut b = client(&w, Person::B);
     let base = version(&mut b, &id);
     let d = b.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": base, "reason": "Wrong."}),
     );
     assert!(!d.is_error, "{}", d.json);
@@ -181,13 +181,16 @@ fn t8_a_dispute_that_was_cleared_gives_no_notice() {
     let base = version(&mut b, &id);
     assert!(
         !b.call(
-            "dispute",
+            "dispute_document",
             json!({"id": id, "base": base, "reason": "Wrong."})
         )
         .is_error
     );
     let base = version(&mut b, &id);
-    let c = b.call("dispute", json!({"id": id, "base": base, "clear": true}));
+    let c = b.call(
+        "dispute_document",
+        json!({"id": id, "base": base, "clear": true}),
+    );
     assert!(!c.is_error, "{}", c.json);
     let mut a = client(&w, Person::A);
     assert!(notices(&search(&mut a)).is_empty());
@@ -235,7 +238,7 @@ fn t12_more_than_three_documents_say_and_n_more() {
         let base = version(&mut b, id);
         assert!(
             !b.call(
-                "dispute",
+                "dispute_document",
                 json!({"id": id, "base": base, "reason": "Wrong."})
             )
             .is_error

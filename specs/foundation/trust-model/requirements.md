@@ -67,7 +67,7 @@ A limit is the most that the server ever allows. A limit is not advice.
 |---|---|---|
 | `access` | `read-only` or `read-write` | `read-write` |
 | `paused` | `true` or `false`. `true` acts like `read-only`, set live. | `false` |
-| `tools_denied` | List of tool names that are switched off, for example `["delete", "move"]` | empty |
+| `tools_denied` | List of tool names that are switched off, for example `["delete_document", "move"]` | empty |
 | `folders` | List of folder globs that tools may touch. Empty means all. | empty |
 | `max_results` | Most documents that `search` returns per call | 5 |
 | `max_tokens` | Most tokens that `search` returns per call | 800 |
@@ -119,7 +119,7 @@ Only the person or the operator changes limits. No tool changes them.
 - **Given** the shared setting `access = "read-only"` and the personal setting `read-write`, **When** a write tool runs, **Then** it fails with `access_denied`.
 - **Given** two layers with `max_results` 5 and 3, **When** `search` runs, **Then** it returns at most 3 documents.
 - **Given** an agent, **When** it lists tools, **Then** no tool changes a limit.
-- **Given** `tools_denied = ["delete"]`, **When** the client lists tools, **Then** `delete` is not listed and a call fails with `access_denied`.
+- **Given** `tools_denied = ["delete_document"]`, **When** the client lists tools, **Then** `delete_document` is not listed and a call fails with `access_denied`.
 - **Given** a system config file with `access = "read-only"`, **When** the person's config says `read-write`, **Then** writes fail.
 - **Given** `paused = true` in the personal config, **When** the next write tool runs, **Then** it fails with `paused`.
 - **Given** no layer sets anything, **When** a tool runs, **Then** the built-in defaults apply.

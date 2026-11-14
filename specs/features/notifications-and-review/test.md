@@ -39,7 +39,7 @@ All tests are in `tests/it_notifications.rs`, with a `World` of two clones. Pers
 - [x] [auto] T13: an error result (`not_found` from `show`) also carries a pending notice.
 - [x] [auto] T14: a broken state file does not fail the call. The notice is skipped.
 - [ ] [manual] T15: a real agent tool shows the notice to the person.
-  - Setup: a memory repository with a remote and a second clone. Install waymark. Add the MCP entry to Claude Code. Write a document `ops/deploy` with `add` through the agent. Push.
+  - Setup: a memory repository with a remote and a second clone. Install waymark. Add the MCP entry to Claude Code. Write a document `ops/deploy` with `add_document` through the agent. Push.
   - Steps: in the second clone, run `git pull`, then edit `ops/deploy.md` so that `disputed: true` and `dispute_reason: "Test"`, set the author fields, commit, and push. In Claude Code, start a new session in the project and ask "search the memory repository for deploy".
   - Expected: Claude Code shows or mentions the notice that someone disputed `ops/deploy`. If the client hides `notices`, record that in `todo.md`.
   - Teardown: delete the test document.

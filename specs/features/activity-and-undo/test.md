@@ -22,7 +22,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 - [x] [auto] All criteria above, through the real binary and the `World` harness (`tests/it_activity_and_undo.rs`)
 - [x] [auto] The undo commit has the subject `waymark: undo "<title>"`, the body `Reverts: <hash>`, and the author of the person (`tests/it_activity_and_undo.rs`)
-- [x] [auto] Undo of `add` removes the file, of `delete` restores it, of `update` restores the old text, of `dispute` and `deprecate` restores the fields (`tests/it_activity_and_undo.rs`)
+- [x] [auto] Undo of `add_document` removes the file, of `delete_document` restores it, of `update` restores the old text, of `dispute_document` and `deprecate_document` restores the fields (`tests/it_activity_and_undo.rs`)
 - [x] [auto] Undo of an undo (a redo) works, and the first entry shows `undone: false` again (`tests/it_activity_and_undo.rs`)
 - [x] [auto] The commit of another person gives `not_found` (`tests/it_activity_and_undo.rs`)
 - [x] [auto] `since` leaves out older entries (`tests/it_activity_and_undo.rs`)
@@ -30,7 +30,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] Pending manual edits on the same file give `stale_base` with `next` "Run `sync` first." (`tests/it_activity_and_undo.rs`)
 - [x] [auto] After a refused undo, `git status` is clean and no commit was added (`tests/it_activity_and_undo.rs`)
 - [x] [auto] `later_changes` is `true` after another person changed the file (`tests/it_activity_and_undo.rs`)
-- [x] [auto] Undo of a `delete` outside `folders` gives `access_denied` (`tests/it_activity_and_undo.rs`)
+- [x] [auto] Undo of a `delete_document` outside `folders` gives `access_denied` (`tests/it_activity_and_undo.rs`)
 - [x] [auto] Entry model, grouping, and `undone` on a fixture history (unit tests in `src/activity/mod.rs`)
 
 ## Notes

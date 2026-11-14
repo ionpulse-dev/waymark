@@ -6,7 +6,7 @@
 
 ## Deferred
 
-- [ ] Server mode: `verify` and `reject` only for the role `owner`, and the answer in the console (see `server-mode` and `web-console`). Out of scope for now.
+- [ ] Server mode: `verify_document` and `reject_document` only for the role `owner`, and the answer in the console (see `server-mode` and `web-console`). Out of scope for now.
 - [ ] A folder owner list: who verifies a folder. Today any role `owner` would do.
 - [ ] A bulk verify.
 - [ ] A rule that blocks a person from verifying their own document.

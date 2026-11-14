@@ -23,14 +23,14 @@ requires:
 
 ## Behaviour
 
-Three tools: `folders` (read), `add_empty_folder` (write), and `remove_folder` (write, destructive). Renaming or moving a folder is `move` (see `move-documents`). 
+Three tools: `folder_tree` (read), `create_folder` (write), and `delete_folder` (write, destructive). Renaming or moving a folder is `move` (see `move-documents`). 
 A folder has no description. Its name must say what it holds. A person can structure the memory repository as they like: see the folders, create one (also an empty one), rename or move one with `move`, and remove one.
 
 ### What a folder is
 
-A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `add_empty_folder` or `init` made has a `.gitkeep` and stays until `remove_folder` removes it. A `.gitkeep` is an empty file. It is not a document: `lint`, `list`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
+A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add_document` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `create_folder` or `init` made has a `.gitkeep` and stays until `delete_folder` removes it. A `.gitkeep` is an empty file. It is not a document: `lint`, `list`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
 
-### `folders` (read)
+### `folder_tree` (read)
 
 Shows the folders of the memory repository as a tree, with the number of documents of each folder.
 
@@ -62,9 +62,9 @@ Result `data`:
 }
 ```
 
-### `add_empty_folder` (write)
+### `create_folder` (write)
 
-Creates a folder that has no document yet. An agent needs it only for an empty folder. `add` creates the folder of a new document by itself.
+Creates a folder that has no document yet. An agent needs it only for an empty folder. `add_document` creates the folder of a new document by itself.
 
 | Input | Type | Required |
 |---|---|---|
@@ -79,7 +79,7 @@ Creates a folder that has no document yet. An agent needs it only for an empty f
 - `undo` can revert the commit.
 - Result `data`: `{ "folder", "folders": [<the folder>], "commit", "pushed", "preview" }`.
 
-### `remove_folder` (write, destructive)
+### `delete_folder` (write, destructive)
 
 Removes a folder with everything in it: all documents in it and below it, and all `.gitkeep` files. Everything goes in one commit.
 
@@ -97,7 +97,7 @@ Removes a folder with everything in it: all documents in it and below it, and al
 - **Approval.** The question shows the path, the number, and the list of IDs (at most 50, then "and N more").
 - **Commit.** `waymark: remove-folder "<folder>"`. The body of the message lists the number of documents. The files stay in the Git history, and `undo` reverts the whole commit.
 - **Preview.** `preview: true` runs all checks, writes nothing, and returns `data.documents` (the IDs) and `data.folders`.
-- **Read-only access, `paused`, and `tools_denied`** work as for every write tool. A team that does not want bulk removal sets `tools_denied = ["remove_folder"]`.
+- **Read-only access, `paused`, and `tools_denied`** work as for every write tool. A team that does not want bulk removal sets `tools_denied = ["delete_folder"]`.
 
 Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit", "pushed", "preview" }`.
 
@@ -105,30 +105,30 @@ Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit"
 
 ## Acceptance Criteria
 
-- **Given** a memory repository with nested folders, **When** `folders` runs with no input, **Then** it lists the folders down to depth 2 with `documents` and `total`.
-- **Given** `depth: 1`, **When** `folders` runs, **Then** only the top level is listed, and a folder with subfolders has `has_more: true`.
-- **Given** more than 200 folders, **When** `folders` runs, **Then** 200 are listed, `truncated` is true, and `next` names the way to narrow the call.
-- **Given** the `folders` limit `["ops/**"]`, **When** `folders` runs, **Then** no folder outside `ops` is listed.
-- **Given** a start folder that does not exist, **When** `folders` runs, **Then** it fails with `not_found`.
-- **Given** a new folder path, **When** `add_empty_folder` runs, **Then** `<path>/.gitkeep` exists in one pushed commit, and `folders` lists the folder with 0 documents.
-- **Given** that folder, **When** `add` puts a document in it, **Then** the document is listed, and `.gitkeep` is not counted.
+- **Given** a memory repository with nested folders, **When** `folder_tree` runs with no input, **Then** it lists the folders down to depth 2 with `documents` and `total`.
+- **Given** `depth: 1`, **When** `folder_tree` runs, **Then** only the top level is listed, and a folder with subfolders has `has_more: true`.
+- **Given** more than 200 folders, **When** `folder_tree` runs, **Then** 200 are listed, `truncated` is true, and `next` names the way to narrow the call.
+- **Given** the `folders` limit `["ops/**"]`, **When** `folder_tree` runs, **Then** no folder outside `ops` is listed.
+- **Given** a start folder that does not exist, **When** `folder_tree` runs, **Then** it fails with `not_found`.
+- **Given** a new folder path, **When** `create_folder` runs, **Then** `<path>/.gitkeep` exists in one pushed commit, and `folder_tree` lists the folder with 0 documents.
+- **Given** that folder, **When** `add_document` puts a document in it, **Then** the document is listed, and `.gitkeep` is not counted.
 - **Given** that folder, **When** its last document is deleted, **Then** the folder is still listed.
-- **Given** an existing folder, **When** `add_empty_folder` runs, **Then** it fails with `validation_failed` and changes nothing.
-- **Given** a path with an uppercase letter, `..`, or an absolute path, **When** `add_empty_folder` runs, **Then** it fails with `invalid_arguments`.
-- **Given** `access = "read-only"`, **When** `add_empty_folder` runs, **Then** it fails with `access_denied`. **Given** `paused`, **Then** it fails with `paused`.
-- **Given** `preview: true`, **When** `add_empty_folder` runs, **Then** nothing is written.
+- **Given** an existing folder, **When** `create_folder` runs, **Then** it fails with `validation_failed` and changes nothing.
+- **Given** a path with an uppercase letter, `..`, or an absolute path, **When** `create_folder` runs, **Then** it fails with `invalid_arguments`.
+- **Given** `access = "read-only"`, **When** `create_folder` runs, **Then** it fails with `access_denied`. **Given** `paused`, **Then** it fails with `paused`.
+- **Given** `preview: true`, **When** `create_folder` runs, **Then** nothing is written.
 - **Given** a folder with a `.gitkeep`, **When** `lint`, `list`, `stats`, and `search` run, **Then** the file causes no finding and is not counted.
-- **Given** a folder with documents and subfolders, **When** `remove_folder` runs with the right `expect_documents`, **Then** all documents and `.gitkeep` files are gone in one pushed commit, and `undo` brings them back.
-- **Given** a wrong `expect_documents`, **When** `remove_folder` runs, **Then** it fails with `validation_failed`, the message has the real number, and nothing changes.
-- **Given** an empty folder, **When** `remove_folder` runs with `expect_documents: 0`, **Then** the folder is gone and `folders` no longer lists it.
-- **Given** a document outside the folder that links to one inside, **When** `remove_folder` runs, **Then** it fails with `validation_failed` and `linked_from` lists the linking document.
-- **Given** documents that link only to each other inside the folder, **When** `remove_folder` runs, **Then** it succeeds.
-- **Given** a document inside that the `folders` limit does not allow, **When** `remove_folder` runs, **Then** it fails with `access_denied` and nothing changes.
-- **Given** the root or `.waymark`, **When** `remove_folder` runs, **Then** it fails with `invalid_arguments`.
-- **Given** `preview: true`, **When** `remove_folder` runs, **Then** nothing is written and the result lists the documents.
-- **Given** `tools_denied = ["remove_folder"]`, **When** the client lists tools, **Then** `remove_folder` is not listed and `add_empty_folder` is.
-- **Given** `remove_folder`, **When** the client lists tools, **Then** it has `destructiveHint: true`, and `folders` has `readOnlyHint: true`.
-- **Given** `add_empty_folder`, **When** the client lists tools, **Then** its description says that `add` creates the folder of a document by itself.
+- **Given** a folder with documents and subfolders, **When** `delete_folder` runs with the right `expect_documents`, **Then** all documents and `.gitkeep` files are gone in one pushed commit, and `undo` brings them back.
+- **Given** a wrong `expect_documents`, **When** `delete_folder` runs, **Then** it fails with `validation_failed`, the message has the real number, and nothing changes.
+- **Given** an empty folder, **When** `delete_folder` runs with `expect_documents: 0`, **Then** the folder is gone and `folder_tree` no longer lists it.
+- **Given** a document outside the folder that links to one inside, **When** `delete_folder` runs, **Then** it fails with `validation_failed` and `linked_from` lists the linking document.
+- **Given** documents that link only to each other inside the folder, **When** `delete_folder` runs, **Then** it succeeds.
+- **Given** a document inside that the `folders` limit does not allow, **When** `delete_folder` runs, **Then** it fails with `access_denied` and nothing changes.
+- **Given** the root or `.waymark`, **When** `delete_folder` runs, **Then** it fails with `invalid_arguments`.
+- **Given** `preview: true`, **When** `delete_folder` runs, **Then** nothing is written and the result lists the documents.
+- **Given** `tools_denied = ["delete_folder"]`, **When** the client lists tools, **Then** `delete_folder` is not listed and `create_folder` is.
+- **Given** `delete_folder`, **When** the client lists tools, **Then** it has `destructiveHint: true`, and `folder_tree` has `readOnlyHint: true`.
+- **Given** `create_folder`, **When** the client lists tools, **Then** its description says that `add_document` creates the folder of a document by itself.
 
 ## Constraints & Edge Cases
 

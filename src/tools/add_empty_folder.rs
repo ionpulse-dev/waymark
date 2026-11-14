@@ -15,11 +15,11 @@ pub struct AddEmptyFolder;
 
 impl Tool for AddEmptyFolder {
     fn name(&self) -> &'static str {
-        "add_empty_folder"
+        "create_folder"
     }
 
     fn description(&self) -> &'static str {
-        "Creates an empty folder. Use it only for a folder that has no document yet: add creates the folder of a new document by itself. Commits and pushes."
+        "Creates an empty folder. Use it only for a folder that has no document yet: add_document creates the folder of a new document by itself. Commits and pushes. Returns folder and commit."
     }
 
     fn kind(&self) -> Kind {
@@ -30,10 +30,18 @@ impl Tool for AddEmptyFolder {
         json!({
             "type": "object",
             "properties": {
-                "folder": {"type": "string", "description": "The folder below the root, for example ops/runbooks. Lowercase letters, digits, and -."},
-                "preview": {"type": "boolean"}
+                "folder": {
+                    "type": "string",
+                    "description": "The folder below the root, for example ops/runbooks. Lowercase letters, digits, and -."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["folder"],
+            "required": [
+                "folder"
+            ],
             "additionalProperties": false
         })
     }
@@ -53,7 +61,7 @@ impl Tool for AddEmptyFolder {
         writes::execute(
             ctx,
             env,
-            "add_empty_folder",
+            "create_folder",
             Kind::Write,
             preview,
             |_tx, memrepo| {

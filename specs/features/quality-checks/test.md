@@ -28,12 +28,12 @@ Unit tests are in the files of `src/lint/`. End-to-end tests are in `tests/it_qu
 
 - [x] [auto] T1: a body link to a missing file gives `broken-link` with severity `warning` and the target in the message.
 - [x] [auto] T2: `related` with a missing document gives `broken-link` with severity `error`.
-- [x] [auto] T3: a shared setting `extra_secret_patterns = ["CUST-[0-9]{6}"]`. `add` (or a pending edit) with `CUST-123456` fails with `validation_failed`. `lint` on a committed document with it reports `secret`.
+- [x] [auto] T3: a shared setting `extra_secret_patterns = ["CUST-[0-9]{6}"]`. `add_document` (or a pending edit) with `CUST-123456` fails with `validation_failed`. `lint` on a committed document with it reports `secret`.
 - [x] [auto] T4: a document with a 16-word title (committed with plain `git`) gives `title-too-long`.
 - [x] [auto] T5: a document whose `created_by` email differs from its first commit author gives `author-mismatch` as a warning. A file with no history gives none.
 - [x] [auto] T6: the sample vault of `standard/conformance/vault/` gives `findings: []` and `errors: 0`.
 - [x] [auto] T7: a document with a callout, an embed, a highlight, and a `%%` comment gives no finding.
-- [x] [auto] T8: `add` with a private key block fails with `validation_failed`. The `message` and `next` do not contain the key text.
+- [x] [auto] T8: `add_document` with a private key block fails with `validation_failed`. The `message` and `next` do not contain the key text.
 - [x] [auto] T9: two documents with one title: the one with the later `created` has `duplicate-title` and the message names the other.
 - [x] [auto] T10: a body with `DE89 3704 0044 0532 0130 00` (a valid test IBAN) gives `personal-data`. A made-up number with a wrong check digit gives none.
 - [x] [auto] T11: `tests/lint_conformance.rs` over `vault/` and `invalid/`.

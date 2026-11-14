@@ -89,7 +89,7 @@ Rules, in this order:
 6. The revert is one commit. The message is `waymark: undo "<title>"` with the title of the undone commit, then an empty line and `Reverts: <hash>`. The author is the person. The commit is pushed (write flow of `git-sync`).
 7. An undo of a move reverts the move commit and its link-fix commit together, in one commit. The `Reverts:` line lists both hashes, separated by a space.
 
-The revert restores the earlier state exactly. It does not run the content checks of `write-documents`. For example, the undo of a `delete` restores the document even if its links or title now clash with newer documents. `lint` reports such problems.
+The revert restores the earlier state exactly. It does not run the content checks of `write-documents`. For example, the undo of a `delete_document` restores the document even if its links or title now clash with newer documents. `lint` reports such problems.
 
 With `preview: true` the tool runs rules 1 to 5 and returns what would change. Nothing is committed.
 

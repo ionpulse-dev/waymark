@@ -13,11 +13,11 @@ pub struct Deprecate;
 
 impl Tool for Deprecate {
     fn name(&self) -> &'static str {
-        "deprecate"
+        "deprecate_document"
     }
 
     fn description(&self) -> &'static str {
-        "Retires a document: sets its status to deprecated and keeps the file. The reason goes into the commit message. Needs the version from show as base."
+        "Retires a document: sets its status to deprecated and keeps the file. The reason goes into the commit message. Needs the version from show as base. Commits and pushes. Returns id, title, status, commit, and version."
     }
 
     fn kind(&self) -> Kind {
@@ -28,12 +28,28 @@ impl Tool for Deprecate {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string"},
-                "base": {"type": "string", "description": "The version from show."},
-                "reason": {"type": "string", "description": "One line."},
-                "preview": {"type": "boolean"}
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "base": {
+                    "type": "string",
+                    "description": "The version from show. The call fails if the document changed since."
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Why the document is retired. One line."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["id", "base", "reason"],
+            "required": [
+                "id",
+                "base",
+                "reason"
+            ],
             "additionalProperties": false
         })
     }
@@ -57,7 +73,7 @@ impl Tool for Deprecate {
         writes::execute(
             ctx,
             env,
-            "deprecate",
+            "deprecate_document",
             Kind::Write,
             preview,
             |tx, memrepo| {

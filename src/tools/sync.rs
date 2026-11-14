@@ -82,7 +82,7 @@ impl Tool for Sync {
     }
 
     fn description(&self) -> &'static str {
-        "Publishes documents that people edited by hand: checks them, commits the ones that pass, pulls, and pushes. With read-only access it only pulls."
+        "Publishes documents that people edited by hand: checks them, commits the ones that pass, pulls, and pushes. With read-only access it only pulls. Returns committed, blocked, skipped, pulled, pushed, and conflicts."
     }
 
     // `sync` stays listed when writes are paused or read-only. It checks the limits itself.
@@ -93,7 +93,12 @@ impl Tool for Sync {
     fn input_schema(&self) -> Value {
         json!({
             "type": "object",
-            "properties": {"preview": {"type": "boolean"}},
+            "properties": {
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
+            },
             "additionalProperties": false
         })
     }

@@ -2,6 +2,38 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.4.0 (2026-11-15)
+
+Clearer tool names, four new tools, and better search. You must act on the first part if your agent tool has allow or ask rules for waymark tools.
+
+**Nine tools have new names.** One rule now: a write on one document is `<verb>_document`, a folder tool is `<verb>_folder`.
+
+| Old name | New name |
+|---|---|
+| `add` | `add_document` |
+| `delete` | `delete_document` |
+| `deprecate` | `deprecate_document` |
+| `dispute` | `dispute_document` |
+| `verify` | `verify_document` |
+| `reject` | `reject_document` |
+| `add_empty_folder` | `create_folder` |
+| `remove_folder` | `delete_folder` |
+| `folders` | `folder_tree` |
+
+A call with an old name still works until 0.5.0, with a notice. An old name in a limit (`tools_denied`, `approval.required_for`, `--tools-denied`) counts as the new name, so a switched-off tool stays off. Your agent tool sees only the new names, so `mcp__waymark__add` in an allow list no longer matches.
+
+**New tools and features:**
+- `restore_document` brings a deprecated document back.
+- `update_document` takes `supersedes`: say later that a document replaces an older one, which is then deprecated.
+- `history` lists the versions of a document, and `show` with `version` reads an older one.
+- `list_tags` shows the tags with counts, and `rename_tag` renames or merges a tag in all documents in one commit.
+- `search` pages with `offset`. `list` and `search` filter by `author`, `updated_after`, and `updated_before`, and `search` takes `disputed`.
+- Every tool description says what the tool returns, and every parameter has a description. `activity` accepts an RFC 3339 time in `since`, like `updates`.
+
+What to do:
+- Update with `brew upgrade waymark` and restart your agent tool.
+- In your agent tool, replace the old tool names in your allow and ask rules with the new names. The list in the [install guide](docs/install.md) has all of them, with the new tools.
+
 ## 0.3.1 (2026-11-15)
 
 One fix. At the start of every session, the instructions said "No memory repository is set up: The first clone is still running.", also when the memory repository was already cloned. The server mixed up opening an existing clone with a real clone. Now the state `cloning` shows only while a real clone runs, so the instructions name your memory repository at once.

@@ -21,7 +21,7 @@ fn client(w: &World, p: Person) -> McpClient {
 /// Add a document. Returns (id, version).
 fn add(c: &mut McpClient, folder: &str, title: &str) -> (String, String) {
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": folder, "title": title, "description": "About it.", "body": "Text."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -72,7 +72,7 @@ fn t1_a_dispute_of_my_document_is_listed_with_its_reason() {
     let v = b.call("show", json!({"id": id}));
     let base = v.json["version"].as_str().unwrap().to_string();
     let d = b.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": base, "reason": "The retry limit changed in v3."}),
     );
     assert!(!d.is_error, "{}", d.json);
@@ -203,7 +203,7 @@ fn t11_a_deprecation_is_listed() {
     let v = b.call("show", json!({"id": id}));
     let base = v.json["version"].as_str().unwrap().to_string();
     let d = b.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": id, "base": base, "reason": "No longer true."}),
     );
     assert!(!d.is_error, "{}", d.json);

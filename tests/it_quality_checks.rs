@@ -94,7 +94,7 @@ fn t3_a_custom_pattern_blocks_a_write_and_lint_reports_it() {
     );
     let mut c = client(&w);
     let add = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Another", "description": "D.", "body": "CUST-654321"}),
     );
     assert_eq!(add.code(), Some("validation_failed"));
@@ -181,7 +181,7 @@ fn t8_a_private_key_blocks_a_write_and_is_never_repeated() {
     let w = World::new();
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Keys", "description": "D.",
             "body": "-----BEGIN RSA PRIVATE KEY-----\nMIIEvQSECRETKEYTEXT\n-----END RSA PRIVATE KEY-----"}),
     );

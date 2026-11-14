@@ -226,7 +226,7 @@ impl Args {
         };
         let mut denied = self.tools_denied.clone();
         if self.no_delete {
-            denied.push("delete".into());
+            denied.push("delete_document".into());
         }
         Ok(Limits {
             access,
@@ -317,7 +317,7 @@ mod tests {
         ]);
         let l = a.entry_layer().unwrap();
         assert_eq!(l.access, Some(Access::ReadOnly));
-        assert_eq!(l.tools_denied, Some(vec!["delete".to_string()]));
+        assert_eq!(l.tools_denied, Some(vec!["delete_document".to_string()]));
         assert_eq!(l.folders.unwrap().len(), 2);
         assert_eq!(l.max_results, Some(3));
     }

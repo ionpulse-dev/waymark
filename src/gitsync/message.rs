@@ -6,6 +6,7 @@ pub enum Verb {
     Update,
     Dispute,
     Deprecate,
+    Restore,
     Delete,
     Move,
     Undo,
@@ -13,6 +14,7 @@ pub enum Verb {
     Init,
     AddFolder,
     RemoveFolder,
+    RenameTag,
     Repair,
 }
 
@@ -23,6 +25,7 @@ impl Verb {
             Verb::Update => "update",
             Verb::Dispute => "dispute",
             Verb::Deprecate => "deprecate",
+            Verb::Restore => "restore",
             Verb::Delete => "delete",
             Verb::Move => "move",
             Verb::Undo => "undo",
@@ -31,6 +34,7 @@ impl Verb {
             Verb::Repair => "repair",
             Verb::AddFolder => "add-folder",
             Verb::RemoveFolder => "remove-folder",
+            Verb::RenameTag => "rename-tag",
         }
     }
 
@@ -40,6 +44,7 @@ impl Verb {
             "update" => Verb::Update,
             "dispute" => Verb::Dispute,
             "deprecate" => Verb::Deprecate,
+            "restore" => Verb::Restore,
             "delete" => Verb::Delete,
             "move" => Verb::Move,
             "undo" => Verb::Undo,
@@ -48,6 +53,7 @@ impl Verb {
             "repair" => Verb::Repair,
             "add-folder" => Verb::AddFolder,
             "remove-folder" => Verb::RemoveFolder,
+            "rename-tag" => Verb::RenameTag,
             _ => return None,
         })
     }
@@ -115,6 +121,8 @@ mod tests {
             Verb::Sync,
             Verb::AddFolder,
             Verb::RemoveFolder,
+            Verb::Restore,
+            Verb::RenameTag,
         ] {
             assert_eq!(Verb::parse(v.as_str()), Some(v));
         }

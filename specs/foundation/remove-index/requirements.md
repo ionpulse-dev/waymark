@@ -11,7 +11,7 @@ updated: 2026-11-14
 
 waymark is long-term agent memory, and mostly agent storage. The `index` tool
 generates `index.md` files for people who browse a memory repository. It
-duplicates `folders`, `list`, and `search`, it adds a write tool to the context
+duplicates `folder_tree`, `list`, and `search`, it adds a write tool to the context
 of every agent, and it forces special cases in six other tools. This spec
 removes the tool and every special rule for generated index files.
 
@@ -32,8 +32,8 @@ removes the tool and every special rule for generated index files.
 - The lint check `index-stale`.
 - The rule "a file `index.md` with the tag `index` is a generated index file".
   After this spec, `index.md` is a normal document and the tag `index` has no
-  special meaning. `search`, `list`, `stats`, backlinks, `updates`, `delete`,
-  `folders`, and `remove_folder` treat it like every other document.
+  special meaning. `search`, `list`, `stats`, backlinks, `updates`, `delete_document`,
+  `folders`, and `delete_folder` treat it like every other document.
 
 **Kept:**
 - The sentence in the Waymark Memory Standard that a tool MAY generate index
@@ -62,7 +62,7 @@ removes the tool and every special rule for generated index files.
   `list`, `stats`, and `updates` run, **Then** it is treated like any other
   document.
 - **Given** a document that links to `ops/index`, **When** it is deleted, **Then**
-  `delete` refuses it like any linked document.
+  `delete_document` refuses it like any linked document.
 - **Given** `lint`, **When** it runs, **Then** no result has the rule
   `index-stale`.
 - **Given** the specs, README, and docs, **When** a reader looks for the `index`

@@ -17,7 +17,7 @@ impl Tool for Review {
     }
 
     fn description(&self) -> &'static str {
-        "Lists active documents that are unverified or disputed, disputed first, oldest first. Changes nothing. Exists only when the memory repository uses verification."
+        "Lists active documents that are unverified or disputed, disputed first, oldest first. Returns entries (id, title, trust, disputed, updated, version) and total. Changes nothing. Exists only when the memory repository uses verification."
     }
 
     fn kind(&self) -> Kind {
@@ -32,8 +32,14 @@ impl Tool for Review {
         json!({
             "type": "object",
             "properties": {
-                "folder": {"type": "string"},
-                "limit": {"type": "integer", "description": "Default 10, at most 50."}
+                "folder": {
+                    "type": "string",
+                    "description": "Only documents in this folder. Default: all."
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "How many entries. Default 10, at most 50."
+                }
             },
             "additionalProperties": false
         })

@@ -26,7 +26,7 @@ fn client(w: &World) -> McpClient {
 
 fn add(c: &mut McpClient, title: &str) -> common::Reply {
     c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": title, "description": format!("About {title}."), "body": "x"}),
     )
 }
@@ -133,20 +133,20 @@ fn read_only_wins_over_paused() {
 fn paused_hides_write_tools_and_sends_list_changed() {
     let w = World::new();
     let mut c = client(&w);
-    assert!(c.tool_names().contains(&"add".to_string()));
+    assert!(c.tool_names().contains(&"add_document".to_string()));
     pause(&w, true);
     // A call makes the server see the change.
     c.call("status", json!({}));
     assert_eq!(c.notifications("notifications/tools/list_changed"), 1);
     let names = c.tool_names();
-    assert!(!names.contains(&"add".to_string()));
+    assert!(!names.contains(&"add_document".to_string()));
     assert!(names.contains(&"status".to_string()));
     // A hidden write tool is paused, not unknown.
     assert_eq!(add(&mut c, "Doc one").code(), Some("paused"));
     pause(&w, false);
     c.call("status", json!({}));
     assert_eq!(c.notifications("notifications/tools/list_changed"), 2);
-    assert!(c.tool_names().contains(&"add".to_string()));
+    assert!(c.tool_names().contains(&"add_document".to_string()));
 }
 
 #[test]

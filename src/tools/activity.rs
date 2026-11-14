@@ -17,7 +17,7 @@ impl Tool for Activity {
     }
 
     fn description(&self) -> &'static str {
-        "Lists the recent writes under your account, newest first, with the commit to give to undo. Changes nothing."
+        "Lists your recent writes, newest first, with the commit to give to undo. Returns entries (commit, time, verb, title, ids) and next_before. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -28,9 +28,18 @@ impl Tool for Activity {
         json!({
             "type": "object",
             "properties": {
-                "limit": {"type": "integer", "description": "Default 10, at most 50."},
-                "since": {"type": "string", "description": "A date YYYY-MM-DD."},
-                "before": {"type": "string", "description": "A commit from an earlier result. Shows older entries."}
+                "limit": {
+                    "type": "integer",
+                    "description": "How many entries. Default 10, at most 50."
+                },
+                "since": {
+                    "type": "string",
+                    "description": "A date YYYY-MM-DD or an RFC 3339 time. Only writes from then on."
+                },
+                "before": {
+                    "type": "string",
+                    "description": "A commit from an earlier result. Shows older entries."
+                }
             },
             "additionalProperties": false
         })
@@ -45,13 +54,10 @@ impl Tool for Activity {
                     .with_next("Send a limit of 1 to 50."))
             }
         };
-        let since = writes::get_str(&args, "since");
-        if let Some(s) = since {
-            if !crate::format::fields::is_valid_date(s) {
-                return Err(Error::invalid("\"since\" is not a date.")
-                    .with_next("Use the form YYYY-MM-DD."));
-            }
-        }
+        let since_text = writes::get_str(&args, "since");
+        let since = since_text
+            .map(|s| super::read_common::parse_when("since", s, true))
+            .transpose()?;
         let before = writes::get_str(&args, "before");
 
         let repo = ctx.repo()?;
@@ -60,8 +66,17 @@ impl Tool for Activity {
         let commits = repo.all_commits()?;
         let mut entries = activity::entries(&memrepo, &commits, &repo.author().email);
         entries.retain(|e| e.ids.iter().any(|id| env.effective.allows_folder(id)));
-        if let Some(s) = since {
-            entries.retain(|e| e.time.get(..10).unwrap_or("") >= s);
+        if let (Some(text), Some(when)) = (since_text, since) {
+            if crate::format::fields::is_valid_date(text) {
+                // A date counts by the calendar day of the commit.
+                entries.retain(|e| e.time.get(..10).unwrap_or("") >= text);
+            } else {
+                entries.retain(|e| {
+                    chrono::DateTime::parse_from_rfc3339(&e.time)
+                        .map(|t| t.with_timezone(&chrono::Utc) >= when)
+                        .unwrap_or(false)
+                });
+            }
         }
         if let Some(b) = before {
             let Some(pos) = commits

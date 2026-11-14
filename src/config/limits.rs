@@ -50,6 +50,27 @@ pub enum Denied {
     Paused,
 }
 
+/// Tools that got a new name, as (old name, new name) (see `tool-conventions`).
+pub const RENAMED_TOOLS: [(&str, &str); 9] = [
+    ("add", "add_document"),
+    ("delete", "delete_document"),
+    ("deprecate", "deprecate_document"),
+    ("dispute", "dispute_document"),
+    ("verify", "verify_document"),
+    ("reject", "reject_document"),
+    ("add_empty_folder", "create_folder"),
+    ("remove_folder", "delete_folder"),
+    ("folders", "folder_tree"),
+];
+
+/// The current name of a tool. An old name gives the new name. Any other name stays as it is.
+pub fn canonical_tool(name: &str) -> &str {
+    RENAMED_TOOLS
+        .iter()
+        .find(|(old, _)| *old == name)
+        .map_or(name, |(_, new)| new)
+}
+
 pub const DEFAULT_MAX_RESULTS: usize = 5;
 pub const DEFAULT_MAX_TOKENS: usize = 800;
 pub const DEFAULT_MAX_DOCUMENTS_OPENED: usize = 20;
@@ -124,7 +145,8 @@ impl Effective {
                 paused = true;
             }
             if let Some(t) = &l.tools_denied {
-                tools_denied.extend(t.iter().cloned());
+                // An old tool name in a limit counts as the new name: a rename never loosens a limit.
+                tools_denied.extend(t.iter().map(|n| canonical_tool(n).to_string()));
             }
             if let Some(f) = &l.folders {
                 if !f.is_empty() && !folder_layers.contains(f) {
@@ -146,7 +168,7 @@ impl Effective {
                 max_opened = max_opened.min(n);
             }
             if let Some(a) = &l.approval_required_for {
-                approval.extend(a.iter().cloned());
+                approval.extend(a.iter().map(|n| canonical_tool(n).to_string()));
             }
             if l.approval_via == Some(ApprovalVia::Console) {
                 via = ApprovalVia::Console;
@@ -272,7 +294,7 @@ mod tests {
             l(|x| x.access = Some(Access::ReadOnly)),
         ]);
         assert_eq!(e.access, Access::ReadOnly);
-        assert!(e.check_tool("add", Kind::Write).is_err());
+        assert!(e.check_tool("add_document", Kind::Write).is_err());
         assert!(e.check_tool("search", Kind::Read).is_ok());
     }
 
@@ -292,23 +314,51 @@ mod tests {
     fn paused_if_any_layer_says_so() {
         let e =
             Effective::from_layers(&[l(|x| x.paused = Some(false)), l(|x| x.paused = Some(true))]);
-        assert_eq!(e.check_tool("add", Kind::Write), Err(Denied::Paused));
+        assert_eq!(
+            e.check_tool("add_document", Kind::Write),
+            Err(Denied::Paused)
+        );
         assert!(e.check_tool("show", Kind::Read).is_ok());
     }
 
     #[test]
     fn denied_tools_are_the_union_and_are_not_listed() {
         let e = Effective::from_layers(&[
-            l(|x| x.tools_denied = Some(vec!["delete".into()])),
+            l(|x| x.tools_denied = Some(vec!["delete_document".into()])),
             l(|x| x.tools_denied = Some(vec!["move".into()])),
         ]);
-        assert!(!e.lists_tool("delete", Kind::Destructive));
+        assert!(!e.lists_tool("delete_document", Kind::Destructive));
         assert!(!e.lists_tool("move", Kind::Write));
-        assert!(e.lists_tool("add", Kind::Write));
+        assert!(e.lists_tool("add_document", Kind::Write));
         assert!(matches!(
-            e.check_tool("delete", Kind::Destructive),
+            e.check_tool("delete_document", Kind::Destructive),
             Err(Denied::AccessDenied(_))
         ));
+    }
+
+    #[test]
+    fn an_old_tool_name_in_a_limit_counts_as_the_new_name() {
+        let e = Effective::from_layers(&[
+            l(|x| x.tools_denied = Some(vec!["delete".into(), "folders".into()])),
+            l(|x| x.approval_required_for = Some(vec!["add".into(), "write".into()])),
+        ]);
+        assert!(!e.lists_tool("delete_document", Kind::Destructive));
+        assert!(!e.lists_tool("folder_tree", Kind::Read));
+        assert!(e.tools_denied.contains("delete_document"));
+        assert!(e.approval_required_for.contains("add_document"));
+        assert!(e.approval_required_for.contains("write"));
+        assert!(e.lists_tool("add_document", Kind::Write));
+    }
+
+    #[test]
+    fn canonical_tool_maps_every_old_name_and_leaves_other_names_alone() {
+        for (old, new) in RENAMED_TOOLS {
+            assert_eq!(canonical_tool(old), new);
+            assert_eq!(canonical_tool(new), new);
+        }
+        assert_eq!(canonical_tool("move"), "move");
+        assert_eq!(canonical_tool("search"), "search");
+        assert_eq!(canonical_tool("write"), "write");
     }
 
     #[test]
@@ -359,14 +409,14 @@ mod tests {
     #[test]
     fn approval_is_the_union_and_console_wins() {
         let e = Effective::from_layers(&[
-            l(|x| x.approval_required_for = Some(vec!["delete".into()])),
+            l(|x| x.approval_required_for = Some(vec!["delete_document".into()])),
             l(|x| {
                 x.approval_required_for = Some(vec!["write".into()]);
                 x.approval_via = Some(ApprovalVia::Console);
             }),
         ]);
-        assert!(e.needs_approval("delete", Kind::Destructive));
-        assert!(e.needs_approval("add", Kind::Write));
+        assert!(e.needs_approval("delete_document", Kind::Destructive));
+        assert!(e.needs_approval("add_document", Kind::Write));
         assert!(!e.needs_approval("search", Kind::Read));
         assert_eq!(e.approval_via, ApprovalVia::Console);
     }
@@ -392,7 +442,7 @@ mod tests {
     }
 
     fn random_layer(r: &mut Lcg) -> Limits {
-        let tools = ["add", "delete", "move", "stats"];
+        let tools = ["add_document", "delete_document", "move", "stats"];
         Limits {
             access: match r.next() % 3 {
                 0 => None,

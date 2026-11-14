@@ -14,11 +14,11 @@ const MAX_ENTRIES: usize = 200;
 
 impl Tool for Folders {
     fn name(&self) -> &'static str {
-        "folders"
+        "folder_tree"
     }
 
     fn description(&self) -> &'static str {
-        "Shows the folders of the memory repository as a tree, with the number of documents in each. Use depth to go deeper, and folder to start below a folder. Changes nothing."
+        "Shows the folders as a tree with the number of documents in each. Returns folders (path, documents, total, has_more) and truncated. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -29,8 +29,14 @@ impl Tool for Folders {
         json!({
             "type": "object",
             "properties": {
-                "folder": {"type": "string", "description": "Start below this folder. Default: the root."},
-                "depth": {"type": "integer", "description": "Levels below the start, 1 to 10. Default 2."}
+                "folder": {
+                    "type": "string",
+                    "description": "Start below this folder. Default: the root."
+                },
+                "depth": {
+                    "type": "integer",
+                    "description": "Levels below the start, 1 to 10. Default 2."
+                }
             },
             "additionalProperties": false
         })

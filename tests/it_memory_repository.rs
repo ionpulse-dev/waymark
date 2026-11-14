@@ -207,14 +207,14 @@ fn a_write_repairs_a_missing_schema_in_its_own_commit() {
     assert!(!c.call("list", json!({})).is_error);
     assert!(!c
         .call(
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B.", "preview": true})
         )
         .is_error);
     assert_eq!(git(&w.remote, &["rev-parse", "main"]), head);
     // A write repairs first, then makes its own commit.
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "After repair", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -242,7 +242,7 @@ fn a_write_repairs_a_missing_schema_in_its_own_commit() {
     // A second write has nothing to repair.
     let before = git(&w.remote, &["rev-list", "--count", "main"]);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Again", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -265,7 +265,7 @@ fn a_repair_keeps_the_values_that_the_owner_set() {
     remove_schema_and_commit(&w);
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Keep limits", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);

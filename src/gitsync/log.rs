@@ -218,6 +218,38 @@ impl Repo {
         Ok(out.stdout.lines().filter_map(parse_entry).collect())
     }
 
+    /// The versions of one file, newest first, each with the path of the file at that version.
+    /// It follows a rename. Paths are below the repository folder.
+    pub fn file_history(&self, rel_path: &str) -> Result<Vec<(LogEntry, String)>> {
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &[
+                "log",
+                "--follow",
+                "--no-merges",
+                "--name-only",
+                "--format=%x1e%H%x1f%h%x1f%an%x1f%ae%x1f%aI%x1f%s",
+                "--",
+                rel_path,
+            ],
+        )?;
+        if !out.ok {
+            return Ok(Vec::new());
+        }
+        Ok(out
+            .stdout
+            .split('\u{1e}')
+            .skip(1)
+            .filter_map(|record| {
+                let mut lines = record.lines();
+                let entry = parse_entry(lines.next()?)?;
+                let path = lines.map(str::trim).find(|l| !l.is_empty())?.to_string();
+                Some((entry, path))
+            })
+            .collect())
+    }
+
     /// The files that a commit changed: (status letter, path). A rename is `R` with the new path.
     pub fn files_of(&self, commit: &str) -> Result<Vec<(char, String)>> {
         let out = cmd::run_ok(

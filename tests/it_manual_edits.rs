@@ -107,7 +107,7 @@ fn t4_manual_edits_are_committed_before_an_agent_write() {
     edit_deploy(&w, "New body.");
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Other doc", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -123,7 +123,7 @@ fn t5_a_bad_edit_does_not_stop_another_write_and_gives_a_notice() {
     write_doc(&w.a, "ops/bad", "no frontmatter\n");
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Other doc", "description": "D.", "body": "B."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -395,7 +395,7 @@ fn t19_a_preview_write_does_not_commit_pending_edits() {
     let before = subjects(&w.a);
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Other doc", "description": "D.", "body": "B.", "preview": true}),
     );
     assert!(!r.is_error, "{}", r.json);

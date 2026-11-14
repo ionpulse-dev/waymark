@@ -172,7 +172,7 @@ fn a4_a_personal_value_cannot_loosen_the_shared_limit() {
     let s = status(&mut c);
     assert_eq!(s["settings"]["access"], "read-only", "{s}");
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("access_denied"));

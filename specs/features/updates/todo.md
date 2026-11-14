@@ -20,5 +20,5 @@ None.
 ## Notes 2026-11-14
 
 - Unit tests for `gitsync::diff` on a temporary repository (the integration tests cover the paths today).
-- `deleted` has no end-to-end test. Add one with the `delete` tool.
+- `deleted` has no end-to-end test. Add one with the `delete_document` tool.
 - With no Git identity, `own` is empty in `src/tools/updates.rs`, so the person's own changes show as changes by others. Decide how `updates` behaves without an author (found in the code review of 2026-11-14, skipped).

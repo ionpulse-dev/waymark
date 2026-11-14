@@ -27,7 +27,7 @@ fn client(w: &World) -> McpClient {
 
 fn add(c: &mut McpClient, title: &str) -> Value {
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": title, "description": format!("About {title}."), "body": "x"}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -43,10 +43,10 @@ fn tools_are_hidden_and_denied_when_off() {
     let w = World::new();
     let mut c = client(&w);
     let names = c.tool_names();
-    for t in ["verify", "review", "reject"] {
+    for t in ["verify_document", "review", "reject_document"] {
         assert!(!names.contains(&t.to_string()), "{t}");
     }
-    let r = c.call("verify", json!({"id": "x", "base": "y"}));
+    let r = c.call("verify_document", json!({"id": "x", "base": "y"}));
     assert_eq!(r.code(), Some("access_denied"));
     assert!(r.message().contains("Verification is off"));
     let r = c.call("review", json!({}));
@@ -57,12 +57,12 @@ fn tools_are_hidden_and_denied_when_off() {
 fn add_sets_unverified_and_verify_sets_the_fields() {
     let w = world_with_verification();
     let mut c = client(&w);
-    assert!(c.tool_names().contains(&"verify".to_string()));
+    assert!(c.tool_names().contains(&"verify_document".to_string()));
     let added = add(&mut c, "Doc one");
     assert!(file(&w, "ops/doc-one").contains("trust: unverified"));
     let before = subjects(&w.remote).len();
     let v = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": added["version"]}),
     );
     assert!(!v.is_error, "{}", v.json);
@@ -79,12 +79,12 @@ fn add_sets_unverified_and_verify_sets_the_fields() {
     assert!(git(&w.remote, &["log", "-1", "--format=%b"]).contains("Trust: verified"));
     // Twice, and an old base.
     let again = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": v.json["version"]}),
     );
     assert_eq!(again.code(), Some("validation_failed"));
     let stale = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": added["version"]}),
     );
     assert_eq!(stale.code(), Some("stale_base"));
@@ -97,7 +97,7 @@ fn a_body_change_resets_trust_and_undo_of_verify_restores_the_document() {
     let added = add(&mut c, "Doc one");
     let before = file(&w, "ops/doc-one");
     let v = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": added["version"]}),
     );
     let u = c.call(
@@ -124,22 +124,22 @@ fn verify_fails_for_a_disputed_or_deprecated_document() {
     let mut c = client(&w);
     let a = add(&mut c, "Doc one");
     let d = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": "ops/doc-one", "base": a["version"], "reason": "Wrong."}),
     );
     let r = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-one", "base": d.json["version"]}),
     );
     assert_eq!(r.code(), Some("validation_failed"));
     assert!(r.json["next"].as_str().unwrap().contains("clear"));
     let b = add(&mut c, "Doc two");
     let dep = c.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": "ops/doc-two", "base": b["version"], "reason": "Old."}),
     );
     let r = c.call(
-        "verify",
+        "verify_document",
         json!({"id": "ops/doc-two", "base": dep.json["version"]}),
     );
     assert_eq!(r.code(), Some("validation_failed"));
@@ -150,9 +150,12 @@ fn reject_keeps_the_file_as_deprecated_and_clears_trust() {
     let w = world_with_verification();
     let mut c = client(&w);
     let a = add(&mut c, "Doc one");
-    let v = c.call("verify", json!({"id": "ops/doc-one", "base": a["version"]}));
+    let v = c.call(
+        "verify_document",
+        json!({"id": "ops/doc-one", "base": a["version"]}),
+    );
     let r = c.call(
-        "reject",
+        "reject_document",
         json!({"id": "ops/doc-one", "base": v.json["version"], "reason": "It is wrong."}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -165,7 +168,7 @@ fn reject_keeps_the_file_as_deprecated_and_clears_trust() {
         "{msg}"
     );
     let again = c.call(
-        "reject",
+        "reject_document",
         json!({"id": "ops/doc-one", "base": r.json["version"], "reason": "x"}),
     );
     assert_eq!(again.code(), Some("validation_failed"));
@@ -180,10 +183,13 @@ fn review_lists_disputed_first_then_oldest() {
     add(&mut c, "Doc three");
     let two = c.call("show", json!({"id": "ops/doc-two"}));
     c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": "ops/doc-two", "base": two.json["version"], "reason": "Check this."}),
     );
-    let v = c.call("verify", json!({"id": "ops/doc-one", "base": a["version"]}));
+    let v = c.call(
+        "verify_document",
+        json!({"id": "ops/doc-one", "base": a["version"]}),
+    );
     assert!(!v.is_error);
     let r = c.call("review", json!({}));
     assert!(!r.is_error, "{}", r.json);
@@ -240,14 +246,17 @@ fn dispute_and_deprecate_keep_a_verified_mark_and_turning_off_keeps_fields() {
     let w = world_with_verification();
     let mut c = client(&w);
     let a = add(&mut c, "Doc one");
-    let v = c.call("verify", json!({"id": "ops/doc-one", "base": a["version"]}));
+    let v = c.call(
+        "verify_document",
+        json!({"id": "ops/doc-one", "base": a["version"]}),
+    );
     let d = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": "ops/doc-one", "base": v.json["version"], "reason": "Hmm."}),
     );
     assert!(file(&w, "ops/doc-one").contains("trust: verified"));
     c.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": "ops/doc-one", "base": d.json["version"], "reason": "Old."}),
     );
     assert!(file(&w, "ops/doc-one").contains("trust: verified"));

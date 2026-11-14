@@ -7,7 +7,7 @@ Features that we want later, but not in the first release. When an idea moves in
 | Idea | What it does |
 |---|---|
 | Memory browser | A console page to search and read documents, rendered, with author and history. People can read without an agent. Until then: open the memory repository as an Obsidian vault (see [similar-projects.md](similar-projects.md#obsidian-and-obsidian-sync)). |
-| Quick capture | A console page where a person writes a document, with a live size counter and the same checks as `add`. |
+| Quick capture | A console page where a person writes a document, with a live size counter and the same checks as `add_document`. |
 | Message channels | Email or webhook messages from a server, for example when someone disputes a document. |
 | Connect a Git account | An owner connects a Git account with "Sign in with GitHub". The server stores the token encrypted. Needs a key plan and a review of the attack surface. |
 

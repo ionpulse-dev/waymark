@@ -65,17 +65,26 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | Tool | Task | Kind | Specified in |
 |---|---|---|---|
 | `status` | State of the setup, the memory repository in use, the effective limits, open notices | read | `maintenance`, `session-start` |
-| `search`, `show`, `list`, `stats` | Find and read documents | read | `search-and-read` |
+| `search`, `show`, `list`, `stats` | Find and read documents | read | `search-and-read`, `search-filters`, `document-history` |
+| `history` | The versions of one document | read | `document-history` |
+| `folder_tree` | The folders with counts | read | `folders` |
+| `list_tags` | The tags with counts | read | `manage-tags` |
 | `updates` | What changed since a date | read | `updates` |
 | `lint` | Check documents | read | `quality-checks` |
 | `activity` | Recent writes of the person | read | `activity-and-undo` |
-| `add`, `update_document`, `dispute`, `deprecate` | Create and change documents | write | `write-documents` |
-| `delete` | Delete a document | destructive | `write-documents` |
+| `add_document`, `update_document`, `dispute_document`, `deprecate_document` | Create and change documents | write | `write-documents` |
+| `restore_document` | Bring a deprecated document back | write | `restore-and-replace` |
+| `rename_tag` | Rename or merge a tag in all documents | write | `manage-tags` |
+| `create_folder` | Create an empty folder | write | `folders` |
+| `delete_document` | Delete a document | destructive | `write-documents` |
+| `delete_folder` | Delete a folder with its documents | destructive | `folders` |
 | `move` | Move or rename documents | write | `move-documents` |
 | `undo` | Revert one write | write | `activity-and-undo` |
 | `sync` | Commit pending manual edits, pull, push | write | `git-sync`, `manual-edits` |
 | `init` | Create the structure of an empty memory repository | write | `create-memory-repository` |
-| `verify`, `review`, `reject` | Owner verification. Present only when verification is on. | write | `verification` |
+| `verify_document`, `review`, `reject_document` | Owner verification. Present only when verification is on. | write | `verification` |
+
+The names, descriptions, parameters, paging, and dates of all tools follow [tool-conventions](../tool-conventions/requirements.md).
 
 Every tool has a JSON input schema and a kind hint (read-only, write, or destructive) so that clients can ask the person per tool. A tool that the limits switch off is not listed (see `trust-model`).
 

@@ -26,23 +26,23 @@ requires:
 
 | Tool | Kind | Task |
 |---|---|---|
-| `add` | write | Creates a document. waymark builds the frontmatter, picks a unique file name, validates, commits, and pushes. |
+| `add_document` | write | Creates a document. waymark builds the frontmatter, picks a unique file name, validates, commits, and pushes. |
 | `update_document` | write | Changes fields or the body of a document. Fields that are not sent stay as they are. |
-| `dispute` | write | Sets `disputed: true` and `dispute_reason`. With `clear: true` it ends the dispute. |
-| `deprecate` | write | Sets `status: deprecated` and keeps the file. |
-| `delete` | destructive | Deletes a document. Refuses while another document links to it. |
+| `dispute_document` | write | Sets `disputed: true` and `dispute_reason`. With `clear: true` it ends the dispute. |
+| `deprecate_document` | write | Sets `status: deprecated` and keeps the file. |
+| `delete_document` | destructive | Deletes a document. Refuses while another document links to it. |
 
 All five follow the write flow of `git-sync` (limits, lock, fetch, base check, checks, approval, commit under the author, push). All accept `preview: true`. A document in a result has the ID (path below the root without `.md`) and `version`, the short hash of the last commit of its file. A write that changes an existing document sends that value as `base`. A different value is `stale_base`.
 
 ### Rules for every tool
 
-- **Dates and authors.** `add` sets `created`, `created_by`, `updated`, `updated_by`. Every other tool sets `updated` and `updated_by` on each document it changes. The date is today's date on the machine. The author is `Name <email>` from the settings of waymark (see `git-sync`).
+- **Dates and authors.** `add_document` sets `created`, `created_by`, `updated`, `updated_by`. Every other tool sets `updated` and `updated_by` on each document it changes. The date is today's date on the machine. The author is `Name <email>` from the settings of waymark (see `git-sync`).
 - **Commit.** One commit for one call. The message is `waymark: <verb> "<title>"`, with `add`, `update`, `dispute`, `deprecate`, or `delete`. `deprecate` adds the line `Reason: <reason>` after an empty line. No agent tag.
-- **File name.** `add` makes the name from the title: lowercase ASCII letters and digits, other characters become `-`, repeated `-` are merged, and the result is cut at 60 characters at a `-`. An empty result becomes `document`. If the file exists, `-<4 hex>` is added (the start of the SHA-256 of folder and title). If that exists too, 6, then 8 hex. The name never changes when the title changes.
+- **File name.** `add_document` makes the name from the title: lowercase ASCII letters and digits, other characters become `-`, repeated `-` are merged, and the result is cut at 60 characters at a `-`. An empty result becomes `document`. If the file exists, `-<4 hex>` is added (the start of the SHA-256 of folder and title). If that exists too, 6, then 8 hex. The name never changes when the title changes.
 - **Folder.** `folder` is a path below the root, with no `..`, no leading `/`, and no hidden segment. Each segment follows the file name rules. A new folder is created. `""` is the root. It must match the `folders` limit, or the call fails with `access_denied` and `next` says "This folder is outside the allowed folders." A write never goes into `.waymark/` or a path of `.waymark/exclude`.
-- **Verification on** (see `verification`). `add` sets `trust: unverified`. A change of `title`, `description`, or `body` of a verified document sets `trust: unverified` and removes `verified_by` and `verified`. With verification off, trust fields are kept as they are.
+- **Verification on** (see `verification`). `add_document` sets `trust: unverified`. A change of `title`, `description`, or `body` of a verified document sets `trust: unverified` and removes `verified_by` and `verified`. With verification off, trust fields are kept as they are.
 - **Unknown properties** of a document are kept and written after the known ones.
-- **Body.** The body is never changed unless the caller sends `body`, or `delete` removes a link from it. Line ends in `body` are changed to LF.
+- **Body.** The body is never changed unless the caller sends `body`, or `delete_document` removes a link from it. Line ends in `body` are changed to LF.
 
 ### Checks
 
@@ -62,11 +62,11 @@ The server never prints the matched secret.
 
 **Near-duplicate rule.** A title is split into lowercase words: runs of letters and digits. The overlap is the number of distinct words that both titles share, divided by the number of distinct words of the shorter title. At 0.8 or more the title is a near-duplicate. If the shorter title has fewer than 3 words, only an exact match counts. The check ignores deprecated documents and the document named in `supersedes`, so a replacement can reuse a title. On `update_document`, the document itself is ignored.
 
-**Body links.** A write never creates a broken link. For `add`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute`, `deprecate`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning. `sync` applies the same rule to documents that people edit by hand (see `manual-edits`).
+**Body links.** A write never creates a broken link. For `add_document`, every link in the body counts. For `update_document`, only the links that are new compared with the old body count, so an old broken link does not block an unrelated change. The check covers relative Markdown links that end in `.md` and wikilinks. It ignores URLs, links to other file types, `#heading` parts, and links in code fences and inline code. A target counts as existing if the document exists after the write. `dispute_document`, `deprecate_document`, and the other writes that leave the body as it is check nothing. An old broken link stays and `lint` reports it as a warning. `sync` applies the same rule to documents that people edit by hand (see `manual-edits`).
 
 Secret patterns (built in): `-----BEGIN ... PRIVATE KEY-----`, `AKIA` plus 16 letters or digits, `ghp_` or `github_pat_` plus a token, `sk-` plus 20 or more letters or digits, `password`, `passwd`, `secret`, `token`, or `api_key` followed by `=` or `:` and a value, and `://user:password@`. A memory repository adds regular expressions in `lint.extra_secret_patterns`.
 
-### `add`
+### `add_document`
 
 Input:
 
@@ -83,7 +83,7 @@ Input:
 | `supersedes` | string | no | ID of the document that this one replaces. |
 | `preview` | boolean | no | Default `false`. |
 
-`supersedes` names an existing document. The new document stores it as a wikilink list of one entry. The old document gets `status: deprecated`, `updated`, and `updated_by`. It stores no link to the new one. Both changes are in one commit with the message of `add`. An old document that is already deprecated stays as it is.
+`supersedes` names an existing document. The new document stores it as a wikilink list of one entry. The old document gets `status: deprecated`, `updated`, and `updated_by`. It stores no link to the new one. Both changes are in one commit with the message of `add_document`. An old document that is already deprecated stays as it is.
 
 Result `data`:
 
@@ -109,13 +109,14 @@ Input:
 | `base` | string | yes | `version` from `show`. |
 | `title`, `description`, `body` | string | no | New value. |
 | `sources`, `tags`, `related`, `anchors` | string[] | no | New list. It replaces the old list. An empty list removes the property. |
+| `supersedes` | string | no | ID of a document that this one replaces. It is added to the list, and that document gets `status: deprecated`, as with `add_document` (see `restore-and-replace`). |
 | `preview` | boolean | no | Default `false`. |
 
-At least one of the optional fields must be present, or the call fails with `invalid_arguments`. `status`, `disputed`, `dispute_reason`, `supersedes`, the author and date fields, and trust fields cannot be sent. A change of `title` keeps the file name and the ID. If the new content equals the old content, nothing is committed, and the result has `"commit": null` and the message "No change."
+At least one of the optional fields must be present, or the call fails with `invalid_arguments`. `status`, `disputed`, `dispute_reason`, the author and date fields, and trust fields cannot be sent. A change of `title` keeps the file name and the ID. If the new content equals the old content, nothing is committed, and the result has `"commit": null` and the message "No change."
 
-Result `data`: as `add`, without `deprecated`, plus `"changed": ["title", "body"]`.
+Result `data`: as `add_document` (`deprecated` lists the documents that `supersedes` deprecated), plus `"changed": ["title", "body"]`.
 
-### `dispute`
+### `dispute_document`
 
 Input: `id` (string, required), `base` (string, required), `reason` (string, required unless `clear` is `true`), `clear` (boolean, default `false`), `preview` (boolean).
 
@@ -123,15 +124,15 @@ The reason is one line of at most 50 words. A call with `reason` on an already d
 
 Result `data`: `{ "id", "title", "version", "commit", "pushed", "disputed": true, "preview" }`. With `clear` the value of `disputed` is `false`.
 
-### `deprecate`
+### `deprecate_document`
 
 Input: `id` (string, required), `base` (string, required), `reason` (string, required, one line, at most 50 words), `preview` (boolean).
 
-The reason is saved in the body of the commit message, not in the file. A document that is already deprecated fails with `validation_failed`. There is no tool to make a deprecated document active again (see `todo.md`).
+The reason is saved in the body of the commit message, not in the file. A document that is already deprecated fails with `validation_failed`. `restore_document` makes a deprecated document active again (see `restore-and-replace`).
 
 Result `data`: `{ "id", "title", "version", "commit", "pushed", "status": "deprecated", "preview" }`.
 
-### `delete`
+### `delete_document`
 
 Input: `id` (string, required), `base` (string, required), `preview` (boolean).
 
@@ -153,7 +154,7 @@ Result `data`:
 
 ### Preview
 
-With `preview: true` the tool runs all checks and returns the same `data` without `commit` and `pushed` (both `null`), plus `"changes": [ { "id": "...", "action": "create" } ]` with the actions `create`, `update`, `deprecate`, and `delete`. `add` and `update_document` also return `"text"`: the full file that would be written. Nothing is written, committed, or pushed, and no approval is asked.
+With `preview: true` the tool runs all checks and returns the same `data` without `commit` and `pushed` (both `null`), plus `"changes": [ { "id": "...", "action": "create" } ]` with the actions `create`, `update`, `deprecate_document`, and `delete_document`. `add_document` and `update_document` also return `"text"`: the full file that would be written. Nothing is written, committed, or pushed, and no approval is asked.
 
 ### Errors
 
@@ -167,38 +168,38 @@ With `preview: true` the tool runs all checks and returns the same `data` withou
 
 ## Acceptance Criteria
 
-- **Given** a valid input, **When** `add` runs, **Then** one commit under the author reaches the remote and the document has all required fields.
-- **Given** a body with a secret pattern, **When** `add` runs, **Then** it fails with `validation_failed` and writes nothing.
-- **Given** a title that already exists, **When** `add` runs, **Then** it fails as a duplicate and names the existing document.
-- **Given** a title that shares at least 80 percent of the words of the shorter title with an active document, **When** `add` runs, **Then** it fails as a near-duplicate and names that document.
+- **Given** a valid input, **When** `add_document` runs, **Then** one commit under the author reaches the remote and the document has all required fields.
+- **Given** a body with a secret pattern, **When** `add_document` runs, **Then** it fails with `validation_failed` and writes nothing.
+- **Given** a title that already exists, **When** `add_document` runs, **Then** it fails as a duplicate and names the existing document.
+- **Given** a title that shares at least 80 percent of the words of the shorter title with an active document, **When** `add_document` runs, **Then** it fails as a near-duplicate and names that document.
 - **Given** a changed remote document, **When** `update_document` runs with the old `base`, **Then** it fails with `stale_base`.
 - **Given** only `description` is sent, **When** `update_document` runs, **Then** the body is byte-for-byte the same and `updated` is set.
 - **Given** a changed title, **When** `update_document` runs, **Then** the file name and the ID stay the same.
 - **Given** `preview: true`, **When** any write tool runs, **Then** nothing is written or committed.
-- **Given** `dispute`, **When** it runs, **Then** `disputed` is true and the reason is saved.
-- **Given** `deprecate`, **When** it runs, **Then** the file still exists with `status: deprecated`.
-- **Given** `dispute` with `clear: true`, **When** it runs, **Then** `disputed` and `dispute_reason` are gone and `updated` is set.
-- **Given** `add` with `supersedes`, **When** it runs, **Then** one commit holds the new document and the old document with `status: deprecated`.
-- **Given** `delete` of a document that others link to, **When** it runs, **Then** it fails with `validation_failed`, nothing changes, and `linked_from` lists the linking documents.
-- **Given** the links are removed with `update_document`, **When** `delete` runs again, **Then** the file is gone.
-- **Given** `delete` with `preview: true` of a linked document, **When** it runs, **Then** it fails the same way and lists the links.
-- **Given** `tools_denied = ["delete"]`, **When** the client lists tools, **Then** `delete` is not listed.
+- **Given** `dispute_document`, **When** it runs, **Then** `disputed` is true and the reason is saved.
+- **Given** `deprecate_document`, **When** it runs, **Then** the file still exists with `status: deprecated`.
+- **Given** `dispute_document` with `clear: true`, **When** it runs, **Then** `disputed` and `dispute_reason` are gone and `updated` is set.
+- **Given** `add_document` with `supersedes`, **When** it runs, **Then** one commit holds the new document and the old document with `status: deprecated`.
+- **Given** `delete_document` of a document that others link to, **When** it runs, **Then** it fails with `validation_failed`, nothing changes, and `linked_from` lists the linking documents.
+- **Given** the links are removed with `update_document`, **When** `delete_document` runs again, **Then** the file is gone.
+- **Given** `delete_document` with `preview: true` of a linked document, **When** it runs, **Then** it fails the same way and lists the links.
+- **Given** `tools_denied = ["delete_document"]`, **When** the client lists tools, **Then** `delete_document` is not listed.
 - **Given** `access = "read-only"`, **When** any write tool runs, **Then** it fails with `access_denied` and no commit is made.
-- **Given** `approval.required_for = ["add"]`, **When** `add` runs, **Then** the approval is asked before the commit (see `write-approval`).
-- **Given** a body link to a missing document, **When** `add` runs, **Then** it fails with `validation_failed`, names the link, and changes nothing.
+- **Given** `approval.required_for = ["add_document"]`, **When** `add_document` runs, **Then** the approval is asked before the commit (see `write-approval`).
+- **Given** a body link to a missing document, **When** `add_document` runs, **Then** it fails with `validation_failed`, names the link, and changes nothing.
 - **Given** a document with an old broken body link, **When** `update_document` changes only the title, **Then** the write succeeds.
 - **Given** `update_document` adds a body link to a missing document, **When** it runs, **Then** it fails with `validation_failed`.
-- **Given** `folders = ["engineering/**"]`, **When** `add` runs with another folder, **Then** it fails with `access_denied`.
+- **Given** `folders = ["engineering/**"]`, **When** `add_document` runs with another folder, **Then** it fails with `access_denied`.
 - **Given** a verified document and verification on, **When** `update_document` changes the body, **Then** `trust` is `unverified`.
 
 ## Constraints & Edge Cases
 
 - A document over the size cap fails with a message to split it.
 - The commit message has a fixed format and no agent tag.
-- The same `add` twice: the second call fails as a duplicate. The state is the same as after the first.
+- The same `add_document` twice: the second call fails as a duplicate. The state is the same as after the first.
 - A tool that takes an `id` treats a document outside the `folders` limit as not found (`not_found`), like the read tools.
 - Pending manual edits are committed first, in their own commit (see `manual-edits`). They never go into a commit of these tools.
-- Choosing the lightest tool (fix, dispute, deprecate, replace, delete) is advice for a team's `AGENTS.md`, not a rule of the server. The server only makes `delete` easy to switch off.
+- Choosing the lightest tool (fix, dispute, deprecate, replace, delete) is advice for a team's `AGENTS.md`, not a rule of the server. The server only makes `delete_document` easy to switch off.
 - The server does not judge what deserves a document, and it does not decide when to write.
 
 ## Open Questions

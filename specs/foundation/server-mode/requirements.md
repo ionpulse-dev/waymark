@@ -95,7 +95,7 @@ The server reads one config file and environment variables: public URL, OIDC pro
 
 - **Given** a started server, **When** an MCP client connects without a token, **Then** it gets a `401` with the discovery information.
 - **Given** a signed-in `reader`, **When** the client lists tools, **Then** only read tools show.
-- **Given** a signed-in `writer`, **When** `add` runs, **Then** the commit author is that person and the push uses the server credential.
+- **Given** a signed-in `writer`, **When** `add_document` runs, **Then** the commit author is that person and the push uses the server credential.
 - **Given** a server limit `access = "read-only"`, **When** a person sets `read-write` in their own client config, **Then** writes still fail.
 - **Given** a restart with an empty data folder, **When** the first call arrives, **Then** the server clones again and works.
 - **Given** any tool call, **When** it ends, **Then** one audit line exists and it holds no document text.

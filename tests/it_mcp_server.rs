@@ -270,10 +270,10 @@ fn tools_list_stays_under_the_budget() {
         .sum();
     let total = serde_json::to_string(&tools).unwrap().len();
     assert!(
-        description_chars < 6000,
+        description_chars < 9000,
         "descriptions use {description_chars} characters"
     );
-    assert!(total < 20000, "tools/list uses {total} characters");
+    assert!(total < 28000, "tools/list uses {total} characters");
 }
 
 #[test]

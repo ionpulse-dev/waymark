@@ -13,11 +13,11 @@ pub struct Verify;
 
 impl Tool for Verify {
     fn name(&self) -> &'static str {
-        "verify"
+        "verify_document"
     }
 
     fn description(&self) -> &'static str {
-        "Marks an active document as verified by you, with today's date. Needs the version from show as base. Exists only when the memory repository uses verification."
+        "Marks an active document as verified by you, with today's date. Commits and pushes. Needs the version from show as base. Returns id, title, trust, verified_by, verified, and commit. Exists only when the memory repository uses verification."
     }
 
     fn kind(&self) -> Kind {
@@ -32,11 +32,23 @@ impl Tool for Verify {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string"},
-                "base": {"type": "string", "description": "The version from show."},
-                "preview": {"type": "boolean"}
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "base": {
+                    "type": "string",
+                    "description": "The version from show. The call fails if the document changed since."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["id", "base"],
+            "required": [
+                "id",
+                "base"
+            ],
             "additionalProperties": false
         })
     }
@@ -49,69 +61,76 @@ impl Tool for Verify {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "verify", Kind::Write, preview, |tx, memrepo| {
-            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
-            tx.check_base(&rel, Some(&base))?;
-            let fm = &mut doc.frontmatter;
-            let title = fm.get_text("title").unwrap_or("").to_string();
-            if fm.get_text("status") != Some("active") {
-                return Err(
-                    Error::validation("Only an active document can be verified.")
-                        .with_next("Nothing to verify."),
-                );
-            }
-            if fm.get_bool("disputed") == Some(true) {
-                return Err(Error::validation("This document is disputed.").with_next(
+        writes::execute(
+            ctx,
+            env,
+            "verify_document",
+            Kind::Write,
+            preview,
+            |tx, memrepo| {
+                let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
+                tx.check_base(&rel, Some(&base))?;
+                let fm = &mut doc.frontmatter;
+                let title = fm.get_text("title").unwrap_or("").to_string();
+                if fm.get_text("status") != Some("active") {
+                    return Err(
+                        Error::validation("Only an active document can be verified.")
+                            .with_next("Nothing to verify."),
+                    );
+                }
+                if fm.get_bool("disputed") == Some(true) {
+                    return Err(Error::validation("This document is disputed.").with_next(
                     "Fix it with update_document, or end the dispute with dispute and clear: true.",
                 ));
-            }
-            if fm.get_text("trust") == Some("verified") {
-                return Err(Error::validation("This document is already verified.")
-                    .with_next("Nothing to do."));
-            }
-            fm.set_text("trust", "verified");
-            fm.set_text("verified_by", &author);
-            fm.set_date("verified", &today);
-            writes::touch(&mut doc, &today, &author);
-            let text = doc.render();
-            let mut problems = writes::Problems::default();
-            let mut notices = Vec::new();
-            writes::check_document(
-                memrepo,
-                &id,
-                &text,
-                &memrepo.id_set(),
-                &[],
-                None,
-                &mut problems,
-                &mut notices,
-            )?;
-            if !problems.is_empty() {
-                return Err(problems.into_error());
-            }
-            let mut data = Map::new();
-            data.insert("id".into(), json!(id));
-            data.insert("title".into(), json!(title));
-            data.insert("trust".into(), json!("verified"));
-            data.insert("verified_by".into(), json!(author));
-            data.insert("verified".into(), json!(today));
-            Ok(Plan {
-                first: None,
-                revert: None,
-                changes: vec![FileChange::Write {
-                    id: id.clone(),
-                    text,
-                    action: "update",
-                }],
-                verb: Verb::Update,
-                title: title.clone(),
-                commit_body: Some("Trust: verified".to_string()),
-                summary: format!("Verify \"{title}\" ({id})"),
-                message: format!("Verified \"{title}\" (`{id}`)."),
-                data,
-                text: None,
-                notices,
-            })
-        })
+                }
+                if fm.get_text("trust") == Some("verified") {
+                    return Err(Error::validation("This document is already verified.")
+                        .with_next("Nothing to do."));
+                }
+                fm.set_text("trust", "verified");
+                fm.set_text("verified_by", &author);
+                fm.set_date("verified", &today);
+                writes::touch(&mut doc, &today, &author);
+                let text = doc.render();
+                let mut problems = writes::Problems::default();
+                let mut notices = Vec::new();
+                writes::check_document(
+                    memrepo,
+                    &id,
+                    &text,
+                    &memrepo.id_set(),
+                    &[],
+                    None,
+                    &mut problems,
+                    &mut notices,
+                )?;
+                if !problems.is_empty() {
+                    return Err(problems.into_error());
+                }
+                let mut data = Map::new();
+                data.insert("id".into(), json!(id));
+                data.insert("title".into(), json!(title));
+                data.insert("trust".into(), json!("verified"));
+                data.insert("verified_by".into(), json!(author));
+                data.insert("verified".into(), json!(today));
+                Ok(Plan {
+                    first: None,
+                    revert: None,
+                    changes: vec![FileChange::Write {
+                        id: id.clone(),
+                        text,
+                        action: "update",
+                    }],
+                    verb: Verb::Update,
+                    title: title.clone(),
+                    commit_body: Some("Trust: verified".to_string()),
+                    summary: format!("Verify \"{title}\" ({id})"),
+                    message: format!("Verified \"{title}\" (`{id}`)."),
+                    data,
+                    text: None,
+                    notices,
+                })
+            },
+        )
     }
 }

@@ -18,7 +18,7 @@ verification = false
 [limits]
 # read-only: agents can only read. read-write: agents can also write.
 # access = "read-write"
-# Tools that are switched off, for example ["delete", "move"].
+# Tools that are switched off, for example ["delete_document", "move"].
 # tools_denied = []
 # Folders that agents may use. Empty means all folders.
 # folders = []

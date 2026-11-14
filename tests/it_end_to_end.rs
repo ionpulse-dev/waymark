@@ -52,7 +52,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     // write-documents, search-and-read: A writes, B finds and reads.
     // write-documents: a body link to a document that does not exist is refused.
     let refused = a.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Deploy pipeline", "description": "How code reaches production.", "body": "Use the pipeline. See [rollback](rollback.md)."}),
     );
     assert_eq!(
@@ -62,7 +62,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
         refused.json
     );
     let added = ok(a.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Deploy pipeline", "description": "How code reaches production.", "body": "Use the pipeline."}),
     ));
     let id = added["id"].as_str().unwrap().to_string();
@@ -126,7 +126,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     std::thread::sleep(std::time::Duration::from_millis(1100));
     let v = ok(b.call("show", json!({"id": id})));
     ok(b.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": v["version"], "reason": "The dashboard moved."}),
     ));
     let mut a = client(&w, Person::A, &[]);
@@ -144,7 +144,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     // manual-edits and sync with a conflict: both people change the same text.
     let v = ok(b.call("show", json!({"id": id})));
     ok(b.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": v["version"], "clear": true}),
     ));
     let v = ok(b.call("show", json!({"id": id})));
@@ -168,27 +168,30 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     // pause-and-resume: a pause ends writes at the next call. Reads stay.
     personal(&w, "[limits]\npaused = true\n");
     let paused = a.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "While paused", "description": "D.", "body": "B."}),
     );
     assert_eq!(paused.code(), Some("paused"));
     ok(a.call("search", json!({"query": "pipeline"})));
     personal(&w, "[limits]\npaused = false\n");
     ok(a.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "After resume", "description": "D.", "body": "B."}),
     ));
 
     // trust-model: a switched-off tool is not listed and a direct call is refused.
     personal(&w, "[limits]\ntools_denied = [\"delete\"]\n");
-    assert!(!a.tool_names().contains(&"delete".to_string()));
-    let denied = a.call("delete", json!({"id": "ops/after-resume", "base": "x"}));
+    assert!(!a.tool_names().contains(&"delete_document".to_string()));
+    let denied = a.call(
+        "delete_document",
+        json!({"id": "ops/after-resume", "base": "x"}),
+    );
     assert_eq!(denied.code(), Some("access_denied"));
     personal(&w, "[limits]\naccess = \"read-only\"\n");
-    assert!(!a.tool_names().contains(&"add".to_string()));
+    assert!(!a.tool_names().contains(&"add_document".to_string()));
     assert_eq!(
         a.call(
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."})
         )
         .code(),

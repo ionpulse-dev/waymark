@@ -55,12 +55,12 @@ The `message` is plain text. Its first line says what the tool does. The next li
 
 | Tool | The message shows |
 |---|---|
-| `add` | The fields above and the full body |
-| `update_document`, `dispute`, `deprecate` | The fields above, the full new body, and a line `Words: <before> -> <after>` |
-| `delete` | The title, the ID, and the full body of the document that goes away |
+| `add_document` | The fields above and the full body |
+| `update_document`, `dispute_document`, `deprecate_document` | The fields above, the full new body, and a line `Words: <before> -> <after>` |
+| `delete_document` | The title, the ID, and the full body of the document that goes away |
 | `move` | A summary, for example `Move 42 documents, update links in 17 documents`, and the first 10 moves |
 | `undo` | The commit message and the hash of the write that goes away |
-| `sync`, `init`, `verify`, `review`, `reject` | A one-line summary and the list of changed paths (at most 20) |
+| `sync`, `init`, `restore_document`, `rename_tag`, `create_folder`, `delete_folder`, `verify_document`, `review`, `reject_document` | A one-line summary and the list of changed paths (at most 20) |
 
 The body is cut at 20000 characters. A cut message ends with `[Cut: <n> more characters. The document has <w> words.]`. The `message` never holds a secret that the checks found, because a document with a secret never reaches this step.
 
@@ -97,12 +97,12 @@ With `preview: true` and a rule that applies, the field is `"required"`. If no r
 
 ## Acceptance Criteria
 
-- **Given** `approval.required_for = ["delete"]` and `via = "elicitation"`, **When** `delete` runs, **Then** the client gets a request that shows the document and the question before the commit.
+- **Given** `approval.required_for = ["delete_document"]` and `via = "elicitation"`, **When** `delete_document` runs, **Then** the client gets a request that shows the document and the question before the commit.
 - **Given** the person says yes, **When** the answer arrives, **Then** the write continues and the result has `approval: "approved"`.
 - **Given** the person says no, **When** the answer arrives, **Then** the tool fails with `approval_denied` and nothing is written.
 - **Given** a client without elicitation, **When** approval is required, **Then** the tool fails with `approval_unavailable` and nothing is written.
 - **Given** no answer for 2 minutes, **When** the time ends, **Then** the tool fails with `approval_denied`.
-- **Given** `add` is not in `required_for`, **When** it runs, **Then** no request opens.
+- **Given** `add_document` is not in `required_for`, **When** it runs, **Then** no request opens.
 - **Given** `required_for = ["write"]`, **When** any write tool runs, **Then** a request opens.
 - **Given** `preview: true`, **When** a write tool runs, **Then** no request opens and the result says `approval: "required"`.
 - **Given** `accept` with `approve` false or missing, **When** the answer arrives, **Then** the tool fails with `approval_denied`.

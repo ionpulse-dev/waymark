@@ -29,7 +29,7 @@ impl Tool for Lint {
     }
 
     fn description(&self) -> &'static str {
-        "Checks documents for format, size, links, secrets, personal data, duplicate titles, and authors, and lists the findings. Changes nothing."
+        "Checks documents for format, size, links, secrets, personal data, duplicate titles, and authors. Returns checked, errors, warnings, and findings. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -39,7 +39,15 @@ impl Tool for Lint {
     fn input_schema(&self) -> Value {
         json!({
             "type": "object",
-            "properties": {"folders": {"type": "array", "items": {"type": "string"}}},
+            "properties": {
+                "folders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Only these folders. Default: all."
+                }
+            },
             "additionalProperties": false
         })
     }

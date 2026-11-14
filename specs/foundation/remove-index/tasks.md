@@ -8,7 +8,7 @@ _Written after `plan.md` is approved. AI checks off items as work is completed._
 - [x] Specs: add a decision entry that points here, in `quality-checks`, `search-and-read`, and `docs/decisions.md`
 - [x] Code: delete `src/tools/index.rs` and `src/indexgen`, and their registration
 - [x] Code: delete the `index-stale` check
-- [x] Code: remove `is_index` from `store`, `changes`, `backlinks`, `folders`, `delete`, `remove_folder`
+- [x] Code: remove `is_index` from `store`, `changes`, `backlinks`, `folders`, `delete_document`, `delete_folder`
 - [x] Tests: remove the tests of the tool and the rule, and add the normal-document test
 - [x] README, `docs/install.md`, open questions: remove `index`
 - [x] `CHANGELOG.md`: add the 0.3.0 entry

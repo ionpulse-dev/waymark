@@ -35,7 +35,7 @@ Pause is the limit `paused` of the `config` module. This feature adds one small 
 - `trust-model` — owns `paused` and the merge. This feature adds no merge rule.
 - `mcp-server` — owns the registry. This feature changes the listing and call checks in `src/mcp/tool.rs`. Both specs are `planned`, so the change goes into the implementation of `mcp-server` (see the task order).
 - `git-sync` — owns the write flow. Same rule.
-- `write-documents` — the end-to-end tests use `add`.
+- `write-documents` — the end-to-end tests use `add_document`.
 - `write-approval` — the recheck after the answer.
 
 ## Risks

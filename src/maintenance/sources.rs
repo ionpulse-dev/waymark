@@ -96,7 +96,7 @@ mod tests {
     fn scalars_name_the_layer_of_the_effective_value_and_lists_name_all() {
         let shared = Limits {
             max_results: Some(3),
-            tools_denied: Some(vec!["delete".into()]),
+            tools_denied: Some(vec!["delete_document".into()]),
             ..Limits::default()
         };
         let personal = Limits {

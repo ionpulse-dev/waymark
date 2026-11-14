@@ -16,8 +16,8 @@ fn tool_descriptions_and_instructions_stay_small() {
         let n = t.to_string().len();
         assert!(n < 3000, "{} is {n} bytes", t["name"]);
     }
-    // About 4 bytes per token: 20000 bytes are about 5000 tokens for the whole list.
-    assert!(total < 20_000, "the tool list is {total} bytes");
+    // About 4 bytes per token: 28000 bytes are about 7000 tokens for the whole list.
+    assert!(total < 28_000, "the tool list is {total} bytes");
 }
 
 #[test]

@@ -13,11 +13,11 @@ pub struct Dispute;
 
 impl Tool for Dispute {
     fn name(&self) -> &'static str {
-        "dispute"
+        "dispute_document"
     }
 
     fn description(&self) -> &'static str {
-        "Marks a document as disputed with a reason. With clear true it ends the dispute. Needs the version from show as base."
+        "Marks a document as disputed with a reason. With clear true it ends the dispute. Needs the version from show as base. Commits and pushes. Returns id, title, disputed, commit, and version."
     }
 
     fn kind(&self) -> Kind {
@@ -28,13 +28,31 @@ impl Tool for Dispute {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string"},
-                "base": {"type": "string", "description": "The version from show."},
-                "reason": {"type": "string", "description": "One line. Required unless clear is true."},
-                "clear": {"type": "boolean"},
-                "preview": {"type": "boolean"}
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "base": {
+                    "type": "string",
+                    "description": "The version from show. The call fails if the document changed since."
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Why the document is wrong. One line. Required unless clear is true."
+                },
+                "clear": {
+                    "type": "boolean",
+                    "description": "true ends the dispute."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["id", "base"],
+            "required": [
+                "id",
+                "base"
+            ],
             "additionalProperties": false
         })
     }
@@ -63,87 +81,94 @@ impl Tool for Dispute {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "dispute", Kind::Write, preview, |tx, memrepo| {
-            let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
-            tx.check_base(&rel, Some(&base))?;
-            let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
-            let disputed = doc.frontmatter.get_bool("disputed") == Some(true);
-            let message;
-            if let Some(r) = &reason {
-                if disputed {
-                    let old = doc.frontmatter.get_text("dispute_reason").unwrap_or("");
-                    return Err(Error::validation(format!(
-                        "This document is already disputed: {old}."
-                    ))
-                    .with_next(
-                        "Fix it with update_document, or end the dispute with clear: true.",
-                    ));
+        writes::execute(
+            ctx,
+            env,
+            "dispute_document",
+            Kind::Write,
+            preview,
+            |tx, memrepo| {
+                let (rel, mut doc) = writes::read_doc(tx, memrepo, &id)?;
+                tx.check_base(&rel, Some(&base))?;
+                let title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
+                let disputed = doc.frontmatter.get_bool("disputed") == Some(true);
+                let message;
+                if let Some(r) = &reason {
+                    if disputed {
+                        let old = doc.frontmatter.get_text("dispute_reason").unwrap_or("");
+                        return Err(Error::validation(format!(
+                            "This document is already disputed: {old}."
+                        ))
+                        .with_next(
+                            "Fix it with update_document, or end the dispute with clear: true.",
+                        ));
+                    }
+                    let mut problems = writes::Problems::default();
+                    let custom =
+                        crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
+                    for hit in crate::lint::secrets::scan(r, &custom) {
+                        problems.add(
+                            format!(
+                                "The reason looks like it contains a secret (rule {}, line {}).",
+                                hit.rule, hit.line
+                            ),
+                            "Remove the secret, or replace it with a placeholder.",
+                        );
+                    }
+                    if !problems.is_empty() {
+                        return Err(problems.into_error());
+                    }
+                    doc.frontmatter.set_bool("disputed", true);
+                    doc.frontmatter.set_text("dispute_reason", r);
+                    message = format!("Disputed \"{title}\" (`{id}`).");
+                } else {
+                    if !disputed {
+                        return Err(Error::validation("This document is not disputed.")
+                            .with_next("Nothing to clear."));
+                    }
+                    doc.frontmatter.remove("disputed");
+                    doc.frontmatter.remove("dispute_reason");
+                    message = format!("Ended the dispute of \"{title}\" (`{id}`).");
                 }
+                writes::touch(&mut doc, &today, &author);
+                let text = doc.render();
                 let mut problems = writes::Problems::default();
-                let custom =
-                    crate::lint::secrets::compile(&memrepo.settings.extra_secret_patterns)?;
-                for hit in crate::lint::secrets::scan(r, &custom) {
-                    problems.add(
-                        format!(
-                            "The reason looks like it contains a secret (rule {}, line {}).",
-                            hit.rule, hit.line
-                        ),
-                        "Remove the secret, or replace it with a placeholder.",
-                    );
-                }
+                let mut notices = Vec::new();
+                writes::check_document(
+                    memrepo,
+                    &id,
+                    &text,
+                    &memrepo.id_set(),
+                    &[],
+                    None,
+                    &mut problems,
+                    &mut notices,
+                )?;
                 if !problems.is_empty() {
                     return Err(problems.into_error());
                 }
-                doc.frontmatter.set_bool("disputed", true);
-                doc.frontmatter.set_text("dispute_reason", r);
-                message = format!("Disputed \"{title}\" (`{id}`).");
-            } else {
-                if !disputed {
-                    return Err(Error::validation("This document is not disputed.")
-                        .with_next("Nothing to clear."));
-                }
-                doc.frontmatter.remove("disputed");
-                doc.frontmatter.remove("dispute_reason");
-                message = format!("Ended the dispute of \"{title}\" (`{id}`).");
-            }
-            writes::touch(&mut doc, &today, &author);
-            let text = doc.render();
-            let mut problems = writes::Problems::default();
-            let mut notices = Vec::new();
-            writes::check_document(
-                memrepo,
-                &id,
-                &text,
-                &memrepo.id_set(),
-                &[],
-                None,
-                &mut problems,
-                &mut notices,
-            )?;
-            if !problems.is_empty() {
-                return Err(problems.into_error());
-            }
-            let mut data = Map::new();
-            data.insert("id".into(), json!(id));
-            data.insert("title".into(), json!(title));
-            data.insert("disputed".into(), json!(reason.is_some()));
-            Ok(Plan {
-                first: None,
-                revert: None,
-                changes: vec![FileChange::Write {
-                    id: id.clone(),
-                    text: text.clone(),
-                    action: "update",
-                }],
-                verb: Verb::Dispute,
-                title: title.clone(),
-                commit_body: None,
-                summary: message.clone(),
-                message,
-                data,
-                text: Some(text),
-                notices,
-            })
-        })
+                let mut data = Map::new();
+                data.insert("id".into(), json!(id));
+                data.insert("title".into(), json!(title));
+                data.insert("disputed".into(), json!(reason.is_some()));
+                Ok(Plan {
+                    first: None,
+                    revert: None,
+                    changes: vec![FileChange::Write {
+                        id: id.clone(),
+                        text: text.clone(),
+                        action: "update",
+                    }],
+                    verb: Verb::Dispute,
+                    title: title.clone(),
+                    commit_body: None,
+                    summary: message.clone(),
+                    message,
+                    data,
+                    text: Some(text),
+                    notices,
+                })
+            },
+        )
     }
 }

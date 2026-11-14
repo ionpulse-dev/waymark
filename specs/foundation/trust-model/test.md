@@ -8,7 +8,7 @@
 | Shared `read-only` beats personal `read-write` | `shared_read_only_wins` |
 | `max_results` 5 and 3 gives 3 | `numeric_caps_take_smallest` |
 | No tool changes a limit | `no_control_tool_listed` |
-| `tools_denied = ["delete"]` hides `delete` and blocks a call | `delete_hidden_when_denied` (`tests/it_write_documents.rs`) |
+| `tools_denied = ["delete_document"]` hides `delete_document` and blocks a call | `delete_hidden_when_denied` (`tests/it_write_documents.rs`) |
 | System file `read-only` beats personal | `system_file_wins` |
 | `paused = true` gives `paused` | `paused_blocks_writes` (`tests/it_pause_and_resume.rs`) |
 | No layer gives built-in defaults | `defaults_apply` |

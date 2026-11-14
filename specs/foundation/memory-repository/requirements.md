@@ -81,7 +81,7 @@ verification = false            # true: owners verify documents
 
 [limits]                        # shared limits, see trust-model. Every key is optional.
 access = "read-write"           # read-only | read-write
-tools_denied = []               # for example ["delete", "move"]
+tools_denied = []               # for example ["delete_document", "move"]
 folders = []                    # allowed folder globs, empty = all
 max_results = 5
 max_tokens = 800

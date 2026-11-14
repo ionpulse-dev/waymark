@@ -58,7 +58,7 @@ fn folders_lists_the_tree_with_counts_down_to_depth_2() {
     let w = World::new();
     tree(&w);
     let mut c = client(&w);
-    let v = ok(c.call("folders", json!({})));
+    let v = ok(c.call("folder_tree", json!({})));
     assert_eq!(paths(&v), vec!["ops", "ops/deploy", "work"]);
     assert_eq!(entry(&v, "ops")["documents"], 1);
     assert_eq!(entry(&v, "ops")["total"], 4);
@@ -74,10 +74,10 @@ fn depth_1_lists_the_top_level_and_marks_folders_with_more() {
     let w = World::new();
     tree(&w);
     let mut c = client(&w);
-    let v = ok(c.call("folders", json!({"depth": 1})));
+    let v = ok(c.call("folder_tree", json!({"depth": 1})));
     assert_eq!(paths(&v), vec!["ops", "work"]);
     assert_eq!(entry(&v, "ops")["has_more"], true);
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert!(paths(&v).contains(&"ops/deploy/old".to_string()));
 }
 
@@ -86,14 +86,14 @@ fn a_start_folder_lists_below_it_and_an_unknown_one_is_not_found() {
     let w = World::new();
     tree(&w);
     let mut c = client(&w);
-    let v = ok(c.call("folders", json!({"folder": "ops"})));
+    let v = ok(c.call("folder_tree", json!({"folder": "ops"})));
     assert_eq!(paths(&v), vec!["ops/deploy", "ops/deploy/old"]);
     assert_eq!(
-        c.call("folders", json!({"folder": "nope"})).code(),
+        c.call("folder_tree", json!({"folder": "nope"})).code(),
         Some("not_found")
     );
     assert_eq!(
-        c.call("folders", json!({"depth": 0})).code(),
+        c.call("folder_tree", json!({"depth": 0})).code(),
         Some("invalid_arguments")
     );
 }
@@ -104,7 +104,7 @@ fn the_folders_limit_hides_other_folders() {
     tree(&w);
     personal(&w, "[limits]\nfolders = [\"work/**\"]\n");
     let mut c = client(&w);
-    let v = ok(c.call("folders", json!({})));
+    let v = ok(c.call("folder_tree", json!({})));
     assert_eq!(paths(&v), vec!["work"]);
 }
 
@@ -120,7 +120,7 @@ fn more_than_200_folders_are_truncated() {
     git(&w.a, &["commit", "-q", "-m", "test: many folders"]);
     git(&w.a, &["push", "-q"]);
     let mut c = client(&w);
-    let v = ok(c.call("folders", json!({})));
+    let v = ok(c.call("folder_tree", json!({})));
     assert_eq!(paths(&v).len(), 200);
     assert_eq!(v["truncated"], true);
     assert!(v["next"].as_str().unwrap().contains("folder"));
@@ -130,7 +130,7 @@ fn more_than_200_folders_are_truncated() {
 fn add_empty_folder_creates_a_gitkeep_in_one_commit() {
     let w = World::new();
     let mut c = client(&w);
-    let r = ok(c.call("add_empty_folder", json!({"folder": "ops/runbooks"})));
+    let r = ok(c.call("create_folder", json!({"folder": "ops/runbooks"})));
     assert_eq!(r["pushed"], true);
     assert_eq!(r["folder"], "ops/runbooks");
     assert!(on_disk(&w.a, "ops/runbooks/.gitkeep"));
@@ -138,23 +138,23 @@ fn add_empty_folder_creates_a_gitkeep_in_one_commit() {
         subjects(&w.remote)[0],
         "waymark: add-folder \"ops/runbooks\""
     );
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert_eq!(entry(&v, "ops/runbooks")["documents"], 0);
     assert!(paths(&v).contains(&"ops".to_string()));
     // A document in it is listed, and the .gitkeep is not counted.
     ok(c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops/runbooks", "title": "Restart", "description": "D.", "body": "B."}),
     ));
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert_eq!(entry(&v, "ops/runbooks")["documents"], 1);
     // The folder stays when its last document is deleted.
     let shown = ok(c.call("show", json!({"id": "ops/runbooks/restart"})));
     ok(c.call(
-        "delete",
+        "delete_document",
         json!({"id": "ops/runbooks/restart", "base": shown["version"]}),
     ));
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert_eq!(entry(&v, "ops/runbooks")["documents"], 0);
 }
 
@@ -165,17 +165,16 @@ fn add_empty_folder_refuses_an_existing_folder_a_bad_path_and_a_document_id() {
     let mut c = client(&w);
     let head = subjects(&w.remote);
     assert_eq!(
-        c.call("add_empty_folder", json!({"folder": "ops"})).code(),
+        c.call("create_folder", json!({"folder": "ops"})).code(),
         Some("validation_failed")
     );
     assert_eq!(
-        c.call("add_empty_folder", json!({"folder": "ops/a"}))
-            .code(),
+        c.call("create_folder", json!({"folder": "ops/a"})).code(),
         Some("validation_failed")
     );
     for bad in ["Ops", "../x", "/abs", "a b", ".hidden", ""] {
         assert_eq!(
-            c.call("add_empty_folder", json!({"folder": bad})).code(),
+            c.call("create_folder", json!({"folder": bad})).code(),
             Some("invalid_arguments"),
             "{bad}"
         );
@@ -187,28 +186,22 @@ fn add_empty_folder_refuses_an_existing_folder_a_bad_path_and_a_document_id() {
 fn add_empty_folder_follows_the_limits_and_preview() {
     let w = World::new();
     let mut c = client(&w);
-    let p = ok(c.call(
-        "add_empty_folder",
-        json!({"folder": "ops/x", "preview": true}),
-    ));
+    let p = ok(c.call("create_folder", json!({"folder": "ops/x", "preview": true})));
     assert_eq!(p["preview"], true);
     assert!(!on_disk(&w.a, "ops/x"));
     personal(&w, "[limits]\nfolders = [\"work/**\"]\n");
     assert_eq!(
-        c.call("add_empty_folder", json!({"folder": "ops/x"}))
-            .code(),
+        c.call("create_folder", json!({"folder": "ops/x"})).code(),
         Some("access_denied")
     );
     personal(&w, "[limits]\naccess = \"read-only\"\n");
     assert_eq!(
-        c.call("add_empty_folder", json!({"folder": "work/x"}))
-            .code(),
+        c.call("create_folder", json!({"folder": "work/x"})).code(),
         Some("access_denied")
     );
     personal(&w, "[limits]\npaused = true\n");
     assert_eq!(
-        c.call("add_empty_folder", json!({"folder": "work/x"}))
-            .code(),
+        c.call("create_folder", json!({"folder": "work/x"})).code(),
         Some("paused")
     );
 }
@@ -217,7 +210,7 @@ fn add_empty_folder_follows_the_limits_and_preview() {
 fn a_gitkeep_is_not_a_document() {
     let w = World::new();
     let mut c = client(&w);
-    ok(c.call("add_empty_folder", json!({"folder": "ops/deep/er"})));
+    ok(c.call("create_folder", json!({"folder": "ops/deep/er"})));
     let l = ok(c.call("lint", json!({})));
     assert_eq!(l["errors"], 0, "{l}");
     assert_eq!(l["warnings"], 0, "{l}");
@@ -232,16 +225,16 @@ fn remove_folder_removes_documents_and_gitkeeps_in_one_commit_and_undo_restores(
     let w = World::new();
     tree(&w);
     let mut c = client(&w);
-    ok(c.call("add_empty_folder", json!({"folder": "ops/deploy/empty"})));
+    ok(c.call("create_folder", json!({"folder": "ops/deploy/empty"})));
     let p = ok(c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "ops/deploy", "expect_documents": 3, "preview": true}),
     ));
     assert_eq!(p["documents"].as_array().unwrap().len(), 3);
     assert!(on_disk(&w.a, "ops/deploy/b.md"));
     let before = subjects(&w.remote).len();
     let r = ok(c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "ops/deploy", "expect_documents": 3}),
     ));
     assert_eq!(r["pushed"], true);
@@ -251,7 +244,7 @@ fn remove_folder_removes_documents_and_gitkeeps_in_one_commit_and_undo_restores(
         "waymark: remove-folder \"ops/deploy\""
     );
     assert!(!on_disk(&w.a, "ops/deploy"));
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert_eq!(paths(&v), vec!["ops", "work"]);
     // One undo brings it all back.
     let act = ok(c.call("activity", json!({})));
@@ -268,21 +261,21 @@ fn remove_folder_needs_the_right_count_and_removes_an_empty_folder_with_0() {
     let mut c = client(&w);
     let head = subjects(&w.remote);
     let r = c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "ops/deploy", "expect_documents": 1}),
     );
     assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
     assert!(r.message().contains("3 documents"), "{}", r.message());
     assert_eq!(subjects(&w.remote), head);
-    ok(c.call("add_empty_folder", json!({"folder": "tmp"})));
+    ok(c.call("create_folder", json!({"folder": "tmp"})));
     ok(c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "tmp", "expect_documents": 0}),
     ));
     assert!(!on_disk(&w.a, "tmp"));
     assert_eq!(
         c.call(
-            "remove_folder",
+            "delete_folder",
             json!({"folder": "tmp", "expect_documents": 0})
         )
         .code(),
@@ -298,7 +291,7 @@ fn remove_folder_refuses_links_from_outside_and_allows_links_inside() {
     commit_doc(&w.a, "work/out", "Out", "See [a](../ops/in-a.md).");
     let mut c = client(&w);
     let r = c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "ops", "expect_documents": 2}),
     );
     assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
@@ -314,7 +307,7 @@ fn remove_folder_refuses_links_from_outside_and_allows_links_inside() {
         json!({"id": "work/out", "base": shown["version"], "body": "No link."}),
     ));
     ok(c.call(
-        "remove_folder",
+        "delete_folder",
         json!({"folder": "ops", "expect_documents": 2}),
     ));
     assert!(!on_disk(&w.a, "ops"));
@@ -327,7 +320,7 @@ fn remove_folder_follows_the_limits_and_protects_the_root() {
     let mut c = client(&w);
     assert_eq!(
         c.call(
-            "remove_folder",
+            "delete_folder",
             json!({"folder": ".waymark", "expect_documents": 0})
         )
         .code(),
@@ -335,7 +328,7 @@ fn remove_folder_follows_the_limits_and_protects_the_root() {
     );
     assert_eq!(
         c.call(
-            "remove_folder",
+            "delete_folder",
             json!({"folder": "", "expect_documents": 0})
         )
         .code(),
@@ -344,26 +337,26 @@ fn remove_folder_follows_the_limits_and_protects_the_root() {
     personal(&w, "[limits]\nfolders = [\"work/**\"]\n");
     assert_eq!(
         c.call(
-            "remove_folder",
+            "delete_folder",
             json!({"folder": "ops", "expect_documents": 4})
         )
         .code(),
         Some("access_denied")
     );
-    personal(&w, "[limits]\ntools_denied = [\"remove_folder\"]\n");
-    assert!(!c.tool_names().contains(&"remove_folder".to_string()));
-    assert!(c.tool_names().contains(&"add_empty_folder".to_string()));
+    personal(&w, "[limits]\ntools_denied = [\"delete_folder\"]\n");
+    assert!(!c.tool_names().contains(&"delete_folder".to_string()));
+    assert!(c.tool_names().contains(&"create_folder".to_string()));
 }
 
 #[test]
 fn move_carries_the_gitkeep_of_a_folder() {
     let w = World::new();
     let mut c = client(&w);
-    ok(c.call("add_empty_folder", json!({"folder": "ops/old"})));
+    ok(c.call("create_folder", json!({"folder": "ops/old"})));
     ok(c.call("move", json!({"from": "ops/old/", "to": "ops/new/"})));
     assert!(on_disk(&w.a, "ops/new/.gitkeep"));
     assert!(!on_disk(&w.a, "ops/old"));
-    let v = ok(c.call("folders", json!({"depth": 3})));
+    let v = ok(c.call("folder_tree", json!({"depth": 3})));
     assert!(paths(&v).contains(&"ops/new".to_string()));
     assert!(!paths(&v).contains(&"ops/old".to_string()));
 }
@@ -380,8 +373,8 @@ fn the_folder_tools_have_the_right_hints() {
             .unwrap_or_else(|| panic!("no tool {name}"))["annotations"][key]
             .clone()
     };
-    assert_eq!(hint("folders", "readOnlyHint"), true);
-    assert_eq!(hint("add_empty_folder", "readOnlyHint"), false);
-    assert_eq!(hint("remove_folder", "destructiveHint"), true);
-    assert_eq!(hint("add_empty_folder", "destructiveHint"), false);
+    assert_eq!(hint("folder_tree", "readOnlyHint"), true);
+    assert_eq!(hint("create_folder", "readOnlyHint"), false);
+    assert_eq!(hint("delete_folder", "destructiveHint"), true);
+    assert_eq!(hint("create_folder", "destructiveHint"), false);
 }

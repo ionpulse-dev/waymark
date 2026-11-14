@@ -30,8 +30,8 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [x] [auto] T1: edit the body of `ops/deploy.md`. `sync` returns `committed` with `ops/deploy`. The remote has a commit with the message `waymark: sync "How we deploy"` and the author of the person.
 - [x] [auto] T2: create `ops/new.md` with no frontmatter. `sync` fails with `validation_failed`. The remote has no new commit. `ops/new.md` is unchanged.
 - [x] [auto] T3: one good edit and one bad new file. `committed` has the good one and `blocked` has the bad one with `no-frontmatter`. The remote has the good commit only.
-- [x] [auto] T4: edit `ops/deploy.md`, then call `add`. `git log` shows a `sync` commit and then an `add` commit.
-- [x] [auto] T5: a bad new file and a call to `add` for another document. `add` works, and the result has the notice "1 manual edit is not published. Run `sync`."
+- [x] [auto] T4: edit `ops/deploy.md`, then call `add_document`. `git log` shows a `sync` commit and then an `add_document` commit.
+- [x] [auto] T5: a bad new file and a call to `add_document` for another document. `add_document` works, and the result has the notice "1 manual edit is not published. Run `sync`."
 - [x] [auto] T6: a bad edit to `ops/deploy.md` (a 16-word title) and a call to `update_document` for it fails with `stale_base` and the `next` sentence.
 - [x] [auto] T7: `approval.required_for = ["sync"]`, and the harness answers the elicitation. With "no", nothing is committed and the error is `approval_denied`. With "yes", it commits. Covered by `sync_asks_before_it_commits_manual_edits` in `tests/it_write_approval.rs` (the "yes" path; the "no" path is shared with every other tool).
 - [x] [auto] T8: `--access read-only`. A pending edit and a remote commit from B. `sync` is listed, `committed` is empty, `pushed` is false, the clone has B's commit, the edit is still pending.
@@ -50,7 +50,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
   - Setup: install the current Obsidian. Create a memory repository with `init` and a real Git remote (a private repository on a Git host that you control). Open the memory repository folder as a vault. Add the MCP entry to a real agent tool.
   - Steps: in Obsidian, open `ops/deploy`, change one sentence, and save. Create a new document through Obsidian with all required properties (use the properties panel). In the agent tool, ask it to run `sync`.
   - Expected: the agent reports 2 documents published. The remote has one commit `waymark: sync "2 manual edits"` under your name. Obsidian shows no error and still shows the properties and links. `git status` in the folder is clean.
-  - Teardown: delete the test documents with `delete`.
+  - Teardown: delete the test documents with `delete_document`.
 - [ ] [manual] T21: a new document without properties in Obsidian is blocked.
   - Setup: as T20.
   - Steps: create a note in Obsidian with only text. Ask the agent to run `sync`.

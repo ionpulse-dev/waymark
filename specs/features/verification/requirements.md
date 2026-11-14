@@ -22,33 +22,33 @@ requires:
 
 ## Behaviour
 
-Verification is off by default. It is on when `.waymark/settings.toml` has `verification = true`. With it off, `verify`, `review`, and `reject` are not listed, and a call fails with `access_denied`. No tool changes the setting.
+Verification is off by default. It is on when `.waymark/settings.toml` has `verification = true`. With it off, `verify_document`, `review`, and `reject_document` are not listed, and a call fails with `access_denied`. No tool changes the setting.
 
 With verification on:
 
-- `add` sets `trust: unverified` (see `write-documents`).
+- `add_document` sets `trust: unverified` (see `write-documents`).
 - A change of `title`, `description`, or `body` of a verified document sets it back to `unverified` and removes `verified_by` and `verified` (see `write-documents`).
 - A document without a `trust` field counts as unverified.
 
 | Tool | Kind | Task |
 |---|---|---|
-| `verify` | write | Sets `trust: verified`, `verified_by`, and `verified` (today). |
+| `verify_document` | write | Sets `trust: verified`, `verified_by`, and `verified` (today). |
 | `review` | read | Lists the documents that wait for review. |
-| `reject` | write | Deprecates a document and clears its trust. The file stays. |
+| `reject_document` | write | Deprecates a document and clears its trust. The file stays. |
 
-`verify` and `reject` follow the write flow of `git-sync`. They accept `preview: true`. A team can ask for approval with `approval.required_for = ["verify", "reject"]` (see `write-approval`).
+`verify_document` and `reject_document` follow the write flow of `git-sync`. They accept `preview: true`. A team can ask for approval with `approval.required_for = ["verify_document", "reject_document"]` (see `write-approval`).
 
-### `verify`
+### `verify_document`
 
 Input: `id` (string, required), `base` (string, required, `version` from `show`), `preview` (boolean, default `false`).
 
-- The document must be `active`, not disputed, and not already verified. Otherwise `validation_failed`, with a `next` sentence: for a disputed document "Fix it with `update_document`, or end the dispute with `dispute` and `clear: true`."
+- The document must be `active`, not disputed, and not already verified. Otherwise `validation_failed`, with a `next` sentence: for a disputed document "Fix it with `update_document`, or end the dispute with `dispute_document` and `clear: true`."
 - It sets `trust: verified`, `verified_by: "Name <email>"` of the person, `verified` to today, and `updated` and `updated_by`.
 - The commit message is `waymark: update "<title>"`, then an empty line and `Trust: verified`.
 
 Result `data`: `{ "id", "title", "version", "commit", "pushed", "trust": "verified", "verified_by", "verified", "preview" }`.
 
-### `reject`
+### `reject_document`
 
 Input: `id` (string, required), `base` (string, required), `reason` (string, required, one line, at most 50 words), `preview` (boolean).
 
@@ -88,7 +88,7 @@ Result `data`:
 
 ### Who may verify
 
-In local mode `verify` is a normal write tool. waymark cannot prove that a human, not an agent, called it. The commit author is the audit trail. A team that wants a human answer sets `approval.required_for = ["verify", "reject"]` with `via = "elicitation"`. This is a policy, not a hard control (see `trust-model`).
+In local mode `verify_document` is a normal write tool. waymark cannot prove that a human, not an agent, called it. The commit author is the audit trail. A team that wants a human answer sets `approval.required_for = ["verify_document", "reject_document"]` with `via = "elicitation"`. This is a policy, not a hard control (see `trust-model`).
 
 How readers treat the trust state is advice for the team's `AGENTS.md`. A suggested wording for the README: use a verified document as a fact and cite it, use an unverified one as a hint and say so, and do not rely on a disputed one.
 
@@ -105,19 +105,19 @@ How readers treat the trust state is advice for the team's `AGENTS.md`. A sugges
 
 ## Acceptance Criteria
 
-- **Given** verification is off, **When** the client lists tools, **Then** `verify`, `review`, and `reject` are not listed.
-- **Given** verification is on, **When** `add` runs, **Then** the document has `trust: unverified`.
-- **Given** an active document, **When** `verify` runs, **Then** `trust`, `verified_by`, and `verified` are set and one commit reaches the remote.
+- **Given** verification is off, **When** the client lists tools, **Then** `verify_document`, `review`, and `reject_document` are not listed.
+- **Given** verification is on, **When** `add_document` runs, **Then** the document has `trust: unverified`.
+- **Given** an active document, **When** `verify_document` runs, **Then** `trust`, `verified_by`, and `verified` are set and one commit reaches the remote.
 - **Given** a verified document, **When** `update_document` changes the body, **Then** `trust` is `unverified` and `verified_by` and `verified` are gone.
-- **Given** a disputed document, **When** `verify` runs, **Then** it fails with `validation_failed`.
-- **Given** `reject`, **When** it runs, **Then** the file stays with `status: deprecated`.
-- **Given** `approval.required_for = ["verify"]`, **When** `verify` runs, **Then** the approval is asked before the commit (see `write-approval`).
+- **Given** a disputed document, **When** `verify_document` runs, **Then** it fails with `validation_failed`.
+- **Given** `reject_document`, **When** it runs, **Then** the file stays with `status: deprecated`.
+- **Given** `approval.required_for = ["verify_document"]`, **When** `verify_document` runs, **Then** the approval is asked before the commit (see `write-approval`).
 - **Given** unverified and disputed documents, **When** `review` runs, **Then** disputed ones come first and each entry shows the dispute reason.
-- **Given** verification is off and a direct call of `verify`, **When** it runs, **Then** it fails with `access_denied`.
+- **Given** verification is off and a direct call of `verify_document`, **When** it runs, **Then** it fails with `access_denied`.
 
 ## Constraints & Edge Cases
 
-- In local mode, `verify` is a policy with an audit trail (the commit author), not a hard control.
+- In local mode, `verify_document` is a policy with an audit trail (the commit author), not a hard control.
 - When a team turns verification off, the trust fields stay in the files and are kept as they are.
 - When a team turns verification on, existing documents have no `trust` field. They count as unverified, and `review` lists them. No bulk write happens.
 - The standard says a producer must not set trust fields unless the memory repository uses verification. These tools set them only when it does.

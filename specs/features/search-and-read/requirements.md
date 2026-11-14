@@ -44,6 +44,8 @@ The server does not decide when an agent reads. That is the choice of the team, 
 
 ## Interfaces & Contracts
 
+The filters and the paging of `search` and `list` are in [search-filters](../search-filters/requirements.md). `show` with a `version`, and `history`, are in [document-history](../document-history/requirements.md). The tags are in [manage-tags](../manage-tags/requirements.md).
+
 Every result has `message`, `settings`, and optional `notices` (see `mcp-server`). The fields below are the tool's `data` fields at the top level of the result.
 
 ### `search`
@@ -56,7 +58,9 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 | `folders` | array of string | no | Default: all. |
 | `tag` | string | no | Only documents with this tag. |
 | `status` | `active`, `deprecated`, or `any` | no | Default `active`. |
+| `disputed`, `author`, `updated_after`, `updated_before` | | no | Filters. See `search-filters`. |
 | `limit` | integer ≥ 1 | no | Fewer results than the cap. |
+| `offset` | integer ≥ 0 | no | Default 0. Matches to skip. The result has `next_offset` when `truncated` is true (see `search-filters`). |
 
 ```json
 { "tool": "search", "arguments": { "query": "idempotency keys", "level": 2, "folders": ["backend"] } }
@@ -98,6 +102,9 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 | Input | Type | Required | Meaning |
 |---|---|---|---|
 | `id` | string | yes | Document ID. |
+| `version` | string | no | A version from `history`. The result is the document at that version (see `document-history`). Default: the current version. |
+
+The result has `is_current`: `true` for the current version. For an older version it has no `backlinks`, `replaced_by`, `pending_edit`, or `moved_from`, and it has `current_version`.
 
 ```json
 {
@@ -147,6 +154,7 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 | `status` | `active`, `deprecated`, or `any` | no | Default `any`. |
 | `disputed` | boolean | no | `true`: only disputed documents. |
 | `tag` | string | no | Only documents with this tag. |
+| `author`, `updated_after`, `updated_before` | | no | Filters. See `search-filters`. |
 | `level` | integer 0, 1, or 2 | no | Default 1. |
 | `limit` | integer ≥ 1 | no | Fewer than the cap. |
 | `offset` | integer ≥ 0 | no | Default 0. Documents are sorted by `id`. |

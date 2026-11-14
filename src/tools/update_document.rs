@@ -18,7 +18,7 @@ impl Tool for UpdateDocument {
     }
 
     fn description(&self) -> &'static str {
-        "Changes fields or the body of a document. Fields that are not sent stay as they are. Needs the version from show as base."
+        "Changes fields or the body of a document. Fields that are not sent stay as they are. Needs the version from show as base. Commits and pushes. Returns id, title, changed, commit, and version."
     }
 
     fn kind(&self) -> Kind {
@@ -29,18 +29,67 @@ impl Tool for UpdateDocument {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string"},
-                "base": {"type": "string", "description": "The version from show."},
-                "title": {"type": "string"},
-                "description": {"type": "string"},
-                "body": {"type": "string"},
-                "sources": {"type": "array", "items": {"type": "string"}},
-                "tags": {"type": "array", "items": {"type": "string"}},
-                "related": {"type": "array", "items": {"type": "string"}},
-                "anchors": {"type": "array", "items": {"type": "string"}},
-                "preview": {"type": "boolean"}
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "base": {
+                    "type": "string",
+                    "description": "The version from show. The call fails if the document changed since."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The new title."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The new description."
+                },
+                "body": {
+                    "type": "string",
+                    "description": "The new Markdown text. It replaces the whole body."
+                },
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The new list of sources. It replaces the list."
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The new list of tags. It replaces the list."
+                },
+                "related": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The new list of related document IDs. It replaces the list."
+                },
+                "anchors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The new list of anchors, as git:<repo>/<path>@<commit> or url:<address>. It replaces the list."
+                },
+                "supersedes": {
+                    "type": "string",
+                    "description": "ID of a document that this one replaces. It is added to the list, and that document becomes deprecated."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["id", "base"],
+            "required": [
+                "id",
+                "base"
+            ],
             "additionalProperties": false
         })
     }
@@ -49,7 +98,7 @@ impl Tool for UpdateDocument {
         let id = writes::get_str(&args, "id").unwrap_or("").to_string();
         let base = writes::get_str(&args, "base").unwrap_or("").to_string();
         let preview = writes::get_bool(&args, "preview");
-        const OPTIONAL: [&str; 7] = [
+        const OPTIONAL: [&str; 8] = [
             "title",
             "description",
             "body",
@@ -57,10 +106,11 @@ impl Tool for UpdateDocument {
             "tags",
             "related",
             "anchors",
+            "supersedes",
         ];
         if !OPTIONAL.iter().any(|k| args.get(*k).is_some()) {
             return Err(Error::invalid("Nothing to change: no field was sent.")
-                .with_next("Send at least one of title, description, body, sources, tags, related, or anchors."));
+                .with_next("Send at least one of title, description, body, sources, tags, related, anchors, or supersedes."));
         }
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
@@ -122,10 +172,35 @@ impl Tool for UpdateDocument {
                     }
                 }
 
+                // The document that this one replaces becomes deprecated, as with `add_document`.
+                let mut extra: Vec<FileChange> = Vec::new();
+                let mut deprecated: Vec<String> = Vec::new();
+                let replaced = writes::get_str(&args, "supersedes").map(str::trim);
+                if let Some(old_id) = replaced {
+                    let s = writes::apply_supersedes(
+                        tx,
+                        memrepo,
+                        env,
+                        &mut doc,
+                        Some(&id),
+                        old_id,
+                        &today,
+                        &author,
+                    )?;
+                    if s.linked {
+                        changed.push("supersedes");
+                    }
+                    if let Some(change) = s.deprecate {
+                        extra.push(change);
+                        deprecated.push(old_id.to_string());
+                    }
+                }
+
                 let mut data = Map::new();
                 data.insert("id".into(), json!(id));
                 data.insert("changed".into(), json!(changed));
-                if changed.is_empty() {
+                data.insert("deprecated".into(), json!(deprecated));
+                if changed.is_empty() && extra.is_empty() {
                     data.insert("title".into(), json!(old_title));
                     data.insert("version".into(), json!(tx.last_commit(&rel)?));
                     return Ok(Plan {
@@ -160,7 +235,7 @@ impl Tool for UpdateDocument {
                 let ids_after: HashSet<String> = memrepo.id_set();
                 let mut problems = writes::Problems::default();
                 let mut notices = Vec::new();
-                let skip = [id.as_str()];
+                let skip: Vec<&str> = std::iter::once(id.as_str()).chain(replaced).collect();
                 writes::check_document_links(
                     memrepo,
                     &id,
@@ -183,11 +258,13 @@ impl Tool for UpdateDocument {
                 Ok(Plan {
                     first: None,
                     revert: None,
-                    changes: vec![FileChange::Write {
+                    changes: std::iter::once(FileChange::Write {
                         id: id.clone(),
                         text: text.clone(),
                         action: "update",
-                    }],
+                    })
+                    .chain(extra)
+                    .collect(),
                     verb: Verb::Update,
                     title: new_title.clone(),
                     commit_body: None,

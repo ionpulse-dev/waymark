@@ -32,6 +32,8 @@ _The decisions that led to the MCP-only design are in `docs/architecture-directi
 
 ## Context budget for `tools/list` — 2026-11-14
 
+**Superseded by:** The budget of `tools/list` is raised
+
 **Decision:** The tool descriptions together stay under 6000 characters, and the whole `tools/list` result under 20000. A test fails above that.
 
 **Reason:** The schemas use context in every session. The numbers are a first guess and can change after dogfooding. Decided autonomously.
@@ -137,3 +139,11 @@ the spec [terminology](../terminology/decisions.md).
 **Decision:** One of `--repo` and `--path` is required. The server has no default folder under `~/Projects`, no scan, and no search of the working folder. `--repo` alone clones into `~/.waymark/<name>`. The rules are in `specs/features/project-binding/requirements.md`.
 
 **Reason:** Decided by the product owner: the old default was too opinionated and the scan was a guess.
+
+## The budget of `tools/list` is raised — 2026-11-15
+
+**Supersedes:** Context budget for `tools/list`
+
+**Decision:** The tool descriptions together stay under 9000 characters, and the whole `tools/list` result under 28000. A test fails above that.
+
+**Reason:** Four new tools, a description for every parameter, and a "Returns" sentence in every description (see `tool-conventions`). The list is about 7000 tokens in the worst case, with verification on. Decided autonomously.

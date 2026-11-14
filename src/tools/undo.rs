@@ -18,7 +18,7 @@ impl Tool for Undo {
     }
 
     fn description(&self) -> &'static str {
-        "Reverts one of your writes with a new commit and pushes it. Give the commit from activity. History stays. Refuses if later changes conflict."
+        "Reverts one of your writes with a new commit and pushes it. History stays. Refuses if later changes conflict. Returns reverted, title, changes, and commit."
     }
 
     fn kind(&self) -> Kind {
@@ -29,10 +29,18 @@ impl Tool for Undo {
         json!({
             "type": "object",
             "properties": {
-                "commit": {"type": "string", "description": "A commit from activity."},
-                "preview": {"type": "boolean"}
+                "commit": {
+                    "type": "string",
+                    "description": "A commit from activity."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["commit"],
+            "required": [
+                "commit"
+            ],
             "additionalProperties": false
         })
     }

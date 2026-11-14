@@ -19,7 +19,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 ## Test Cases
 
 - [x] [auto] A1: each source order, name and email on their own, with the harness `World` (`tests/it_login_and_identity.rs`)
-- [x] [auto] A2: no argument, no variable, `GIT_CONFIG_GLOBAL=/dev/null`: `add` returns `setup_problem` with `next`, and the remote has no new commit (`tests/it_login_and_identity.rs`)
+- [x] [auto] A2: no argument, no variable, `GIT_CONFIG_GLOBAL=/dev/null`: `add_document` returns `setup_problem` with `next`, and the remote has no new commit (`tests/it_login_and_identity.rs`)
 - [x] [auto] A3: the Git config says `Other <other@example.org>`, the arguments say `Jane Doe <jane@example.org>`: the pushed commit has the argument author and the same committer (`tests/it_login_and_identity.rs`)
 - [x] [auto] A4: `status` on a `file://` remote: `git_login` ok, and the result has no secret (`tests/it_login_and_identity.rs`)
 - [x] [auto] A5: a remote that rejects the login (a fake `GIT_SSH_COMMAND` script that prints `Permission denied (publickey)` and exits 255): `sync` returns `sync_failed` with the fixed `next` sentence in under 10 seconds (`tests/it_login_and_identity.rs`)

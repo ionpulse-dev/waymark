@@ -1,8 +1,8 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ██████████████████████████████████████░░  20 / 21 active
-🏗️ Foundation    █████████████████████████████████░░░░░░░  10 / 12 done+implemented
+📦 Features      ██████████████████████████████████████░░  24 / 25 active
+🏗️ Foundation    ██████████████████████████████████░░░░░░  11 / 13 done+implemented
 ```
 
 ## Next Up
@@ -11,10 +11,11 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All in-scope foundation specs are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-memory-repository`, `plain-git-access`, and `create-memory-repository`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features were implemented. Phase G (end-to-end checks, reviews) is done. On 2026-11-14 the rules changed and are implemented: a write may not create a broken body link, `delete` refuses linked documents, and the folder tools `folders`, `add_empty_folder`, and `remove_folder` exist (spec `folders`).
+3. `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-memory-repository`, `plain-git-access`, and `create-memory-repository`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features were implemented. Phase G (end-to-end checks, reviews) is done. On 2026-11-14 the rules changed and are implemented: a write may not create a broken body link, `delete_document` refuses linked documents, and the folder tools `folder_tree`, `create_folder`, and `delete_folder` exist (spec `folders`).
 4. `distribution` is `implemented` for the part that the AI can do: formula, local Homebrew install test, release workflow (disabled), release checklist (`docs/next-steps/release-checklist.md`). The tap, the tag, and the public repository are done (checked 2026-11-14: `brew install ionpulse-dev/tap/waymark` installs the current release). Still open for the product owner: the remaining items of the checklist (CI release workflow, tap license, name checks).
 5. On 2026-11-14 the place of the memory repository became explicit and is implemented: `--repo` clones into `~/.waymark/<name>`, `--path` sets the folder, and one of them is required (specs `project-binding`, `join-memory-repository`, `session-start`, `mcp-server`).
 6. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
+7. On 2026-11-15 the tools got one naming scheme and five specs were implemented: `tool-conventions` (nine tools renamed, descriptions for every parameter, old names as aliases), `search-filters`, `restore-and-replace`, `document-history`, and `manage-tags`. This is version 0.4.0.
 
 ---
 
@@ -42,6 +43,10 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [project-binding](features/project-binding/requirements.md) | `implemented` | 2026-11-14 |
 | [session-start](features/session-start/requirements.md) | `implemented` | 2026-11-14 |
 | [join-memory-repository](features/join-memory-repository/requirements.md) | `implemented` | 2026-11-14 |
+| [search-filters](features/search-filters/requirements.md) | `implemented` | 2026-11-15 |
+| [restore-and-replace](features/restore-and-replace/requirements.md) | `implemented` | 2026-11-15 |
+| [document-history](features/document-history/requirements.md) | `implemented` | 2026-11-15 |
+| [manage-tags](features/manage-tags/requirements.md) | `implemented` | 2026-11-15 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
@@ -58,6 +63,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-14 |
 | [remove-index](foundation/remove-index/requirements.md) | `implemented` | 2026-11-14 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
+| [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

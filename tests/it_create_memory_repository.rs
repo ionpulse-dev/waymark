@@ -229,7 +229,7 @@ fn a10_the_same_session_can_add_and_search() {
     let mut c = client(&w, Person::A);
     assert!(!init(&mut c, json!({"name": "Example"})).is_error);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Deploys use a pipeline", "description": "How deploys run.", "body": "Text."}),
     );
     assert!(!r.is_error, "{}", r.json);

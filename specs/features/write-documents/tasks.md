@@ -17,8 +17,8 @@
 - [x] `tests/it_write_documents.rs`: the cases of `test.md`.
 - [x] Check the size budget of `tools/list` (see `mcp-server`) with the five schemas.
 - [x] Run the full suite.
-- [x] Body links: `add` and `update_document` fail on a new link to a missing document (`src/writes/`, `format::links`).
-- [x] `delete`: refuse while another document links to the target, with `data.linked_from`; remove the automatic link fix and `links_fixed`; change the tool description (`src/tools/delete.rs`).
+- [x] Body links: `add_document` and `update_document` fail on a new link to a missing document (`src/writes/`, `format::links`).
+- [x] `delete_document`: refuse while another document links to the target, with `data.linked_from`; remove the automatic link fix and `links_fixed`; change the tool description (`src/tools/delete.rs`).
 - [x] Tests of the new cases in `test.md`; replace `delete_fixes_links`.
 - [x] `sync` applies the same body link rule to documents that people edit by hand (see `manual-edits`).
 - [x] Update `docs/install.md`, the README, and `standard/conformance` if they mention the old behaviour.

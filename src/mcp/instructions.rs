@@ -165,7 +165,7 @@ mod tests {
                     None
                 },
                 tools_denied: if i % 4 == 0 {
-                    Some(vec!["delete".into()])
+                    Some(vec!["delete_document".into()])
                 } else {
                     None
                 },

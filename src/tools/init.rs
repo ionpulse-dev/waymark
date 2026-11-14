@@ -167,7 +167,7 @@ impl Tool for Init {
     }
 
     fn description(&self) -> &'static str {
-        "Set up an empty repository as a memory repository. Also adds the settings file to a folder that has the older `.waymark` marker but no settings file."
+        "Sets up an empty repository as a memory repository. Also adds the settings file to a folder that has the older .waymark marker but no settings file. Commits and pushes. Returns id, name, slug, audience, files, commit, and adopted."
     }
 
     fn kind(&self) -> Kind {
@@ -178,16 +178,109 @@ impl Tool for Init {
         json!({
             "type": "object",
             "properties": {
-                "name": {"type": "string"},
-                "slug": {"type": "string"},
-                "email_domains": {"type": "array", "items": {"type": "string"}},
-                "limits": {"type": "object"},
-                "approval": {"type": "object"},
-                "folders": {"type": "array", "items": {"type": "string"}},
-                "audience": {"type": "string", "enum": ["personal", "team"]},
-                "preview": {"type": "boolean"}
+                "name": {
+                    "type": "string",
+                    "description": "Name of the memory repository. 1 to 80 characters."
+                },
+                "slug": {
+                    "type": "string",
+                    "description": "Short name for the memory repository: lowercase letters, digits, and -. Default: from the name."
+                },
+                "email_domains": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Domains whose email addresses may write, for example example.org."
+                },
+                "limits": {
+                    "type": "object",
+                    "description": "Shared limits for the settings file. All keys are optional.",
+                    "properties": {
+                        "access": {
+                            "type": "string",
+                            "enum": [
+                                "read-only",
+                                "read-write"
+                            ],
+                            "description": "read-only lets agents only read."
+                        },
+                        "paused": {
+                            "type": "boolean",
+                            "description": "true pauses all writes."
+                        },
+                        "tools_denied": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Tool names to switch off."
+                        },
+                        "folders": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Folders that agents may use. Default: all."
+                        },
+                        "max_results": {
+                            "type": "integer",
+                            "description": "Most documents that search returns."
+                        },
+                        "max_tokens": {
+                            "type": "integer",
+                            "description": "Most tokens that search returns."
+                        },
+                        "max_documents_opened": {
+                            "type": "integer",
+                            "description": "Most documents that show opens in one session."
+                        }
+                    }
+                },
+                "approval": {
+                    "type": "object",
+                    "description": "Approval rules for the settings file. All keys are optional.",
+                    "properties": {
+                        "required_for": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Tool names, or write, that need approval before they run."
+                        },
+                        "via": {
+                            "type": "string",
+                            "enum": [
+                                "elicitation",
+                                "console"
+                            ],
+                            "description": "How approval is asked. Default elicitation."
+                        }
+                    }
+                },
+                "folders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Folders to create, such as ops/runbooks. At most 50."
+                },
+                "audience": {
+                    "type": "string",
+                    "enum": [
+                        "personal",
+                        "team"
+                    ],
+                    "description": "personal or team. Default team."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["name"],
+            "required": [
+                "name"
+            ],
             "additionalProperties": false
         })
     }

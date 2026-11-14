@@ -8,7 +8,7 @@ use crate::mcp::result::ToolOutput;
 use crate::mcp::tool::{Env, Tool};
 use crate::memrepo::MemRepo;
 use crate::store::backlinks::backlinks;
-use crate::store::{Scope, Store};
+use crate::store::{Doc, Scope, Store};
 use serde_json::{json, Value};
 
 pub struct Show;
@@ -30,6 +30,36 @@ fn id_of_rel(memrepo: &MemRepo, rel: &str) -> Option<String> {
     below.strip_suffix(".md").map(str::to_string)
 }
 
+/// The properties and the body of a document, as `show` returns them.
+fn properties(doc: &Doc) -> Value {
+    let mut data = json!({
+        "title": doc.title(),
+        "description": doc.description(),
+        "status": doc.status(),
+        "created": doc.text("created").unwrap_or(""),
+        "updated": doc.updated(),
+        "age_days": age_days(doc.updated()),
+        "created_by": doc.text("created_by").unwrap_or(""),
+        "updated_by": doc.text("updated_by").unwrap_or(""),
+        "disputed": doc.disputed(),
+        "tags": doc.tags(),
+        "sources": doc.list("sources"),
+        "related": doc.property_ids("related"),
+        "supersedes": doc.property_ids("supersedes"),
+        "anchors": doc.list("anchors"),
+        "body": doc.body.trim_matches('\n'),
+    });
+    if doc.disputed() {
+        data["dispute_reason"] = json!(doc.text("dispute_reason").unwrap_or(""));
+    }
+    for key in ["trust", "verified_by", "verified"] {
+        if let Some(v) = doc.text(key) {
+            data[key] = json!(v);
+        }
+    }
+    data
+}
+
 fn age_days(updated: &str) -> Value {
     chrono::NaiveDate::parse_from_str(updated, "%Y-%m-%d")
         .map(|d| json!((chrono::Local::now().date_naive() - d).num_days().max(0)))
@@ -42,7 +72,7 @@ impl Tool for Show {
     }
 
     fn description(&self) -> &'static str {
-        "Returns one document: its properties, body, version, backlinks, and the documents that replace it. The version is the base for a change. Changes nothing."
+        "Returns one document: properties, body, version, backlinks, and replaced_by. With version it returns an older version. The version of the current document is the base for a change. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -52,8 +82,19 @@ impl Tool for Show {
     fn input_schema(&self) -> Value {
         json!({
             "type": "object",
-            "properties": {"id": {"type": "string", "description": "The path of the document below the root, without .md."}},
-            "required": ["id"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "version": {
+                    "type": "string",
+                    "description": "A version from history. Default: the current version."
+                }
+            },
+            "required": [
+                "id"
+            ],
             "additionalProperties": false
         })
     }
@@ -127,6 +168,52 @@ impl Tool for Show {
 
         let rel = memrepo.repo_relative(&id)?;
         let version = repo.last_commit(&rel)?;
+        // An older version: the text of the commit (see `document-history`).
+        if let Some(asked) = crate::writes::get_str(&args, "version") {
+            let versions = repo.file_history(&rel)?;
+            let found = versions.iter().find(|(e, _)| {
+                !asked.is_empty() && (e.hash.starts_with(asked) || asked.starts_with(&e.short))
+            });
+            let Some((entry, path_at)) = found else {
+                return Err(Error::invalid(format!(
+                    "\"{asked}\" is not a version of the document \"{id}\"."
+                ))
+                .with_next("Use a version from the history tool."));
+            };
+            let current = version.as_deref().unwrap_or("");
+            let is_current = !current.is_empty()
+                && (entry.hash.starts_with(current) || current.starts_with(&entry.short));
+            if !is_current {
+                let text = repo.show_at(&entry.hash, path_at)?.unwrap_or_default();
+                let old = match format::parse(&text) {
+                    Ok(d) => Doc {
+                        id: id.clone(),
+                        raw: text.clone(),
+                        front: Some(d.frontmatter),
+                        body: d.body,
+                    },
+                    Err(_) => {
+                        return Err(Error::new(
+                            Code::ValidationFailed,
+                            format!("The version \"{asked}\" of \"{id}\" cannot be read."),
+                        )
+                        .with_next("Use another version from the history tool."))
+                    }
+                };
+                let mut data = properties(&old);
+                data["id"] = json!(id);
+                data["version"] = json!(entry.short);
+                data["current_version"] = json!(version);
+                data["is_current"] = json!(false);
+                let mut out = ToolOutput::new("Older version found.", data);
+                for n in notices {
+                    out = out.notice(n);
+                }
+                return Ok(out.notice(
+                    "This is an older version. Use the current version as base for a change.",
+                ));
+            }
+        }
         let last_editor = repo
             .log(1, None, &[rel.as_str()])?
             .first()
@@ -143,39 +230,16 @@ impl Tool for Show {
             v
         };
 
-        let mut data = json!({
-            "id": id,
-            "title": doc.title(),
-            "description": doc.description(),
-            "status": doc.status(),
-            "created": doc.text("created").unwrap_or(""),
-            "updated": doc.updated(),
-            "age_days": age_days(doc.updated()),
-            "created_by": doc.text("created_by").unwrap_or(""),
-            "updated_by": doc.text("updated_by").unwrap_or(""),
-            "last_editor": last_editor,
-            "disputed": doc.disputed(),
-            "tags": doc.tags(),
-            "sources": doc.list("sources"),
-            "related": doc.property_ids("related"),
-            "supersedes": doc.property_ids("supersedes"),
-            "anchors": doc.list("anchors"),
-            "body": doc.body.trim_matches('\n'),
-            "version": version,
-            "backlinks": all_backlinks.iter().take(50).collect::<Vec<_>>(),
-            "backlinks_total": all_backlinks.len(),
-            "replaced_by": replaced_by,
-            "pending_edit": pending,
-            "moved_from": moved_from,
-        });
-        if doc.disputed() {
-            data["dispute_reason"] = json!(doc.text("dispute_reason").unwrap_or(""));
-        }
-        for key in ["trust", "verified_by", "verified"] {
-            if let Some(v) = doc.text(key) {
-                data[key] = json!(v);
-            }
-        }
+        let mut data = properties(doc);
+        data["id"] = json!(id);
+        data["last_editor"] = json!(last_editor);
+        data["version"] = json!(version);
+        data["is_current"] = json!(true);
+        data["backlinks"] = json!(all_backlinks.iter().take(50).collect::<Vec<_>>());
+        data["backlinks_total"] = json!(all_backlinks.len());
+        data["replaced_by"] = json!(replaced_by);
+        data["pending_edit"] = json!(pending);
+        data["moved_from"] = json!(moved_from);
         let mut out = ToolOutput::new("Document found.", data);
         for n in notices {
             out = out.notice(n);

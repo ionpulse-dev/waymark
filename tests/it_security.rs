@@ -66,7 +66,7 @@ fn s1_ids_that_leave_the_root_are_refused_by_every_tool() {
     // Folders in `add`.
     for folder in ["../x", "/abs", "a/../b", ".hidden"] {
         let r = c.call(
-            "add",
+            "add_document",
             json!({"folder": folder, "title": "T", "description": "D.", "body": "B."}),
         );
         assert!(r.is_error, "{folder}: {}", r.json);
@@ -109,12 +109,12 @@ fn s2_symbolic_links_are_never_read_or_written() {
     assert!(!s.json.to_string().contains("TOPSECRET"));
     // A write to the dangling link must not create a file outside.
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Dangling", "description": "D.", "body": "B."}),
     );
     assert!(r.is_error, "{}", r.json);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "escape", "title": "New file", "description": "D.", "body": "B."}),
     );
     assert!(r.is_error, "{}", r.json);
@@ -132,7 +132,7 @@ fn s3_text_from_a_caller_never_reaches_a_shell_or_git_options() {
     );
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": evil, "description": evil, "body": evil}),
     );
     // The title is long and odd, so a check may refuse it. Nothing may run.
@@ -192,7 +192,7 @@ fn s4_the_secret_scan_blocks_common_secrets() {
     .enumerate()
     {
         let r = c.call(
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": format!("Secret {i}"), "description": "D.", "body": format!("Text {secret}")}),
         );
         assert_eq!(r.code(), Some("validation_failed"), "{secret}: {}", r.json);
@@ -275,7 +275,7 @@ fn s6_no_layer_can_loosen_another() {
     let s = c.call("status", json!({}));
     assert_eq!(s.json["settings"]["access"], "read-only");
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("access_denied"));
@@ -304,7 +304,7 @@ fn s7_an_author_name_with_a_line_break_does_not_forge_a_header() {
         ]),
     );
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     if !r.is_error {

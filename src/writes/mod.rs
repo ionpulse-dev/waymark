@@ -67,6 +67,80 @@ pub fn touch(doc: &mut Document, today: &str, author: &str) {
     doc.frontmatter.set_text("updated_by", author);
 }
 
+/// A tag from the input: not empty, no `#`, no whitespace (section 7 of the standard).
+pub fn check_tag(tag: &str) -> Result<()> {
+    if tag.is_empty() || tag.contains('#') || tag.chars().any(char::is_whitespace) {
+        return Err(Error::invalid(format!("\"{tag}\" is not a valid tag."))
+            .with_next("Use a tag without # and without spaces, such as \"payments\"."));
+    }
+    Ok(())
+}
+
+/// What `apply_supersedes` did.
+pub struct Supersedes {
+    /// The `supersedes` list of the document changed.
+    pub linked: bool,
+    /// The change that deprecates the replaced document, when it was not deprecated yet.
+    pub deprecate: Option<FileChange>,
+}
+
+/// Say that `doc` replaces the document `old_id`: add the link, and deprecate the old document.
+/// `this_id` is the ID of `doc`, or `None` for a document that does not exist yet.
+#[allow(clippy::too_many_arguments)]
+pub fn apply_supersedes(
+    tx: &Tx,
+    memrepo: &MemRepo,
+    env: &Env,
+    doc: &mut Document,
+    this_id: Option<&str>,
+    old_id: &str,
+    today: &str,
+    author: &str,
+) -> Result<Supersedes> {
+    if this_id == Some(old_id) {
+        return Err(Error::invalid("A document cannot replace itself.")
+            .with_next("Name the older document in supersedes."));
+    }
+    require_visible(env, old_id)?;
+    let (_, mut old) = read_doc(tx, memrepo, old_id)?;
+    if let Some(this) = this_id {
+        let loops = old
+            .frontmatter
+            .get_list("supersedes")
+            .unwrap_or(&[])
+            .iter()
+            .any(|l| format::fields::property_link_target(l) == Some(this));
+        if loops {
+            return Err(Error::validation(format!(
+                "\"{old_id}\" already replaces this document, so a loop would follow."
+            ))
+            .with_next("Replace in one direction only."));
+        }
+    }
+    let link = wikilink(old_id);
+    let mut list: Vec<String> = doc
+        .frontmatter
+        .get_list("supersedes")
+        .map(<[String]>::to_vec)
+        .unwrap_or_default();
+    let linked = !list.contains(&link);
+    if linked {
+        list.push(link);
+        doc.frontmatter.set_list("supersedes", &list);
+    }
+    let mut deprecate = None;
+    if old.frontmatter.get_text("status") != Some("deprecated") {
+        old.frontmatter.set_text("status", "deprecated");
+        touch(&mut old, today, author);
+        deprecate = Some(FileChange::Write {
+            id: old_id.to_string(),
+            text: old.render(),
+            action: "deprecate",
+        });
+    }
+    Ok(Supersedes { linked, deprecate })
+}
+
 /// A property link in the full-path form.
 pub fn wikilink(id: &str) -> String {
     let id = id.trim();
@@ -732,6 +806,20 @@ pub fn check_folder_path(path: &str) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_tag_has_no_hash_no_space_and_is_not_empty() {
+        for good in ["payments", "a-b", "v1.2", "ünï"] {
+            assert!(check_tag(good).is_ok(), "{good}");
+        }
+        for bad in ["", "#x", "a b", "a\tb", " "] {
+            assert!(check_tag(bad).is_err(), "{bad:?}");
+        }
+        assert_eq!(
+            check_tag("#x").unwrap_err().code,
+            crate::error::Code::InvalidArguments
+        );
+    }
 
     #[test]
     fn folder_paths_are_checked() {

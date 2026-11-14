@@ -13,7 +13,7 @@ fn client(w: &World, p: Person) -> McpClient {
 
 fn add(c: &mut McpClient, folder: &str, title: &str, body: &str) -> Value {
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": folder, "title": title, "description": format!("About {title}."), "body": body}),
     );
     assert!(!r.is_error, "add failed: {}", r.json);
@@ -89,7 +89,7 @@ fn add_rejects_secret() {
     let mut c = client(&w, Person::A);
     let before = remote_log(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Deploy keys", "description": "About keys.", "body": "line\npassword: hunter2hunter2"}),
     );
     assert!(r.is_error);
@@ -106,7 +106,7 @@ fn add_rejects_duplicate_title() {
     let mut c = client(&w, Person::A);
     let first = add(&mut c, "ops", "How we deploy", "Body.");
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "how we DEPLOY", "description": "Again.", "body": "Other."}),
     );
     assert_eq!(r.code(), Some("validation_failed"));
@@ -120,7 +120,7 @@ fn add_rejects_near_duplicate() {
     let mut c = client(&w, Person::A);
     let first = add(&mut c, "ops", "one two three four five", "Body.");
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "one two three four six seven eight", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("validation_failed"));
@@ -128,7 +128,7 @@ fn add_rejects_near_duplicate() {
     assert!(r.message().contains(first["id"].as_str().unwrap()));
     // 3 of 5 shared words pass.
     let ok = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "one two three x y z", "description": "D.", "body": "B."}),
     );
     assert!(!ok.is_error, "{}", ok.json);
@@ -220,7 +220,7 @@ fn preview_writes_nothing() {
     let mut c = client(&w, Person::A);
     let before = remote_log(&w);
     let p = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Preview me", "description": "D.", "body": "B.", "preview": true}),
     );
     assert!(!p.is_error, "{}", p.json);
@@ -247,7 +247,7 @@ fn dispute_sets_fields() {
     let r = add(&mut c, "ops", "Runbook", "Body.");
     let id = r["id"].as_str().unwrap();
     let d = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": r["version"], "reason": "The port is wrong."}),
     );
     assert!(!d.is_error, "{}", d.json);
@@ -257,7 +257,7 @@ fn dispute_sets_fields() {
     assert_eq!(remote_log(&w)[0], "waymark: dispute \"Runbook\"");
     // A second dispute fails and names the old reason.
     let again = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": d.json["version"], "reason": "Other."}),
     );
     assert_eq!(again.code(), Some("validation_failed"));
@@ -271,21 +271,21 @@ fn dispute_clear() {
     let r = add(&mut c, "ops", "Runbook", "Body.");
     let id = r["id"].as_str().unwrap();
     let not_disputed = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": r["version"], "clear": true}),
     );
     assert_eq!(not_disputed.code(), Some("validation_failed"));
     let both = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": r["version"], "clear": true, "reason": "x"}),
     );
     assert_eq!(both.code(), Some("invalid_arguments"));
     let d = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": r["version"], "reason": "Wrong."}),
     );
     let cl = c.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": d.json["version"], "clear": true}),
     );
     assert!(!cl.is_error, "{}", cl.json);
@@ -301,7 +301,7 @@ fn deprecate_keeps_file() {
     let r = add(&mut c, "ops", "Runbook", "Body.");
     let id = r["id"].as_str().unwrap();
     let d = c.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": id, "base": r["version"], "reason": "Replaced by the new process."}),
     );
     assert!(!d.is_error, "{}", d.json);
@@ -315,7 +315,7 @@ fn deprecate_keeps_file() {
         "{msg}"
     );
     let again = c.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": id, "base": d.json["version"], "reason": "x"}),
     );
     assert_eq!(again.code(), Some("validation_failed"));
@@ -328,7 +328,7 @@ fn add_supersedes_one_commit() {
     let old = add(&mut c, "ops", "Deploy process", "Old.");
     let count_before = remote_log(&w).len();
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Deploy process", "description": "New.", "body": "New.", "supersedes": old["id"]}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -350,7 +350,7 @@ fn delete_refuses_linked_document() {
     let old = add(&mut c, "ops", "Old deploy process", "Old.");
     let old_id = old["id"].as_str().unwrap();
     let linking = c.call(
-        "add",
+        "add_document",
         json!({
             "folder": "ops", "title": "Runbook", "description": "D.",
             "body": format!("See [[{old_id}]] and [the old one](old-deploy-process.md).\n\n```\n[[{old_id}]]\n```"),
@@ -360,7 +360,10 @@ fn delete_refuses_linked_document() {
     assert!(!linking.is_error, "{}", linking.json);
     let lid = linking.json["id"].as_str().unwrap().to_string();
     let head = remote_log(&w);
-    let d = c.call("delete", json!({"id": old_id, "base": old["version"]}));
+    let d = c.call(
+        "delete_document",
+        json!({"id": old_id, "base": old["version"]}),
+    );
     assert_eq!(d.code(), Some("validation_failed"), "{}", d.json);
     assert!(
         d.message().contains("1 document still links"),
@@ -380,7 +383,7 @@ fn delete_refuses_linked_document() {
     assert_eq!(remote_log(&w), head);
     // A preview fails the same way.
     let p = c.call(
-        "delete",
+        "delete_document",
         json!({"id": old_id, "base": old["version"], "preview": true}),
     );
     assert_eq!(p.code(), Some("validation_failed"));
@@ -400,7 +403,10 @@ fn delete_after_links_removed() {
         json!({"id": lid, "base": shown.json["version"], "body": "See nothing."}),
     );
     assert!(!u.is_error, "{}", u.json);
-    let d = c.call("delete", json!({"id": old_id, "base": old["version"]}));
+    let d = c.call(
+        "delete_document",
+        json!({"id": old_id, "base": old["version"]}),
+    );
     assert!(!d.is_error, "{}", d.json);
     assert!(!exists(&w.a, old_id));
     assert_eq!(remote_log(&w)[0], "waymark: delete \"Old deploy process\"");
@@ -415,7 +421,10 @@ fn delete_refuses_while_an_index_md_links_to_the_document() {
     let body = format!("See [[{}]].", a["id"].as_str().unwrap());
     let i = add(&mut c, "ops", "Index", &body);
     assert!(i["id"].as_str().is_some());
-    let d = c.call("delete", json!({"id": a["id"], "base": a["version"]}));
+    let d = c.call(
+        "delete_document",
+        json!({"id": a["id"], "base": a["version"]}),
+    );
     assert_eq!(d.code(), Some("validation_failed"), "{}", d.json);
 }
 
@@ -424,9 +433,9 @@ fn delete_hidden_when_denied() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--tools-denied", "delete"]));
     let names = c.tool_names();
-    assert!(names.contains(&"add".to_string()));
-    assert!(!names.contains(&"delete".to_string()));
-    let r = c.call("delete", json!({"id": "x", "base": "y"}));
+    assert!(names.contains(&"add_document".to_string()));
+    assert!(!names.contains(&"delete_document".to_string()));
+    let r = c.call("delete_document", json!({"id": "x", "base": "y"}));
     assert_eq!(r.code(), Some("access_denied"));
 }
 
@@ -440,7 +449,7 @@ fn read_only_blocks_writes() {
     }
     let before = remote_log(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("access_denied"));
@@ -453,7 +462,7 @@ fn add_refuses_broken_body_link() {
     let w = World::new();
     let mut c = client(&w, Person::A);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Linker", "description": "D.", "body": "See [[ops/missing-one]] for more."}),
     );
     assert_eq!(r.code(), Some("validation_failed"), "{}", r.json);
@@ -503,7 +512,7 @@ fn property_link_to_a_missing_document_fails_with_all_findings() {
     let w = World::new();
     let mut c = client(&w, Person::A);
     let r = c.call(
-        "add",
+        "add_document",
         json!({
             "folder": "ops", "title": "Bad links", "description": "D.", "body": "B.",
             "related": ["ops/nope-one", "ops/nope-two"]
@@ -523,13 +532,13 @@ fn add_outside_folders() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--folders", "engineering/**"]));
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "sales", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("access_denied"));
     assert!(r.message().contains("outside the allowed folders"));
     let ok = c.call(
-        "add",
+        "add_document",
         json!({"folder": "engineering/api", "title": "T", "description": "D.", "body": "B."}),
     );
     assert!(!ok.is_error, "{}", ok.json);
@@ -565,7 +574,7 @@ fn delete_outside_folders_for_a_linking_document_is_denied() {
         ],
     );
     let r = c.call(
-        "delete",
+        "delete_document",
         json!({"id": "eng/target", "base": version.trim()}),
     );
     assert_eq!(r.code(), Some("access_denied"));
@@ -618,7 +627,7 @@ fn the_same_add_twice_leaves_the_state_of_the_first() {
     add(&mut c, "ops", "Same one", "Body.");
     let state = subjects(&w.a);
     let again = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Same one", "description": "About Same one.", "body": "Body."}),
     );
     assert_eq!(again.code(), Some("validation_failed"));
@@ -648,7 +657,7 @@ fn a_write_needing_approval_fails_closed_until_write_approval_exists() {
     let mut c = client(&w, Person::A);
     let before = remote_log(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("approval_unavailable"));
@@ -656,7 +665,7 @@ fn a_write_needing_approval_fails_closed_until_write_approval_exists() {
     assert!(!exists(&w.a, "ops/t"));
     // A preview asks for no approval.
     let p = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B.", "preview": true}),
     );
     assert!(!p.is_error, "{}", p.json);
@@ -668,17 +677,17 @@ fn invalid_input_is_reported_before_anything_is_written() {
     let mut c = client(&w, Person::A);
     for folder in ["../x", "/abs", ".waymark"] {
         let r = c.call(
-            "add",
+            "add_document",
             json!({"folder": folder, "title": "T", "description": "D.", "body": "B."}),
         );
         assert_eq!(r.code(), Some("invalid_arguments"), "{folder}");
     }
-    let r = c.call("add", json!({"folder": "ops", "title": "T"}));
+    let r = c.call("add_document", json!({"folder": "ops", "title": "T"}));
     assert_eq!(r.code(), Some("invalid_arguments"));
     // A description over the word limit.
     let long = "word ".repeat(51);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": long, "body": "B."}),
     );
     assert_eq!(r.code(), Some("validation_failed"));

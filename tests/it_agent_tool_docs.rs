@@ -149,7 +149,7 @@ fn a5_tool_names_in_the_advice_are_real_tools() {
             listed.contains(&name) || NOT_YET_BUILT.contains(&name.as_str()),
             "{name} is not a tool"
         );
-        for gated in ["verify", "review", "reject"] {
+        for gated in ["verify_document", "review", "reject_document"] {
             assert_ne!(name, gated, "advice must not name a verification tool");
         }
     }

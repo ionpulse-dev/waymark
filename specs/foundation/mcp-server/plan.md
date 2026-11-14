@@ -29,7 +29,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 1. **Arguments.** `clap` with the arguments and variables of the requirements. Any limit argument maps to a layer value (`config::layers`). `--version` and `--help` are the only other commands.
 2. **Server.** `rmcp` over stdio on a `tokio` runtime. Tool handlers are synchronous and run in `spawn_blocking`, because `git` calls block. One call runs at a time per process (the write lock is also in `gitsync`).
 3. **Tool trait.** `name()`, `description()`, `kind()` (read, write, destructive), `input_schema()` (JSON Schema, hand-written with `serde_json::json!` to keep descriptions short), and `call(&Context, Value) -> Result<ToolOutput, ToolError>`.
-4. **Listing.** `tools/list` returns the tools that `EffectiveSettings` allows: write tools are hidden when `access` is `read-only` or `paused`, and `tools_denied` hides named tools. `verify`, `review`, and `reject` appear only when `verification` is on. The kind becomes the MCP annotations `readOnlyHint` and `destructiveHint`.
+4. **Listing.** `tools/list` returns the tools that `EffectiveSettings` allows: write tools are hidden when `access` is `read-only` or `paused`, and `tools_denied` hides named tools. `verify_document`, `review`, and `reject_document` appear only when `verification` is on. The kind becomes the MCP annotations `readOnlyHint` and `destructiveHint`.
 5. **Calls.** Before a handler runs, the registry checks that the tool is listed. A call of a hidden tool gives `access_denied`. An unknown name gives the MCP "unknown tool" error. Arguments are checked against the schema. A failure is `invalid_arguments` with a `next` sentence.
 6. **Result.** Success returns structured content `{ message, notices, settings, ...data }` and a text copy of `message`. Failure sets `isError` with `{ code, message, next }`.
 7. **Context per call.** Settings are loaded at every call (see `trust-model`). The session state (read budget counters) lives in `Context` for the process.
@@ -47,7 +47,7 @@ The `waymark` binary parses its arguments, builds a `Context` (settings, reposit
 
 - `rmcp` 3.x differs from 0.x examples that I know. Mitigation: read the crate documentation at the start of the task and keep all `rmcp` code in `src/mcp/mod.rs`.
 - Elicitation support in `rmcp` may be incomplete. Mitigation: `write-approval` has the first task "check elicitation in `rmcp`", with a fallback to raw JSON-RPC for that one request.
-- Context cost of tool descriptions. Mitigation: a test that measures the size of `tools/list` and fails above a budget (default 6000 characters for the descriptions, recorded in `decisions.md`).
+- Context cost of tool descriptions. Mitigation: a test that measures the size of `tools/list` and fails above a budget (9000 characters for the descriptions and 28000 for the whole list, recorded in `decisions.md`).
 
 ## Open Questions
 

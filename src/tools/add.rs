@@ -14,11 +14,11 @@ pub struct Add;
 
 impl Tool for Add {
     fn name(&self) -> &'static str {
-        "add"
+        "add_document"
     }
 
     fn description(&self) -> &'static str {
-        "Creates a document. Sets the dates and the author, picks a file name, checks the result, commits, and pushes. Returns the ID and version."
+        "Creates a document. Sets the dates and the author, picks a file name, checks the result, commits, and pushes. Returns id, title, deprecated, commit, and version."
     }
 
     fn kind(&self) -> Kind {
@@ -29,18 +29,65 @@ impl Tool for Add {
         json!({
             "type": "object",
             "properties": {
-                "folder": {"type": "string", "description": "Folder of the new document. Empty means the root."},
-                "title": {"type": "string"},
-                "description": {"type": "string"},
-                "body": {"type": "string", "description": "Markdown text. May be empty."},
-                "sources": {"type": "array", "items": {"type": "string"}},
-                "tags": {"type": "array", "items": {"type": "string"}},
-                "related": {"type": "array", "items": {"type": "string"}, "description": "Document IDs."},
-                "anchors": {"type": "array", "items": {"type": "string"}},
-                "supersedes": {"type": "string", "description": "ID of the document that this one replaces."},
-                "preview": {"type": "boolean"}
+                "folder": {
+                    "type": "string",
+                    "description": "Folder of the new document. Empty means the root."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "One sentence. At most 15 words by default."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "What the document contains and when to read it. At most 50 words by default."
+                },
+                "body": {
+                    "type": "string",
+                    "description": "Markdown text. May be empty."
+                },
+                "sources": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Ticket IDs or URLs."
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Tags without # and without spaces."
+                },
+                "related": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "IDs of documents to read too."
+                },
+                "anchors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Pointers to what the document describes, as git:<repo>/<path>@<commit> or url:<address>."
+                },
+                "supersedes": {
+                    "type": "string",
+                    "description": "ID of the document that this one replaces. That document becomes deprecated."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["folder", "title", "description", "body"],
+            "required": [
+                "folder",
+                "title",
+                "description",
+                "body"
+            ],
             "additionalProperties": false
         })
     }
@@ -65,129 +112,130 @@ impl Tool for Add {
         let author = writes::author_string(ctx)?;
         let today = writes::today();
 
-        writes::execute(ctx, env, "add", Kind::Write, preview, |tx, memrepo| {
-            let ids = memrepo.id_set();
-            let taken: std::collections::HashSet<String> =
-                ids.iter().map(|i| i.to_lowercase()).collect();
-            let id = writes::slug::new_id(&folder, &title, &|i| taken.contains(&i.to_lowercase()))
-                .ok_or_else(|| {
-                    Error::validation("No free file name is left for this title.")
-                        .with_next("Choose a different title.")
-                })?;
-            if !env.effective.allows_folder(&id) {
-                return Err(Error::new(
-                    Code::AccessDenied,
-                    "This folder is outside the allowed folders.",
-                )
-                .with_next("Choose a folder that the limits allow."));
-            }
-            if memrepo.is_excluded(&id) {
-                return Err(Error::validation(
-                    "This folder is excluded from the memory repository.",
-                )
-                .with_next("Choose another folder."));
-            }
-
-            let mut doc = Document::new(&writes::make_body(&body));
-            let fm = &mut doc.frontmatter;
-            fm.set_text("title", &title);
-            fm.set_text("description", &description);
-            fm.set_text("status", "active");
-            fm.set_date("created", &today);
-            fm.set_date("updated", &today);
-            fm.set_text("created_by", &author);
-            fm.set_text("updated_by", &author);
-            if !sources.is_empty() {
-                fm.set_list("sources", &sources);
-            }
-            if !tags.is_empty() {
-                fm.set_list("tags", &tags);
-            }
-            if !related.is_empty() {
-                let links: Vec<String> = related.iter().map(|r| writes::wikilink(r)).collect();
-                fm.set_list("related", &links);
-            }
-            if !anchors.is_empty() {
-                fm.set_list("anchors", &anchors);
-            }
-            if memrepo.settings.verification {
-                fm.set_text("trust", "unverified");
-            }
-
-            let mut changes = Vec::new();
-            let mut deprecated = Vec::new();
-            let mut skip: Vec<String> = Vec::new();
-            if let Some(old_id) = &supersedes {
-                writes::require_visible(env, old_id)?;
-                let (_, mut old) = writes::read_doc(tx, memrepo, old_id)?;
-                doc.frontmatter
-                    .set_list("supersedes", &[writes::wikilink(old_id)]);
-                skip.push(old_id.clone());
-                if old.frontmatter.get_text("status") != Some("deprecated") {
-                    old.frontmatter.set_text("status", "deprecated");
-                    writes::touch(&mut old, &today, &author);
-                    changes.push(FileChange::Write {
-                        id: old_id.clone(),
-                        text: old.render(),
-                        action: "deprecate",
-                    });
-                    deprecated.push(old_id.clone());
+        writes::execute(
+            ctx,
+            env,
+            "add_document",
+            Kind::Write,
+            preview,
+            |tx, memrepo| {
+                let ids = memrepo.id_set();
+                let taken: std::collections::HashSet<String> =
+                    ids.iter().map(|i| i.to_lowercase()).collect();
+                let id =
+                    writes::slug::new_id(&folder, &title, &|i| taken.contains(&i.to_lowercase()))
+                        .ok_or_else(|| {
+                        Error::validation("No free file name is left for this title.")
+                            .with_next("Choose a different title.")
+                    })?;
+                if !env.effective.allows_folder(&id) {
+                    return Err(Error::new(
+                        Code::AccessDenied,
+                        "This folder is outside the allowed folders.",
+                    )
+                    .with_next("Choose a folder that the limits allow."));
                 }
-            }
+                if memrepo.is_excluded(&id) {
+                    return Err(Error::validation(
+                        "This folder is excluded from the memory repository.",
+                    )
+                    .with_next("Choose another folder."));
+                }
 
-            let text = doc.render();
-            let mut ids_after = ids.clone();
-            ids_after.insert(id.clone());
-            let mut problems = writes::Problems::default();
-            let mut notices = Vec::new();
-            let mut secret_fields = vec![
-                ("title", title.clone()),
-                ("description", description.clone()),
-                ("body", body.clone()),
-            ];
-            secret_fields.push(("sources", sources.join("\n")));
-            secret_fields.push(("tags", tags.join("\n")));
-            let skip_refs: Vec<&str> = skip.iter().map(String::as_str).collect();
-            writes::check_document_links(
-                memrepo,
-                &id,
-                &text,
-                &ids_after,
-                &secret_fields,
-                Some(TitleCheck { skip: &skip_refs }),
-                writes::NewLinks::All,
-                &mut problems,
-                &mut notices,
-            )?;
-            if !problems.is_empty() {
-                return Err(problems.into_error());
-            }
+                let mut doc = Document::new(&writes::make_body(&body));
+                let fm = &mut doc.frontmatter;
+                fm.set_text("title", &title);
+                fm.set_text("description", &description);
+                fm.set_text("status", "active");
+                fm.set_date("created", &today);
+                fm.set_date("updated", &today);
+                fm.set_text("created_by", &author);
+                fm.set_text("updated_by", &author);
+                if !sources.is_empty() {
+                    fm.set_list("sources", &sources);
+                }
+                if !tags.is_empty() {
+                    fm.set_list("tags", &tags);
+                }
+                if !related.is_empty() {
+                    let links: Vec<String> = related.iter().map(|r| writes::wikilink(r)).collect();
+                    fm.set_list("related", &links);
+                }
+                if !anchors.is_empty() {
+                    fm.set_list("anchors", &anchors);
+                }
+                if memrepo.settings.verification {
+                    fm.set_text("trust", "unverified");
+                }
 
-            changes.insert(
-                0,
-                FileChange::Write {
-                    id: id.clone(),
-                    text: text.clone(),
-                    action: "create",
-                },
-            );
-            let mut data = Map::new();
-            data.insert("id".into(), json!(id));
-            data.insert("title".into(), json!(title));
-            data.insert("deprecated".into(), json!(deprecated));
-            Ok(Plan {
-                first: None,
-                revert: None,
-                changes,
-                verb: Verb::Add,
-                title: title.clone(),
-                commit_body: None,
-                summary: format!("Add \"{title}\" in \"{folder}\"\n\n{body}"),
-                message: format!("Added \"{title}\" as `{id}`."),
-                data,
-                text: Some(text),
-                notices,
-            })
-        })
+                let mut changes = Vec::new();
+                let mut deprecated = Vec::new();
+                let mut skip: Vec<String> = Vec::new();
+                if let Some(old_id) = &supersedes {
+                    let s = writes::apply_supersedes(
+                        tx, memrepo, env, &mut doc, None, old_id, &today, &author,
+                    )?;
+                    skip.push(old_id.clone());
+                    if let Some(change) = s.deprecate {
+                        changes.push(change);
+                        deprecated.push(old_id.clone());
+                    }
+                }
+
+                let text = doc.render();
+                let mut ids_after = ids.clone();
+                ids_after.insert(id.clone());
+                let mut problems = writes::Problems::default();
+                let mut notices = Vec::new();
+                let mut secret_fields = vec![
+                    ("title", title.clone()),
+                    ("description", description.clone()),
+                    ("body", body.clone()),
+                ];
+                secret_fields.push(("sources", sources.join("\n")));
+                secret_fields.push(("tags", tags.join("\n")));
+                let skip_refs: Vec<&str> = skip.iter().map(String::as_str).collect();
+                writes::check_document_links(
+                    memrepo,
+                    &id,
+                    &text,
+                    &ids_after,
+                    &secret_fields,
+                    Some(TitleCheck { skip: &skip_refs }),
+                    writes::NewLinks::All,
+                    &mut problems,
+                    &mut notices,
+                )?;
+                if !problems.is_empty() {
+                    return Err(problems.into_error());
+                }
+
+                changes.insert(
+                    0,
+                    FileChange::Write {
+                        id: id.clone(),
+                        text: text.clone(),
+                        action: "create",
+                    },
+                );
+                let mut data = Map::new();
+                data.insert("id".into(), json!(id));
+                data.insert("title".into(), json!(title));
+                data.insert("deprecated".into(), json!(deprecated));
+                Ok(Plan {
+                    first: None,
+                    revert: None,
+                    changes,
+                    verb: Verb::Add,
+                    title: title.clone(),
+                    commit_body: None,
+                    summary: format!("Add \"{title}\" in \"{folder}\"\n\n{body}"),
+                    message: format!("Added \"{title}\" as `{id}`."),
+                    data,
+                    text: Some(text),
+                    notices,
+                })
+            },
+        )
     }
 }

@@ -6,7 +6,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 | Criterion | Test Case |
 |:----------|:----------|
-| Valid `add`: one commit under the author reaches the remote | `add_commits_and_pushes` |
+| Valid `add_document`: one commit under the author reaches the remote | `add_commits_and_pushes` |
 | Secret in the body fails and writes nothing | `add_rejects_secret` |
 | Existing title fails and names the document | `add_rejects_duplicate_title` |
 | 80 percent word overlap fails | `add_rejects_near_duplicate` |
@@ -14,17 +14,17 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | Only `description` sent: body unchanged | `update_partial_keeps_body` |
 | Title change keeps file name and ID | `update_title_keeps_id` |
 | `preview: true` writes nothing | `preview_writes_nothing` |
-| `dispute` sets the flag and the reason | `dispute_sets_fields` |
-| `deprecate` keeps the file | `deprecate_keeps_file` |
-| `dispute` with `clear: true` | `dispute_clear` |
-| `add` with `supersedes`: one commit, old document deprecated | `add_supersedes_one_commit` |
-| `delete` of a linked document fails and lists the links | `delete_refuses_linked_document` |
-| `delete` works after the links are removed | `delete_after_links_removed` |
-| `delete` with `preview` of a linked document fails the same way | `delete_preview_refuses_linked_document` |
-| `tools_denied` hides `delete` | `delete_hidden_when_denied` |
+| `dispute_document` sets the flag and the reason | `dispute_sets_fields` |
+| `deprecate_document` keeps the file | `deprecate_keeps_file` |
+| `dispute_document` with `clear: true` | `dispute_clear` |
+| `add_document` with `supersedes`: one commit, old document deprecated | `add_supersedes_one_commit` |
+| `delete_document` of a linked document fails and lists the links | `delete_refuses_linked_document` |
+| `delete_document` works after the links are removed | `delete_after_links_removed` |
+| `delete_document` with `preview` of a linked document fails the same way | `delete_preview_refuses_linked_document` |
+| `tools_denied` hides `delete_document` | `delete_hidden_when_denied` |
 | `read-only` gives `access_denied` and no commit | `read_only_blocks_writes` |
-| `approval.required_for = ["add"]` asks first | `approval_asked_before_commit` |
-| Body link to a missing document fails `add` | `add_refuses_broken_body_link` |
+| `approval.required_for = ["add_document"]` asks first | `approval_asked_before_commit` |
+| Body link to a missing document fails `add_document` | `add_refuses_broken_body_link` |
 | An old broken body link does not block an unrelated update | `update_keeps_old_broken_link` |
 | `update_document` that adds a broken body link fails | `update_refuses_new_broken_link` |
 | `folders` limit gives `access_denied` | `add_outside_folders` |
@@ -34,19 +34,19 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 - [x] [auto] All criteria above (the approval criterion is covered by a fail-closed test; the real approval test stays `#[ignore]` until `write-approval`), through the real binary and the `World` harness (`tests/it_write_documents.rs`)
 - [x] [auto] The commit subject is `waymark: add "<title>"` and has no agent tag (`tests/it_write_documents.rs`)
-- [x] [auto] `deprecate` puts `Reason:` in the commit message body and not in the file (`tests/it_write_documents.rs`)
+- [x] [auto] `deprecate_document` puts `Reason:` in the commit message body and not in the file (`tests/it_write_documents.rs`)
 - [x] [auto] Property link to a missing document fails with `validation_failed`, and every finding is in `message` (`tests/it_write_documents.rs`)
 - [x] [auto] Two people write different documents at the same time and both reach the remote (`tests/it_write_documents.rs`)
-- [x] [auto] The same `add` twice leaves the repository as after the first call (`tests/it_write_documents.rs`)
-- [x] [auto] `delete` of a document outside `folders` gives `not_found` or `access_denied` and no commit (`tests/it_write_documents.rs`). 
+- [x] [auto] The same `add_document` twice leaves the repository as after the first call (`tests/it_write_documents.rs`)
+- [x] [auto] `delete_document` of a document outside `folders` gives `not_found` or `access_denied` and no commit (`tests/it_write_documents.rs`). 
 - [x] [auto] An id outside `folders` gives `not_found` (`tests/it_write_documents.rs`)
-- [x] [auto] `dispute` twice gives `validation_failed` with the old reason in `message` (`tests/it_write_documents.rs`)
+- [x] [auto] `dispute_document` twice gives `validation_failed` with the old reason in `message` (`tests/it_write_documents.rs`)
 - [x] [auto] File name rules: slug, 60-character cut, empty title, collision suffix (unit tests in `src/writes/slug.rs`)
 - [x] [auto] Near-duplicate boundary: 4 of 5 shared words fails, 3 of 5 passes, a 2-word title only fails on an exact match (unit tests in `src/writes/titles.rs`)
 - [x] [auto] Every built-in secret pattern matches its sample and the result never contains the secret (unit tests in `src/lint/secrets.rs`)
 - [x] [auto] Retarget keeps every other byte and skips code fences (unit tests in `src/writes/linkfix.rs`). Retarget is tested in `move-documents`.
-- [x] [auto] Body link check: a link to a missing document fails `add` and a new one fails `update_document`. URLs, other file types, `#heading` parts, and code fences are ignored. `linked_from` of `delete` lists each linking document with `where` and `count` (unit tests in `src/writes/`, and the cases of the table above in `tests/it_write_documents.rs`)
-- [ ] [manual] A document written by `add` opens in Obsidian with its properties, links, and tags shown. Steps: run `add` through a real agent tool with `tags`, `related`, and a body link, open the clone as a vault in Obsidian. Expected: the Properties panel shows every field, the links are clickable, and no error shows.
+- [x] [auto] Body link check: a link to a missing document fails `add_document` and a new one fails `update_document`. URLs, other file types, `#heading` parts, and code fences are ignored. `linked_from` of `delete_document` lists each linking document with `where` and `count` (unit tests in `src/writes/`, and the cases of the table above in `tests/it_write_documents.rs`)
+- [ ] [manual] A document written by `add_document` opens in Obsidian with its properties, links, and tags shown. Steps: run `add_document` through a real agent tool with `tags`, `related`, and a body link, open the clone as a vault in Obsidian. Expected: the Properties panel shows every field, the links are clickable, and no error shows.
 
 ## Notes
 

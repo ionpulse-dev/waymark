@@ -24,7 +24,7 @@ _The tests use the harness of `integration-testing`. The `McpClient` returns the
 - [x] [auto] The instructions have the memory repository name, the ID, and the numbers of the limits from a shared file with `max_results = 3` and `folders = ["backend/*"]` (`tests/it_session_start.rs`)
 - [x] [auto] The instructions contain none of `should`, `must`, `always`, `never`, `please`, `prefer`, `you`, in a table of ten setting combinations (inline in `src/mcp/instructions.rs`, and once end to end in `tests/it_session_start.rs`)
 - [x] [auto] With `paused = true`, the instructions say `writes paused: yes` and the first notice of `status` is "Writes are paused." (`tests/it_session_start.rs`)
-- [x] [auto] With `access = "read-only"` and an agent that never calls `status`, `add` gives `access_denied` (`tests/it_session_start.rs`)
+- [x] [auto] With `access = "read-only"` and an agent that never calls `status`, `add_document` gives `access_denied` (`tests/it_session_start.rs`)
 - [x] [auto] With no memory repository, the instructions have the second form with the `message` of the problem, and `status` returns `memory_repository: null`, a `problem` with `next`, and no error flag (`tests/it_session_start.rs`)
 - [x] [auto] The test changes `max_results` in the personal file after `initialize`. The `settings` of the next result show the new value, and the instructions do not change (`tests/it_session_start.rs`)
 - [x] [auto] The remote is deleted after the clone. `initialize` answers in under 2 seconds (`tests/it_session_start.rs`)
@@ -42,4 +42,4 @@ _The tests use the harness of `integration-testing`. The `McpClient` returns the
 
 The manual tests answer which agent tools show or use server instructions. The result goes into the README. The server does not depend on the answer, because `status` and `settings` in every result carry the same facts.
 
-The test `limits_hold_without_instructions` calls `add` from `write-documents`. This spec does not require that spec, so the test ran as a normal test, because `write-documents` is `implemented`. The task "Run the full suite" runs ignored tests if the tool exists.
+The test `limits_hold_without_instructions` calls `add_document` from `write-documents`. This spec does not require that spec, so the test ran as a normal test, because `write-documents` is `implemented`. The task "Run the full suite" runs ignored tests if the tool exists.

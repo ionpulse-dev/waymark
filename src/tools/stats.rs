@@ -18,7 +18,7 @@ impl Tool for Stats {
     }
 
     fn description(&self) -> &'static str {
-        "Counts words, tokens, characters, or documents, in total or grouped by folder or author. Use it to check whether a folder fits into a read budget. Changes nothing."
+        "Counts words, tokens, characters, or documents, in total or by folder or author. Returns metric, total, documents, and the groups. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -29,9 +29,32 @@ impl Tool for Stats {
         json!({
             "type": "object",
             "properties": {
-                "folders": {"type": "array", "items": {"type": "string"}},
-                "metric": {"type": "string", "enum": ["words", "tokens", "chars", "documents"]},
-                "by": {"type": "string", "enum": ["none", "folder", "author"]}
+                "folders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Only these folders. Default: all."
+                },
+                "metric": {
+                    "type": "string",
+                    "enum": [
+                        "words",
+                        "tokens",
+                        "chars",
+                        "documents"
+                    ],
+                    "description": "What to count. Default words."
+                },
+                "by": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "folder",
+                        "author"
+                    ],
+                    "description": "How to group the count. Default none."
+                }
             },
             "additionalProperties": false
         })

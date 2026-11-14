@@ -183,3 +183,12 @@ the spec [terminology](../specs/foundation/terminology/decisions.md).
 `index.md` is a normal document. The older entries of this file and of the
 feature specs keep their words. The reasons are in the spec
 [remove-index](../specs/foundation/remove-index/decisions.md).
+
+## Tool names follow one scheme, and tools grow in five steps — 2026-11-15
+
+**Decision:** Tool names follow the scheme of [tool-conventions](../specs/foundation/tool-conventions/requirements.md): `<verb>_document` for a write on one document, `<verb>_folder` for folders, and bare words for the rest. Nine tools were renamed. Old names work in calls until 0.5.0 and in limits for good. In the same step the tools got a description for every parameter and a "Returns" sentence, and five specs added capability: `search-filters`, `restore-and-replace`, `document-history`, `manage-tags`, and `tool-conventions`.
+
+**Alternatives considered:** No rename (an agent cannot guess `add_empty_folder` from `add`). A rename with no alias, as in 0.2.0 (a limit with an old name would stop working without a warning, and a switched-off tool would come back).
+
+**Reason:** An agent that has learned one tool can guess the next one. A rename must never loosen a limit. The details are in the `decisions.md` of each spec.
+

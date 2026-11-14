@@ -149,6 +149,6 @@ fn a_denied_tool_list_and_folders_show_in_settings() {
     let w = World::new();
     shared(&w, "");
     let s = settings(&w, &["--no-delete", "--folders", "engineering/**"]);
-    assert_eq!(s["tools_denied"], json!(["delete"]));
+    assert_eq!(s["tools_denied"], json!(["delete_document"]));
     assert_eq!(s["folders"], json!(["engineering/**"]));
 }

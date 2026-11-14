@@ -21,7 +21,7 @@
 - [x] [auto] The root is found for the layout `agent-memory/.waymark` and fails with `setup_problem` when absent (`src/memrepo/layout.rs`)
 - [x] [auto] The files written by `init` pass the conformance check of `document-format` where they are documents (`tests/it_memory_repository.rs`)
 - [x] [auto] A file with a higher `schema` gives `setup_problem` and the message "needs a newer waymark"; a file without `schema` is schema 1; a `schema` of 0, -1, or "x" gives `setup_problem` (`src/memrepo/settings.rs`)
-- [x] [auto] With a higher `schema`, `list`, `add`, and `search` fail, and `status` reports the problem with the fix (`tests/it_memory_repository.rs`)
+- [x] [auto] With a higher `schema`, `list`, `add_document`, and `search` fail, and `status` reports the problem with the fix (`tests/it_memory_repository.rs`)
 - [x] [auto] `init` writes `schema = 1` (`tests/it_memory_repository.rs`)
 - [x] [auto] The repair adds `schema = 1` after the header comment (or as the first line if there is none), keeps every other line and comment, does nothing twice, and leaves a file that is not TOML, a higher schema, and a bad schema alone (`src/memrepo/repairs.rs`)
 - [x] [auto] A write on a file without `schema` makes the commit `waymark: repair "settings"` and then its own commit, with a notice. A read and a preview make no commit. A second write makes no repair commit (`tests/it_memory_repository.rs`)

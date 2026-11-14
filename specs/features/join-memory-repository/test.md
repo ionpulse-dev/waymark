@@ -24,7 +24,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A1: put a fake `git` that exits 1 first in `PATH`; start with `--repo`: `status` shows check `git` not ok with a `fix`, and the path does not exist (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A2: `World` remote with a memory repository, `--repo file://<remote>` and `--path <new folder>`: after `status` the state is `ready` and the folder is a clone (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A3: `HOME` is a temporary folder, no `--path`, URL `.../remote.git`: the clone is in `$HOME/.waymark/remote` (`~/.waymark` is created) (`tests/it_join_memory_repository.rs`)
-- [x] [auto] A4: shared `access = "read-only"`, personal `read-write`: `settings.access` is `read-only` and `add` fails with `access_denied` (`tests/it_join_memory_repository.rs`)
+- [x] [auto] A4: shared `access = "read-only"`, personal `read-write`: `settings.access` is `read-only` and `add_document` fails with `access_denied` (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A5: two servers with two `--repo` values and two paths: both are `ready`, and the files of the first clone do not change (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A6: a remote whose `settings.toml` has no `id`: the state is `broken` and `search` returns `setup_problem` (`tests/it_join_memory_repository.rs`)
 - [x] [auto] A7: two processes start together on the same new path: the path holds one clone, no `.cloning-*` folder remains, and both answer `status` `ready` (`tests/it_join_memory_repository.rs`)

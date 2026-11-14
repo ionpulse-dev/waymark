@@ -9,32 +9,12 @@ use crate::state::State;
 use crate::store::changes::{changes_since, Change, Kind};
 use crate::store::scope::Scope;
 use crate::writes;
-use chrono::{DateTime, NaiveDate, SecondsFormat, Utc};
+use chrono::{DateTime, SecondsFormat, Utc};
 use serde_json::{json, Value};
 
 pub struct Updates;
 
 const MAX: usize = 50;
-
-fn parse_since(text: &str) -> Result<DateTime<Utc>, Error> {
-    let bad = || {
-        Error::invalid("\"since\" is not a date or a time.")
-            .with_next("Use YYYY-MM-DD or a time like 2026-11-10T09:00:00Z.")
-    };
-    let when = if let Ok(d) = NaiveDate::parse_from_str(text, "%Y-%m-%d") {
-        d.and_hms_opt(0, 0, 0).ok_or_else(bad)?.and_utc()
-    } else {
-        DateTime::parse_from_rfc3339(text)
-            .map_err(|_| bad())?
-            .with_timezone(&Utc)
-    };
-    if when > Utc::now() {
-        return Err(
-            Error::invalid("\"since\" is in the future.").with_next("Use a time in the past.")
-        );
-    }
-    Ok(when)
-}
 
 fn group(c: &Change) -> u8 {
     match (c.mine, c.kind == Kind::Disputed) {
@@ -50,7 +30,7 @@ impl Tool for Updates {
     }
 
     fn description(&self) -> &'static str {
-        "Lists the documents that others added, changed, moved, deprecated, disputed, or deleted since a time. Without since, it uses the time of your last call. Changes nothing except that time."
+        "Lists the documents that others added, changed, moved, deprecated, disputed, or deleted since a time. Returns changes (id, title, kind, by, date), total, and truncated. Without since, it uses the time of your last call. Changes nothing except that time."
     }
 
     fn kind(&self) -> ToolKind {
@@ -61,8 +41,17 @@ impl Tool for Updates {
         json!({
             "type": "object",
             "properties": {
-                "folders": {"type": "array", "items": {"type": "string"}},
-                "since": {"type": "string", "description": "A date YYYY-MM-DD or an RFC 3339 time. Without it: since your last call, or 7 days."}
+                "folders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Only these folders. Default: all."
+                },
+                "since": {
+                    "type": "string",
+                    "description": "A date YYYY-MM-DD or an RFC 3339 time. Default: since your last call, or 7 days."
+                }
             },
             "additionalProperties": false
         })
@@ -71,7 +60,9 @@ impl Tool for Updates {
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let folders = writes::get_list(&args, "folders").unwrap_or_default();
         let explicit = writes::get_str(&args, "since");
-        let explicit_when = explicit.map(parse_since).transpose()?;
+        let explicit_when = explicit
+            .map(|s| super::read_common::parse_when("since", s, false))
+            .transpose()?;
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;

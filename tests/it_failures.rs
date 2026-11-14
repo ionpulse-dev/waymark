@@ -41,7 +41,7 @@ fn a_rejected_push_says_what_to_do() {
         .unwrap();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&[]));
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "Pushed", "description": "D.", "body": "B."}),
     );
     let text = r.json.to_string();

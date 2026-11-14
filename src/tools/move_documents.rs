@@ -38,7 +38,7 @@ impl Tool for Move {
     }
 
     fn description(&self) -> &'static str {
-        "Moves or renames a document, or a whole folder (a path with a trailing slash). Rewrites every link to it and keeps the Git history. Makes one commit for the move and one for the link fixes."
+        "Moves or renames a document, or a whole folder (a path with a trailing slash). Rewrites every link to it, keeps the Git history, and commits and pushes: one commit for the move and one for the link fixes. Returns from, to, moved, and links_updated."
     }
 
     fn kind(&self) -> Kind {
@@ -49,11 +49,23 @@ impl Tool for Move {
         json!({
             "type": "object",
             "properties": {
-                "from": {"type": "string", "description": "A document ID, or a folder path with a trailing slash."},
-                "to": {"type": "string", "description": "The new ID, or the new folder path with a trailing slash."},
-                "preview": {"type": "boolean"}
+                "from": {
+                    "type": "string",
+                    "description": "A document ID, or a folder path with a trailing slash."
+                },
+                "to": {
+                    "type": "string",
+                    "description": "The new ID, or the new folder path with a trailing slash."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["from", "to"],
+            "required": [
+                "from",
+                "to"
+            ],
             "additionalProperties": false
         })
     }

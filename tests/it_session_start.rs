@@ -88,7 +88,7 @@ fn limits_hold_without_instructions() {
     personal(&w, "[limits]\naccess = \"read-only\"\n");
     let mut c = client(&w);
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
     );
     assert_eq!(r.code(), Some("access_denied"));

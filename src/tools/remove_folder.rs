@@ -17,11 +17,11 @@ pub struct RemoveFolder;
 
 impl Tool for RemoveFolder {
     fn name(&self) -> &'static str {
-        "remove_folder"
+        "delete_folder"
     }
 
     fn description(&self) -> &'static str {
-        "Removes a folder with all documents in it, in one commit. Needs expect_documents: the number of documents it will delete, as a preview shows. Refuses while a document outside the folder links into it."
+        "Deletes a folder with all documents in it, in one commit. Needs expect_documents: the number of documents it will delete, as a preview shows. Refuses while a document outside the folder links into it. Commits and pushes. Returns folder, documents, folders, and commit."
     }
 
     fn kind(&self) -> Kind {
@@ -32,11 +32,23 @@ impl Tool for RemoveFolder {
         json!({
             "type": "object",
             "properties": {
-                "folder": {"type": "string", "description": "The folder below the root."},
-                "expect_documents": {"type": "integer", "description": "How many documents the folder holds, also in the folders below it. 0 for an empty folder."},
-                "preview": {"type": "boolean"}
+                "folder": {
+                    "type": "string",
+                    "description": "The folder below the root."
+                },
+                "expect_documents": {
+                    "type": "integer",
+                    "description": "How many documents the folder holds, also in the folders below it. 0 for an empty folder."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["folder", "expect_documents"],
+            "required": [
+                "folder",
+                "expect_documents"
+            ],
             "additionalProperties": false
         })
     }
@@ -58,7 +70,7 @@ impl Tool for RemoveFolder {
         writes::execute(
             ctx,
             env,
-            "remove_folder",
+            "delete_folder",
             Kind::Destructive,
             preview,
             |_tx, memrepo| {

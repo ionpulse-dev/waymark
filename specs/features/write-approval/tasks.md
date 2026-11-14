@@ -10,7 +10,7 @@ _`requires`: `mcp-server`, `write-documents` (both must be `implemented` before 
 - [x] `src/mcp/context.rs` and `src/mcp/mod.rs`: keep the client capabilities and build the approver for each call.
 - [x] `src/gitsync/write.rs`: step 6 with the `Approver`, the `console` rule, and the limits check after a yes.
 - [x] `src/mcp/error.rs`: the messages and `next` sentences of `approval_denied` and `approval_unavailable`.
-- [x] Write tools: the `approval` field in `data`, and the `ApprovalRequest` for `add`, `update_document`, `dispute`, `deprecate`, and `delete` (the other tools add theirs in their own specs).
+- [x] Write tools: the `approval` field in `data`, and the `ApprovalRequest` for `add_document`, `update_document`, `dispute_document`, `deprecate_document`, and `delete_document` (the other tools add theirs in their own specs).
 - [x] `tests/it_write_approval.rs`: every test case of `test.md`.
 - [x] README: a section "Approval" with the rule, the clients that work, and the permission-prompt way (with the manual test results).
 - [x] Run the full suite.

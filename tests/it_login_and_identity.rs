@@ -25,7 +25,7 @@ fn start(w: &World, args: &[&str], env: &[(&str, &str)]) -> McpClient {
 
 fn add(c: &mut McpClient, title: &str) -> common::Reply {
     c.call(
-        "add",
+        "add_document",
         json!({"folder": "ops", "title": title, "description": "About it.", "body": "Text."}),
     )
 }

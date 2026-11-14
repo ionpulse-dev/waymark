@@ -106,7 +106,7 @@ With `preview: true`, `id` and `commit` are `null`, `pushed` is `false`, and not
 - **Given** the new repository, **When** it is opened in Obsidian, **Then** it works as a vault.
 - **Given** `access = "read-only"`, **When** `init` runs, **Then** it fails with `access_denied`.
 - **Given** `preview: true`, **When** `init` runs, **Then** nothing is written or committed.
-- **Given** `init` succeeded, **When** the same session calls `search` or `add`, **Then** the tools work with no restart.
+- **Given** `init` succeeded, **When** the same session calls `search` or `add_document`, **Then** the tools work with no restart.
 - **Given** a bad input (slug, folder, unknown key), **When** `init` runs, **Then** it fails with `invalid_arguments`, names the field, and changes nothing.
 - **Given** a repository with a `.waymark` marker and documents but no `settings.toml`, **When** `init` runs with a name, **Then** only the `settings.toml` is added and the state is `ready` in the same session.
 - **Given** that repository, **When** `init` runs with `folders` or `audience`, **Then** it fails with `invalid_arguments` and changes nothing.

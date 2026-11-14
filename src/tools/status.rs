@@ -19,7 +19,7 @@ impl Tool for Status {
     }
 
     fn description(&self) -> &'static str {
-        "Shows the state of the setup: the memory repository in use, the limits that apply, and a list of checks with a fix for each problem. Changes nothing."
+        "Shows the memory repository in use, the limits that apply, and checks with a fix for each problem. Returns healthy, version, memory_repository, checks, limit_sources, and author. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -27,7 +27,11 @@ impl Tool for Status {
     }
 
     fn input_schema(&self) -> Value {
-        json!({ "type": "object", "properties": {}, "additionalProperties": false })
+        json!({
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+        })
     }
 
     fn always_listed(&self) -> bool {

@@ -16,11 +16,11 @@ pub struct Delete;
 
 impl Tool for Delete {
     fn name(&self) -> &'static str {
-        "delete"
+        "delete_document"
     }
 
     fn description(&self) -> &'static str {
-        "Deletes a document. Refuses while another document links to it, and lists the linking documents: remove those links first. The file stays in the Git history. Needs the version from show as base."
+        "Deletes a document. Refuses while another document links to it, and lists the linking documents. The file stays in the Git history. Needs the version from show as base. Commits and pushes. Returns id, title, and commit."
     }
 
     fn kind(&self) -> Kind {
@@ -31,11 +31,23 @@ impl Tool for Delete {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string"},
-                "base": {"type": "string", "description": "The version from show."},
-                "preview": {"type": "boolean"}
+                "id": {
+                    "type": "string",
+                    "description": "The document ID: its path below the root, without .md."
+                },
+                "base": {
+                    "type": "string",
+                    "description": "The version from show. The call fails if the document changed since."
+                },
+                "preview": {
+                    "type": "boolean",
+                    "description": "true shows what the call would do and writes nothing."
+                }
             },
-            "required": ["id", "base"],
+            "required": [
+                "id",
+                "base"
+            ],
             "additionalProperties": false
         })
     }
@@ -50,7 +62,7 @@ impl Tool for Delete {
         writes::execute(
             ctx,
             env,
-            "delete",
+            "delete_document",
             Kind::Destructive,
             preview,
             |tx, memrepo| {

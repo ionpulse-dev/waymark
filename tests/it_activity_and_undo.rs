@@ -11,7 +11,7 @@ fn client(w: &World, p: Person) -> McpClient {
 
 fn add(c: &mut McpClient, folder: &str, title: &str, body: &str) -> Value {
     let r = c.call(
-        "add",
+        "add_document",
         json!({"folder": folder, "title": title, "description": format!("About {title}."), "body": body}),
     );
     assert!(!r.is_error, "{}", r.json);
@@ -107,7 +107,7 @@ fn undo_restores_the_text_of_update_dispute_deprecate_and_delete() {
 
     let base = a.call("show", json!({"id": id})).json["version"].clone();
     let d = a.call(
-        "dispute",
+        "dispute_document",
         json!({"id": id, "base": base, "reason": "Wrong."}),
     );
     assert!(file(&w, id).contains("disputed: true"));
@@ -116,7 +116,7 @@ fn undo_restores_the_text_of_update_dispute_deprecate_and_delete() {
 
     let base = a.call("show", json!({"id": id})).json["version"].clone();
     let dep = a.call(
-        "deprecate",
+        "deprecate_document",
         json!({"id": id, "base": base, "reason": "Old."}),
     );
     assert!(file(&w, id).contains("status: deprecated"));
@@ -127,7 +127,7 @@ fn undo_restores_the_text_of_update_dispute_deprecate_and_delete() {
     assert_eq!(file(&w, id), original);
 
     let base = a.call("show", json!({"id": id})).json["version"].clone();
-    let del = a.call("delete", json!({"id": id, "base": base}));
+    let del = a.call("delete_document", json!({"id": id, "base": base}));
     assert!(!w.a.join("agent-memory/ops/doc-one.md").exists());
     let r = a.call("undo", json!({"commit": del.json["commit"]}));
     assert_eq!(r.json["changes"], json!([{"id": id, "action": "restored"}]));

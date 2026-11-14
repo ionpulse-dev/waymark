@@ -117,20 +117,24 @@ A session started by a person asks you to approve a server from `.mcp.json` befo
       "mcp__waymark__search",
       "mcp__waymark__show",
       "mcp__waymark__list",
-      "mcp__waymark__folders",
+      "mcp__waymark__folder_tree",
+      "mcp__waymark__list_tags",
+      "mcp__waymark__history",
       "mcp__waymark__stats",
       "mcp__waymark__updates",
       "mcp__waymark__lint",
       "mcp__waymark__activity"
     ],
     "ask": [
-      "mcp__waymark__add",
+      "mcp__waymark__add_document",
       "mcp__waymark__update_document",
-      "mcp__waymark__dispute",
-      "mcp__waymark__deprecate",
-      "mcp__waymark__delete",
-      "mcp__waymark__add_empty_folder",
-      "mcp__waymark__remove_folder",
+      "mcp__waymark__dispute_document",
+      "mcp__waymark__deprecate_document",
+      "mcp__waymark__restore_document",
+      "mcp__waymark__rename_tag",
+      "mcp__waymark__delete_document",
+      "mcp__waymark__create_folder",
+      "mcp__waymark__delete_folder",
       "mcp__waymark__move",
       "mcp__waymark__undo",
       "mcp__waymark__sync",
@@ -297,7 +301,7 @@ The agent can still read. Write tools disappear from the tool list, and a direct
 
 ```toml
 [approval]
-required_for = ["delete", "update_document"]   # or ["write"] for every write tool
+required_for = ["delete_document", "update_document"]   # or ["write"] for every write tool
 ```
 
 waymark then asks you in the agent tool (MCP elicitation) after all checks passed and before the commit. The question shows the tool, the author, and the full text. You tick "Approve this write" and accept. Decline, cancel, a box that is not ticked, or no answer in 2 minutes means nothing is written (`approval_denied`). A client that cannot show the question gets `approval_unavailable`, and nothing is written. A `preview` never asks. This guards against mistakes. A client hook can answer the question automatically, so it does not stop a deliberate bypass. The other way to get a yes is the permission prompt of your agent tool (see the permission advice above).
