@@ -9,12 +9,6 @@ use std::path::{Path, PathBuf};
 pub const MARKER: &str = ".mkbase";
 pub const SETTINGS_FILE: &str = "waymark.toml";
 
-const GITIGNORE_TEMPLATE: &str = include_str!("templates/gitignore");
-const OBSIDIAN_TEMPLATE: &str = include_str!("templates/obsidian-app.json");
-const SETTINGS_TEMPLATE: &str = include_str!("templates/waymark.toml");
-const EXCLUDE_TEMPLATE: &str =
-    "# Files and folders below the root that are not part of the knowledge base.\n";
-
 /// Is the repository empty? No commit, or only files that a Git host creates.
 pub fn repo_is_empty(dir: &Path) -> bool {
     use crate::gitsync::cmd;
@@ -90,28 +84,11 @@ pub fn init_files(
     audience: Audience,
     email_domains: &[String],
 ) -> Vec<(String, String)> {
-    let name_toml = toml::Value::String(name.to_string()).to_string();
-    let settings = SETTINGS_TEMPLATE
-        .replace("{name}", &name_toml)
-        .replace("{id}", id)
-        .replace("{slug}", slug);
-    vec![
-        (
-            "AGENTS.md".to_string(),
-            super::agents_file::render(audience, email_domains),
-        ),
-        (".gitignore".to_string(), GITIGNORE_TEMPLATE.to_string()),
-        (
-            ".obsidian/app.json".to_string(),
-            OBSIDIAN_TEMPLATE.to_string(),
-        ),
-        (format!("knowledge/{MARKER}/version"), "1.0\n".to_string()),
-        (format!("knowledge/{MARKER}/{SETTINGS_FILE}"), settings),
-        (
-            format!("knowledge/{MARKER}/exclude"),
-            EXCLUDE_TEMPLATE.to_string(),
-        ),
-    ]
+    super::init::files(
+        &super::init::InitInput::plain(name, slug, audience, email_domains),
+        id,
+    )
+    .expect("plain settings are valid")
 }
 
 /// Write the layout of a new knowledge base into a folder. Writes nothing and fails with
@@ -159,12 +136,7 @@ pub fn init_with(
 
 /// A URL-safe short name from a display name.
 pub fn slug_from_name(name: &str) -> String {
-    let s = crate::format::id::slug(name);
-    if s.is_empty() {
-        "knowledge".to_string()
-    } else {
-        s
-    }
+    super::init::derive_slug(name)
 }
 
 #[cfg(test)]
@@ -247,6 +219,6 @@ mod tests {
     #[test]
     fn slugs() {
         assert_eq!(slug_from_name("Example Company"), "example-company");
-        assert_eq!(slug_from_name("!!!"), "knowledge");
+        assert_eq!(slug_from_name("!!!"), "knowledge-base");
     }
 }

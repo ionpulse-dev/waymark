@@ -93,3 +93,13 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision (decided autonomously):** Out of scope for now. The tool accepts `via: "console"` in its input and writes it, because the shared file format allows it. A write that then needs approval returns `approval_unavailable` (see `write-approval`). The tool adds a notice that says so.
 
 **Reason:** Found in the consistency pass. See `docs/decisions.md`.
+
+## Implementation notes — 2026-11-14
+
+- `init` does not use `writes::execute`, because that function needs a knowledge base. The tool calls `Repo::write` itself and asks for approval through `writes::approve_named`, which takes a name instead of a knowledge base. Limits, lock, author check, and approval all apply. Decided autonomously.
+- The code is in `src/kb/init.rs` (`InitInput`, `derive_slug`, `settings_text`, `files`) and `src/tools/init.rs`. `kb::init` and `kb::init_with` stay, for the harness and for tests. The `waymark.toml` of a call with no `limits`, `approval`, or `email_domains` is the commented template. With any of them it is written by the TOML library without comments. Both parse with the same reader. Decided autonomously.
+- `Verb::Init` is added to `gitsync::message`. `undo` refuses it (`validation_failed`). `activity` is not changed.
+- `gitsync::Repo::update` takes the remote branch for a clone that has no commit (`checkout -B <branch> --track`). Without it, the second of two `init` calls would push an unrelated root commit. `Context::kb()` looks at the remote again when the root is missing, so a clone made while the repository was empty sees the first commit later.
+- `slug_from_name` now calls `derive_slug`. The fallback is `knowledge-base` (it was `knowledge`).
+- Input errors from the registry (a wrong type) come before the checks of the tool. The tool names the field for the checks it does itself (`name`, `slug`, `email_domains`, `audience`, `limits`, `approval`, `folders`).
+- `World::empty()` is added to the harness.

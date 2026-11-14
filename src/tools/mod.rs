@@ -6,6 +6,7 @@ pub mod delete;
 pub mod deprecate;
 pub mod dispute;
 pub mod index;
+pub mod init;
 pub mod lint;
 pub mod list;
 pub mod move_documents;
@@ -45,6 +46,7 @@ pub fn registry() -> Registry {
         Box::new(dispute::Dispute),
         Box::new(deprecate::Deprecate),
         Box::new(delete::Delete),
+        Box::new(init::Init),
     ];
     Registry::new(tools)
 }

@@ -252,6 +252,10 @@ impl Context {
     /// A different ID than `--kb-id` is a `setup_problem`.
     pub fn kb(&self) -> Result<KnowledgeBase> {
         let repo = self.repo()?;
+        if crate::kb::layout::find_root(repo.dir()).is_err() {
+            // The remote may have got its first commit since the clone.
+            repo.refresh_if_unborn();
+        }
         if crate::kb::layout::find_root(repo.dir()).is_err()
             && crate::kb::layout::repo_is_empty(repo.dir())
         {

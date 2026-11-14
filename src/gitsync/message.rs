@@ -10,6 +10,7 @@ pub enum Verb {
     Move,
     Undo,
     Sync,
+    Init,
 }
 
 impl Verb {
@@ -23,6 +24,7 @@ impl Verb {
             Verb::Move => "move",
             Verb::Undo => "undo",
             Verb::Sync => "sync",
+            Verb::Init => "init",
         }
     }
 
@@ -36,6 +38,7 @@ impl Verb {
             "move" => Verb::Move,
             "undo" => Verb::Undo,
             "sync" => Verb::Sync,
+            "init" => Verb::Init,
             _ => return None,
         })
     }

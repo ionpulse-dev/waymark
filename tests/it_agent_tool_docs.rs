@@ -52,7 +52,7 @@ fn snippets() -> Vec<(String, String)> {
 }
 
 /// Tools that the permission advice names before their features exist (see `decisions.md`).
-const NOT_YET_BUILT: &[&str] = &["updates", "init"];
+const NOT_YET_BUILT: &[&str] = &["updates"];
 
 #[test]
 fn a1_every_snippet_parses_and_names_waymark() {

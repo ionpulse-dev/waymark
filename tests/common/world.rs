@@ -35,6 +35,28 @@ pub struct World {
 }
 
 impl World {
+    /// A bare remote with no commit and two clones of it. No knowledge base exists.
+    pub fn empty() -> World {
+        isolate();
+        let root = tempfile::Builder::new()
+            .prefix("waymark-world-")
+            .tempdir()
+            .unwrap()
+            .keep();
+        let remote = root.join("remote.git");
+        std::fs::create_dir_all(&remote).unwrap();
+        git(&remote, &["init", "--bare", "--initial-branch=main", "-q"]);
+        git(&root, &["clone", "-q", remote.to_str().unwrap(), "a"]);
+        git(&root, &["clone", "-q", remote.to_str().unwrap(), "b"]);
+        World {
+            a: root.join("a"),
+            b: root.join("b"),
+            root,
+            remote,
+            keep: false,
+        }
+    }
+
     /// A remote with one commit (a knowledge base from `init`) and two clones.
     pub fn new() -> World {
         isolate();

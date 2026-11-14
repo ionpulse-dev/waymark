@@ -57,6 +57,63 @@ impl Repo {
         Ok((a, b))
     }
 
+    /// For a clone with no commit: look at the remote again, and take its branch if it has one.
+    pub fn refresh_if_unborn(&self) {
+        if self.head().is_none() && self.has_remote() {
+            let _ = self.update(false);
+        }
+    }
+
+    /// A clone of an empty repository has no commit. If the remote got commits since, check out
+    /// its branch, so that a second person's `init` sees them (see `create-knowledge-base`).
+    fn join_remote_branch_if_unborn(&self) -> Result<()> {
+        if self.head().is_some() {
+            return Ok(());
+        }
+        let refs = run(
+            &self.dir,
+            None,
+            &[
+                "for-each-ref",
+                "--format=%(refname:short)",
+                "refs/remotes/origin",
+            ],
+        )?;
+        let branches: Vec<String> = refs
+            .stdout
+            .lines()
+            .filter_map(|l| l.strip_prefix("origin/"))
+            .filter(|b| *b != "HEAD")
+            .map(String::from)
+            .collect();
+        let pick = ["main", "master"]
+            .iter()
+            .find(|b| branches.iter().any(|x| x == *b))
+            .map(|b| b.to_string())
+            .or_else(|| branches.first().cloned());
+        let Some(branch) = pick else { return Ok(()) };
+        let out = run(
+            &self.dir,
+            Some(&self.author()),
+            &[
+                "checkout",
+                "-q",
+                "-B",
+                &branch,
+                "--track",
+                &format!("origin/{branch}"),
+            ],
+        )?;
+        if !out.ok {
+            return Err(Error::sync(format!(
+                "Cannot bring the local copy up to date: {}",
+                cmd::first_line(&out.stderr)
+            ))
+            .with_next("Look at the local files in the knowledge base folder."));
+        }
+        Ok(())
+    }
+
     /// Fetch and bring the clone up to date. In a write a failure is an error. In a read it is a notice.
     /// Returns notices for the result.
     pub(crate) fn update(&self, for_write: bool) -> Result<Vec<String>> {
@@ -78,6 +135,10 @@ impl Repo {
             return Ok(vec![format!("{msg}. The local copy may be behind.")]);
         }
         *self.last_fetch.lock().unwrap() = Some(Instant::now());
+        if self.head().is_none() {
+            self.join_remote_branch_if_unborn()?;
+            return Ok(Vec::new());
+        }
         if !self.has_upstream() {
             return Ok(Vec::new());
         }

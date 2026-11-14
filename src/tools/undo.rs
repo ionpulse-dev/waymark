@@ -62,6 +62,12 @@ impl Tool for Undo {
                     Error::not_found("No write with this commit is in your activity.")
                         .with_next("Run activity to see your writes.")
                 })?;
+            if entry.verb == Verb::Init {
+                return Err(
+                    Error::validation("A write of the tool `init` cannot be undone.")
+                        .with_next("Delete the repository or reset it on the Git host."),
+                );
+            }
             if entry.undone {
                 return Err(Error::validation(format!(
                     "This write was already undone by `{}`.",

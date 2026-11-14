@@ -3,6 +3,7 @@
 //! This module reads files. It does not run Git (see `gitsync`).
 
 pub mod agents_file;
+pub mod init;
 pub mod layout;
 pub mod settings;
 

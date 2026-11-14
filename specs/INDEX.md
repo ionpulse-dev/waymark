@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ██████████████████████████████░░░░░░░░░░  15 / 20 active
+📦 Features      ████████████████████████████████░░░░░░░░  16 / 20 active
 🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, and `plain-git-access` are `implemented`. Next in dependency order: `create-knowledge-base`, `updates`, `notifications-and-review`, `maintenance`.
+3. `write-documents`, `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-knowledge-base`, `plain-git-access`, and `create-knowledge-base` are `implemented`. Next in dependency order: `updates`, `notifications-and-review`, `maintenance`.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -36,7 +36,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
 | [join-knowledge-base](features/join-knowledge-base/requirements.md) | `implemented` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `implemented` | 2026-11-14 |
-| [create-knowledge-base](features/create-knowledge-base/requirements.md) | `planned` | 2026-11-14 |
+| [create-knowledge-base](features/create-knowledge-base/requirements.md) | `implemented` | 2026-11-14 |
 | [maintenance](features/maintenance/requirements.md) | `planned` | 2026-11-14 |
 | [notifications-and-review](features/notifications-and-review/requirements.md) | `planned` | 2026-11-14 |
 | [updates](features/updates/requirements.md) | `planned` | 2026-11-14 |

@@ -294,6 +294,30 @@ pub(crate) fn approve(
     summary: &str,
     paths: &[String],
 ) -> Result<bool> {
+    approve_named(
+        ctx,
+        env,
+        &kb.settings.name,
+        Some(kb),
+        tool,
+        kind,
+        summary,
+        paths,
+    )
+}
+
+/// `approve` with a name for the question, for a call before the knowledge base exists (`init`).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn approve_named(
+    ctx: &Context,
+    env: &Env,
+    kb_name: &str,
+    kb: Option<&KnowledgeBase>,
+    tool: &str,
+    kind: Kind,
+    summary: &str,
+    paths: &[String],
+) -> Result<bool> {
     if !env.effective.needs_approval(tool, kind) {
         return Ok(false);
     }
@@ -307,14 +331,14 @@ pub(crate) fn approve(
     let author = author_string(ctx)?;
     let message = crate::mcp::approval_text::render(&crate::mcp::approval_text::Request {
         tool,
-        kb_name: &kb.settings.name,
+        kb_name,
         author: &author,
         summary,
         paths,
     });
     let channel = ctx.channel.lock().unwrap().clone();
     crate::mcp::approval::ask(channel.as_ref(), message)?;
-    let now = ctx.limits(Some(kb));
+    let now = ctx.limits(kb);
     if let Some(p) = now.problem {
         return Err(Error::new(
             Code::SetupProblem,

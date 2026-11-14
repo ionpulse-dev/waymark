@@ -15,3 +15,8 @@ None.
 ## Open Questions
 
 None.
+
+## Notes 2026-11-14
+
+- The activity entry of an `init` commit is not special. Check how `activity` shows it when `maintenance` is done.
+- `git-sync` and `activity-and-undo` lists of verbs should name `init` (the code has it, the text of those specs has eight verbs).
