@@ -74,3 +74,17 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - The advice names `updates` and `init`, which are built in later specs (`updates`, `create-memory-repository`). Test A5 allows these two names through the list `NOT_YET_BUILT` and fails when one of them becomes a real tool, so that the list is cleaned. Decided autonomously.
 - Test A6 checks a fixed list of phrases that must sit on a line with the word "unverified". Add a phrase when a new unverified statement enters the guide. Decided autonomously.
 - The test for the generic entry starts the real binary with the `args` of the README entry. The clone starts lazily at the first tool use, so `tools/list` works without network.
+
+## The README is minimal — 2026-11-14
+
+**Decision:** The README keeps only the pitch, the setup with the generic entry, links, and the development commands. The `AGENTS.md` examples live in `docs/install.md` only. Test A3 checks the install guide alone.
+
+**Alternatives considered:** Keep both copies in sync (rejected: it forces the README to stay long).
+
+**Reason:** A short README is easier to read. The install guide is the place for details.
+
+## No test reads the README — 2026-11-14
+
+**Decision:** Test A2 (start the binary with the generic entry of the README) is removed. No test reads `README.md` any more. Test A1 checks the snippets of `docs/install.md` only. The generic entry is covered by manual test M5.
+
+**Reason:** The README is a short project page. A test that pins its content makes edits costly for little value.

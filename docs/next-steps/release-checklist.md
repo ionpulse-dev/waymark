@@ -9,6 +9,7 @@ Releases 0.1.0 to 0.1.5 are published (2026-11-14). 0.1.5 explains every setting
 - [x] Tag `v0.1.0` is pushed. The GitHub release holds the archive and its `.sha256`, built by hand with `scripts/package.sh`.
 - [x] The formula has the real version and checksum.
 - [x] `brew audit --strict --new ionpulse-dev/tap/waymark` exits with 0.
+- [x] Release 0.2.0 is published (2026-11-14), and `brew install ionpulse-dev/tap/waymark` installs it.
 - [x] Real install (H8): `brew install ionpulse-dev/tap/waymark` works, and `waymark --version` prints `0.1.0`.
 
 ## Left

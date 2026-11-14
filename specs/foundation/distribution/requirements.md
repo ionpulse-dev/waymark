@@ -9,7 +9,7 @@ requires:
 
 # Distribution
 
-> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The tap, the release, and the public repository are prepared, and they are created by the product owner (see `docs/next-steps/release-checklist.md`). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The repository and the tap `ionpulse-dev/homebrew-tap` are public, and release 0.2.0 is published. `brew install ionpulse-dev/tap/waymark` works (see `docs/next-steps/release-checklist.md`). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 
@@ -34,7 +34,7 @@ Define how waymark reaches people: one binary per platform, one container image 
 - **Prebuilt or from source.** The formula installs the signed prebuilt binary. While the signing identity is missing, a formula that builds from source on the person's machine is the fallback. Homebrew installs are not quarantined by macOS, so no Gatekeeper warning shows.
 - **Homebrew core later.** `brew install waymark` without a tap needs a pull request to `Homebrew/homebrew-core`. It needs a public repository, tagged releases, a build from source with Homebrew dependencies, and some real users. It is a goal after the first release, not part of it.
 - **Linux.** Homebrew also runs on Linux, so the same tap serves both systems. The download page stays as a backup.
-- The tap and the release files are public. They are created at the public release (see the roadmap, phase 5).
+- The tap and the release files are public (since 2026-11-14).
 
 ## Scope
 

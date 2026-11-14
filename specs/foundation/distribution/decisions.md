@@ -31,3 +31,9 @@
 **Alternatives considered:** `--generate-notes` of GitHub (rejected: for this repository it gives one line with a link and says nothing about the release). A separate notes file for each release (rejected: a second place that goes stale, and no single history to read). Only the CI workflow (rejected: it is disabled, and it needs a token for the tap that does not exist yet).
 
 **Reason:** Six releases in one day were made by hand with the same commands, and one commit went out with failing tests because a command did not stop on the failure. A script that stops at the first failure and checks the result removes both problems. The descriptions were missing from every release page.
+
+## The tap and the public release are done — 2026-11-14
+
+**Decision (product owner):** The repository `ionpulse-dev/waymark` and the tap `ionpulse-dev/homebrew-tap` are public. Release 0.2.0 is published, and the install with Homebrew works. The README and `docs/install.md` now tell people to install with `brew install ionpulse-dev/tap/waymark`.
+
+**Reason:** The install path of the README (an agent reads the README and follows the install guide) needs a working Homebrew install. Checked: the tap is public, `brew info` shows 0.2.0, and `waymark --version` prints `waymark 0.2.0`.

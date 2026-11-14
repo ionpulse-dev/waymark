@@ -33,3 +33,9 @@
 **Decision:** `scripts/tests/run.sh` builds the binary and checks with `otool -L` that it links only to `/usr/lib` and `/System`. Its spec-check tests work on a temporary copy of `specs/`, `docs/`, `standard/`, and the top files, so that the link check of `spec-check` passes on the copy. The test of a status mismatch sets any status to `blocked`.
 
 **Reason:** The first version copied too little and skipped its tests silently. Decided autonomously.
+
+## The development guide is its own file — 2026-11-14
+
+**Decision:** The "Development" section moved from `README.md` to `docs/development.md`. The README links to it.
+
+**Reason:** The README is a short project page for people who use waymark, not for people who build it.

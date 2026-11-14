@@ -22,7 +22,7 @@
 - [x] [auto] `scripts/release.sh` refuses a missing version, a bad version, and a version without a changelog entry before it changes anything (`scripts/tests/run.sh`)
 - [x] [auto] Every version in `Cargo.toml` and every git tag `v*` has an entry in `CHANGELOG.md` (`scripts/tests/run.sh`)
 - [ ] [manual] The next real release runs `scripts/release.sh`. Expected: all steps pass, the GitHub release shows the entry of the changelog as its text, and `brew upgrade` installs the version.
-- [ ] [manual] After the tap is public: `brew install ionpulse-dev/tap/waymark` on a clean Mac, then `waymark --version`. Expected: the version of the tag.
+- [x] [manual] After the tap is public: `brew install ionpulse-dev/tap/waymark` on a clean Mac, then `waymark --version`. Expected: the version of the tag. Checked 2026-11-14: the tap is public, `brew info` shows 0.2.0 installed, and `waymark --version` prints `waymark 0.2.0`.
 - [ ] [manual] Add the README snippet to Claude Code, GitHub Copilot, and OpenAI Codex. Start a session. Expected: the waymark tools show.
 
 ## Notes

@@ -8,5 +8,5 @@
 - [x] Write `scripts/spec-check.sh`.
 - [x] Write the `Makefile` with every target of the requirements. Targets that need code that does not exist yet print a clear message and exit with an error until their spec is implemented.
 - [x] Write `.github/workflows/ci.yml.disabled`. It is inert until the product owner renames it to `ci.yml` (see `docs/next-steps/release-checklist.md`).
-- [x] Add the "Development" section to `README.md`.
+- [x] Add the development guide `docs/development.md` and link it from `README.md`.
 - [x] Run the checks of `test.md`.

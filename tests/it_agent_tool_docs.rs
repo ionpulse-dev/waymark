@@ -46,9 +46,7 @@ fn blocks(text: &str, marker: &str) -> Vec<(String, String)> {
 }
 
 fn snippets() -> Vec<(String, String)> {
-    let mut v = blocks(&read("docs/install.md"), "snippet");
-    v.extend(blocks(&read("README.md"), "snippet"));
-    v
+    blocks(&read("docs/install.md"), "snippet")
 }
 
 /// Tools that the permission advice names before their features exist (see `decisions.md`).
@@ -57,7 +55,7 @@ const NOT_YET_BUILT: &[&str] = &[];
 #[test]
 fn a1_every_snippet_parses_and_names_waymark() {
     let all = snippets();
-    assert!(all.len() >= 7, "found {} snippets", all.len());
+    assert!(all.len() >= 6, "found {} snippets", all.len());
     for (name, text) in all {
         let lower = text.to_lowercase();
         for bad in ["token", "password", "secret"] {
@@ -91,44 +89,9 @@ fn a1_every_snippet_parses_and_names_waymark() {
 }
 
 #[test]
-fn a2_generic_entry_starts_the_server_and_lists_tools() {
-    let (_, text) = blocks(&read("README.md"), "snippet")
-        .into_iter()
-        .find(|(n, _)| n == "generic")
-        .expect("generic entry in README");
-    let v: Value = serde_json::from_str(&text).unwrap();
-    let e = &v["mcpServers"]["waymark"];
-    // The command is `waymark`: start the real binary with the same arguments.
-    assert_eq!(e["command"], "waymark");
-    let args: Vec<String> = e["args"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|a| a.as_str().unwrap().to_string())
-        .collect();
-    let w = World::new();
-    let home = w.root.join("home-generic");
-    let mut c = McpClient::start(
-        &home,
-        Spawn {
-            args,
-            ..Spawn::default()
-        },
-    );
-    let names = c.tool_names();
-    assert!(names.contains(&"status".to_string()), "{names:?}");
-    assert!(names.contains(&"search".to_string()));
-}
-
-#[test]
 fn a3_agents_md_examples_are_marked_as_suggestions() {
     let install = blocks(&read("docs/install.md"), "example");
-    let readme = blocks(&read("README.md"), "example");
     assert_eq!(install.len(), 3);
-    assert_eq!(readme.len(), 3);
-    for ((_, a), (_, b)) in install.iter().zip(readme.iter()) {
-        assert_eq!(a, b, "README and install guide differ");
-    }
     for (_, text) in install {
         let mut lines = text.lines();
         assert_eq!(
