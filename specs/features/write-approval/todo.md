@@ -17,3 +17,8 @@ None.
 ## Open Questions
 
 None.
+
+## Added 2026-11-14
+
+- Add the `approval` field to the result of `sync`, also for its preview.
+- Test the lock wait of a second process during an approval. It needs a setting for a short lock wait.

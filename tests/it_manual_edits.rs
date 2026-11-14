@@ -152,10 +152,6 @@ fn t6_a_write_to_a_document_with_a_blocked_edit_is_stale() {
 }
 
 #[test]
-#[ignore = "needs write-approval: the request opens before the commit"]
-fn t7_approval_for_sync() {}
-
-#[test]
 fn t8_read_only_only_pulls() {
     let w = World::new();
     setup(&w);

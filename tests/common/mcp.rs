@@ -53,6 +53,8 @@ pub struct Spawn {
     pub env: Vec<(String, String)>,
     /// Ask for elicitation in `initialize`.
     pub elicitation: bool,
+    /// The exact `elicitation` capability to announce (instead of `{}`).
+    pub elicitation_caps: Option<Value>,
 }
 
 impl Spawn {
@@ -126,7 +128,12 @@ impl McpClient {
                         Some(h) => h(&msg),
                         None => json!({}),
                     };
-                    let reply = json!({"jsonrpc": "2.0", "id": msg["id"], "result": result});
+                    // A hook result with the key `__error` answers with a JSON-RPC error.
+                    let reply = if result.get("__error").is_some() {
+                        json!({"jsonrpc": "2.0", "id": msg["id"], "error": {"code": -32603, "message": "The hook says no."}})
+                    } else {
+                        json!({"jsonrpc": "2.0", "id": msg["id"], "result": result})
+                    };
                     if let Some(w) = writer.lock().unwrap().as_mut() {
                         let _ = writeln!(w, "{reply}");
                         let _ = w.flush();
@@ -151,7 +158,9 @@ impl McpClient {
             initialize_result: Value::Null,
             notes,
         };
-        let caps = if spawn.elicitation {
+        let caps = if let Some(e) = &spawn.elicitation_caps {
+            json!({"elicitation": e})
+        } else if spawn.elicitation {
             json!({"elicitation": {}})
         } else {
             json!({})
@@ -207,6 +216,31 @@ impl McpClient {
             .iter()
             .filter(|m| m["method"] == method)
             .count()
+    }
+
+    /// The params of the notifications with this method.
+    pub fn notification_params(&self, method: &str) -> Vec<Value> {
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        self.notes
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|m| m["method"] == method)
+            .map(|m| m["params"].clone())
+            .collect()
+    }
+
+    /// A tool call with a progress token.
+    pub fn call_with_progress(&mut self, name: &str, args: Value) -> Reply {
+        let r = self.request(
+            "tools/call",
+            json!({"name": name, "arguments": args, "_meta": {"progressToken": "p1"}}),
+        );
+        let res = &r["result"];
+        Reply {
+            is_error: res["isError"].as_bool().unwrap_or(false),
+            json: res["structuredContent"].clone(),
+        }
     }
 
     pub fn list_tools(&mut self) -> Vec<Value> {

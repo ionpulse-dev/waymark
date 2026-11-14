@@ -1,5 +1,7 @@
 //! The MCP server over stdio. All `rmcp` code is in this file, so a change of the library stays local.
 
+pub mod approval;
+pub mod approval_text;
 pub mod args;
 pub mod context;
 pub mod error;
@@ -115,6 +117,12 @@ impl ServerHandler for Server {
         let me = self.clone();
         let name = request.name.to_string();
         let args = request.arguments.map(Value::Object).unwrap_or(Value::Null);
+        // The channel to the client, for an approval question during this call.
+        *self.ctx.channel.lock().unwrap() = Some(approval::Channel {
+            peer: context.peer.clone(),
+            handle: tokio::runtime::Handle::current(),
+            progress_token: context.meta.get_progress_token(),
+        });
         let (outcome, changed) = tokio::task::spawn_blocking(move || {
             let outcome = me.registry.call(&me.ctx, &name, args);
             // The limits are read at every call, so the list may have changed.

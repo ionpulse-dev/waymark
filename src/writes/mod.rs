@@ -283,19 +283,59 @@ pub struct Plan {
     pub notices: Vec<String>,
 }
 
-/// The approval step of the write flow. `write-approval` fills it in. Until then a write that
-/// needs approval fails, so that nothing is written without the approval that the limits ask for.
-pub(crate) fn approve(env: &Env, tool: &str, kind: Kind, _summary: &str) -> Result<()> {
-    if env.effective.needs_approval(tool, kind) {
-        Err(Error::new(
+/// The approval step of the write flow (see `write-approval`). Returns `Ok` after a yes, or when no
+/// rule applies. It asks through the client, fails closed, and reads the limits again after a yes,
+/// so that a pause or a read-only setting during the wait ends the write.
+pub(crate) fn approve(
+    ctx: &Context,
+    env: &Env,
+    kb: &KnowledgeBase,
+    tool: &str,
+    kind: Kind,
+    summary: &str,
+    paths: &[String],
+) -> Result<bool> {
+    if !env.effective.needs_approval(tool, kind) {
+        return Ok(false);
+    }
+    if env.effective.approval_via == crate::config::ApprovalVia::Console {
+        return Err(Error::new(
             Code::ApprovalUnavailable,
-            "This write needs approval, and no approval channel is available.",
+            "The approval channel `console` is not available in local mode.",
         )
-        .with_next(
-            "Remove the tool from approval.required_for, or use a client that supports approval.",
-        ))
-    } else {
-        Ok(())
+        .with_next("Set `via` to `elicitation` where it was set."));
+    }
+    let author = author_string(ctx)?;
+    let message = crate::mcp::approval_text::render(&crate::mcp::approval_text::Request {
+        tool,
+        kb_name: &kb.settings.name,
+        author: &author,
+        summary,
+        paths,
+    });
+    let channel = ctx.channel.lock().unwrap().clone();
+    crate::mcp::approval::ask(channel.as_ref(), message)?;
+    let now = ctx.limits(Some(kb));
+    if let Some(p) = now.problem {
+        return Err(Error::new(
+            Code::SetupProblem,
+            format!(
+                "The settings in {} cannot be used: {}",
+                p.path.display(),
+                p.message
+            ),
+        )
+        .with_next("Fix or remove that file, then call status."));
+    }
+    match now.effective.check_tool(tool, kind) {
+        Ok(()) => Ok(true),
+        Err(crate::config::Denied::Paused) => Err(Error::new(
+            Code::Paused,
+            "Writes were paused while the question was open.",
+        )
+        .with_next("Nothing was written. Only the person can resume writes.")),
+        Err(crate::config::Denied::AccessDenied(m)) => Err(Error::new(Code::AccessDenied, m)
+            .with_next("Nothing was written. A limit blocks this tool.")),
     }
 }
 
@@ -336,8 +376,23 @@ pub fn execute(
             }
         }
         plan.notices.extend(pending_notices);
+        let mut approved = false;
         if !preview {
-            approve(env, tool, kind, &plan.summary)?;
+            let paths: Vec<String> = plan
+                .changes
+                .iter()
+                .map(|c| match c {
+                    FileChange::Write { id, .. }
+                    | FileChange::Remove { id }
+                    | FileChange::Keep { id } => id.clone(),
+                })
+                .collect();
+            approved = approve(ctx, env, &kb, tool, kind, &plan.summary, &paths)?;
+        }
+        if approved {
+            plan.data.insert("approval".into(), Value::String("approved".into()));
+        } else if preview && env.effective.needs_approval(tool, kind) {
+            plan.data.insert("approval".into(), Value::String("required".into()));
         }
         let mut paths = Vec::new();
         let mut first_hash: Option<String> = None;

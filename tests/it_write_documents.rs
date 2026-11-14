@@ -579,10 +579,6 @@ fn a_write_needing_approval_fails_closed_until_write_approval_exists() {
 }
 
 #[test]
-#[ignore = "needs write-approval: the approval asked before the commit"]
-fn approval_asked_before_commit() {}
-
-#[test]
 fn invalid_input_is_reported_before_anything_is_written() {
     let w = World::new();
     let mut c = client(&w, Person::A);

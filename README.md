@@ -214,6 +214,29 @@ line) in the file that set it. A lower file cannot undo a pause from a higher
 one. You can also start the server with `--paused`. An agent cannot pause or
 resume: no tool does it. `access = "read-only"` wins over a pause.
 
+## Approval
+
+An owner or a person can ask for a human yes before some writes run. In any
+config file:
+
+```toml
+[approval]
+required_for = ["delete", "update_document"]   # or ["write"] for every write tool
+```
+
+waymark then asks you in the agent tool (MCP elicitation) after all checks
+passed and before the commit. The question shows the tool, the author, and the
+full text. You tick "Approve this write" and accept. Decline, cancel, a box that
+is not ticked, or no answer in 2 minutes means nothing is written
+(`approval_denied`). A client that cannot show the question gets
+`approval_unavailable`, and nothing is written. A `preview` never asks.
+
+This guards against mistakes. A client hook can answer the question
+automatically, so it does not stop a deliberate bypass. Which clients show the
+question is checked by the manual tests of the spec. The other way to get a yes
+is the permission prompt of your agent tool: set it to ask for the write tools
+(for example `mcp__waymark__add` in Claude Code).
+
 ## Your rules: `AGENTS.md`
 
 waymark ships no behavior text. You decide how your agent uses the tools, in

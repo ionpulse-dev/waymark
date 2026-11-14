@@ -160,8 +160,16 @@ impl Tool for Sync {
                 )
                 .with_next("Fix the document, then run sync again."));
             }
-            if o.change.is_some() {
-                writes::approve(env, "sync", Kind::Write, "Publish manual edits.")?;
+            if let Some(change) = &o.change {
+                writes::approve(
+                    ctx,
+                    env,
+                    &kb,
+                    "sync",
+                    Kind::Write,
+                    "Publish manual edits.",
+                    &change.paths,
+                )?;
             }
             let change = o.change.clone();
             *outcome.borrow_mut() = Some(o);

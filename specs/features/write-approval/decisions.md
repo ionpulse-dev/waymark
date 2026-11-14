@@ -129,3 +129,12 @@ The spec `approval-dialog` described the native macOS dialog. It is superseded b
 **Decision:** The channel `console`, its acceptance criterion, and the agent-proof claim are moved to `todo.md`.
 
 **Reason:** The scope on 2026-11-14 is local mode only.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously:**
+- The spike passed: `rmcp` 3.10 with the feature `elicitation` sends a form request built from JSON (`ElicitRequestParams` deserializes the `mode` tag). `accept`, `decline`, and `cancel` arrive as `ElicitationAction`. A time-out gives `ServiceError::Timeout` and a `notifications/cancelled`. `supported_elicitation_modes` reads the capability.
+- No `Approver` trait. `writes::approve` (policy, limits again after a yes) calls `mcp::approval::ask`. The tool call keeps the connection in `Context.channel`, set at each `call_tool`. The write flow runs on a blocking thread, so `ask` uses `Handle::block_on`.
+- The message is built from `Plan.summary` (first line, then a blank line and the full body), plus the tool, the author, and the changed paths when there is no body. The cut is at 20000 characters.
+- The `approval` result field is `approved` or, for a preview, `required`. `sync` and the other tools that use `approve` get `approved` only through `execute`. `sync` adds no field yet (todo).
+- The second-process lock test is not written, because the lock wait has no test setting (todo).

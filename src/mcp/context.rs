@@ -14,6 +14,8 @@ pub struct Context {
     pub paths: Paths,
     repo: Mutex<Option<Arc<Repo>>>,
     /// The documents that `show` opened in this session: the read budget (see `search-and-read`).
+    /// The connection to the client for the current call (see `write-approval`).
+    pub channel: Mutex<Option<super::approval::Channel>>,
     pub opened: Mutex<std::collections::HashSet<String>>,
 }
 
@@ -33,6 +35,7 @@ impl Context {
             args,
             paths,
             repo: Mutex::new(None),
+            channel: Mutex::new(None),
             opened: Mutex::new(std::collections::HashSet::new()),
         }
     }

@@ -258,7 +258,3 @@ fn dispute_and_deprecate_keep_a_verified_mark_and_turning_off_keeps_fields() {
     assert!(!file(&w, "ops/doc-two").contains("trust"));
     assert!(file(&w, "ops/doc-one").contains("trust: verified"));
 }
-
-#[test]
-#[ignore = "needs write-approval: the approval is asked before the commit"]
-fn verify_asks_approval() {}
