@@ -21,3 +21,8 @@ None.
 
 - `gitsync::log` gets `last_commit_info` and `renamed_to`. `git-sync` must list them (see `decisions.md`).
 - `quality-checks` and `updates` use `src/store/`. `quality-checks` and `updates` must list `search-and-read` in `requires`.
+
+## Done in the implementation (2026-11-14)
+
+- All 22 `[auto]` cases pass in `tests/it_search_and_read.rs`. A scan of 2 000 documents takes well under 500 ms in a debug build.
+- Deferred: a cache for `Store` if a knowledge base grows past some thousand files.

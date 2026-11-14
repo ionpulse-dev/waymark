@@ -48,6 +48,43 @@ impl Repo {
         })
     }
 
+    /// Where a file went, if Git history shows that it was renamed. Follows the chain up to 10
+    /// steps. `None` if it was never renamed. Paths are below the repository folder.
+    pub fn renamed_to(&self, rel_path: &str) -> Result<Option<String>> {
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &["log", "--diff-filter=R", "-M", "--name-status", "--format="],
+        )?;
+        if !out.ok {
+            return Ok(None);
+        }
+        // Newest first. A rename line is `R<score>\t<old>\t<new>`.
+        let renames: Vec<(String, String)> = out
+            .stdout
+            .lines()
+            .filter_map(|l| {
+                let mut p = l.split('\t');
+                if !p.next()?.starts_with('R') {
+                    return None;
+                }
+                Some((p.next()?.to_string(), p.next()?.to_string()))
+            })
+            .collect();
+        let mut current = rel_path.to_string();
+        let mut moved = false;
+        for _ in 0..10 {
+            match renames.iter().find(|(old, _)| *old == current) {
+                Some((_, new)) => {
+                    current = new.clone();
+                    moved = true;
+                }
+                None => break,
+            }
+        }
+        Ok(moved.then_some(current))
+    }
+
     /// The text of a file at a commit. `None` if it did not exist there.
     pub fn show_at(&self, commit: &str, rel_path: &str) -> Result<Option<String>> {
         let spec = format!("{commit}:{rel_path}");

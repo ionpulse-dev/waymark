@@ -29,28 +29,28 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 All tests are in `tests/it_search_and_read.rs`. Each starts a `World` and an `McpClient` (see `integration-testing`). Unit tests are in the files of `src/store/`.
 
-- [ ] [auto] T1: `search` for a word that no document holds returns `results: []` and no error.
-- [ ] [auto] T2: 8 matching documents: `search` returns 5 and `truncated: true`, `total_matches: 8`.
-- [ ] [auto] T3: documents with long descriptions: the result stays within 800 estimated tokens.
-- [ ] [auto] T4: `limit: 50` still returns at most 5. A personal config with `max_results = 3` returns at most 3.
-- [ ] [auto] T5: a title match ranks before a body-only match.
-- [ ] [auto] T6: with `--max-documents-opened 2` (a limit argument), the third different `show` fails with `access_denied`.
-- [ ] [auto] T7: after T6, `show` of one of the first two works.
-- [ ] [auto] T8: `list` with `level: 0` returns entries that have only `id`.
-- [ ] [auto] T9: `show` lists the IDs of documents that link to it by a body link and by `related`.
-- [ ] [auto] T10: `show` of a disputed document has `disputed: true` and the `dispute_reason`.
-- [ ] [auto] T11: `show` of a deprecated document names the superseding document in `replaced_by`.
-- [ ] [auto] T12: with a shared limit `folders = ["engineering/**"]`, `search` returns only `engineering/` documents and `show` of `ops/deploy` is `not_found`.
-- [ ] [auto] T13: `stats` with `by: "author"` returns one group per `created_by`, and the values add up to `total`.
-- [ ] [auto] T14: clone B commits a document and pushes. Clone A has a last fetch older than 3 minutes (the test sets the freshness clock back). `search` on A finds the document.
-- [ ] [auto] T15: the remote path is broken. `search` still returns results and has a notice that the clone may be behind.
-- [ ] [auto] T16: `git mv` a document and commit. `show` with the old ID returns the new document, `moved_from` is the old ID, and there is a notice.
-- [ ] [auto] T17: a generated `index.md` exists. `search` for a word in it does not return it. `show index` works.
-- [ ] [auto] T18: `stats` with `metric: "documents"` and `by: "folder"` counts match the files.
-- [ ] [auto] T19: `list` with `offset` pages through 7 documents with `limit: 3` and returns all of them once.
-- [ ] [auto] T20: a manual, uncommitted edit shows in `search`, and `show` has `pending_edit: true`.
-- [ ] [auto] T21: with 2 000 generated documents, `search` answers in under 500 ms.
-- [ ] [auto] T22: `search` with an empty `query` fails with `invalid_arguments` and a `next` sentence.
+- [x] [auto] T1: `search` for a word that no document holds returns `results: []` and no error.
+- [x] [auto] T2: 8 matching documents: `search` returns 5 and `truncated: true`, `total_matches: 8`.
+- [x] [auto] T3: documents with long descriptions: the result stays within 800 estimated tokens.
+- [x] [auto] T4: `limit: 50` still returns at most 5. A personal config with `max_results = 3` returns at most 3.
+- [x] [auto] T5: a title match ranks before a body-only match.
+- [x] [auto] T6: with `--max-documents-opened 2` (a limit argument), the third different `show` fails with `access_denied`.
+- [x] [auto] T7: after T6, `show` of one of the first two works.
+- [x] [auto] T8: `list` with `level: 0` returns entries that have only `id`.
+- [x] [auto] T9: `show` lists the IDs of documents that link to it by a body link and by `related`.
+- [x] [auto] T10: `show` of a disputed document has `disputed: true` and the `dispute_reason`.
+- [x] [auto] T11: `show` of a deprecated document names the superseding document in `replaced_by`.
+- [x] [auto] T12: with a shared limit `folders = ["engineering/**"]`, `search` returns only `engineering/` documents and `show` of `ops/deploy` is `not_found`.
+- [x] [auto] T13: `stats` with `by: "author"` returns one group per `created_by`, and the values add up to `total`.
+- [x] [auto] T14: clone B commits a document and pushes. Clone A has a last fetch older than 3 minutes (the test sets the freshness clock back). `search` on A finds the document.
+- [x] [auto] T15: the remote path is broken. `search` still returns results and has a notice that the clone may be behind.
+- [x] [auto] T16: `git mv` a document and commit. `show` with the old ID returns the new document, `moved_from` is the old ID, and there is a notice.
+- [x] [auto] T17: a generated `index.md` exists. `search` for a word in it does not return it. `show index` works.
+- [x] [auto] T18: `stats` with `metric: "documents"` and `by: "folder"` counts match the files.
+- [x] [auto] T19: `list` with `offset` pages through 7 documents with `limit: 3` and returns all of them once.
+- [x] [auto] T20: a manual, uncommitted edit shows in `search`, and `show` has `pending_edit: true`.
+- [x] [auto] T21: with 2 000 generated documents, `search` answers in under 500 ms.
+- [x] [auto] T22: `search` with an empty `query` fails with `invalid_arguments` and a `next` sentence.
 
 ## Notes
 

@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  1 / 20 active
+📦 Features      ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  2 / 20 active
 🏗️ Foundation    ████████████████████████████░░░░░░░░░░░░  7 / 10 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 1. All foundation specs except `distribution` are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
 2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `write-documents` is `implemented` (add, update_document, dispute, deprecate, delete). Next in dependency order: `search-and-read`, `quality-checks`, then the rest.
+3. `write-documents` and `search-and-read` are `implemented`. Next in dependency order: `quality-checks`, `manual-edits`, `move-documents`, then the rest.
 4. `distribution`: formula, local Homebrew test, release checklist. The tap, the tag, and the public switch are for the product owner.
 5. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 
@@ -21,6 +21,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
+| [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-14 |
 | [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `planned` | 2026-11-14 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `planned` | 2026-11-14 |
@@ -35,7 +36,6 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [plain-git-access](features/plain-git-access/requirements.md) | `planned` | 2026-11-14 |
 | [project-binding](features/project-binding/requirements.md) | `planned` | 2026-11-14 |
 | [quality-checks](features/quality-checks/requirements.md) | `planned` | 2026-11-14 |
-| [search-and-read](features/search-and-read/requirements.md) | `planned` | 2026-11-14 |
 | [session-start](features/session-start/requirements.md) | `planned` | 2026-11-14 |
 | [updates](features/updates/requirements.md) | `planned` | 2026-11-14 |
 | [verification](features/verification/requirements.md) | `planned` | 2026-11-14 |

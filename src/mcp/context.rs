@@ -13,8 +13,8 @@ pub struct Context {
     pub args: Args,
     pub paths: Paths,
     repo: Mutex<Option<Arc<Repo>>>,
-    /// Counters for the read budget (see `search-and-read`).
-    pub documents_opened: Mutex<usize>,
+    /// The documents that `show` opened in this session: the read budget (see `search-and-read`).
+    pub opened: Mutex<std::collections::HashSet<String>>,
 }
 
 /// The limits for one call, and the problem that stopped them from loading, if any.
@@ -33,7 +33,7 @@ impl Context {
             args,
             paths,
             repo: Mutex::new(None),
-            documents_opened: Mutex::new(0),
+            opened: Mutex::new(std::collections::HashSet::new()),
         }
     }
 

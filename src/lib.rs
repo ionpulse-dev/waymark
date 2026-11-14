@@ -8,5 +8,6 @@ pub mod format;
 pub mod gitsync;
 pub mod kb;
 pub mod mcp;
+pub mod store;
 pub mod tools;
 pub mod writes;

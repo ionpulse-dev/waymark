@@ -130,3 +130,16 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** A fake clock in the code (rejected: tests run the real binary).
 
 **Reason:** Tests must not wait 3 minutes. The variable is a setting of the person and cannot loosen a limit. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+**Decided autonomously.**
+
+- **`chrono` instead of `time`.** `chrono` is already a dependency (it serves `write-documents`). A second date crate would add size for no gain. This replaces the decision "`time` crate for dates".
+- **`Repo::log(1, ...)` instead of `last_commit_info`.** It already returns the author of the last commit of a path. Only `renamed_to` was added to `gitsync::log`. It reads the rename lines of the whole history, newest first, and follows the chain up to 10 steps.
+- **The read budget is a set.** `Context.opened` is a `HashSet` of IDs, so that the same document costs once.
+- **Group keys of `stats` with `by: "folder"`.** The key is the path of the folder below the base folder (`backend/payments`). A document that lies directly in a base folder has the base folder as its key, and `.` for the root.
+- **Scope.** `store::Scope` applies the `folders` limit and the `folders` argument. `show` uses the limit only, and hides a document that the limit hides, also in `backlinks`.
+- **A file that cannot be parsed** is skipped by the read tools. `show` fails with `validation_failed` and names the first finding.
+- **A repository without a remote** gives the notice "This repository has no remote, so nothing is shared." on every read (from `Repo::refresh_if_stale`).
+- **Test hook.** `WAYMARK_FETCH_MAX_AGE` (seconds) sets the freshness window. The tests use `0`.

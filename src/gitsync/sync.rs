@@ -12,6 +12,15 @@ use std::time::{Duration, Instant};
 
 const FRESH_FOR: Duration = Duration::from_secs(180);
 
+/// How long a fetch counts as fresh. The variable `WAYMARK_FETCH_MAX_AGE` (seconds) sets it, for tests.
+fn fresh_for() -> Duration {
+    std::env::var("WAYMARK_FETCH_MAX_AGE")
+        .ok()
+        .and_then(|v| v.parse::<u64>().ok())
+        .map(Duration::from_secs)
+        .unwrap_or(FRESH_FOR)
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct SyncResult {
     pub commits: Vec<String>,
@@ -115,7 +124,7 @@ impl Repo {
             .last_fetch
             .lock()
             .unwrap()
-            .is_some_and(|t| t.elapsed() < FRESH_FOR);
+            .is_some_and(|t| t.elapsed() < fresh_for());
         if fresh {
             return Vec::new();
         }
