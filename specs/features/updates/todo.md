@@ -16,3 +16,8 @@ None.
 ## Open Questions
 
 None.
+
+## Notes 2026-11-14
+
+- Unit tests for `gitsync::diff` on a temporary repository (the integration tests cover the paths today).
+- `deleted` has no end-to-end test. Add one with the `delete` tool.

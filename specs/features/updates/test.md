@@ -23,21 +23,21 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 All tests are in `tests/it_updates.rs`, with a `World` of two clones: person A runs the server, person B commits.
 
-- [ ] [auto] T1: A writes a document and pushes. B disputes it and pushes. `updates` on A has `kind: "disputed"`, `mine: true`, and the reason.
-- [ ] [auto] T2: B commits a document. `updates` lists it. B commits another. A second `updates` lists only the second.
-- [ ] [auto] T3: after T2 setup, `updates` with `since` a week ago lists both and `marked` is false. The next `updates` without `since` still lists only changes after the last marked call.
-- [ ] [auto] T4: B changes `ops/x` and `backend/y`. `updates` with `folders: ["ops"]` lists only `ops/x`.
-- [ ] [auto] T5: with the limit `folders = ["ops/**"]`, a change to `backend/y` is not listed.
-- [ ] [auto] T6: A's own commit is in the window. It is not listed.
-- [ ] [auto] T7: B moves `ops/undo` to `ops/rollback`. The entry has `kind: "moved"` and `from: "ops/undo"`.
-- [ ] [auto] T8: B adds a document. The entry is `new`, and `mine` is false.
-- [ ] [auto] T9: `since: "yesterday"` and a `since` in the future both fail with `invalid_arguments` and a `next` sentence.
-- [ ] [auto] T10: B pushes. A's last fetch is older than 3 minutes (clock set back). `updates` lists B's change.
-- [ ] [auto] T11: B deprecates a document. The entry is `deprecated`.
-- [ ] [auto] T12: 60 documents change. `updates` returns 50, `total: 60`, `truncated: true`.
-- [ ] [auto] T13: a generated index file changes. It is not listed.
-- [ ] [auto] T14: the state file lives in `WAYMARK_STATE_DIR` and holds `last_updates`. Another key in it stays after a call.
-- [ ] [auto] T15: a repository younger than `since` lists every document as `new`.
+- [x] [auto] T1: A writes a document and pushes. B disputes it and pushes. `updates` on A has `kind: "disputed"`, `mine: true`, and the reason.
+- [x] [auto] T2: B commits a document. `updates` lists it. B commits another. A second `updates` lists only the second.
+- [x] [auto] T3: after T2 setup, `updates` with `since` a week ago lists both and `marked` is false. The next `updates` without `since` still lists only changes after the last marked call.
+- [x] [auto] T4: B changes `ops/x` and `backend/y`. `updates` with `folders: ["ops"]` lists only `ops/x`.
+- [x] [auto] T5: with the limit `folders = ["ops/**"]`, a change to `backend/y` is not listed.
+- [x] [auto] T6: A's own commit is in the window. It is not listed.
+- [x] [auto] T7: B moves `ops/undo` to `ops/rollback`. The entry has `kind: "moved"` and `from: "ops/undo"`.
+- [x] [auto] T8: B adds a document. The entry is `new`, and `mine` is false.
+- [x] [auto] T9: `since: "yesterday"` and a `since` in the future both fail with `invalid_arguments` and a `next` sentence.
+- [x] [auto] T10: B pushes. A's last fetch is older than 3 minutes (clock set back). `updates` lists B's change.
+- [x] [auto] T11: B deprecates a document. The entry is `deprecated`.
+- [x] [auto] T12: 60 documents change. `updates` returns 50, `total: 60`, `truncated: true`.
+- [x] [auto] T13: a generated index file changes. It is not listed.
+- [x] [auto] T14: the state file lives in `WAYMARK_STATE_DIR` and holds `last_updates`. Another key in it stays after a call.
+- [x] [auto] T15: a repository younger than `since` lists every document as `new`.
 
 ## Notes
 

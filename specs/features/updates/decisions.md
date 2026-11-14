@@ -84,3 +84,13 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** This spec adds `src/gitsync/diff.rs` and `src/state/mod.rs`, and the dependency on `search-and-read` for `Store`. `requires` becomes `search-and-read` (it was already so).
 
 **Reason:** Reported to `git-sync`, because the module `gitsync` gets a new file. Decided autonomously.
+
+## Implementation notes — 2026-11-14
+
+- Files: `src/tools/updates.rs`, `src/store/changes.rs` (`changes_since`, `Kind`, `email_of`), `src/gitsync/diff.rs` (`base_commit_before`, `changed_paths`, `window_commits`), `src/state/mod.rs` (`State`). As planned.
+- A path counts as the person's own when every commit in the window has the person's email. Renames are followed (`git log --follow`).
+- A new document stays `new` even if someone disputed it later in the window. To see a dispute, the window must start after the document was created (the tests do so with a first call that stores the time). This follows the rule "a new document stays new".
+- `since` gives a base commit with `git rev-list -1 --before=<time> HEAD`. Commit times have a resolution of one second, so the tests pause 1.1 seconds between a stored time and the next commit.
+- The harness sets `WAYMARK_STATE_DIR` to `<home>/state` for every client.
+- There are no separate unit tests for `gitsync::diff`. The end-to-end tests cover rename, delete, and the empty-tree base. Decided autonomously.
+- The test of the size of `tools/list` against the budget is part of phase G (task G5).

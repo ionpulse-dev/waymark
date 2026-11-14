@@ -98,6 +98,7 @@ impl McpClient {
             .env("HOME", home)
             .env("XDG_CONFIG_HOME", home.join(".config"))
             .env("WAYMARK_SYSTEM_CONFIG", &system_config)
+            .env("WAYMARK_STATE_DIR", home.join("state"))
             .env("GIT_CONFIG_GLOBAL", "/dev/null")
             .env("GIT_CONFIG_SYSTEM", "/dev/null")
             .env("GIT_TERMINAL_PROMPT", "0")

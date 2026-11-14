@@ -4,6 +4,7 @@
 //! up to date, lets the caller change files, then commits and pushes under the right author.
 
 pub mod cmd;
+pub mod diff;
 pub mod lock;
 pub mod log;
 pub mod message;

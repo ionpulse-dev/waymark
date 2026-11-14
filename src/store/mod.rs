@@ -3,6 +3,7 @@
 //! `search-and-read`, `quality-checks`, `updates`, and others share this loader.
 
 pub mod backlinks;
+pub mod changes;
 pub mod rank;
 pub mod scope;
 pub mod stats;
