@@ -46,7 +46,7 @@ fn blocks(text: &str, marker: &str) -> Vec<(String, String)> {
 }
 
 fn snippets() -> Vec<(String, String)> {
-    blocks(&read("docs/install.md"), "snippet")
+    blocks(&read("docs/local-install.md"), "snippet")
 }
 
 /// Tools that the permission advice names before their features exist (see `decisions.md`).
@@ -90,7 +90,7 @@ fn a1_every_snippet_parses_and_names_waymark() {
 
 #[test]
 fn a3_agents_md_examples_are_marked_as_suggestions() {
-    let install_text = read("docs/install.md");
+    let install_text = read("docs/local-install.md");
     assert!(install_text.contains("Suggestions only. waymark does not insert or check these texts."));
     let install = blocks(&install_text, "example");
     assert_eq!(install.len(), 2);
@@ -131,7 +131,7 @@ fn a5_tool_names_in_the_advice_are_real_tools() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, common::Person::A, Spawn::default());
     let listed = c.tool_names();
-    let text = read("docs/install.md");
+    let text = read("docs/local-install.md");
     let mut found = 0;
     for part in text.split("mcp__waymark__").skip(1) {
         let name: String = part
@@ -163,7 +163,7 @@ fn a5_tool_names_in_the_advice_are_real_tools() {
 fn a6_unverified_statements_keep_the_word() {
     let research = read("docs/agent-tools-research.md");
     assert!(research.contains("| unverified |"));
-    let install = read("docs/install.md");
+    let install = read("docs/local-install.md");
     for phrase in [
         "explicit `ask` rule still prompts",
         "Whether Claude Code shows that question",

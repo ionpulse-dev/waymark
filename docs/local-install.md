@@ -1,6 +1,6 @@
-# Install waymark
+# Install waymark (local mode)
 
-waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a local MCP server: your agent tool starts it over stdio for one session. For a remote server for chat apps on a phone (Claude, ChatGPT, Gemini), see [personal-server-setup.md](personal-server-setup.md).
+waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a local MCP server: your agent tool starts it over stdio for one session.
 
 This guide is for people and for AI agents that install waymark for a person. The "Quick path" lists every step. The section "Install the binary" is owned by the `distribution` spec. The section "Agent tools" is owned by the `agent-tool-setup` spec. The facts and sources behind each snippet are in [agent-tools-research.md](agent-tools-research.md).
 

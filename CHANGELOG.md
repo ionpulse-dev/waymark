@@ -21,7 +21,7 @@ waymark now builds and runs on Linux, and this release fixes a serious bug on Li
 **Fixed (Linux):** when `git` did not answer in time, waymark stopped it with a `kill` call that the Linux `kill` can read as "kill every process of the user". The call is now safe. If you ran an earlier waymark build on Linux, update.
 
 **What is new:**
-- **Linux (x86_64 and arm64) works** for local mode, and all tests pass there. This release has a download for Linux x86_64 (`waymark-0.5.1-x86_64-unknown-linux-gnu.tar.gz`, with a checksum). The install steps are in the [install guide](docs/install.md). They are not yet tested on a real machine. For Linux arm64, build from source (see [development.md](docs/development.md)).
+- **Linux (x86_64 and arm64) works** for local mode, and all tests pass there. This release has a download for Linux x86_64 (`waymark-0.5.1-x86_64-unknown-linux-gnu.tar.gz`, with a checksum). The install steps are in the [install guide](docs/local-install.md). They are not yet tested on a real machine. For Linux arm64, build from source (see [development.md](docs/development.md)).
 - The system settings file is `/etc/waymark/config.toml` on Linux. On macOS nothing changes.
 - The update hint says `brew upgrade waymark` only when waymark was installed with Homebrew. The Git install hint fits your system.
 - For developers: a Linux development container, and `make linux-test` and `make linux-check` run all work in Linux on a Mac.
@@ -77,7 +77,7 @@ A call with an old name still works until 0.5.0, with a notice. An old name in a
 
 What to do:
 - Update with `brew upgrade waymark` and restart your agent tool.
-- In your agent tool, replace the old tool names in your allow and ask rules with the new names. The list in the [install guide](docs/install.md) has all of them, with the new tools.
+- In your agent tool, replace the old tool names in your allow and ask rules with the new names. The list in the [install guide](docs/local-install.md) has all of them, with the new tools.
 
 ## 0.3.1 (2026-11-15)
 

@@ -219,7 +219,7 @@ fn a8_limit_sources_name_the_layers() {
 #[test]
 fn a9_the_removal_steps_are_in_the_install_guide() {
     let text =
-        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/docs/install.md")).unwrap();
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/docs/local-install.md")).unwrap();
     let section = text.split("## Remove waymark").nth(1).expect("section");
     for needle in [
         "claude mcp remove waymark",

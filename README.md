@@ -77,7 +77,7 @@ that you own, with rules that the server enforces.
 Tell your agent:
 
 ```text
-Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/install.md
+Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/local-install.md
 ```
 
 ### Option 2: manual
@@ -87,7 +87,7 @@ Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/d
    - **Linux (x86_64):** download the archive from the
      [releases page](https://github.com/ionpulse-dev/waymark/releases), check its
      checksum, and put `waymark` on your `PATH`. The steps are in the
-     [install guide](docs/install.md#install-the-binary).
+     [install guide](docs/local-install.md#install-the-binary).
 
    **Note:** The Linux steps are not yet tested on a real machine. If a step fails, please open an issue.
 2. Add one entry to the MCP config of your agent tool:
@@ -104,14 +104,13 @@ Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/d
 }
 ```
 
-For all options and every step, follow the [install guide](docs/install.md).
+For all options and every step, follow the [install guide](docs/local-install.md).
 
 <br/>
 
 ## Documentation
 
 - [Development](docs/development.md): build, test, and release from source.
-- [Personal server](docs/personal-server-setup.md): run waymark as a remote MCP server for one person, for phone apps and other MCP clients. Built and tested against a fake GitHub, not yet with the real apps.
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
 - [Waymark Memory Standard](standard/waymark-1.0.md): the document format.
 - [Specifications](specs/INDEX.md) and [how this project is built](specs/WORKFLOW.md).

@@ -68,7 +68,7 @@ Waymark reads every setting from an environment variable. A secret may also come
 
 The server refuses to start when a required setting is missing, and the message names it. Do not set `WAYMARK_AUTHOR_NAME`, `WAYMARK_AUTHOR_EMAIL`, or `--repo`: the author is the person who signs in, and the repository comes from `WAYMARK_REPO`.
 
-Server limits (read-only access, paused writes, and so on) go into a config file that you mount and name with `WAYMARK_SYSTEM_CONFIG`. See [install.md](install.md) for the format.
+Server limits (read-only access, paused writes, and so on) go into a config file that you mount and name with `WAYMARK_SYSTEM_CONFIG`. See [local-install.md](local-install.md) for the format.
 
 <br/>
 

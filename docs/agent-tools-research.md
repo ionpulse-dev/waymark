@@ -1,6 +1,6 @@
 # Agent tools research
 
-Research for `specs/features/agent-tool-setup`. It records what is known on 2026-11-14 about how Claude Code, GitHub Copilot, and OpenAI Codex add a local MCP server (stdio). The snippets in `README.md` and `docs/install.md` come from here.
+Research for `specs/features/agent-tool-setup`. It records what is known on 2026-11-14 about how Claude Code, GitHub Copilot, and OpenAI Codex add a local MCP server (stdio). The snippets in `README.md` and `docs/local-install.md` come from here.
 
 **Legend.** `verified` means the text of the current official documentation (page and date below) states it. `unverified` means the documentation read did not state it, or the page was not read. No snippet was run in a real tool yet. The `[manual]` tests of `agent-tool-setup` do that before a release.
 
