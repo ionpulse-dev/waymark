@@ -119,7 +119,10 @@ fn a1_no_working_git_means_no_clone() {
     let s = wait_state(&mut c);
     let g = check(&s, "git");
     assert_eq!(g["ok"], false);
-    assert!(g["fix"].as_str().unwrap().contains("xcode-select"));
+    assert!(g["fix"]
+        .as_str()
+        .unwrap()
+        .contains(waymark::platform::git_install_hint()));
     assert_eq!(s["memory_repository"]["state"], "broken");
     assert!(!target.exists());
 }

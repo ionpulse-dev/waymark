@@ -142,7 +142,7 @@ fn a_higher_schema_blocks_every_tool_but_status() {
         assert!(r.json["next"]
             .as_str()
             .unwrap()
-            .contains("brew upgrade waymark"));
+            .contains(waymark::platform::update_sentence()));
     }
     let s = c.call("status", json!({}));
     assert!(!s.is_error, "{}", s.json);
@@ -152,7 +152,10 @@ fn a_higher_schema_blocks_every_tool_but_status() {
         "{}",
         s.json
     );
-    assert!(s.json.to_string().contains("brew upgrade waymark"));
+    assert!(s
+        .json
+        .to_string()
+        .contains(waymark::platform::update_sentence()));
 }
 
 #[test]

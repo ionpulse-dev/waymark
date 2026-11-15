@@ -45,6 +45,7 @@ Read [specs/PROJECT.md](specs/PROJECT.md) for the details.
 
 - `specs/`: the specification (the source of truth). Decisions that belong to one spec are in its `decisions.md`.
 - `standard/`: the Waymark Memory Standard and its conformance fixtures. Part of this project. A change starts here, in the standard, and then in `specs/foundation/document-format`.
+- `.devcontainer/` and `scripts/linux.sh`: the Linux development container. On a Mac, `make linux-test` and `make linux-check` run the full suite on Linux (see [docs/development.md](docs/development.md)).
 - `docs/`: roadmap, ideas, similar projects, project-wide decisions, and open questions.
 - Versions and automatic updates (settings schema, repairs, migrations): [specs/foundation/memory-repository](specs/foundation/memory-repository/requirements.md), section "Versions and updates".
 - `CHANGELOG.md` and `scripts/release.sh`: what each release is about, and the one command that makes a release (see the skill `.claude/skills/release/SKILL.md`).

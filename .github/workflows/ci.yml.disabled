@@ -1,11 +1,20 @@
+# CI for waymark on Linux and macOS. Written, not run. To enable: rename to ci.yml.
+# The Linux job runs in the development container (.devcontainer/Dockerfile), the same one that
+# `make linux-check` uses on a Mac. The macOS job runs on the runner.
 name: ci
 on:
   push:
     branches: [main]
   pull_request:
 jobs:
-  check:
-    runs-on: macos-latest
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint, test, and check the specs in the development container
+        run: bash scripts/linux.sh make check
+  macos:
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Check the machine

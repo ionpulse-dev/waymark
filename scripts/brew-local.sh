@@ -3,6 +3,10 @@
 # Use `scripts/brew-local.sh remove` to undo it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+if ! command -v brew >/dev/null 2>&1; then
+  echo "brew-local: Homebrew is not installed. This script is for macOS (and Linux with Homebrew)." >&2
+  exit 1
+fi
 TAP=local/waymark
 if [ "${1:-}" = "remove" ]; then
   brew uninstall waymark 2>/dev/null || true

@@ -96,7 +96,10 @@ pub fn parse(text: &str, path_for_messages: &str) -> Result<Settings> {
             format!(
                 "This memory repository needs a newer waymark. Its settings file has schema {schema}, and this waymark supports schema {SCHEMA_VERSION}."
             ),
-            "Update waymark with `brew upgrade waymark`, then restart your agent tool.",
+            format!(
+                "{}, then restart your agent tool.",
+                crate::platform::update_sentence()
+            ),
         ));
     }
     let limits = layers::parse_layer(text).map_err(|e| {
@@ -232,7 +235,7 @@ mod tests {
         assert_eq!(e.code, Code::SetupProblem);
         assert!(e.message.contains("needs a newer waymark"), "{}", e.message);
         assert!(e.message.contains("schema 2") && e.message.contains("schema 1"));
-        assert!(e.next.unwrap().contains("brew upgrade waymark"));
+        assert!(e.next.unwrap().contains(crate::platform::update_sentence()));
     }
 
     #[test]

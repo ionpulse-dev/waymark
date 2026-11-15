@@ -2,6 +2,16 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## Unreleased
+
+waymark now runs on Linux.
+
+- **Linux (x86_64 and arm64) is supported** for build, tests, and local mode. The release adds a Linux x86_64 archive with a checksum. The install steps are in the [install guide](docs/install.md). They are not yet tested on a real machine.
+- **A fix for Linux:** when `git` did not answer in time, waymark ended it with a `kill` call that the Linux `kill` could read as "kill every process of the user". The call now uses `--`. If you ran an earlier build on Linux, update.
+- The system settings file is `/etc/waymark/config.toml` on Linux (macOS is unchanged).
+- The update hint says `brew upgrade waymark` only when waymark was installed with Homebrew. The Git install hint fits the system.
+- For developers: a Linux development container and `make linux-test`, `make linux-check`, `make linux-build`, and `make linux-shell` run all work in Linux on a Mac.
+
 ## 0.4.0 (2026-11-15)
 
 Clearer tool names, four new tools, and better search. You must act on the first part if your agent tool has allow or ask rules for waymark tools.

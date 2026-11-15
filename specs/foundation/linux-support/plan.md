@@ -29,6 +29,7 @@ First find out what really fails on a clean Linux machine, then fix the real pro
 - `.devcontainer/Dockerfile` — the development container: a Debian or Ubuntu base, `git`, build tools, and Rust at the version of `rust-toolchain.toml`. Runs as a user with the host user ID.
 - `.devcontainer/devcontainer.json` — the configuration that lets an editor attach to the container (see the open question). It names the volumes and the user.
 - `scripts/linux.sh` — builds the image if needed, starts the container with the source mounted and the named volumes, and runs the command that it gets. Used by the `linux-*` targets and by CI.
+- `tests/it_case_sensitivity.rs` — shows that IDs that differ only in case behave as the Waymark Memory Standard defines, in the temp folder, and reports the file system it ran on.
 
 ## Technical Approach
 

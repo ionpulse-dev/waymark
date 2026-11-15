@@ -1,16 +1,16 @@
 # Install waymark
 
-waymark runs on macOS with Apple silicon. It runs as a local MCP server: your agent tool starts it over stdio for one session.
+waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a local MCP server: your agent tool starts it over stdio for one session.
 
 This guide is for people and for AI agents that install waymark for a person. The "Quick path" lists every step. The section "Install the binary" is owned by the `distribution` spec. The section "Agent tools" is owned by the `agent-tool-setup` spec. The facts and sources behind each snippet are in [agent-tools-research.md](agent-tools-research.md).
 
 ## Quick path
 
-**Requirements:** macOS on Apple silicon, and `git` installed.
+**Requirements:** macOS on Apple silicon or Linux on x86_64, and `git` 2.28 or newer installed.
 
 Follow these steps in order. If you are an AI agent, do them for the person. Ask before you install anything. Ask for what you cannot know, such as the repository URL. Ask one question at a time. Never ask for a password or a key, and never type one.
 
-1. **Install the binary.** Run `brew install ionpulse-dev/tap/waymark` (see "Install the binary").
+1. **Install the binary.** On macOS, run `brew install ionpulse-dev/tap/waymark`. On Linux, download the archive (see "Install the binary").
 2. **Get the URL of the memory repository.** Ask the person for the Git URL of their memory repository. If they have none, they create an empty private repository on their Git host and give you the URL. waymark does not create repositories. The person's own Git login must reach it: `git ls-remote <url>` must succeed.
 3. **Add the MCP entry.** Use the entry for the agent tool in use (see "Agent tools") with `--repo <url>`. Most people need nothing else. To keep the clone in a folder of their choice, add `--path <folder>` (see "Where the memory repository lives").
 4. **Restart the agent tool.** Approve the `waymark` server if the tool asks.
@@ -23,11 +23,42 @@ A team does the steps once. Everyone else follows steps 1, 3, and 4 with the sam
 
 ## Install the binary
 
+### macOS (Apple silicon)
+
 Install with Homebrew:
 
 ```bash
 brew install ionpulse-dev/tap/waymark
 ```
+
+### Linux (x86_64)
+
+> **Note:** The Linux steps are not yet tested on a real machine. If a step fails, please open an issue.
+
+Tested on Ubuntu LTS and Debian. Other systems with a recent glibc should work.
+
+1. Make sure `git` is installed and is version 2.28 or newer: `git --version`. If it is missing, install it with the package manager of your system, for example `sudo apt install git`.
+2. Download the archive and its checksum from the [releases page](https://github.com/ionpulse-dev/waymark/releases). Pick the files that end in `x86_64-unknown-linux-gnu.tar.gz` and `.tar.gz.sha256`. Put both in one folder.
+3. Check the checksum. The command must print `OK`:
+
+   ```bash
+   sha256sum -c waymark-<version>-x86_64-unknown-linux-gnu.tar.gz.sha256
+   ```
+
+4. Unpack the archive and put `waymark` on your `PATH`:
+
+   ```bash
+   tar -xzf waymark-<version>-x86_64-unknown-linux-gnu.tar.gz
+   mkdir -p ~/.local/bin
+   mv waymark ~/.local/bin/
+   ```
+
+   Make sure `~/.local/bin` is in your `PATH` (open a new shell, or add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile).
+5. Check it: `waymark --version` prints the version.
+
+To update, download the new archive and replace the file. waymark tells you to update "the way you installed it".
+
+To build from source instead, see [development.md](development.md).
 
 `git` must work and be signed in to your Git host (an SSH key, or `gh auth login`). waymark never sees a Git secret.
 
@@ -281,7 +312,7 @@ The server enforces limits. A limit can only tighten, and the strictest layer wi
 
 | Layer | Who | Strength |
 |---|---|---|
-| System file (`/etc/waymark/config.toml` or the macOS equivalent) | IT | Hard in local mode |
+| System file (`/etc/waymark/config.toml` on Linux, `/Library/Application Support/waymark/config.toml` on macOS) | IT | Hard in local mode |
 | Shared file in the memory repository (`.waymark/settings.toml`) | The team owner | Tools cannot change it |
 | Personal file (`~/.config/waymark/config.toml`) | You | A safety default |
 | MCP entry | You | A safety default |
@@ -308,15 +339,17 @@ waymark then asks you in the agent tool (MCP elicitation) after all checks passe
 
 ## Update waymark
 
-Update the binary with Homebrew:
+Update the binary the way you installed it. With Homebrew:
 
 ```bash
 brew upgrade waymark
 ```
 
+On Linux without Homebrew, download the new archive and replace the file (see "Install the binary").
+
 The tool descriptions come with the binary. The new version applies at the next start of your agent tool. waymark does not check for updates and calls no server.
 
-**When a team's memory repository needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This memory repository needs a newer waymark". Run `brew upgrade waymark` and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
+**When a team's memory repository needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This memory repository needs a newer waymark". Update waymark (`brew upgrade waymark` with Homebrew, or the way you installed it) and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
 
 **When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
 
@@ -330,7 +363,7 @@ waymark does not remove itself. It never wrote into your agent tools, so these f
 
 1. Remove the MCP entry from the agent tool. For Claude Code run `claude mcp remove waymark`. For Codex delete the table `[mcp_servers.waymark]` in `config.toml`. For GitHub Copilot delete the `waymark` entry in the JSON file.
 2. Check the clone for changes that are not pushed. The folder is `~/.waymark/<name>`, or the `--path` of your entry. In the folder, run `git status` and `git log @{u}..`. Delete the folder if you no longer need it. The remote repository stays.
-3. Delete the personal settings folder. If IT set a system file, `/Library/Application Support/waymark/config.toml` belongs to IT.
+3. Delete the personal settings folder. If IT set a system file (`/etc/waymark/config.toml` on Linux, `/Library/Application Support/waymark/config.toml` on macOS), it belongs to IT.
 
    ```bash
    rm -r ~/.config/waymark
@@ -341,3 +374,5 @@ waymark does not remove itself. It never wrote into your agent tools, so these f
    ```bash
    brew uninstall waymark
    ```
+
+   On Linux without Homebrew, delete the file that you installed, for example `rm ~/.local/bin/waymark`.

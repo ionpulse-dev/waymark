@@ -14,6 +14,7 @@ pub mod manual;
 pub mod mcp;
 pub mod memrepo;
 pub mod notices;
+pub mod platform;
 pub mod state;
 pub mod store;
 pub mod tools;

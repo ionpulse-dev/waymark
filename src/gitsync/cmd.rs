@@ -62,8 +62,7 @@ pub fn run(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output>
         cmd.env("GIT_SSH_COMMAND", "ssh -o BatchMode=yes");
     }
     let out = cmd.output().map_err(|e| {
-        Error::setup(format!("Cannot run git: {e}"))
-            .with_next("Install git, for example with: xcode-select --install")
+        Error::setup(format!("Cannot run git: {e}")).with_next(crate::platform::git_install_hint())
     })?;
     Ok(to_output(out))
 }
@@ -89,8 +88,7 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
         cmd.process_group(0);
     }
     let mut child = cmd.spawn().map_err(|e| {
-        Error::setup(format!("Cannot run git: {e}"))
-            .with_next("Install git, for example with: xcode-select --install")
+        Error::setup(format!("Cannot run git: {e}")).with_next(crate::platform::git_install_hint())
     })?;
     let pid = child.id();
     let mut stdout = child.stdout.take().unwrap();
@@ -115,8 +113,10 @@ pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Out
         }
         if std::time::Instant::now() >= deadline {
             // Kill the whole group: git may have started `ssh`, which holds the pipes.
+            // The `--` is needed: without it, `kill` of procps (Linux) reads `-<pid>` as an
+            // option and can kill every process of the user.
             let _ = std::process::Command::new("kill")
-                .args(["-KILL", &format!("-{pid}")])
+                .args(["-KILL", "--", &format!("-{pid}")])
                 .stderr(Stdio::null())
                 .status();
             let _ = child.kill();
@@ -167,12 +167,11 @@ pub fn run_ok(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Outp
 /// Check that a working `git` exists. `/usr/bin/git` can be a stub that asks to install tools.
 pub fn check_git() -> Result<String> {
     let out = Command::new("git").arg("--version").output().map_err(|e| {
-        Error::setup(format!("Cannot run git: {e}"))
-            .with_next("Install git, for example with: xcode-select --install")
+        Error::setup(format!("Cannot run git: {e}")).with_next(crate::platform::git_install_hint())
     })?;
     if !out.status.success() {
         return Err(Error::setup("git does not work on this machine.")
-            .with_next("Install the Xcode command line tools: xcode-select --install"));
+            .with_next(crate::platform::git_install_hint()));
     }
     Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
 }

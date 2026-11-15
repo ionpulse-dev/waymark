@@ -34,7 +34,7 @@ fn an_unknown_argument_reaches_the_person_and_blocks_the_tools() {
     assert_eq!(c.tool_names(), vec!["status".to_string()]);
     let d = status_description(&mut c);
     assert!(
-        d.contains("WAYMARK NEEDS AN UPDATE") && d.contains("brew upgrade waymark"),
+        d.contains("WAYMARK NEEDS AN UPDATE") && d.contains(waymark::platform::update_step()),
         "{d}"
     );
     assert!(
@@ -48,7 +48,7 @@ fn an_unknown_argument_reaches_the_person_and_blocks_the_tools() {
     assert!(r.json["next"]
         .as_str()
         .unwrap()
-        .contains("brew upgrade waymark"));
+        .contains(waymark::platform::update_step()));
     // status: works, is not healthy, and has a failing check `entry`.
     let s = c.call("status", json!({}));
     assert!(!s.is_error, "{}", s.json);
@@ -81,7 +81,7 @@ fn a_memory_repository_with_a_higher_schema_reaches_the_person_too() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     let ins = instructions(&c);
     assert!(ins.contains("WAYMARK NEEDS AN UPDATE"), "{ins}");
-    assert!(ins.contains("brew upgrade waymark"), "{ins}");
+    assert!(ins.contains(waymark::platform::update_sentence()), "{ins}");
     assert_eq!(c.tool_names(), vec!["status".to_string()]);
     assert!(status_description(&mut c).contains("needs a newer waymark"));
     let r = c.call("search", json!({"query": "x"}));

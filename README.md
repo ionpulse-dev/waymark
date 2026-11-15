@@ -7,7 +7,7 @@
   &nbsp;
   <a href="https://github.com/ionpulse-dev/waymark/tags"><img src="https://img.shields.io/github/v/tag/ionpulse-dev/waymark?label=version" alt="Latest version"/></a>
   &nbsp;
-  <img src="https://img.shields.io/badge/platform-macOS%20(Apple%20silicon)-lightgrey?logo=apple&logoColor=white" alt="Platform: macOS on Apple silicon"/>
+  <img src="https://img.shields.io/badge/platform-macOS%20(Apple%20silicon)%20%7C%20Linux%20(x86__64)-lightgrey?logo=apple&logoColor=white" alt="Platform: macOS on Apple silicon and Linux on x86_64"/>
   &nbsp;
   <img src="https://img.shields.io/badge/MCP-server-orange" alt="MCP server"/>
   &nbsp;
@@ -70,7 +70,7 @@ that you own, with rules that the server enforces.
 
 <br/>
 
-## Setup (macOS only)
+## Setup (macOS and Linux)
 
 ### Option 1: let your agent do it
 
@@ -82,8 +82,14 @@ Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/d
 
 ### Option 2: manual
 
-1. Install the binary: `brew install ionpulse-dev/tap/waymark`. `git` must work
-   and be signed in to your Git host.
+1. Install the binary. `git` must work and be signed in to your Git host.
+   - **macOS (Apple silicon):** `brew install ionpulse-dev/tap/waymark`.
+   - **Linux (x86_64):** download the archive from the
+     [releases page](https://github.com/ionpulse-dev/waymark/releases), check its
+     checksum, and put `waymark` on your `PATH`. The steps are in the
+     [install guide](docs/install.md#install-the-binary).
+
+   **Note:** The Linux steps are not yet tested on a real machine. If a step fails, please open an issue.
 2. Add one entry to the MCP config of your agent tool:
 
 <!-- snippet: generic -->

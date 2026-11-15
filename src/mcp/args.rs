@@ -186,7 +186,8 @@ impl Args {
                     env!("CARGO_PKG_VERSION")
                 ),
                 next: format!(
-                    "If the entry was made for a newer waymark, run `brew upgrade waymark` and restart your agent tool. Otherwise remove the argument: {}. Then restart your agent tool.",
+                    "If the entry was made for a newer waymark, {} and restart your agent tool. Otherwise remove the argument: {}. Then restart your agent tool.",
+                    crate::platform::update_step(),
                     fix_commands(&kept)
                 ),
                 blocking: true,
@@ -272,7 +273,7 @@ mod tests {
             let a = lenient(&argv, &[]);
             let i = a.blocking_issue().expect("a blocking issue");
             assert!(i.message.contains("`--future-flag`"), "{}", i.message);
-            assert!(i.next.contains("brew upgrade waymark"));
+            assert!(i.next.contains(crate::platform::update_step()));
             assert!(i.next.contains(
                 "claude mcp add --transport stdio --scope user waymark -- waymark --path /x"
             ));

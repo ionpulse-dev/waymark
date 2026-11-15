@@ -2,7 +2,8 @@
 # Run `make help` to see all targets.
 
 CARGO ?= cargo
-TARGET := aarch64-apple-darwin
+# The release target is the host target of the compiler (Apple silicon on a Mac, x86_64 on Linux x86_64).
+TARGET := $(shell rustc -vV 2>/dev/null | sed -n 's/^host: //p')
 # Test files named tests/it_*.rs are integration tests. All other files in tests/ are unit or conformance tests.
 INTEGRATION_FILES := $(wildcard tests/it_*.rs)
 UNIT_FILES := $(filter-out $(INTEGRATION_FILES),$(wildcard tests/*.rs))
@@ -10,13 +11,13 @@ UNIT_ARGS := $(patsubst tests/%.rs,--test %,$(UNIT_FILES))
 INTEGRATION_ARGS := $(patsubst tests/%.rs,--test %,$(INTEGRATION_FILES))
 
 .DEFAULT_GOAL := help
-.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local public-check clean
+.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local public-check clean linux-build linux-test linux-check linux-shell
 
 help: ## List all targets
 	@echo "waymark: development commands"
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/^([a-z-]+):.*## (.*)/  \1|\2/' | awk -F'|' '{printf "  %-18s %s\n", $$1, $$2}'
 
-setup: ## Install what is missing on a new Mac, then run doctor
+setup: ## Check or install what is missing, then run doctor (macOS and Linux)
 	@bash scripts/setup.sh
 
 doctor: ## Check that this machine is ready
@@ -26,7 +27,7 @@ build: ## Debug build
 	@echo "Building (debug)..."
 	@$(CARGO) build
 
-release: ## Release build for Apple silicon
+release: ## Release build for the host target
 	@echo "Building (release, $(TARGET))..."
 	@$(CARGO) build --release --target $(TARGET)
 	@ls -lh target/$(TARGET)/release/waymark
@@ -68,6 +69,18 @@ brew-local: ## Install from a local Homebrew tap (publishes nothing)
 
 public-check: ## Scan tracked files for secrets and private details
 	@bash scripts/public-check.sh
+
+linux-build: ## Debug build in the Linux container (ARCH=amd64 for x86_64)
+	@bash scripts/linux.sh make build
+
+linux-test: ## All tests in the Linux container (ARCH=amd64 for x86_64)
+	@bash scripts/linux.sh make test-all
+
+linux-check: ## Lint, tests, and spec check in the Linux container
+	@bash scripts/linux.sh make check
+
+linux-shell: ## Open a shell in the Linux container
+	@bash scripts/linux.sh bash
 
 clean: ## Remove build output and test data
 	@$(CARGO) clean

@@ -1,6 +1,6 @@
 ---
 type: foundation
-status: draft
+status: implemented
 created: 2026-11-15
 updated: 2026-11-15
 requires:
@@ -106,14 +106,14 @@ Checked on 2026-11-15 on Linux x86_64 (Rust 1.100.0, Git 2.43), in a sandbox:
 
 ## Open Questions
 
-- Which C library does the release binary use: the standard one (glibc), built on an old system so that it runs widely, or a static one (musl)? The container image of `personal-server` needs a choice that works with `git` inside the image.
-- Does the Homebrew tap serve Linux too? `distribution` says Homebrew also runs on Linux. Does the formula need a Linux block and a second archive?
-- Which Linux systems do we promise? The proposal is "tested on Ubuntu LTS and Debian, others best effort".
-- Is the `/dev/null` problem only in that sandbox? Run the suite on a clean Linux machine first.
-- Where does the system config file live on Linux? `docs/install.md` says `/etc/waymark/config.toml` "or the macOS equivalent". Check what the code reads on each system.
-- When does the product owner enable CI? The two workflow files are `.disabled` today.
+- Answered 2026-11-15: glibc, built in the development container (Ubuntu 22.04, glibc 2.35). A static (musl) build is deferred (see `todo.md`). The container image of `personal-server` can use the same base.
+- Answered 2026-11-15: not now. The formula stays macOS only. The Linux archive is a download. A Linux block is in `todo.md`.
+- Answered 2026-11-15: tested on Ubuntu LTS (the container is Ubuntu 22.04), Debian and others best effort. The install guide says so.
+- Answered 2026-11-15: yes, only the sandbox. A clean container runs all 633 tests.
+- Answered 2026-11-15: the code read only the macOS path. It now reads `/etc/waymark/config.toml` on Linux, as the trust-model spec says.
+- Open: when does the product owner enable CI? The two workflow files are `.disabled` today and are ready.
 - Answered 2026-11-15: the maintainer checks the Linux docs once, by hand, on a small OrbStack Linux machine. There is no script for it. The check needs the first Linux release archive, so it comes after the first Linux release build. Before that, the build-from-source steps can be followed.
 - Answered 2026-11-15: the maintainer uses OrbStack. It is the runtime that is tested. Other runtimes with a Docker-compatible command line should work and are best effort. Check the license terms of OrbStack for the use of each person who works on the project.
-- Should the dev container also be offered as a Dev Containers configuration, so that an editor attaches with one click?
-- How does an AI agent on a Mac run the tests? `AGENTS.md` says the full suite runs after every task. With the container, the agent would call `make linux-test`, which needs a running runtime.
-- Is the development container the base of the image of `personal-server`, or are they separate? The proposal is separate files, with the same Linux base so that results match.
+- Answered 2026-11-15: yes, `.devcontainer/devcontainer.json` is part of this item.
+- Answered 2026-11-15: the agent runs `make test-all` on the host and `make linux-test` for Linux. `make doctor` says if no runtime is running (see `docs/development.md`).
+- Answered 2026-11-15: separate files, same Linux base (see `decisions.md`).

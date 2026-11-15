@@ -1,5 +1,7 @@
-# Release workflow for macOS (Apple silicon). Written, not run. To enable: rename to release.yml.
-# A tag "vX.Y.Z" builds the archive, uploads it with its checksum, and prints the formula values.
+# Release workflow for macOS (Apple silicon) and Linux (x86_64). Written, not run. To enable: rename to release.yml.
+# A tag "vX.Y.Z" builds one archive per system and uploads it with its checksum to the GitHub release.
+# scripts/release.sh may have made the release already. Both paths create it if it is missing
+# and upload with --clobber, so the order does not matter.
 name: release
 on:
   push:
@@ -7,19 +9,40 @@ on:
 permissions:
   contents: write
 jobs:
-  macos:
-    runs-on: macos-14
+  linux:
+    # Built in the development container (Ubuntu 22.04, glibc 2.35), so that the binary runs on newer systems.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build and package
-        run: bash scripts/package.sh
       - name: Check the tag matches the crate version
         run: |
           V=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
           test "v$V" = "${GITHUB_REF_NAME}"
+      - name: Build and package in the development container
+        run: bash scripts/linux.sh bash scripts/package.sh
       - name: Upload to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/*.sha256 --generate-notes
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "waymark ${GITHUB_REF_NAME#v}" --notes-file <(bash scripts/changelog-entry.sh "${GITHUB_REF_NAME#v}")
+          gh release upload "$GITHUB_REF_NAME" dist/*.tar.gz dist/*.sha256 --clobber
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the tag matches the crate version
+        run: |
+          V=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          test "v$V" = "${GITHUB_REF_NAME}"
+      - name: Build and package
+        run: bash scripts/package.sh
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "waymark ${GITHUB_REF_NAME#v}" --notes-file <(bash scripts/changelog-entry.sh "${GITHUB_REF_NAME#v}")
+          gh release upload "$GITHUB_REF_NAME" dist/*.tar.gz dist/*.sha256 --clobber
       # Updating Formula/waymark.rb in the tap needs a token for the tap repository
       # (secret TAP_TOKEN). The product owner adds it. See docs/next-steps/release-checklist.md.

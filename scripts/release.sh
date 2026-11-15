@@ -10,7 +10,8 @@ cd "$(dirname "$0")/.."
 OWNER=ionpulse-dev
 REPO=waymark
 TAP=homebrew-tap
-TARGET=aarch64-apple-darwin
+# The maintainer releases from a Mac. The Linux archive is added by the release workflow.
+TARGET=${TARGET:-$(rustc -vV | sed -n 's/^host: //p')}
 
 version="${1:-}"
 mode="${2:-release}"
@@ -51,7 +52,7 @@ bash scripts/public-check.sh >/dev/null
 
 say "set the version $version"
 if [ "$current" != "$version" ]; then
-  sed -i '' "s/^version = \"$current\"/version = \"$version\"/" Cargo.toml
+  sed -i.bak "s/^version = \"$current\"/version = \"$version\"/" Cargo.toml && rm -f Cargo.toml.bak
   cargo build -q
   git add Cargo.toml Cargo.lock
   git commit -q -m "Release $version"
@@ -67,7 +68,13 @@ echo "sha256 $sha"
 say "tag and GitHub release"
 git tag "v$version"
 git push -q origin "v$version"
-gh release create "v$version" "$archive" "$archive.sha256" --title "waymark $version" --notes-file "$notes" >/dev/null
+# The release workflow may have made the release already (it adds the Linux archive). Both paths are safe.
+if gh release view "v$version" >/dev/null 2>&1; then
+  gh release upload "v$version" "$archive" "$archive.sha256" --clobber >/dev/null
+  gh release edit "v$version" --title "waymark $version" --notes-file "$notes" >/dev/null
+else
+  gh release create "v$version" "$archive" "$archive.sha256" --title "waymark $version" --notes-file "$notes" >/dev/null
+fi
 echo "https://github.com/$OWNER/$REPO/releases/tag/v$version"
 
 say "update the tap"

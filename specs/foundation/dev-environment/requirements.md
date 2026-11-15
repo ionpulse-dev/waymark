@@ -7,7 +7,7 @@ updated: 2026-11-14
 
 # Development environment
 
-> **Note 2026-11-15:** The draft spec [linux-support](../linux-support/requirements.md) makes the commands and scripts work on Linux x86_64 too. The out-of-scope line "Linux and Intel Macs" changes for Linux when that spec is approved.
+> **Note 2026-11-15:** The spec [linux-support](../linux-support/requirements.md) (`implemented`) makes the commands and scripts work on Linux (x86_64 and arm64) too, and adds a development container with `make linux-*` commands. The out-of-scope line "Linux and Intel Macs" below now means Intel Macs only.
 
 ## Technical Goal
 
@@ -31,7 +31,7 @@ One command sets up a new Mac for work on waymark, and a small set of commands c
 
 **In scope:** macOS on Apple silicon. Setup, build, test, lint, format, run, spec checks, and release preparation.
 
-**Out of scope:** Linux and Intel Macs. Publishing a release (see `distribution`). Installing agent tools.
+**Out of scope:** Intel Macs (Linux is covered by `linux-support`). Publishing a release (see `distribution`). Installing agent tools.
 
 ## Constraints
 

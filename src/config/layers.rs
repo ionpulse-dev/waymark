@@ -100,11 +100,23 @@ pub struct Paths {
     pub personal: PathBuf,
 }
 
-pub const SYSTEM_CONFIG: &str = "/Library/Application Support/waymark/config.toml";
+/// The system file on macOS.
+pub const SYSTEM_CONFIG_MACOS: &str = "/Library/Application Support/waymark/config.toml";
+/// The system file on Linux (and other systems).
+pub const SYSTEM_CONFIG_LINUX: &str = "/etc/waymark/config.toml";
+
+/// The path of the system file for an operating system (a value of `std::env::consts::OS`).
+pub fn system_config_for(os: &str) -> &'static str {
+    if os == "macos" {
+        SYSTEM_CONFIG_MACOS
+    } else {
+        SYSTEM_CONFIG_LINUX
+    }
+}
 
 impl Paths {
     pub fn from_env() -> Paths {
-        let mut system = vec![PathBuf::from(SYSTEM_CONFIG)];
+        let mut system = vec![PathBuf::from(system_config_for(std::env::consts::OS))];
         if let Some(p) = std::env::var_os("WAYMARK_SYSTEM_CONFIG") {
             system.push(PathBuf::from(p));
         }
@@ -138,6 +150,15 @@ pub fn load_file_layers(paths: &Paths) -> Result<Vec<Limits>, ConfigError> {
 mod tests {
     use super::*;
     use crate::config::limits::Effective;
+
+    #[test]
+    fn the_system_file_depends_on_the_system() {
+        assert_eq!(
+            system_config_for("macos"),
+            "/Library/Application Support/waymark/config.toml"
+        );
+        assert_eq!(system_config_for("linux"), "/etc/waymark/config.toml");
+    }
 
     #[test]
     fn parses_the_sections() {

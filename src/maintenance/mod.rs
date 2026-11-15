@@ -62,12 +62,12 @@ fn git_check() -> Check {
         Ok(None) => Check::bad(
             "git",
             "git did not answer in 5 seconds",
-            "Install the Xcode command line tools: run `xcode-select --install`, or install Git with Homebrew.",
+            crate::platform::git_install_hint(),
         ),
         _ => Check::bad(
             "git",
             "git does not work",
-            "Install the Xcode command line tools: run `xcode-select --install`, or install Git with Homebrew.",
+            crate::platform::git_install_hint(),
         ),
     }
 }

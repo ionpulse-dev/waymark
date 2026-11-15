@@ -210,3 +210,9 @@ feature specs keep their words. The reasons are in the spec
 
 **Added the same day:** The maintainer works on macOS only. So the spec also delivers a development container and `make linux-*` commands, which run all work in a Linux container on the Mac. That container is arm64 on Apple silicon, so build and tests are in scope for Linux arm64 and x86_64. The first release archive is still x86_64 only.
 
+
+## Linux support is implemented — 2026-11-15
+
+**Decision:** The spec [linux-support](../specs/foundation/linux-support/requirements.md) is `implemented`. waymark builds, passes all 633 tests, and runs on Linux (arm64 native in the development container, x86_64 through emulation). The release workflow (still disabled) adds a Linux x86_64 archive. The Linux install steps carry a note until the maintainer checks them once on a clean Linux machine.
+
+**Reason:** The first Linux run found a serious bug: a `kill` call that killed every process of the user on Linux. It is fixed, and it is in the changelog. Server mode, multi-tenancy, sign-in, and the web console stay out of scope.

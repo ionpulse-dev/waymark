@@ -9,7 +9,7 @@ requires:
 
 # Distribution
 
-> **Note 2026-11-15:** The draft spec [linux-support](../linux-support/requirements.md) brings Linux on x86_64 back into scope. It adds a Linux release archive next to the macOS one. The scope line below, "macOS only", changes when that spec is approved.
+> **Note 2026-11-15:** The spec [linux-support](../linux-support/requirements.md) (`implemented`) brings Linux on x86_64 back into scope. The release workflow builds a Linux archive and a checksum next to the macOS one. The Homebrew formula stays macOS only. The scope line below, "macOS only", no longer holds for the archive.
 
 > **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The repository and the tap `ionpulse-dev/homebrew-tap` are public, and the current release is published. `brew install ionpulse-dev/tap/waymark` works (see `docs/next-steps/release-checklist.md`). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 

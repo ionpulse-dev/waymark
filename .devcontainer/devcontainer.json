@@ -1,0 +1,24 @@
+{
+  "name": "waymark (Linux)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": { "RUST_VERSION": "1.100.0" }
+  },
+  "workspaceFolder": "/work",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
+  "mounts": [
+    "source=waymark-target-devcontainer,target=/cache/target,type=volume",
+    "source=waymark-cargo-devcontainer,target=/opt/cargo/registry,type=volume"
+  ],
+  "containerEnv": {
+    "WAYMARK_EXPECT_CASE_SENSITIVE": "1",
+    "GIT_CONFIG_COUNT": "1",
+    "GIT_CONFIG_KEY_0": "safe.directory",
+    "GIT_CONFIG_VALUE_0": "*"
+  },
+  "remoteUser": "root",
+  "customizations": {
+    "vscode": { "extensions": ["rust-lang.rust-analyzer"] }
+  }
+}

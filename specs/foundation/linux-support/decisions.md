@@ -85,3 +85,52 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** They are two files with two jobs. They use the same Linux base.
 
 **Reason:** One holds the toolchain and the source mount, and the other holds only the binary, `git`, and certificates and runs a server. Mixing them would put build tools into a server image.
+
+## Findings of the first Linux run — 2026-11-15
+
+**Decision:** The measure step ran the suite in the development container (Ubuntu 22.04, arm64 native, and x86_64 through OrbStack emulation). The `/dev/null` problem was only the sandbox: on a clean system the integration tests run. The real problems were:
+1. **`kill -KILL -<pid>` in `src/gitsync/cmd.rs`.** The `kill` of procps (Linux) reads `-<pid>` as an option. It killed every process of the user, including the test run and the server. The fix is `kill -KILL -- -<pid>`. This is a bug that affects real Linux users, not only the tests. It is in the changelog.
+2. **System config path.** The code read only `/Library/Application Support/waymark/config.toml`. The trust-model spec says `/etc/waymark/config.toml` on Linux. `src/config/layers.rs` now picks the path at run time.
+3. **Git worktrees in the container.** `.git` of a worktree is a file with an absolute host path. `scripts/linux.sh` mounts the Git folder at the same path. `scripts/public-check.sh` now fails when Git does not work, because it passed silently before.
+4. **`\b` in `public-check.sh`.** macOS and Linux regular expressions differ. The pattern for an internal host flagged `~/.local/bin` on Linux. It now needs a host name before the dot.
+5. **Shell scripts.** `sed -i ''`, `shasum`, `otool`, and Homebrew-only steps do not work on Linux. They are portable now, or skipped with a message when a tool does not exist.
+
+**Reason:** The spec lists what was seen, not what was guessed.
+
+## The development container is Ubuntu 22.04 — 2026-11-15
+
+**Decision:** `.devcontainer/Dockerfile` uses `ubuntu:22.04`. The release archive for Linux is built in this container, so the binary needs glibc 2.35 or older.
+
+**Alternatives considered:**
+- Ubuntu 24.04 or Debian 13 — rejected: a newer glibc makes the binary fail on Ubuntu 22.04 and Debian 12.
+- A static musl build — deferred: it needs a second target and a check that `git` calls still work. See `todo.md`.
+
+**Reason:** The older the build system, the more systems run the binary. This answers the open question about the C library for now: glibc, built on an old base. The shell tests check the needed glibc version.
+
+## Named volumes per architecture and checkout — 2026-11-15
+
+**Decision:** `scripts/linux.sh` names the volumes `waymark-target-<arch>-<hash of the path>` and `waymark-cargo-<arch>-<hash>`. `CARGO_TARGET_DIR` is `/cache/target`, outside the mounted folder.
+
+**Alternatives considered:** One shared volume — rejected: builds of two architectures or two worktrees would overwrite each other. A `target/` volume inside the source mount — rejected: Docker would create an empty `target` folder in the project, maybe owned by root.
+
+**Reason:** Speed, and no file in the project folder owned by `root`. The folders in the image are world-writable, so a volume that starts from them is writable by the host user ID.
+
+## The release workflow and `release.sh` both create the release — 2026-11-15
+
+**Decision:** Both check if the release exists, create it if not, and upload with `--clobber`. The order does not matter. `scripts/release.sh` stays the flow of the maintainer on a Mac (macOS archive and tap). The workflow adds the Linux x86_64 archive. The Homebrew formula stays macOS only.
+
+**Alternatives considered:** Let the workflow do everything — rejected: the tap update and the checks of `release.sh` are the maintainer flow of the distribution spec. A Linux block in the formula — deferred (see `todo.md`).
+
+**Reason:** Both run after a tag. One must not fail because the other was first.
+
+## Tests use the hint of the running system — 2026-11-15
+
+**Decision:** Tests that checked `brew upgrade waymark` or `xcode-select` now check `waymark::platform::update_step()`, `update_sentence()`, and `git_install_hint()`. The unit tests of `src/platform.rs` cover every branch of both systems with the `_for` functions.
+
+**Reason:** The test binary and the binary under test run from `target/`, which is not a Homebrew folder, so the generic update text applies. A test must not depend on how the machine was set up.
+
+## The doctor can fake the system for its tests — 2026-11-15
+
+**Decision:** `DOCTOR_OS` and `DOCTOR_ARCH` replace `uname` in `scripts/doctor.sh`. They exist only for the shell tests.
+
+**Reason:** The Linux hints and the platform warning must be tested on macOS too, with one test suite.
