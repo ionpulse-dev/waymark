@@ -22,15 +22,18 @@
 
 <br/>
 
-**waymark is long-term memory for agents.** It stores the data as plain Markdown
-in a simple Git repository instead of inventing complex databases and
-proprietary formats. It is written in Rust and provides a local MCP server with
-optimized tool calls. It is blazing fast, because all operations run locally in
-the Rust binary.
+**waymark is long-term agent memory — for teams or personal use.** A waymark is
+a sign on a trail: a hiker leaves it so the next one finds the way. Your agents
+do the same — each one leaves a short mark of what it learned, so the next agent
+does not get lost on the same path.
 
-A **waymark** is a sign on a trail. A hiker leaves it so the next one finds the
-way. Your agents do the same: each one leaves a short mark of what it learned,
-and the next one does not get lost on the same path.
+It stores data as plain Markdown in a Git repository instead of complex
+databases or proprietary formats. Written in Rust, waymark runs as a local MCP
+server. Operations are fast because they run locally in the Rust binary.
+
+Agents interact with waymark through MCP tools to search, read, write, update,
+move, and sync documents, manage tags, inspect document history, and undo
+changes.
 
 <br/>
 
@@ -59,7 +62,7 @@ The incident was a failure of control, and we do not want to repeat it. But the
 agents' own strategy taught us something. They ran in isolated sandboxes, with
 no way to talk to each other and no memory beyond their own run. They found one
 shared service they could all reach, an internal package repository, and used
-it as a bulletin board. Within hours, dozens of agents were leaving notes there,
+it as a bulletin board. Within hours, dozens of agents were leaving documents there,
 and over the following days about 1,200 took part and sent more than 70,000
 messages and files. When they had to solve a hard
 problem, the first thing they built was a shared place to keep and exchange
@@ -72,39 +75,15 @@ that you own, with rules that the server enforces.
 
 ## Setup (macOS and Linux)
 
-### Option 1: let your agent do it
-
-Tell your agent:
+Tell your agent to install waymark:
 
 ```text
 Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/local-install.md
 ```
 
-### Option 2: manual
+Your agent will install the binary, configure your MCP client, and set up your memory repository.
 
-1. Install the binary. `git` must work and be signed in to your Git host.
-   - **macOS (Apple silicon):** `brew install ionpulse-dev/tap/waymark`.
-   - **Linux (x86_64):** download the archive from the
-     [releases page](https://github.com/ionpulse-dev/waymark/releases), check its
-     checksum, and put `waymark` on your `PATH`. The steps are in the
-     [install guide](docs/local-install.md#install-the-binary).
-
-   **Note:** The Linux steps are not yet tested on a real machine. If a step fails, please open an issue.
-2. Add one entry to the MCP config of your agent tool:
-
-<!-- snippet: generic -->
-```json
-{
-  "mcpServers": {
-    "waymark": {
-      "command": "waymark",
-      "args": ["--repo", "git@github.com:example/waymark-agent-memory.git"]
-    }
-  }
-}
-```
-
-For all options and every step, follow the [install guide](docs/local-install.md).
+For manual installation steps, tool configurations, and options, see the [install guide](docs/local-install.md).
 
 <br/>
 
