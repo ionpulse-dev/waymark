@@ -10,7 +10,8 @@ cd "$(dirname "$0")/.."
 OWNER=ionpulse-dev
 REPO=waymark
 TAP=homebrew-tap
-# The maintainer releases from a Mac. The Linux archive is added by the release workflow.
+# The maintainer releases from a Mac. The Linux x86_64 archive is built in the development container.
+LINUX_TARGET=x86_64-unknown-linux-gnu
 TARGET=${TARGET:-$(rustc -vV | sed -n 's/^host: //p')}
 
 version="${1:-}"
@@ -40,6 +41,7 @@ git fetch -q origin
 ! git rev-parse -q --verify "refs/tags/v$version" >/dev/null || { echo "release: the tag v$version exists" >&2; exit 1; }
 gh auth status >/dev/null 2>&1 || { echo "release: gh is not signed in" >&2; exit 1; }
 gh repo view "$OWNER/$TAP" >/dev/null 2>&1 || { echo "release: the tap $OWNER/$TAP is not reachable" >&2; exit 1; }
+bash scripts/linux.sh true >/dev/null 2>&1 || { echo "release: the Linux container does not work. Start OrbStack (or your container runtime), then run again. See make doctor." >&2; exit 1; }
 
 if [ "$mode" = "--check" ]; then
   echo; echo "release: checks passed for $version. Nothing was changed."
@@ -65,15 +67,22 @@ archive="dist/waymark-$version-$TARGET.tar.gz"
 sha=$(cut -d' ' -f1 "$archive.sha256")
 echo "sha256 $sha"
 
+say "build the Linux archive (x86_64, in the development container)"
+ARCH=amd64 bash scripts/linux.sh bash scripts/package.sh >/dev/null
+linux_archive="dist/waymark-$version-$LINUX_TARGET.tar.gz"
+[ -f "$linux_archive" ] && [ -f "$linux_archive.sha256" ] || { echo "release: the Linux archive was not built" >&2; exit 1; }
+linux_sha=$(cut -d' ' -f1 "$linux_archive.sha256")
+echo "sha256 $linux_sha"
+
 say "tag and GitHub release"
 git tag "v$version"
 git push -q origin "v$version"
 # The release workflow may have made the release already (it adds the Linux archive). Both paths are safe.
 if gh release view "v$version" >/dev/null 2>&1; then
-  gh release upload "v$version" "$archive" "$archive.sha256" --clobber >/dev/null
+  gh release upload "v$version" "$archive" "$archive.sha256" "$linux_archive" "$linux_archive.sha256" --clobber >/dev/null
   gh release edit "v$version" --title "waymark $version" --notes-file "$notes" >/dev/null
 else
-  gh release create "v$version" "$archive" "$archive.sha256" --title "waymark $version" --notes-file "$notes" >/dev/null
+  gh release create "v$version" "$archive" "$archive.sha256" "$linux_archive" "$linux_archive.sha256" --title "waymark $version" --notes-file "$notes" >/dev/null
 fi
 echo "https://github.com/$OWNER/$REPO/releases/tag/v$version"
 
@@ -91,6 +100,10 @@ curl -sL "https://github.com/$OWNER/$REPO/releases/download/v$version/waymark-$v
 [ "$(shasum -a 256 "$chk/a.tgz" | cut -d' ' -f1)" = "$sha" ] || { echo "release: the published archive has another checksum" >&2; exit 1; }
 tar -xzf "$chk/a.tgz" -C "$chk"
 [ "$("$chk/waymark" --version)" = "waymark $version" ] || { echo "release: the published binary reports another version" >&2; exit 1; }
+curl -sL "https://github.com/$OWNER/$REPO/releases/download/v$version/waymark-$version-$LINUX_TARGET.tar.gz" -o "$chk/l.tgz"
+[ "$(shasum -a 256 "$chk/l.tgz" | cut -d' ' -f1)" = "$linux_sha" ] || { echo "release: the published Linux archive has another checksum" >&2; exit 1; }
+mkdir "$chk/linux" && tar -xzf "$chk/l.tgz" -C "$chk/linux"
+[ "$(docker run --rm --platform linux/amd64 -v "$chk/linux:/t:ro" ubuntu:22.04 /t/waymark --version)" = "waymark $version" ] || { echo "release: the published Linux binary reports another version" >&2; exit 1; }
 brew update >/dev/null 2>&1 || true
 brew audit --strict --new "$OWNER/tap/$REPO" >/dev/null 2>&1 || { echo "release: brew audit failed" >&2; exit 1; }
 [ "$(git rev-parse HEAD)" = "$(git rev-parse "v$version^{commit}")" ] || { echo "release: the tag does not point at HEAD" >&2; exit 1; }
