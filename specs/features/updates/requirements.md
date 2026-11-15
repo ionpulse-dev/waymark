@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - search-and-read
 ---
@@ -42,6 +42,7 @@ requires:
 |---|---|---|---|
 | `folders` | array of string | no | Default: all. |
 | `since` | string | no | A date `YYYY-MM-DD` (start of that day, UTC) or a time in RFC 3339. |
+| `offset` | integer ≥ 0 | no | Default 0. How many changes to skip. Needs `since` (see `lean-tools`). |
 
 ```json
 { "tool": "updates", "arguments": { "folders": ["backend"], "since": "2026-11-10" } }
@@ -92,7 +93,7 @@ requires:
 - `from` is present for `moved`.
 - `by` and `date` are the author and day of the last change in the window by someone else.
 - Order: documents that are `mine` and `disputed`, then other `mine` documents, then the rest. Inside a group, newest first.
-- At most 50 entries. `total` is the full count. `truncated` is true when the list was cut.
+- At most 50 entries. `total` is the full count. `truncated` is true when the list was cut, and then `next_offset` tells where to continue: repeat the call with the same `since` and `offset: next_offset`. `until` is the end of the window. A client may pass it as `since` in a later call.
 - `marked` is `true` when this call stored its time (a call without `since`).
 
 ### Errors

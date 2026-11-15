@@ -59,7 +59,7 @@ impl Tool for Move {
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [
@@ -131,7 +131,7 @@ impl Tool for Move {
                 // An empty folder (only a `.gitkeep`) can move too.
                 if pairs.is_empty() && file_moves.is_empty() {
                     return Err(Error::not_found(format!("There is no folder \"{from}\"."))
-                        .with_next("Use folders to see the folders."));
+                        .with_next("Use folder_tree to see the folders."));
                 }
                 if memrepo.root.join(&to_key).exists() {
                     return Err(

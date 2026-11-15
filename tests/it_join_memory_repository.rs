@@ -261,7 +261,7 @@ fn a8_a_path_that_is_in_use_is_never_touched() {
     git(&h, &["clone", "-q", &url(&other), target.to_str().unwrap()]);
     let head = git(&target, &["rev-parse", "HEAD"]);
     let mut c = start(&h, &["--repo", &u, "--path", target.to_str().unwrap()]);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"), "{}", r.json);
     assert_eq!(git(&target, &["rev-parse", "HEAD"]), head);
 }
@@ -306,7 +306,7 @@ fn a11_a_host_that_is_not_allowed_is_not_cloned() {
     personal(&h, "[limits]\nallowed_repo_hosts = [\"github.com\"]\n");
     let u = url(&w);
     let mut c = start(&h, &["--repo", &u]);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("access_denied"), "{}", r.json);
     assert!(!h.join(".waymark").exists());
 }

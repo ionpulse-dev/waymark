@@ -62,7 +62,7 @@ impl Tool for Folders {
         if !start.is_empty() && !all.iter().any(|f| f.path == start) {
             return Err(
                 crate::error::Error::not_found(format!("There is no folder \"{start}\"."))
-                    .with_next("Call folders without `folder` to see the folders."),
+                    .with_next("Call folder_tree without `folder` to see the folders."),
             );
         }
         let allowed = |id: &str| env.effective.allows_folder(id);

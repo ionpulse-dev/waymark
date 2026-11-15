@@ -116,7 +116,6 @@ A session started by a person asks you to approve a server from `.mcp.json` befo
       "mcp__waymark__status",
       "mcp__waymark__search",
       "mcp__waymark__show",
-      "mcp__waymark__list",
       "mcp__waymark__folder_tree",
       "mcp__waymark__list_tags",
       "mcp__waymark__history",

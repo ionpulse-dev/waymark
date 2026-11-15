@@ -15,7 +15,7 @@ pub struct Show;
 
 fn not_found(id: &str) -> Error {
     Error::not_found(format!("There is no document with the ID \"{id}\"."))
-        .with_next("Use search or list to find the ID.")
+        .with_next("Use search to find the ID.")
 }
 
 /// The ID of a path below the repository folder, if it lies below the root.
@@ -72,7 +72,7 @@ impl Tool for Show {
     }
 
     fn description(&self) -> &'static str {
-        "Returns one document: properties, body, version, backlinks, and replaced_by. With version it returns an older version. The version of the current document is the base for a change. Changes nothing."
+        "Returns one document: properties, body, version, backlinks, replaced_by, and for a deprecated document deprecation_reason. With version it returns an older version. The version is the short commit hash of the last change of the file, and the version of the current document is the base for a change. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -85,7 +85,7 @@ impl Tool for Show {
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The document ID: its path below the root, without .md."
+                    "description": "Document ID: its path without .md."
                 },
                 "version": {
                     "type": "string",
@@ -240,6 +240,9 @@ impl Tool for Show {
         data["replaced_by"] = json!(replaced_by);
         data["pending_edit"] = json!(pending);
         data["moved_from"] = json!(moved_from);
+        if doc.status() == "deprecated" {
+            data["deprecation_reason"] = json!(repo.deprecation_reason(&rel)?);
+        }
         let mut out = ToolOutput::new("Document found.", data);
         for n in notices {
             out = out.notice(n);

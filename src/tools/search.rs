@@ -1,4 +1,4 @@
-//! The `search` tool: full-text search, ranked.
+//! The `search` tool: full-text search, ranked. Without a query it lists documents (see `lean-tools`).
 
 use super::read_common::{
     cap, entry, folders_arg, level_arg, limit_arg, offset_arg, status_ok, Filter,
@@ -20,7 +20,7 @@ impl Tool for Search {
     }
 
     fn description(&self) -> &'static str {
-        "Searches the documents for words and returns the best matches, ranked, with a snippet. Returns results (id, title, status, updated, description, snippet), total_matches, truncated, and next_offset. Changes nothing."
+        "Searches the documents for words and returns the best matches, ranked, with a snippet. Without a query it lists the documents sorted by ID. Returns results (id, title, status, updated, description, snippet), total_matches, truncated, and next_offset. Changes nothing."
     }
 
     fn kind(&self) -> Kind {
@@ -33,7 +33,7 @@ impl Tool for Search {
             "properties": {
                 "query": {
                     "type": "string",
-                    "description": "One or more words. A document must contain all of them."
+                    "description": "One or more words. A document must contain all of them. Leave it out to list documents."
                 },
                 "in": {
                     "type": "array",
@@ -47,7 +47,7 @@ impl Tool for Search {
                             "body"
                         ]
                     },
-                    "description": "Where to look. Default: all of them."
+                    "description": "Where to look, with a query. Default: all of them."
                 },
                 "level": {
                     "type": "integer",
@@ -56,7 +56,7 @@ impl Tool for Search {
                         1,
                         2
                     ],
-                    "description": "Detail of each result: 0 ID only, 1 adds title, status, and updated, 2 adds description and snippet. Default 2."
+                    "description": "Detail of each result: 0 ID only, 1 adds title, status, and updated, 2 adds description and snippet. Default 2 with a query, 1 without."
                 },
                 "folders": {
                     "type": "array",
@@ -103,25 +103,23 @@ impl Tool for Search {
                     "description": "How many results to skip. Default 0."
                 }
             },
-            "required": [
-                "query"
-            ],
             "additionalProperties": false
         })
     }
 
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let terms = rank::terms(args["query"].as_str().unwrap_or(""));
-        if terms.is_empty() {
-            return Err(
-                Error::invalid("The query is empty.").with_next("Send one or more words in query.")
-            );
+        // No `query` at all lists documents. A `query` without words is a mistake.
+        let listing = args.get("query").is_none();
+        if terms.is_empty() && !listing {
+            return Err(Error::invalid("The query is empty.")
+                .with_next("Send one or more words in query, or leave query out to list."));
         }
         let parts: Vec<Part> = match crate::writes::get_list(&args, "in") {
             Some(l) if !l.is_empty() => l.iter().filter_map(|p| Part::parse(p)).collect(),
             _ => Part::ALL.to_vec(),
         };
-        let level = level_arg(&args, 2);
+        let level = level_arg(&args, if listing { 1 } else { 2 });
         let status = crate::writes::get_str(&args, "status").unwrap_or("active");
         let tag = crate::writes::get_str(&args, "tag");
         let limit = limit_arg(&args, env.effective.max_results)?;
@@ -134,22 +132,30 @@ impl Tool for Search {
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
 
-        let mut hits: Vec<_> = store
+        let candidates = store
             .docs()
             .filter(|d| scope.allows(&d.id) && status_ok(status, d.status()))
             .filter(|d| tag.is_none_or(|t| d.tags().iter().any(|x| x == t)))
-            .filter(|d| filter.matches(d))
-            .filter_map(|d| rank::score(d, &terms, &parts).map(|s| (d, s)))
-            .collect();
-        rank::sort(&mut hits);
-        let total = hits.len();
-        let entries = hits
+            .filter(|d| filter.matches(d));
+        let docs: Vec<_> = if listing {
+            let mut docs: Vec<_> = candidates.collect();
+            docs.sort_by(|a, b| a.id.cmp(&b.id));
+            docs
+        } else {
+            let mut hits: Vec<_> = candidates
+                .filter_map(|d| rank::score(d, &terms, &parts).map(|s| (d, s)))
+                .collect();
+            rank::sort(&mut hits);
+            hits.into_iter().map(|(d, _)| d).collect()
+        };
+        let total = docs.len();
+        let entries = docs
             .iter()
             .skip(offset)
             .take(limit + 1)
-            .map(|(d, _)| {
+            .map(|d| {
                 let mut e = entry(d, level);
-                if level >= 2 {
+                if level >= 2 && !listing {
                     e.insert("snippet".into(), json!(rank::snippet(d, &terms)));
                 }
                 e
@@ -159,6 +165,7 @@ impl Tool for Search {
         let next = offset + results.len();
         let truncated = next < total;
         let message = match total {
+            _ if listing => format!("{} of {total} documents.", results.len()),
             0 => "No document found.".to_string(),
             1 => "1 document found.".to_string(),
             n => format!("{n} documents found."),

@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-11
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - git-sync
   - trust-model
@@ -65,7 +65,7 @@ One binary, `waymark`, is an MCP server and holds all logic: documents, Git work
 | Tool | Task | Kind | Specified in |
 |---|---|---|---|
 | `status` | State of the setup, the memory repository in use, the effective limits, open notices | read | `maintenance`, `session-start` |
-| `search`, `show`, `list`, `stats` | Find and read documents | read | `search-and-read`, `search-filters`, `document-history` |
+| `search`, `show`, `stats` | Find, list, and read documents (`search` without a query lists) | read | `search-and-read`, `search-filters`, `document-history`, `lean-tools` |
 | `history` | The versions of one document | read | `document-history` |
 | `folder_tree` | The folders with counts | read | `folders` |
 | `list_tags` | The tags with counts | read | `manage-tags` |

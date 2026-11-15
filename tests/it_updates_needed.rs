@@ -42,7 +42,7 @@ fn an_unknown_argument_reaches_the_person_and_blocks_the_tools() {
         "{d}"
     );
     // every other tool: the same message.
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"), "{}", r.json);
     assert!(r.message().contains("--future-flag"), "{}", r.json);
     assert!(r.json["next"]
@@ -67,7 +67,7 @@ fn a_wrong_value_does_not_guess_a_memory_repository() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--max-results", "many"]));
     assert!(instructions(&c).contains("WAYMARK NEEDS AN UPDATE"));
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"), "{}", r.json);
     assert!(r.message().contains("wrong argument"), "{}", r.json);
 }

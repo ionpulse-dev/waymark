@@ -155,7 +155,7 @@ fn row3_repo_only_name_collision() {
     other_repository(&dir);
     let before = git(&dir, &["remote", "-v"]);
     let mut c = start(&h, &["--repo", &url(&w)], None);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.message().contains("Name collision"), "{}", r.message());
     assert!(r.json["next"].as_str().unwrap().contains("--path"));
@@ -221,7 +221,7 @@ fn row6_both_remote_mismatch() {
         ],
         None,
     );
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.message().contains("Remote mismatch"), "{}", r.message());
     assert_eq!(git(&w.a, &["remote", "-v"]), before);
@@ -246,7 +246,7 @@ fn row8_path_only_missing_or_empty() {
     std::fs::create_dir_all(&empty).unwrap();
     for p in [missing, empty] {
         let mut c = start(&h, &["--path", p.to_str().unwrap()], None);
-        let r = c.call("list", json!({}));
+        let r = c.call("search", json!({}));
         assert_eq!(r.code(), Some("setup_problem"));
         assert!(r.json["next"].as_str().unwrap().contains("--repo"));
         assert!(!p.join(".git").exists());
@@ -261,7 +261,7 @@ fn row9_neither_given() {
     clone_to(&w, &h.join("Projects/x-agent-memory"));
     let mut c = start(&h, &[], Some(w.a.clone()));
     assert!(status(&mut c).is_object());
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
     let next = r.json["next"].as_str().unwrap();
     assert!(next.contains("--repo") && next.contains("--path"));
@@ -293,7 +293,7 @@ fn a_url_without_a_name_needs_a_path() {
     let w = World::new();
     let h = home(&w, "h9d");
     let mut c = start(&h, &["--repo", "https://example.org/.git"], None);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.json["next"].as_str().unwrap().contains("--path"));
 }
@@ -320,7 +320,7 @@ fn memrepo_id_equal_works_and_different_serves_nothing() {
     );
     let s = status(&mut c);
     assert_eq!(s["healthy"], false);
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
     assert_eq!(
         c.call(
             "add_document",
@@ -345,7 +345,7 @@ fn a_missing_id_is_a_setup_problem() {
         .collect();
     std::fs::write(&f, t).unwrap();
     let mut c = start(&h, &["--path", w.a.to_str().unwrap()], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
 }
 
 #[test]
@@ -363,13 +363,13 @@ fn an_id_that_changes_after_a_pull_stops_the_tools() {
         ],
         None,
     );
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
     let f = w.a.join("agent-memory/.waymark/settings.toml");
     let t = std::fs::read_to_string(&f)
         .unwrap()
         .replace(&id, "00000000-0000-4000-8000-000000000001");
     std::fs::write(&f, t).unwrap();
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
 }
 
 #[test]
@@ -379,7 +379,7 @@ fn allowed_hosts_refuse_a_clone_and_allow_localhost() {
     personal(&h, "[limits]\nallowed_repo_hosts = [\"git.example.org\"]\n");
     let u = url(&w);
     let mut c = start(&h, &["--repo", &u], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("access_denied"));
+    assert_eq!(c.call("search", json!({})).code(), Some("access_denied"));
     let dir = default_dir(&h, &w);
     assert!(!dir.exists());
     assert!(!default_dir(&h, &w).with_extension("waymark-clone").exists());
@@ -387,7 +387,7 @@ fn allowed_hosts_refuse_a_clone_and_allow_localhost() {
     drop(c);
     personal(&h, "[limits]\nallowed_repo_hosts = [\"localhost\"]\n");
     let mut c = start(&h, &["--repo", &u], None);
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
 }
 
 #[test]
@@ -396,11 +396,11 @@ fn an_existing_folder_with_a_refused_origin_is_denied_and_no_origin_passes() {
     let h = home(&w, "h7");
     personal(&h, "[limits]\nallowed_repo_hosts = [\"git.example.org\"]\n");
     let mut c = start(&h, &["--path", w.a.to_str().unwrap()], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("access_denied"));
+    assert_eq!(c.call("search", json!({})).code(), Some("access_denied"));
     drop(c);
     git(&w.a, &["remote", "remove", "origin"]);
     let mut c = start(&h, &["--path", w.a.to_str().unwrap()], None);
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
 }
 
 #[test]
@@ -418,7 +418,7 @@ fn tools_take_no_repository_argument() {
             );
         }
     }
-    let r = c.call("list", json!({"repo": "file:///elsewhere"}));
+    let r = c.call("search", json!({"repo": "file:///elsewhere"}));
     assert_eq!(r.code(), Some("invalid_arguments"));
 }
 
@@ -431,7 +431,7 @@ fn a_git_repository_without_a_marker() {
     git(&d, &["init", "-q"]);
     let mut c = start(&h, &["--path", d.to_str().unwrap()], None);
     assert!(status(&mut c).is_object());
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
 }
 
 #[test]
@@ -444,15 +444,15 @@ fn a_linked_worktree_and_a_non_repository() {
         &["worktree", "add", "-q", wt.to_str().unwrap(), "-b", "other"],
     );
     let mut c = start(&h, &["--path", wt.to_str().unwrap()], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
     drop(c);
     let plain = h.join("not-git");
     std::fs::create_dir_all(&plain).unwrap();
     let mut c = start(&h, &["--path", plain.to_str().unwrap()], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
     drop(c);
     let mut c = start(&h, &["--path", h.join("missing").to_str().unwrap()], None);
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
 }
 
 #[test]
@@ -464,7 +464,7 @@ fn a_failed_clone_leaves_no_temporary_folder() {
     std::fs::create_dir_all(&tmp).unwrap();
     std::fs::write(tmp.join("junk"), "x").unwrap();
     let mut c = start(&h, &["--repo", "file:///does/not/exist/nothing.git"], None);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("sync_failed"), "{}", r.json);
     assert!(!tmp.exists());
     assert!(!h.join(".waymark/nothing").exists());
@@ -490,7 +490,7 @@ fn a_url_with_a_password_is_never_shown() {
     let bad = "https://anna:secret123@127.0.0.1:9/none/x.git";
     let mut c = start(&h, &["--repo", bad], None);
     let s = status(&mut c);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     for text in [s.to_string(), r.json.to_string()] {
         assert!(!text.contains("secret123"), "{text}");
     }

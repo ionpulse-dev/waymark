@@ -1,4 +1,4 @@
-//! End-to-end tests of the filters and the paging of `search` and `list`
+//! End-to-end tests of the filters and the paging of `search`
 //! (see `specs/features/search-filters/test.md`).
 
 mod common;
@@ -88,41 +88,43 @@ fn search_pages_with_offset_and_next_offset() {
 }
 
 #[test]
-fn list_and_search_filter_by_author() {
+fn search_with_and_without_a_query_filters_by_author() {
     let w = World::new();
     mixed(&w);
     let mut c = client(&w);
-    for tool in ["list", "search"] {
+    for with_query in [false, true] {
+        let tool = "search";
         for who in ["bob", "BUILDER", "bob@example", "Bob Builder"] {
             let mut args = json!({"author": who, "folders": ["ops"]});
-            if tool == "search" {
+            if with_query {
                 args["query"] = json!("shared");
             }
             let mut got = ids(&ok(c.call(tool, args)));
             got.sort();
-            assert_eq!(got, ["ops/b", "ops/c"], "{tool} {who}");
+            assert_eq!(got, ["ops/b", "ops/c"], "{with_query} {who}");
         }
     }
 }
 
 #[test]
-fn list_and_search_filter_by_the_updated_range() {
+fn search_with_and_without_a_query_filters_by_the_updated_range() {
     let w = World::new();
     mixed(&w);
     let mut c = client(&w);
-    for tool in ["list", "search"] {
+    for with_query in [false, true] {
+        let tool = "search";
         let mut args = json!({"updated_after": "2026-11-05", "updated_before": "2026-11-10", "folders": ["ops"]});
-        if tool == "search" {
+        if with_query {
             args["query"] = json!("shared");
         }
         let mut got = ids(&ok(c.call(tool, args)));
         got.sort();
-        assert_eq!(got, ["ops/b", "ops/c"], "{tool}");
+        assert_eq!(got, ["ops/b", "ops/c"], "{with_query}");
         let mut args = json!({"updated_after": "2026-11-11", "folders": ["ops"]});
-        if tool == "search" {
+        if with_query {
             args["query"] = json!("shared");
         }
-        assert_eq!(ids(&ok(c.call(tool, args))), ["ops/d"], "{tool}");
+        assert_eq!(ids(&ok(c.call(tool, args))), ["ops/d"], "{with_query}");
     }
 }
 
@@ -156,10 +158,10 @@ fn bad_filter_arguments_are_invalid_arguments() {
         ),
         ("search", json!({"query": "shared", "offset": -1})),
         (
-            "list",
+            "search",
             json!({"updated_after": "2026-11-10", "updated_before": "2026-11-01"}),
         ),
-        ("list", json!({"updated_after": "11/10/2026"})),
+        ("search", json!({"updated_after": "11/10/2026"})),
     ] {
         let r = c.call(tool, args.clone());
         assert_eq!(r.code(), Some("invalid_arguments"), "{tool} {args}");
@@ -177,7 +179,7 @@ fn filters_never_reveal_documents_outside_the_folders_limit() {
     std::fs::create_dir_all(p.parent().unwrap()).unwrap();
     std::fs::write(p, "[limits]\nfolders = [\"ops/**\"]\n").unwrap();
     let mut c = client(&w);
-    let v = ok(c.call("list", json!({"author": "bob"})));
+    let v = ok(c.call("search", json!({"author": "bob"})));
     assert_eq!(ids(&v), ["ops/b", "ops/c"]);
     let v = ok(c.call(
         "search",

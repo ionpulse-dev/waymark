@@ -162,7 +162,7 @@ pub fn require_visible(env: &Env, id: &str) -> Result<()> {
 
 pub fn not_found(id: &str) -> Error {
     Error::not_found(format!("There is no document with the ID \"{id}\"."))
-        .with_next("Use search or list to find the ID.")
+        .with_next("Use search to find the ID.")
 }
 
 /// Read and parse a document inside a write. `not_found` if the file does not exist.

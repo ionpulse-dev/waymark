@@ -29,10 +29,10 @@ impl Tool for Restore {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "The document ID: its path below the root, without .md."},
-                "base": {"type": "string", "description": "The version from show. The call fails if the document changed since."},
+                "id": {"type": "string", "description": "Document ID: its path without .md."},
+                "base": {"type": "string", "description": "Version from show. Fails if the document changed."},
                 "reason": {"type": "string", "description": "Why the document is back. One line. Optional."},
-                "preview": {"type": "boolean", "description": "true shows what the call would do and writes nothing."}
+                "preview": {"type": "boolean", "description": "true: dry run. Writes nothing."}
             },
             "required": ["id", "base"],
             "additionalProperties": false

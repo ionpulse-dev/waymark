@@ -52,7 +52,7 @@ fn paused_allows_reads_and_status_names_pause() {
     assert!(!s.is_error);
     assert_eq!(s.json["settings"]["paused"], true);
     assert_eq!(s.json["notices"][0], "Writes are paused.");
-    let l = c.call("list", json!({}));
+    let l = c.call("search", json!({}));
     assert!(!l.is_error, "{}", l.json);
     assert_eq!(l.json["notices"][0], "Writes are paused.");
 }
@@ -154,7 +154,7 @@ fn broken_file_is_setup_problem() {
     let w = World::new();
     set(&personal_path(&w), "[limits\npaused = ");
     let mut c = client(&w);
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.message().contains("config.toml") || r.json.to_string().contains("config.toml"));
     let r = add(&mut c, "Doc one");
@@ -184,7 +184,7 @@ fn a_pull_works_while_paused() {
     );
     commit_doc(&w.b, "ops/from-ben", "From Ben", "x");
     git(&w.b, &["push", "-q"]);
-    let l = c.call("list", json!({}));
+    let l = c.call("search", json!({}));
     assert!(!l.is_error, "{}", l.json);
     assert!(l.json.to_string().contains("ops/from-ben"), "{}", l.json);
 }

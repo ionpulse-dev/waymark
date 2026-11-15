@@ -33,7 +33,7 @@ impl Tool for RenameTag {
             "properties": {
                 "from": {"type": "string", "description": "The tag to change."},
                 "to": {"type": "string", "description": "The new tag. No # and no spaces."},
-                "preview": {"type": "boolean", "description": "true shows what the call would do and writes nothing."}
+                "preview": {"type": "boolean", "description": "true: dry run. Writes nothing."}
             },
             "required": ["from", "to"],
             "additionalProperties": false

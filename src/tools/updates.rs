@@ -30,7 +30,7 @@ impl Tool for Updates {
     }
 
     fn description(&self) -> &'static str {
-        "Lists the documents that others added, changed, moved, deprecated, disputed, or deleted since a time. Returns changes (id, title, kind, by, date), total, and truncated. Without since, it uses the time of your last call. Changes nothing except that time."
+        "Lists the documents that others added, changed, moved, deprecated, disputed, or deleted since a time. Returns since, until (pass it as since next time), changes (id, title, kind, by, date), total, truncated, next_offset, and marked. Without since, it uses the time of your last call. Changes nothing except that time."
     }
 
     fn kind(&self) -> ToolKind {
@@ -51,6 +51,10 @@ impl Tool for Updates {
                 "since": {
                     "type": "string",
                     "description": "A date YYYY-MM-DD or an RFC 3339 time. Default: since your last call, or 7 days."
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "How many changes to skip, to read the rest of a long window. Default 0. Needs since."
                 }
             },
             "additionalProperties": false
@@ -63,6 +67,13 @@ impl Tool for Updates {
         let explicit_when = explicit
             .map(|s| super::read_common::parse_when("since", s, false))
             .transpose()?;
+
+        let offset = super::read_common::offset_arg(&args)?;
+        if offset > 0 && explicit.is_none() {
+            return Err(Error::invalid("offset needs since.").with_next(
+                "Send the same since as in the first call. A call without since moves the stored time.",
+            ));
+        }
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
@@ -97,8 +108,11 @@ impl Tool for Updates {
                 .then_with(|| a.id.cmp(&b.id))
         });
         let total = changes.len();
-        let truncated = total > MAX;
+        let shown_from = offset.min(total);
+        changes.drain(..shown_from);
+        let truncated = shown_from + MAX < total;
         changes.truncate(MAX);
+        let next_offset = shown_from + changes.len();
 
         let marked = explicit.is_none();
         let mut extra = Vec::new();
@@ -148,13 +162,14 @@ impl Tool for Updates {
                 v
             })
             .collect();
-        let mut out = ToolOutput::new(
-            message,
-            json!({
-                "since": since_text, "until": until_text, "changes": entries,
-                "total": total, "truncated": truncated, "marked": marked,
-            }),
-        );
+        let mut data = json!({
+            "since": since_text, "until": until_text, "changes": entries,
+            "total": total, "truncated": truncated, "marked": marked,
+        });
+        if truncated {
+            data["next_offset"] = json!(next_offset);
+        }
+        let mut out = ToolOutput::new(message, data);
         for n in notices.into_iter().chain(extra) {
             out = out.notice(n);
         }

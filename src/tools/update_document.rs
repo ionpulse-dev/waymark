@@ -1,7 +1,7 @@
 //! The `update_document` tool: change fields or the body of a document.
 
 use crate::config::Kind;
-use crate::error::Error;
+use crate::error::{Code, Error};
 use crate::gitsync::Verb;
 use crate::mcp::context::Context;
 use crate::mcp::result::ToolOutput;
@@ -31,11 +31,11 @@ impl Tool for UpdateDocument {
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The document ID: its path below the root, without .md."
+                    "description": "Document ID: its path without .md."
                 },
                 "base": {
                     "type": "string",
-                    "description": "The version from show. The call fails if the document changed since."
+                    "description": "Version from show. Fails if the document changed."
                 },
                 "title": {
                     "type": "string",
@@ -47,7 +47,7 @@ impl Tool for UpdateDocument {
                 },
                 "body": {
                     "type": "string",
-                    "description": "The new Markdown text. It replaces the whole body."
+                    "description": "The new Markdown text. It replaces the whole body. For a small change use replace or append."
                 },
                 "sources": {
                     "type": "array",
@@ -81,9 +81,43 @@ impl Tool for UpdateDocument {
                     "type": "string",
                     "description": "ID of a document that this one replaces. It is added to the list, and that document becomes deprecated."
                 },
+                "replace": {
+                    "type": "object",
+                    "properties": {
+                        "old": {
+                            "type": "string",
+                            "description": "A passage of the current body. It must occur exactly once."
+                        },
+                        "new": {
+                            "type": "string",
+                            "description": "The text instead. May be empty."
+                        }
+                    },
+                    "required": ["old", "new"],
+                    "additionalProperties": false,
+                    "description": "Changes one passage of the body. Do not send it with body or append."
+                },
+                "append": {
+                    "type": "string",
+                    "description": "Text added at the end of the body. Do not send it with body or replace."
+                },
+                "add_tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Tags to add. Do not send it with tags."
+                },
+                "remove_tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Tags to remove. Do not send it with tags."
+                },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [
@@ -98,7 +132,7 @@ impl Tool for UpdateDocument {
         let id = writes::get_str(&args, "id").unwrap_or("").to_string();
         let base = writes::get_str(&args, "base").unwrap_or("").to_string();
         let preview = writes::get_bool(&args, "preview");
-        const OPTIONAL: [&str; 8] = [
+        const OPTIONAL: [&str; 12] = [
             "title",
             "description",
             "body",
@@ -107,11 +141,64 @@ impl Tool for UpdateDocument {
             "related",
             "anchors",
             "supersedes",
+            "replace",
+            "append",
+            "add_tags",
+            "remove_tags",
         ];
         if !OPTIONAL.iter().any(|k| args.get(*k).is_some()) {
             return Err(Error::invalid("Nothing to change: no field was sent.")
-                .with_next("Send at least one of title, description, body, sources, tags, related, anchors, or supersedes."));
+                .with_next("Send at least one of title, description, body, replace, append, sources, tags, add_tags, remove_tags, related, anchors, or supersedes."));
         }
+        // One way to change the body, and one way to change the tags (see `lean-tools`).
+        let body_ways: Vec<&str> = ["body", "replace", "append"]
+            .into_iter()
+            .filter(|k| args.get(*k).is_some())
+            .collect();
+        if body_ways.len() > 1 {
+            return Err(Error::invalid(format!(
+                "These cannot be sent together: {}.",
+                body_ways.join(", ")
+            ))
+            .with_next("Send only one of body, replace, or append."));
+        }
+        if args.get("tags").is_some()
+            && (args.get("add_tags").is_some() || args.get("remove_tags").is_some())
+        {
+            return Err(
+                Error::invalid("tags cannot be sent with add_tags or remove_tags.")
+                    .with_next("Send tags as the new list, or send add_tags and remove_tags."),
+            );
+        }
+        let add_tags = writes::get_list(&args, "add_tags").unwrap_or_default();
+        let remove_tags = writes::get_list(&args, "remove_tags").unwrap_or_default();
+        if let Some(t) = add_tags.iter().find(|t| remove_tags.contains(t)) {
+            return Err(Error::invalid(format!(
+                "The tag \"{t}\" is in add_tags and in remove_tags."
+            ))
+            .with_next("Send each tag in one of the two lists."));
+        }
+        for t in add_tags.iter().chain(&remove_tags) {
+            writes::check_tag(t)?;
+        }
+        let replace = match args.get("replace") {
+            Some(r) => {
+                let old = r["old"].as_str().unwrap_or("");
+                if old.is_empty() {
+                    return Err(Error::invalid("replace.old is empty.")
+                        .with_next("Send a passage of the body in replace.old."));
+                }
+                Some((
+                    old.replace("\r\n", "\n").replace('\r', "\n"),
+                    r["new"]
+                        .as_str()
+                        .unwrap_or("")
+                        .replace("\r\n", "\n")
+                        .replace('\r', "\n"),
+                ))
+            }
+            None => None,
+        };
         writes::require_visible(env, &id)?;
         let author = writes::author_string(ctx)?;
         let today = writes::today();
@@ -147,6 +234,66 @@ impl Tool for UpdateDocument {
                         changed.push("body");
                     }
                     secret_fields.push(("body", new.to_string()));
+                }
+                if let Some((old, new)) = &replace {
+                    let n = doc.body.matches(old.as_str()).count();
+                    if n != 1 {
+                        let what = if n == 0 {
+                            "The passage in replace.old does not occur in the body.".to_string()
+                        } else {
+                            format!("The passage in replace.old occurs {n} times in the body.")
+                        };
+                        let next = if n == 0 {
+                            "Read the document again with show, then send a passage that occurs once."
+                        } else {
+                            "Add more text around the passage, so that it occurs once."
+                        };
+                        return Err(Error::new(Code::ValidationFailed, what).with_next(next));
+                    }
+                    let stored = writes::make_body(&doc.body.replacen(old.as_str(), new, 1));
+                    if doc.body != stored {
+                        doc.body = stored;
+                        changed.push("body");
+                    }
+                    secret_fields.push(("body", new.clone()));
+                }
+                if let Some(text) = writes::get_str(&args, "append") {
+                    let text = text.replace("\r\n", "\n").replace('\r', "\n");
+                    let base = doc.body.trim_end_matches('\n');
+                    let joined = if base.trim().is_empty() {
+                        text.clone()
+                    } else {
+                        format!("{base}\n{text}")
+                    };
+                    let stored = writes::make_body(&joined);
+                    if doc.body != stored {
+                        doc.body = stored;
+                        changed.push("body");
+                    }
+                    secret_fields.push(("body", text));
+                }
+                if !add_tags.is_empty() || !remove_tags.is_empty() {
+                    let current: Vec<String> = doc
+                        .frontmatter
+                        .get_list("tags")
+                        .map(<[String]>::to_vec)
+                        .unwrap_or_default();
+                    let mut list = current.clone();
+                    for t in &add_tags {
+                        if !list.contains(t) {
+                            list.push(t.clone());
+                        }
+                    }
+                    list.retain(|t| !remove_tags.contains(t));
+                    secret_fields.push(("tags", add_tags.join("\n")));
+                    if list != current {
+                        if list.is_empty() {
+                            doc.frontmatter.remove("tags");
+                        } else {
+                            doc.frontmatter.set_list("tags", &list);
+                        }
+                        changed.push("tags");
+                    }
                 }
                 for key in ["sources", "tags", "related", "anchors"] {
                     if let Some(mut list) = writes::get_list(&args, key) {

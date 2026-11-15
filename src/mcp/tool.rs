@@ -4,7 +4,6 @@ use super::context::Context;
 use super::error::error_json;
 use super::result::ToolOutput;
 use super::schema::check_arguments;
-use crate::config::limits::canonical_tool;
 use crate::config::{ConfigError, Denied, Effective, Kind};
 use crate::error::{Code, Error};
 use serde_json::{json, Value};
@@ -96,17 +95,29 @@ impl Registry {
     }
 
     pub fn call(&self, ctx: &Context, name: &str, args: Value) -> Result<Outcome, UnknownTool> {
-        // An old name of a renamed tool runs the new tool, with a notice (see `tool-conventions`).
-        let current = canonical_tool(name);
+        // The old name `list` runs `search`, with a notice (see `lean-tools`). The old names of
+        // 0.4.0 are unknown tools now (see `tool-conventions`).
+        let aliased = name == "list";
+        let current = if aliased { "search" } else { name };
+        let mut args = args;
+        if aliased {
+            // An old call returns what it returned before: every status, and level 1.
+            if let Some(m) = args.as_object_mut() {
+                m.entry("status").or_insert_with(|| json!("any"));
+                m.entry("level").or_insert_with(|| json!(1));
+            } else if args.is_null() {
+                args = json!({"status": "any", "level": 1});
+            }
+        }
         let tool = self
             .tools
             .iter()
             .find(|t| t.name() == current)
             .ok_or_else(|| UnknownTool(name.to_string()))?;
         let (env, verification, mut notices) = self.env(ctx);
-        if current != name {
+        if aliased {
             notices.push(format!(
-                "The tool \"{name}\" is now \"{current}\". The old name stops working in 0.5.0."
+                "The tool \"{name}\" is now \"{current}\". The old name stops working in 0.6.0."
             ));
         }
         if env.effective.paused {

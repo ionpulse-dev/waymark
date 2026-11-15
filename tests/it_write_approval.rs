@@ -309,7 +309,7 @@ fn unlisted_tool_and_read_tools_never_ask() {
     assert_eq!(requests(&seen), 0);
     require(&w, "[\"write\"]");
     assert!(!c.call("status", json!({})).is_error);
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
     assert!(!c.call("search", json!({"query": "doc"})).is_error);
     assert_eq!(requests(&seen), 0);
 }

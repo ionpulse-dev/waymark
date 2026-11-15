@@ -40,14 +40,14 @@ fn s1_ids_that_leave_the_root_are_refused_by_every_tool() {
             ("show", json!({"id": id})),
             ("update_document", json!({"id": id, "base": "abc1234"})),
             (
-                "dispute",
+                "dispute_document",
                 json!({"id": id, "base": "abc1234", "reason": "No."}),
             ),
             (
-                "deprecate",
+                "deprecate_document",
                 json!({"id": id, "base": "abc1234", "reason": "No."}),
             ),
-            ("delete", json!({"id": id, "base": "abc1234"})),
+            ("delete_document", json!({"id": id, "base": "abc1234"})),
             ("move", json!({"from": "ops/deploy", "to": id})),
             ("move", json!({"from": id, "to": "ops/other"})),
         ] {
@@ -151,7 +151,7 @@ fn s3_text_from_a_caller_never_reaches_a_shell_or_git_options() {
             "a@example.org",
         ]),
     );
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert!(r.is_error);
     assert!(!marker.exists());
     // The `ext::` transport (it runs a command) is not allowed.
@@ -168,7 +168,7 @@ fn s3_text_from_a_caller_never_reaches_a_shell_or_git_options() {
             "a@example.org",
         ]),
     );
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert!(r.is_error);
     assert!(!marker.exists());
 }
@@ -215,7 +215,7 @@ fn s5_nothing_writes_while_paused_or_read_only() {
         let mut c = client(&w);
         for (tool, args) in [
             (
-                "add",
+                "add_document",
                 json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
             ),
             (
@@ -223,14 +223,17 @@ fn s5_nothing_writes_while_paused_or_read_only() {
                 json!({"id": "ops/deploy", "base": "abc1234"}),
             ),
             (
-                "dispute",
+                "dispute_document",
                 json!({"id": "ops/deploy", "base": "abc1234", "reason": "No."}),
             ),
             (
-                "deprecate",
+                "deprecate_document",
                 json!({"id": "ops/deploy", "base": "abc1234", "reason": "No."}),
             ),
-            ("delete", json!({"id": "ops/deploy", "base": "abc1234"})),
+            (
+                "delete_document",
+                json!({"id": "ops/deploy", "base": "abc1234"}),
+            ),
             ("move", json!({"from": "ops/deploy", "to": "ops/other"})),
             ("undo", json!({"commit": "abc1234"})),
             ("init", json!({"name": "X"})),

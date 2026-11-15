@@ -214,7 +214,7 @@ fn a_gitkeep_is_not_a_document() {
     let l = ok(c.call("lint", json!({})));
     assert_eq!(l["errors"], 0, "{l}");
     assert_eq!(l["warnings"], 0, "{l}");
-    let list = ok(c.call("list", json!({})));
+    let list = ok(c.call("search", json!({})));
     assert_eq!(list["total_matches"], 0);
     let stats = ok(c.call("stats", json!({"metric": "documents"})));
     assert_eq!(stats["total"], 0, "{stats}");

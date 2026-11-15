@@ -12,7 +12,7 @@ requires:
 
 ## User Story
 
-> As a developer, I want to read all matches of a search and to narrow `list` and `search` by author, by date, and by dispute, so that I find the right document without loading many.
+> As a developer, I want to read all matches of a search and to narrow `search` by author, by date, and by dispute, so that I find the right document without loading many.
 
 ## Personas
 
@@ -21,22 +21,22 @@ requires:
 
 ## Behaviour
 
-- `search` takes `offset`, like `list`. When more matches exist than one call returns, the result says `truncated: true` and gives `next_offset`.
-- `list` and `search` take three more filters: `author`, `updated_after`, and `updated_before`.
-- `search` takes `disputed`, like `list`.
+- `search` takes `offset`. When more matches exist than one call returns, the result says `truncated: true` and gives `next_offset`.
+- `search` takes three more filters: `author`, `updated_after`, and `updated_before`.
+- `search` takes `disputed`.
 - All filters combine with `folders`, `status`, and `tag`. A document must match all of them.
 
 ## Interfaces & Contracts
 
-### `search` and `list`
+### `search`
 
-| Parameter | Tool | Meaning |
-|---|---|---|
-| `offset` | `search` (`list` has it) | How many matches to skip. 0 or more. |
-| `disputed` | `search` (`list` has it) | `true` returns only disputed documents. |
-| `author` | both | Text. A document matches when `created_by` or `updated_by` contains it, ignoring case. A name or an email part. |
-| `updated_after` | both | `YYYY-MM-DD`. A document matches when `updated` is on this day or later. |
-| `updated_before` | both | `YYYY-MM-DD`. A document matches when `updated` is on this day or earlier. |
+| Parameter | Meaning |
+|---|---|
+| `offset` | How many matches to skip. 0 or more. |
+| `disputed` | `true` returns only disputed documents. |
+| `author` | Text. A document matches when `created_by` or `updated_by` contains it, ignoring case. A name or an email part. |
+| `updated_after` | `YYYY-MM-DD`. A document matches when `updated` is on this day or later. |
+| `updated_before` | `YYYY-MM-DD`. A document matches when `updated` is on this day or earlier. |
 
 **Result of `search`:** `results`, `total_matches`, `truncated`, and `next_offset` (only when `truncated` is true).
 
@@ -45,7 +45,7 @@ requires:
 ## Acceptance Criteria
 
 - **Given** more matches than one call returns, **When** `search` is called with `offset: 0` and then with the `next_offset` of the result, **Then** the second call returns the next matches and no match is repeated.
-- **Given** documents by two authors, **When** `list` or `search` is called with `author`, **Then** only the documents of that author are returned, for a name part and for an email part, in any case.
+- **Given** documents by two authors, **When** `search` is called with `author`, **Then** only the documents of that author are returned, for a name part and for an email part, in any case.
 - **Given** documents updated on different days, **When** `updated_after` and `updated_before` are set, **Then** only documents in the range (both days included) are returned.
 - **Given** a disputed and a normal document, **When** `search` is called with `disputed: true`, **Then** only the disputed document is returned.
 - **Given** a wrong date, a negative `offset`, or a reversed range, **When** the call runs, **Then** it fails with `invalid_arguments` and a `next` hint.

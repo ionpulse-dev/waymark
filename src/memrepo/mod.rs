@@ -184,7 +184,7 @@ impl MemRepo {
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Err(Error::not_found(format!(
                 "There is no document with the ID \"{id}\"."
             ))
-            .with_next("Use search or list to find the ID.")),
+            .with_next("Use search to find the ID.")),
             Err(e) => Err(Error::setup(format!("Cannot read {}: {e}", path.display()))),
         }
     }

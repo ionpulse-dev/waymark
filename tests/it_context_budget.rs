@@ -21,6 +21,18 @@ fn tool_descriptions_and_instructions_stay_small() {
 }
 
 #[test]
+fn the_tool_list_is_smaller_than_in_0_4_0() {
+    // Version 0.4.0 listed 24 tools in 20223 bytes (see `specs/features/lean-tools`).
+    let w = World::new();
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&[]));
+    let tools = c.list_tools();
+    let total: usize = tools.iter().map(|t| t.to_string().len()).sum();
+    eprintln!("tools: {} entries, {total} bytes", tools.len());
+    assert_eq!(tools.len(), 23);
+    assert!(total < 20_223, "the tool list is {total} bytes");
+}
+
+#[test]
 fn search_results_are_capped() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&[]));

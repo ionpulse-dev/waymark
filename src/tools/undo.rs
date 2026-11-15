@@ -35,7 +35,7 @@ impl Tool for Undo {
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [

@@ -46,7 +46,7 @@ Permission rules (`~/.claude/settings.json`): allow the read tools, ask for the 
 ```json
 {
   "permissions": {
-    "allow": ["mcp__waymark__status", "mcp__waymark__search", "mcp__waymark__show", "mcp__waymark__list", "mcp__waymark__folder_tree", "mcp__waymark__list_tags", "mcp__waymark__history", "mcp__waymark__stats", "mcp__waymark__updates", "mcp__waymark__lint", "mcp__waymark__activity"],
+    "allow": ["mcp__waymark__status", "mcp__waymark__search", "mcp__waymark__show", "mcp__waymark__folder_tree", "mcp__waymark__list_tags", "mcp__waymark__history", "mcp__waymark__stats", "mcp__waymark__updates", "mcp__waymark__lint", "mcp__waymark__activity"],
     "ask": ["mcp__waymark__add_document", "mcp__waymark__update_document", "mcp__waymark__dispute_document", "mcp__waymark__deprecate_document", "mcp__waymark__restore_document", "mcp__waymark__rename_tag", "mcp__waymark__delete_document", "mcp__waymark__create_folder", "mcp__waymark__delete_folder", "mcp__waymark__move", "mcp__waymark__undo", "mcp__waymark__sync", "mcp__waymark__init"]
   }
 }

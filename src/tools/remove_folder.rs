@@ -42,7 +42,7 @@ impl Tool for RemoveFolder {
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [
@@ -82,7 +82,7 @@ impl Tool for RemoveFolder {
                     .collect();
                 if inside.is_empty() {
                     return Err(Error::not_found(format!("There is no folder \"{path}\"."))
-                        .with_next("Call folders to see the folders."));
+                        .with_next("Call folder_tree to see the folders."));
                 }
                 let docs: Vec<String> = inside.iter().flat_map(|f| f.documents.clone()).collect();
                 if let Some(other) = inside.iter().flat_map(|f| f.other_files.iter()).next() {
@@ -148,7 +148,7 @@ impl Tool for RemoveFolder {
                     if n == 1 { "s" } else { "" },
                 ))
                 .with_next(
-                    "Remove or replace the links with update_document, then call remove_folder again.",
+                    "Remove or replace the links with update_document, then call delete_folder again.",
                 )
                 .with_data(json!({ "linked_from": linked })));
                 }

@@ -13,7 +13,7 @@ fn a_missing_root_is_a_setup_problem_with_a_next_step() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&[]));
     std::fs::remove_dir_all(w.a.join("agent-memory/.waymark")).unwrap();
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert!(r.is_error, "{}", r.json);
     assert!(has_next(&r), "{}", r.json);
 }
@@ -23,7 +23,7 @@ fn a_corrupt_document_does_not_break_the_others() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&[]));
     std::fs::write(w.a.join("agent-memory/broken.md"), "---\n: : [\n---\nx").unwrap();
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert!(!r.is_error, "{}", r.json);
     let s = c.call("search", json!({"query": "anything"}));
     assert!(!s.is_error, "{}", s.json);

@@ -28,7 +28,7 @@ impl Tool for History {
         json!({
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "The document ID: its path below the root, without .md."},
+                "id": {"type": "string", "description": "Document ID: its path without .md."},
                 "limit": {"type": "integer", "description": "How many versions. Default 10, at most 50."},
                 "before": {"type": "string", "description": "A version from an earlier result. Shows older versions."}
             },
@@ -57,7 +57,7 @@ impl Tool for History {
         let store = Store::load(&memrepo);
         let not_found = || {
             Error::not_found(format!("There is no document with the ID \"{id}\"."))
-                .with_next("Use search or list to find the ID.")
+                .with_next("Use search to find the ID.")
         };
         if !Scope::limit(&env.effective).allows(&id) || store.get(&id).is_none() {
             return Err(not_found());

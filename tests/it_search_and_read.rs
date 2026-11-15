@@ -160,9 +160,9 @@ fn t8_level_0_is_only_the_id() {
     let w = World::new();
     commit_doc(&w.a, "ops/a", "Doc a", "x");
     let mut c = client(&w);
-    let r = c.call("list", json!({"level": 0}));
+    let r = c.call("search", json!({"level": 0}));
     assert_eq!(r.json["results"], json!([{"id": "ops/a"}]));
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert_eq!(r.json["results"][0]["title"], "Doc a");
     assert!(r.json["results"][0].get("description").is_none());
 }
@@ -232,7 +232,7 @@ fn t12_the_folders_limit_hides_documents() {
     assert_eq!(ids(&r.json), vec!["engineering/api"]);
     let s = c.call("show", json!({"id": "ops/deploy"}));
     assert_eq!(s.code(), Some("not_found"));
-    let l = c.call("list", json!({}));
+    let l = c.call("search", json!({}));
     assert_eq!(ids(&l.json), vec!["engineering/api"]);
 }
 
@@ -347,7 +347,7 @@ fn t17_an_index_md_is_a_normal_document() {
     let r = c.call("search", json!({"query": "uniqueword"}));
     assert_eq!(ids(&r.json), vec!["ops/index"]);
     assert!(!c.call("show", json!({"id": "ops/index"})).is_error);
-    let l = c.call("list", json!({}));
+    let l = c.call("search", json!({}));
     assert_eq!(ids(&l.json), vec!["ops/doc", "ops/index"]);
 }
 
@@ -361,7 +361,7 @@ fn t19_list_pages_through_all_documents() {
     let mut seen = Vec::new();
     let mut offset = 0;
     loop {
-        let r = c.call("list", json!({"limit": 3, "offset": offset}));
+        let r = c.call("search", json!({"limit": 3, "offset": offset}));
         seen.extend(ids(&r.json));
         match r.json.get("next_offset").and_then(Value::as_u64) {
             Some(n) => offset = n,
@@ -424,7 +424,7 @@ fn the_read_tools_work_when_writes_are_paused_or_read_only() {
     commit_doc(&w.a, "ops/doc", "Readable document", "x");
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--access", "read-only"]));
     let names = c.tool_names();
-    for t in ["search", "show", "list", "stats"] {
+    for t in ["search", "show", "stats"] {
         assert!(names.contains(&t.to_string()), "{t}");
     }
     assert!(!c.call("search", json!({"query": "readable"})).is_error);

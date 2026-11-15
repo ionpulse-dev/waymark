@@ -96,7 +96,7 @@ impl Tool for Sync {
             "properties": {
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "additionalProperties": false

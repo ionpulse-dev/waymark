@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ██████████████████████████████████████░░  24 / 25 active
+📦 Features      ██████████████████████████████████████░░  25 / 26 active
 🏗️ Foundation    █████████████████████████████░░░░░░░░░░░  11 / 15 done+implemented
 ```
 
@@ -16,8 +16,9 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 5. On 2026-11-14 the place of the memory repository became explicit and is implemented: `--repo` clones into `~/.waymark/<name>`, `--path` sets the folder, and one of them is required (specs `project-binding`, `join-memory-repository`, `session-start`, `mcp-server`).
 6. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 7. On 2026-11-15 the tools got one naming scheme and five specs were implemented: `tool-conventions` (nine tools renamed, descriptions for every parameter, old names as aliases), `search-filters`, `restore-and-replace`, `document-history`, and `manage-tags`. This is version 0.4.0.
-8. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. It is `draft` and waits for review. It is outside the current scope, because server mode is out of scope for now. It requires `linux-support`, so it cannot start before that spec is `implemented`.
-9. First in line, once approved: `linux-support` (`draft`). Waymark builds on Linux x86_64 and its 214 unit tests pass there. The integration tests still need a run on a clean Linux machine. The spec brings Linux back into scope and covers CI, scripts, texts, docs, a Linux release archive, and a development container, so that all work can also run in a Linux container on a Mac (arm64 there, x86_64 in CI).
+8. On 2026-11-15 `lean-tools` was implemented (version 0.5.0): `list` is a mode of `search`, `update_document` takes `replace`, `append`, `add_tags`, and `remove_tags`, `show` returns `deprecation_reason`, `updates` pages with `offset`, the call aliases of the 0.4.0 renames ended, and a test keeps hints from naming tools that do not exist. The tool list has 23 tools.
+9. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. It is `draft` and waits for review. It is outside the current scope, because server mode is out of scope for now. It requires `linux-support`, so it cannot start before that spec is `implemented`.
+10. First in line, once approved: `linux-support` (`draft`). Waymark builds on Linux x86_64 and its 214 unit tests pass there. The integration tests still need a run on a clean Linux machine. The spec brings Linux back into scope and covers CI, scripts, texts, docs, a Linux release archive, and a development container, so that all work can also run in a Linux container on a Mac (arm64 there, x86_64 in CI).
 
 ---
 
@@ -25,6 +26,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
+| [lean-tools](features/lean-tools/requirements.md) | `implemented` | 2026-11-15 |
 | [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `implemented` | 2026-11-14 |
 | [pause-and-resume](features/pause-and-resume/requirements.md) | `implemented` | 2026-11-14 |
