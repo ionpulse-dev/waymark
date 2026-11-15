@@ -208,3 +208,5 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** A remote server needs a tested Linux build. On 2026-11-15 waymark already built on Linux and its 214 unit tests passed. The integration tests were not judged in that sandbox, so the first task of the spec is a run on a clean Linux machine.
 
+**Added the same day:** The maintainer works on macOS only. So the spec also delivers a development container and `make linux-*` commands, which run all work in a Linux container on the Mac. That container is arm64 on Apple silicon, so build and tests are in scope for Linux arm64 and x86_64. The first release archive is still x86_64 only.
+

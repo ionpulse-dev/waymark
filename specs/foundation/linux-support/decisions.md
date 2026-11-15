@@ -37,3 +37,28 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** The workflow files stay `.disabled`. The spec makes them ready, with a Linux and macOS matrix.
 
 **Reason:** The release checklist (`docs/next-steps/release-checklist.md`) names the CI release workflow as an open item for the product owner.
+
+## Development also happens in a Linux container — 2026-11-15
+
+**Decision:** The spec delivers a development container and `make linux-*` commands that run the normal work inside it from a Mac. The container image is for development only, and CI uses the same definition. A developer may still work on the host. The container is an option that always works.
+
+**Alternatives considered:**
+- Test on Linux only in CI — rejected: the maintainer works on macOS only, and a failing CI after every push is a slow loop.
+- A Linux virtual machine — rejected: heavier to set up and share than a container, and it does not give CI and the developer one definition.
+- Force all development into the container — rejected: macOS stays the first-class system, and the container needs a runtime that not everyone has.
+
+**Reason:** The maintainer's computer is a Mac. The container is the Linux machine that is always at hand, and the same definition in CI keeps the results equal.
+
+## Test Linux on arm64 and x86_64, release x86_64 first — 2026-11-15
+
+**Decision:** Build and tests are in scope for Linux arm64 and x86_64. The first release archive is x86_64 only.
+
+**Alternatives considered:** x86_64 only — rejected: a container on an Apple silicon Mac is arm64, so arm64 is tested anyway, and the code is the same. An arm64 archive from the start — deferred: it needs a second release build.
+
+**Reason:** The dev container makes arm64 the natural test target on the Mac, and servers and CI usually run x86_64. Testing both costs little and avoids a surprise.
+
+## The container image for development is not the image of `personal-server` — 2026-11-15
+
+**Decision:** They are two files with two jobs. They use the same Linux base.
+
+**Reason:** One holds the toolchain and the source mount, and the other holds only the binary, `git`, and certificates and runs a server. Mixing them would put build tools into a server image.

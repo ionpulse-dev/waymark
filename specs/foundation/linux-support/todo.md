@@ -8,7 +8,9 @@ _Known bugs, deferred improvements, and open questions. Updated throughout the l
 
 ## Deferred
 
-- [ ] Linux on arm64. Many hosts offer it, and it is cheaper. Needs a second release build.
+- [ ] A release archive for Linux arm64. Build and tests on arm64 are in scope (the dev container on Apple silicon runs arm64). Many hosts offer arm64 and it is cheaper. The archive needs a second release build.
+- [ ] A Dev Containers configuration for one-click attach in an editor, if the maintainer wants it.
+- [ ] Running the suite on x86_64 on a Mac through emulation, as a manual check.
 - [ ] Packages for `apt` or other package managers.
 - [ ] A static (musl) build, if the glibc build is too limiting.
 - [ ] Windows and Intel Macs.
