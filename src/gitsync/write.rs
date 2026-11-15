@@ -224,7 +224,17 @@ impl Repo {
                 result.notices.push(notice);
             }
             Ok(None) => result.pushed = true,
-            Err(e) => return Err(e),
+            Err(first) => {
+                // Another writer may have pushed in between. Pull, rebase, and push once more.
+                if self.update(true).is_err() {
+                    return Err(first);
+                }
+                match self.push() {
+                    Ok(Some(notice)) => result.notices.push(notice),
+                    Ok(None) => result.pushed = true,
+                    Err(e) => return Err(e),
+                }
+            }
         }
         Ok((result, value))
     }

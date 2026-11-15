@@ -32,6 +32,8 @@ pub struct Server {
     registry: Arc<Registry>,
     /// The tool names that the client saw last. A change sends `tools/list_changed`.
     seen: Arc<std::sync::Mutex<Option<Vec<String>>>>,
+    /// Write one log line for each tool call (personal-server mode).
+    log_calls: bool,
 }
 
 impl Server {
@@ -45,7 +47,18 @@ impl Server {
             ctx: Arc::new(ctx),
             registry: Arc::new(registry),
             seen: Arc::new(std::sync::Mutex::new(None)),
+            log_calls: false,
         }
+    }
+
+    /// Log one line for each tool call.
+    pub fn with_call_log(mut self) -> Server {
+        self.log_calls = true;
+        self
+    }
+
+    pub fn context(&self) -> &Arc<Context> {
+        &self.ctx
     }
 
     fn names(&self) -> Vec<String> {
@@ -138,6 +151,14 @@ impl ServerHandler for Server {
         let me = self.clone();
         let name = request.name.to_string();
         let args = request.arguments.map(Value::Object).unwrap_or(Value::Null);
+        let log_calls = self.log_calls;
+        let document = args
+            .get("id")
+            .or_else(|| args.get("from"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let tool_name = name.clone();
         // The channel to the client, for an approval question during this call.
         *self.ctx.channel.lock().unwrap() = Some(approval::Channel {
             peer: context.peer.clone(),
@@ -154,6 +175,24 @@ impl ServerHandler for Server {
         .map_err(|e| McpError::internal_error(e.to_string(), None))?;
         if changed {
             let _ = context.peer.notify_tool_list_changed().await;
+        }
+        if log_calls {
+            let (result, code) = match &outcome {
+                Ok(o) if o.is_error => (
+                    "error",
+                    o.json["code"].as_str().unwrap_or("error").to_string(),
+                ),
+                Ok(_) => ("ok", String::new()),
+                Err(_) => ("unknown_tool", String::new()),
+            };
+            let mut fields = vec![("tool", tool_name.as_str()), ("outcome", result)];
+            if !code.is_empty() {
+                fields.push(("code", code.as_str()));
+            }
+            if !document.is_empty() {
+                fields.push(("document", document.as_str()));
+            }
+            crate::log::event("tool_call", &fields);
         }
         match outcome {
             Ok(o) => {

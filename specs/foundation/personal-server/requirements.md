@@ -1,6 +1,6 @@
 ---
 type: foundation
-status: draft
+status: implemented
 created: 2026-11-15
 updated: 2026-11-15
 requires:
@@ -22,7 +22,7 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 ## Deliverables
 
 - `waymark --mode personal-server`: the MCP server over HTTPS (Streamable HTTP, with TLS provided by the host). One argument sets the transport and the kind of server. The values of `--mode` are `local` (the default, stdio), `personal-server`, and later `team-server`.
-- A sign-in door that follows the MCP authorization standard, so that Claude, ChatGPT, and Gemini can connect with no help from their vendors.
+- A sign-in door that follows the MCP authorization standard (revision 2026-07-28), so that Claude, ChatGPT, and Gemini can connect with no help from their vendors. It supports three ways for a client to identify itself: a client document at a URL (the preferred way), automatic registration (for older clients), and one manual client ID and secret (for apps and CLIs that cannot do either, such as Gemini Enterprise and the `agy` CLI).
 - "Sign in with GitHub" as the first identity provider, with an allow-list of exactly one GitHub account. The identity step is a small interface, so other providers can be added later.
 - Background Git access through a GitHub App installed on the one memory repository.
 - A container image. It holds the Linux build of waymark (see [linux-support](../linux-support/requirements.md)), `git`, and certificates.
@@ -68,11 +68,17 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **The client config is not a limit.** Limits come from the server config and the shared file, as in `trust-model`.
 - **Revoke by key.** A person cuts off all clients by changing the signing key. A single client cannot be revoked in this item.
 - **The setup guide is the interface for setup.** Waymark ships no installer and no skill (see `PROJECT.md`).
+- **Build on best knowledge, verify in real use.** The behavior of the AI apps and of GitHub cannot all be tested in advance (the project has one maintainer). The code is built from the best current knowledge. Every unverified assumption is listed in `decisions.md` as "assumed, test in real use", and the list is the checklist of the real-use test pass (see `test.md`). The parts that depend on an assumption are kept small and separate, so a wrong assumption changes one module and never the core:
+  - all three client registration methods are supported from the start;
+  - all token lifetimes are settings in one place, with environment overrides;
+  - the identity step stays behind its interface.
+- **Automated tests use a fake identity provider.** The sign-in door, the tokens, and the Git flow are proven end to end with no vendor and no real GitHub. Only the real-use pass needs them.
 
 ## Acceptance Criteria
 
 - **Given** a started server, **When** an MCP client connects with no token, **Then** it gets a `401` with the discovery information of the standard.
-- **Given** an MCP client that supports automatic registration, **When** it starts the sign-in, **Then** it registers and reaches the GitHub step with no manual input.
+- **Given** an MCP client that identifies itself with a client document at a URL, **When** it starts the sign-in, **Then** the server reads the document and reaches the GitHub step with no manual input.
+- **Given** an MCP client that supports automatic registration only, **When** it starts the sign-in, **Then** it registers and reaches the GitHub step with no manual input.
 - **Given** an MCP client that needs a fixed client ID and secret, **When** the person enters the values that the server gives, **Then** the sign-in works.
 - **Given** the owner signs in with the allowed GitHub account, **When** the sign-in ends, **Then** the client gets a token that works only on this server, and never a GitHub token.
 - **Given** any other GitHub account, **When** it signs in, **Then** the server refuses and no token is issued.
@@ -105,14 +111,17 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 
 ## Open Questions
 
-- Which sign-in methods does the normal Gemini app accept for a custom MCP server? Verify against current Google help pages. Community guides say a client ID and a secret are entered by hand.
-- Which ChatGPT plans have developer mode for custom MCP servers? The sources disagree.
-- Does each app accept signed renewal tokens that do not rotate? ChatGPT needs a renewal token, or it asks the person to sign in again.
-- Check on github.com (not only the Enterprise Server pages) the lifetimes of GitHub App user tokens and installation tokens.
-- Can the signing key be derived from the GitHub App private key, so that one secret fewer is needed? Is this safe?
-- Which hosting service does the first version of the guide cover? A second one can follow.
-- How long should the client tokens last? A short access token with a renewal token of weeks is the starting idea.
-- Which GitHub App permission reads the email list? Verify on github.com.
-- Does the GitHub setting that blocks pushes with a private email also block a push with an App token?
-- Does a push of `init` to an empty GitHub repository work with an App token?
+Research of 2026-11-15 (documentation only, nothing tested). Each open item names its current best assumption. The assumptions are collected in `decisions.md` and tested in the real-use pass.
+
+- Which sign-in methods does the normal Gemini app accept for a custom MCP server? Found: no documentation for the consumer app. Gemini Enterprise (admin setup, preview) and the `agy` CLI accept a manual client ID and secret, and Gemini Enterprise has no discovery and no automatic registration. Assumption: the manual client is needed. Test in real use.
+- Which ChatGPT plans have developer mode for custom MCP servers? OpenAI's help page names Business and Enterprise/Edu on the web. Third-party pages also name Plus and Pro. Assumption: the OpenAI page is right. The guide names the plans with a "check the current OpenAI page" note.
+- Does each app accept signed renewal tokens that do not rotate? Found: `agy` refreshes tokens on its own. Nothing found for ChatGPT or Gemini. Assumption: yes. Test in real use.
+- Check on github.com (not only the Enterprise Server pages) the lifetimes of GitHub App user tokens and installation tokens. Found on Enterprise Server pages only: user token 8 hours, refresh token about 6 months. Nothing found for the 1-hour installation token. Assumption: 1 hour. The code asks GitHub for a new token on any `401`, so a different lifetime does not matter.
+- Can the signing key be derived from the GitHub App private key, so that one secret fewer is needed? Is this safe? Open. Not needed for the first version: the signing key stays a separate secret.
+- Which hosting service does the first version of the guide cover? A second one can follow. Open: the product owner chooses.
+- How long should the client tokens last? Assumption: an access token of about an hour and a renewal token of about 30 days, both settings.
+- Which GitHub App permission reads the email list? Found: "Email addresses" user permission, read, for `GET /user/emails`. Stated for fine-grained tokens. Assumption: it is the same for a GitHub App user token. Test in real use.
+- Does the GitHub setting that blocks pushes with a private email also block a push with an App token? Not researched. Test in real use.
+- Does a push of `init` to an empty GitHub repository work with an App token? Not researched. Test in real use.
 - How does the server limit the damage when two instances push at the same time? The plan is pull, rebase, and retry once.
+- Static token for CLIs: Codex CLI, `agy`, and Gemini CLI accept a static `Authorization` header. Should the server offer a signed long-lived token for them? Deferred (see `todo.md`).

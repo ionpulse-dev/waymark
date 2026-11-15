@@ -3,12 +3,15 @@
 //! The library holds all logic. The binary only starts the server.
 
 pub mod activity;
+pub mod auth;
 pub mod config;
 pub mod error;
 pub mod format;
 pub mod gitsync;
+pub mod http;
 pub mod identity;
 pub mod lint;
+pub mod log;
 pub mod maintenance;
 pub mod manual;
 pub mod mcp;

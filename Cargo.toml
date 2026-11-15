@@ -22,9 +22,15 @@ globset = "0.4"
 uuid = { version = "1", features = ["v4"] }
 sha2 = "0.11"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
-rmcp = { version = "3.10.0", default-features = false, features = ["server", "macros", "transport-io", "elicitation"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std"] }
+rmcp = { version = "3.10.0", default-features = false, features = ["server", "macros", "transport-io", "elicitation", "transport-streamable-http-server"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "net", "time", "signal", "sync"] }
 clap = { version = "4", features = ["derive", "env"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "json", "query", "form"] }
+ureq = { version = "3", features = ["json"] }
+hmac = "0.13.0"
+base64 = "0.22"
+jsonwebtoken = { version = "12.0.0", default-features = false, features = ["rust_crypto", "use_pem"] }
+subtle = "2.6.1"
 
 [dev-dependencies]
 tempfile = "3"

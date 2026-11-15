@@ -25,22 +25,30 @@ MCP client ⇄ HTTPS (host) ⇄ [ door: discovery · sign-in · tokens ] ⇄ MCP
 
 ## New Files
 
-The module names are a first idea. The task phase fixes them.
+The list is as built.
 
-- `src/http/mod.rs` — the HTTP server and the routes.
+- `src/http/mod.rs` — the HTTP server, the routes, the token check on the MCP path, and `run`.
+- `src/http/settings.rs` — the modes, the settings of `personal-server` mode, and `--print-client`.
 - `src/http/health.rs` — the routes for the status page (`/`) and the plain health answer (`/health`).
 - `src/http/status.html` — the static status page. It is included in the binary at build time.
+- `src/http/client.rs` — a small blocking HTTP client for the calls to GitHub and to client documents.
 - `src/log.rs` — the safe log: one line for each start, sign-in, and tool call, with redaction (reuses `src/identity/redact.rs`).
-- `src/auth/mod.rs` — the sign-in door and its routes.
+- `src/auth/mod.rs` — the sign-in door and its routes (authorize, callback, token, register).
 - `src/auth/discovery.rs` — the metadata that tells a client where and how to sign in.
 - `src/auth/registration.rs` — client registration: a client document by URL, automatic registration, and one manual client.
-- `src/auth/tokens.rs` — create and check signed codes and tokens.
-- `src/auth/identity.rs` — the small interface "who is this person?".
-- `src/auth/github.rs` — the GitHub implementation of that interface, with the one-account allow-list.
-- `src/git/github_app.rs` — make a short Git token from the App key, and use it for pull and push.
-- `Dockerfile` — the container image.
+- `src/auth/tokens.rs` — create and check signed codes and tokens, the lifetimes, and the manual client values.
+- `src/auth/identity.rs` — the small interface "who is this person?" and the email choice.
+- `src/auth/github.rs` — the GitHub implementation of that interface.
+- `src/gitsync/github_app.rs` — make a short Git token from the App key (the plan named `src/git/`, but the Git code lives in `gitsync`).
+- `Dockerfile` and `.dockerignore` — the container image.
+- `scripts/tests/image.sh` — the image checks (test A13). It skips when no container runtime runs.
 - `docs/personal-server-setup.md` — the setup guide for the cloud host and the GitHub App.
-- `tests/personal_server.rs` — end-to-end tests with a fake identity provider.
+- `tests/personal_server.rs` — end-to-end tests with a fake GitHub.
+- `tests/it_mode_and_settings.rs` — tests of the modes and the settings, with the real binary.
+- `tests/common/fake_github.rs` — the fake GitHub: sign-in, API, Git host, and client documents.
+- `tests/common/server.rs` — the harness that starts the server and walks through the sign-in.
+
+Changed files: `Cargo.toml` (dependencies and `rmcp` feature), `src/main.rs`, `src/lib.rs`, `src/mcp/args.rs` (`--mode`, `--listen`, `--print-client`), `src/mcp/mod.rs` (the call log), `src/mcp/context.rs` (the author from the sign-in), `src/identity/author.rs` (the source `sign_in`), `src/gitsync/cmd.rs` (the credential for Git), and `src/gitsync/write.rs` (one retry after a rejected push).
 
 ## Technical Approach
 
@@ -53,13 +61,17 @@ The module names are a first idea. The task phase fixes them.
 
 ### 2. Sign-in door
 The door follows the current MCP authorization standard. It publishes discovery metadata and answers an unsigned request with `401` and a pointer to that metadata.
-- **Registration.** A client may identify itself with a client document at a URL, or register automatically, or use one manual client ID and secret. The manual client is derived from the signing key, so nothing is stored.
+- **Standard.** The door follows the MCP authorization revision 2026-07-28: protected resource metadata (RFC 9728), authorization server metadata (RFC 8414), PKCE, and resource indicators (RFC 8707). Check the exact well-known paths against the spec when the task phase starts.
+- **Registration.** All three methods exist from the first version, each in its own function of `registration.rs`, so that one can change with no effect on the others:
+  1. A client document at a URL (the preferred method of the standard). The server fetches the document, checks that its `client_id` equals the URL, and checks the redirect address against the document.
+  2. Automatic registration, for older clients. The registered client is a signed value, so nothing is stored.
+  3. One manual client ID and secret, for Gemini Enterprise and the `agy` CLI, which cannot do 1 or 2. The values are derived from the signing key, so nothing is stored. The guide says where to enter them.
 - **Flow.** Authorization code with PKCE. The `resource` parameter is carried into the token.
 - **Identity step.** The door sends the person to the identity provider. The interface returns a stable ID, a name, and an email. The first provider is GitHub.
 - **Allow-list.** One GitHub user. Any other result ends with a refusal page.
 
 ### 3. Tokens without stored state
-All codes and tokens are signed with a key from the environment.
+All codes and tokens are signed with a key from the environment. Every lifetime is a setting in one place (`src/auth/tokens.rs`), with an environment override, so a vendor that needs other values needs no code change.
 - **Authorization code.** Short expiry (minutes). It holds the client, the PKCE challenge, and the identity.
 - **Access token.** Short expiry (about an hour). It holds the person, the audience (this server), and the limits that apply.
 - **Renewal token.** Long expiry (weeks). It does not rotate in this item. A stolen one works until it expires, so the lifetime stays moderate.
@@ -68,7 +80,7 @@ All codes and tokens are signed with a key from the environment.
 
 ### 4. Git access
 A GitHub App is installed on the one memory repository.
-- The server signs a short statement with the App private key. GitHub returns an installation token for that repository. The token lasts about an hour and is made again when needed. Nothing is stored.
+- The server signs a short statement with the App private key. GitHub returns an installation token for that repository. The token lasts about an hour (assumed, see `decisions.md`) and is made again when needed. The code makes a new token after any `401` from GitHub and does not rely on a fixed lifetime. Nothing is stored.
 - Pull and push use that token. The commit author comes from the signed-in identity.
 - The sign-in uses the same App for its login step (client ID and client secret). The GitHub user token is read once for the identity and then dropped.
 
@@ -114,6 +126,24 @@ A verified address means that GitHub confirmed that the person can receive mail 
 ### 10. Setup guide
 One Markdown file for a cloud host and for the GitHub App. The order is: create the empty repository, deploy the server, create the GitHub App and install it on that repository, set the secrets, connect an app, and ask the agent to run `init`. Each step has three parts: what to do, what you should see, and what to do if you do not. Steps that only a person can do are marked. The guide lists the exact names of every secret, says never to print a secret in the chat, and ends with a check: open the address, add the connector, ask one question. A guide for each app (Claude, ChatGPT, Gemini) lists the plan and the steps to add the connector.
 
+### 11. Build first, verify in real use
+The project has one maintainer, so the AI apps and GitHub cannot all be tested in advance. The build order is:
+1. Build everything from the best knowledge, with the three registration methods, the lifetime settings, and the identity interface (see the constraint in `requirements.md`).
+2. Prove the waymark side with automated tests that use a fake identity provider and a fake Git host. No vendor is needed.
+3. Run the real-use pass: the list of assumptions in `decisions.md` becomes the manual checklist in `test.md`, with the exact steps for each app and for GitHub.
+4. Each failed check points to one module (see the table below). Fix it there, record the result in `decisions.md`, and tick the check.
+
+| Assumption | Module to change if it is wrong |
+|---|---|
+| Registration method of an app | `src/auth/registration.rs` |
+| Token lifetimes, renewal behavior | `src/auth/tokens.rs` (settings) |
+| Email permission, email list | `src/auth/github.rs`, the guide |
+| Private-email push block | author choice in `src/identity/author.rs`, the guide |
+| Push of `init` to an empty repository | `src/git/github_app.rs` |
+| Plans and steps of each app | the guide only |
+
+An assumption that breaks the sign-in design as a whole (for example, a vendor that refuses any renewal token that does not rotate) would change the door and the Git credential code. It would not change the MCP core, the tools, or the clone logic.
+
 ## Dependencies on Other Foundation Items
 
 - `mcp-server` — provides the core and the tools. It is `implemented`.
@@ -124,7 +154,7 @@ One Markdown file for a cloud host and for the GitHub App. The order is: create 
 
 ## Risks
 
-- **Vendor behavior.** The apps change often. Gemini and the ChatGPT plans are not verified. The plan includes a test of each app against a dummy door before the code is final.
+- **Vendor behavior.** The apps change often. Gemini and the ChatGPT plans are not verified. The code is built from the best knowledge and tested in real use at the end (see section 11). An optional one-hour smoke test of each app against a dummy door before the full build would lower the risk. It is not a gate.
 - **Signed tokens without revoke.** A stolen renewal token works until it expires. The lifetime and the one-key revoke limit the damage. The decision is in `decisions.md`.
 - **Two instances.** Two writers at once can reject each other's push. The retry covers the normal case.
 - **Cold start.** A large memory repository clones slowly. A shallow clone helps. A very large one is a problem for the serverless case. A wait that is longer than the timeout of the app or of the host makes the first call fail, and the next call works.
@@ -139,6 +169,6 @@ One Markdown file for a cloud host and for the GitHub App. The order is: create 
 
 - Which Rust crates fit for HTTP, token signing, and the GitHub App call? Prefer few dependencies.
 - Does the MCP library of `mcp-server` already support Streamable HTTP?
-- What is the exact current MCP authorization standard that the door must follow? Check it when the task phase starts.
+- The current MCP authorization standard is revision 2026-07-28 (found by search, from snippets only). Read the full text when the task phase starts, mainly for the exact well-known paths.
 - Which GitHub App permission reads the email list, and does it work with the sign-in flow that waymark uses?
 - Does the MCP library of `mcp-server` serve both stdio and HTTP with the same `Server` handler, so that the clone logic is shared with no change?

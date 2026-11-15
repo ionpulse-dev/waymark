@@ -9,6 +9,8 @@ pub enum Source {
     Argument,
     Environment,
     GitConfig,
+    /// The person who signed in to the personal server.
+    SignIn,
 }
 
 impl Source {
@@ -17,6 +19,7 @@ impl Source {
             Source::Argument => "argument",
             Source::Environment => "environment",
             Source::GitConfig => "git_config",
+            Source::SignIn => "sign_in",
         }
     }
 }

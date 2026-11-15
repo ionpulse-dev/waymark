@@ -137,8 +137,99 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** Servers run Linux, and the project supports macOS only today. See the decisions of `linux-support`.
 
+## Build on best knowledge and verify in real use — 2026-11-15
+
+**Decision:** The server is built from the best current knowledge of the AI apps and of GitHub. It is tested in real use after the build. It is not tested against every vendor in advance. The parts that depend on an assumption are small and separate: three client registration methods from the start, all token lifetimes as settings in one place, and the identity step behind its interface. Automated tests use a fake identity provider and a fake Git host.
+
+**Alternatives considered:**
+- Test every app and the GitHub details before building — rejected: the project has one maintainer, and some tests need paid plans, admin access, and a real GitHub App.
+- Build only the methods that are certain — rejected: a missing registration method locks out a whole app, and each one is small.
+
+**Reason:** The unknowns concern vendor behavior and GitHub details. They touch the sign-in door and the Git credential code, not the MCP core. A wrong assumption is then a fix in one module (see the table in `plan.md`). A rewrite is unlikely.
+
+**Remaining risk:** An assumption that breaks the sign-in design as a whole would change the door and the credential code. This is judged unlikely.
+
+## Assumptions to test in real use — 2026-11-15
+
+Research of 2026-11-15 was done from documentation only. Nothing was tested. Each line is an assumption, with its source and the module that changes if it is wrong. The list is the checklist of the real-use pass in `test.md`. When an assumption is tested, add a new entry with the result. Do not edit this one.
+
+- **Registration.** The MCP standard (revision 2026-07-28) prefers client documents at a URL and keeps automatic registration for older clients. Assumed: Claude and ChatGPT use one of the two. Gemini Enterprise and the `agy` CLI need a manual client ID and secret. The consumer Gemini app is not documented. Module: `registration.rs`.
+- **ChatGPT plans.** OpenAI names Business and Enterprise/Edu on the web. Third-party pages also name Plus and Pro. Assumed: the OpenAI page. Module: the guide.
+- **Renewal tokens.** Assumed: every app accepts a signed renewal token that does not rotate. `agy` refreshes tokens by itself. ChatGPT and Gemini are not documented. Module: `tokens.rs`.
+- **Lifetimes.** Assumed: access token about 1 hour, renewal token about 30 days (settings). GitHub user tokens last 8 hours and refresh tokens about 6 months (Enterprise Server pages only). The installation token is assumed to last about 1 hour, and the code renews on any `401`. Module: `tokens.rs`, `github_app.rs`.
+- **Email list.** Assumed: the "Email addresses" user permission (read) lets a GitHub App user token call `GET /user/emails`. The documentation states it for fine-grained tokens. Module: `github.rs`, the guide.
+- **Private-email push block.** Not researched. Assumed: it does not block a push with an App token. Module: `author.rs`, the guide.
+- **Empty repository.** Not researched. Assumed: `init` can push the first commit to an empty GitHub repository with an App token. Module: `github_app.rs`.
+
+## CLIs accept a static token, so a token for developers is deferred — 2026-11-15
+
+**Decision:** The first version has no static or long-lived token for CLIs. The sign-in door is the only way in. A signed long-lived token for CLI clients is a deferred item.
+
+**Alternatives considered:** A static token now — rejected: it adds a second way in to a server on the open internet, and every phone app needs the door anyway.
+
+**Reason:** Codex CLI, the `agy` CLI, and Gemini CLI all accept a static `Authorization` header, so a token would suit developers. It must not weaken the one-account rule, so it needs its own design. See `todo.md`.
+
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
 **Decision:** Because the server stores nothing and the private key stays in the host's secret store, the principle "Secrets stay with Git — waymark never stores or passes a Git secret" holds unchanged.
 
 **Reason:** A later version with storage would need a new decision.
+
+## The build: crates and the shape of the server — 2026-11-15
+
+**Decision:** The HTTP side uses `axum` (routes) and the `rmcp` Streamable HTTP service (the same `Server` handler as stdio, so the tools and the clone logic are shared with no change). Calls out of the server (GitHub, client documents) use `ureq`, a small blocking client, on blocking threads. The tokens are `payload.signature` with HMAC-SHA256 (`hmac`, `sha2`), built by hand. The statement of the GitHub App is an RS256 token made with `jsonwebtoken`.
+
+**Alternatives considered:** `reqwest` (async, but a larger tree of dependencies for four small calls); a JWT library for our own tokens (more features than we need, and a format with known mistakes to avoid, such as the `alg` header); an HTTP framework other than `axum` (`rmcp` already builds on `tower`, so `axum` fits).
+
+**Reason:** Few dependencies, one runtime, and the Git code of waymark is blocking already.
+
+## The MCP service is stateless — 2026-11-15
+
+**Decision:** The MCP service runs with `legacy_session_mode: false` and a session manager that keeps no sessions. Every request stands alone. The host check for local servers (DNS rebinding) is off, because the token protects the server and a public server must accept its own host name behind any proxy.
+
+**Alternatives considered:** A session per client with the local session manager (rejected: it is state in the process, so a restart or a second instance breaks open sessions); the host check on with the public host name (rejected: a proxy that rewrites the `Host` header would block every call with a message that is hard to understand).
+
+**Reason:** "No stored state" applies to MCP sessions too. A test restarts the process with an empty data folder and the same token works. **Consequence:** A client cannot receive messages that the server starts by itself (such as an approval question during a call), because there is no session to carry them. The first version uses no approval by default.
+
+## Details of the door — 2026-11-15
+
+**Decision:**
+- The renewal token does not rotate. A renewal returns the same renewal token. The MCP standard says that an authorization server must rotate renewal tokens for public clients. We cannot, because rotation needs state. The lifetime is 30 days and a changed signing key cuts off everything. **Assumed, test in real use** (apps may refuse it).
+- The access token carries the name and the verified email of the person. So the commit author comes from the token with no lookup. The server sets the author from the last valid token. This is right for one owner.
+- The audience of every token is `<public URL>/mcp`. A request to the door with a `resource` that is neither the server nor its MCP address is refused.
+- The client documents are fetched only from `https` addresses that do not point to a private network (a check against SSRF). A document address on `localhost` is allowed only when the server itself is on `localhost`, which is for tests. A check at fetch time still leaves a gap for a changed DNS answer between the check and the fetch. The risk is accepted: the fetch result is never shown, and it holds no secret.
+- Automatic registration returns a client ID that is a signed value with the redirect addresses and a very long expiry. It has no secret.
+- The manual client ID and secret come from the signing key. `waymark --print-client` prints them, so that nothing has to be stored or shown by the server.
+- Authorization codes cannot be single-use with no state. The expiry is short and PKCE is required (the limit that this spec named).
+- The sign-in checks the email domain list (`people.email_domains`) of the memory repository only when the clone is ready. The door must not wait for the clone. A domain check also runs at the first write (`checked_author`), so a wrong address never makes a commit.
+
+**Reason:** The smallest door that follows the standard and keeps no state.
+
+## Git credential through the environment — 2026-11-15
+
+**Decision:** The installation token goes to `git` only through environment variables of the child process (`GIT_CONFIG_COUNT`, with `http.<url>.extraheader`). It is never on a command line, on disk, or in the log. It is scoped to the host of `WAYMARK_REPO`. If `git` says that the token was refused, waymark makes a new token and runs the command once more. This needs `git` 2.31 or newer (the image has 2.34).
+
+**Alternatives considered:** A token in the URL (rejected: git writes it to `.git/config`); `-c http.extraheader=...` on the command line (rejected: visible in the process list); a credential helper script (rejected: more moving parts, and it needs a file).
+
+**Reason:** No secret on disk or in a process list, and the retry covers any token lifetime (the assumed hour is not relied on).
+
+## One retry after a rejected push, in every mode — 2026-11-15
+
+**Decision:** When a push is rejected, the write pulls (rebase) and pushes once more, in local mode and in server mode. If the second push fails, the tool returns the error. Before, local mode returned the first error and kept the commit locally.
+
+**Alternatives considered:** The retry only in server mode (rejected: the same race exists in local mode, and one code path is easier to test).
+
+**Reason:** The server may stop after any request, so a write may not wait for a later push.
+
+## The first guide is host-neutral — 2026-11-15
+
+**Decision:** The setup guide names no hosting service. It lists the settings, the GitHub App steps, and what the host must provide (a container, secrets, HTTPS, a health check). A guide for one host follows the real-use pass.
+
+**Alternatives considered:** A guide for a named host now (rejected: no host was tested, and an untested host guide would claim more than we know).
+
+**Reason:** This answers the open question "which hosting service" without a claim that is not tested. The product owner may choose a host for the first real run.
+
+## Real-use results of this build — 2026-11-15
+
+All assumptions listed in "Assumptions to test in real use" are still assumptions. The build was tested against a fake GitHub only (see `test.md`, A1 to A34). Nothing in the real apps or in a real GitHub App was tested yet.
+

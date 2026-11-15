@@ -57,6 +57,16 @@ pub struct Args {
     /// Most documents that `show` opens in one session. Default: 20.
     #[arg(long)]
     pub max_documents_opened: Option<usize>,
+    /// `local` (the default, stdio), `personal-server`, or later `team-server`. Also `WAYMARK_MODE`.
+    #[arg(long, env = "WAYMARK_MODE")]
+    pub mode: Option<String>,
+    /// Personal server only: print the client ID and secret for apps that need them by hand, and
+    /// exit. Reads `WAYMARK_SIGNING_KEY` (or the file of `WAYMARK_SIGNING_KEY_FILE`).
+    #[arg(long)]
+    pub print_client: bool,
+    /// Personal server only: the address to listen on. Default: `0.0.0.0:$PORT` (8080).
+    #[arg(long)]
+    pub listen: Option<String>,
     /// Problems of the MCP entry that the lenient parser found. Not a command line argument.
     #[arg(skip)]
     pub entry_issues: Vec<EntryIssue>,

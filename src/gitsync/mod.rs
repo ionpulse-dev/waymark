@@ -5,6 +5,7 @@
 
 pub mod cmd;
 pub mod diff;
+pub mod github_app;
 pub mod lock;
 pub mod log;
 pub mod message;

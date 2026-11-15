@@ -17,9 +17,11 @@ _None. Nothing is implemented._
 - [ ] More on the status page for the owner (clone state, last pull). The `status` tool already reports this to the owner through the agent.
 - [ ] Other identity providers (Google, a company OIDC login) through the identity interface.
 - [ ] A guide for a second hosting service.
+- [ ] A signed long-lived token for CLI clients (Codex CLI, `agy`, Gemini CLI accept a static `Authorization` header). It needs a design that keeps the one-account rule. Blocked by: the first version of the sign-in door.
+- [ ] An optional one-hour smoke test of each app against a dummy door, before the full build. Not a gate (see `plan.md`, section 11).
 
 ## Open Questions
 
 - See the open questions in [requirements.md](requirements.md) and [plan.md](plan.md).
-- Before the code is final: test the sign-in of Claude, ChatGPT, and Gemini against a dummy door.
+- After the build: run the real-use pass for the assumptions in `decisions.md` ("Assumptions to test in real use"). The apps are Claude, ChatGPT, and Gemini, plus the CLIs.
 - Scope: server mode is out of scope for the current task. When does the product owner want to change that?

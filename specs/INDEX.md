@@ -2,7 +2,7 @@
 
 ```
 📦 Features      ██████████████████████████████████████░░  25 / 26 active
-🏗️ Foundation    ████████████████████████████████░░░░░░░░  12 / 15 done+implemented
+🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
 ```
 
 ## Next Up
@@ -17,7 +17,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 6. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 7. On 2026-11-15 the tools got one naming scheme and five specs were implemented: `tool-conventions` (nine tools renamed, descriptions for every parameter, old names as aliases), `search-filters`, `restore-and-replace`, `document-history`, and `manage-tags`. This is version 0.4.0.
 8. On 2026-11-15 `lean-tools` was implemented (version 0.5.0): `list` is a mode of `search`, `update_document` takes `replace`, `append`, `add_tags`, and `remove_tags`, `show` returns `deprecation_reason`, `updates` pages with `offset`, the call aliases of the 0.4.0 renames ended, and a test keeps hints from naming tools that do not exist. The tool list has 23 tools.
-9. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. It is `draft` and waits for review. It is outside the current scope, because server mode is out of scope for now. It requires `linux-support`, so it cannot start before that spec is `implemented`.
+9. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. On 2026-11-15 the requirements, plan, `test.md`, and `tasks.md` were approved, and the spec was implemented in one go (all `[auto]` tests pass on macOS and Linux). It is `implemented`. The approach is to build from the best knowledge and test in real use at the end (see its `decisions.md`). Still open for the product owner: the real-use pass (`[manual]` items M1 to M9 in its `test.md`) with the real apps and a real GitHub App, a host for the first run, and the merge of `main` (the changelog entry of 0.5.1, which also touches `CHANGELOG.md`).
 10. `linux-support` is `implemented` (2026-11-15). waymark builds and passes all 633 tests on Linux (arm64 in the development container, x86_64 emulated). A Linux x86_64 release archive is built by the release workflow (disabled). A serious Linux bug was found and fixed (a `kill` call that could kill every process). Still open for the product owner: the `[manual]` checks in its `test.md` (the Linux install steps on a clean OrbStack machine, the first Linux release), and enabling CI. `personal-server` can now be reviewed.
 
 ---
@@ -69,8 +69,8 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-15 |
+| [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-15 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
-| [personal-server](foundation/personal-server/requirements.md) | `draft` | 2026-11-15 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 
 ## Superseded

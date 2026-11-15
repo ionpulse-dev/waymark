@@ -12,6 +12,15 @@ waymark now runs on Linux.
 - The update hint says `brew upgrade waymark` only when waymark was installed with Homebrew. The Git install hint fits the system.
 - For developers: a Linux development container and `make linux-test`, `make linux-check`, `make linux-build`, and `make linux-shell` run all work in Linux on a Mac.
 
+A personal server comes with it, as a first version:
+
+- **`waymark --mode personal-server`** runs waymark as a remote MCP server for one person, over HTTPS (the host provides the certificate). Chat apps and MCP clients sign in once with the one allowed GitHub account. The server keeps no database and no stored state, so it also runs on a host that starts it for each request.
+- It follows the MCP authorization standard (revision 2026-07-28): client documents, automatic registration, and one manual client ID and secret (`waymark --print-client`).
+- Git access is a GitHub App installed on the one memory repository. The commit author is the person who signed in, with a verified email.
+- A container image (`Dockerfile`) and a [setup guide](docs/personal-server-setup.md).
+- **Not yet tested against the real apps** (Claude, ChatGPT, Gemini) and a real GitHub App. It is tested against a fake GitHub. The guide marks what is still to test.
+- A write that the Git host rejects is now tried once more after a pull, in every mode.
+
 ## 0.5.0 (2026-11-15)
 
 Fewer tools and smaller calls. You must act on this release if your agent tool, a script, or a limit still uses `list` or one of the nine old tool names of 0.4.0.

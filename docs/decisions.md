@@ -224,3 +224,12 @@ feature specs keep their words. The reasons are in the spec
 **Decision:** The spec [linux-support](../specs/foundation/linux-support/requirements.md) is `implemented`. waymark builds, passes all 633 tests, and runs on Linux (arm64 native in the development container, x86_64 through emulation). The release workflow (still disabled) adds a Linux x86_64 archive. The Linux install steps carry a note until the maintainer checks them once on a clean Linux machine.
 
 **Reason:** The first Linux run found a serious bug: a `kill` call that killed every process of the user on Linux. It is fixed, and it is in the changelog. Server mode, multi-tenancy, sign-in, and the web console stay out of scope.
+
+## The personal server is built, and tested in real use at the end — 2026-11-15
+
+**Decision:** The product owner asked to work on the personal server, so server mode is back in scope for the small, single-owner case: the spec [personal-server](../specs/foundation/personal-server/requirements.md). The organization version (`server-mode`), multi-tenancy, and the web console stay out of scope. The server is built from the best knowledge of the AI apps and GitHub and is tested against a fake GitHub. The real-use pass (`test.md`, M1 to M9) runs after the build.
+
+**Alternatives considered:** Test every app before building (rejected: one maintainer, and some tests need paid plans and admin access).
+
+**Reason:** The unknowns touch only the sign-in door and the Git credential code, not the MCP core. A wrong assumption is a fix in one module. See the decisions of the spec.
+

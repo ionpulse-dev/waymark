@@ -30,6 +30,65 @@ fn to_output(o: ProcOutput) -> Output {
 /// The transports that waymark lets `git` use. This excludes `ext::`, which runs a command.
 const ALLOWED_PROTOCOLS: &str = "file:git:http:https:ssh";
 
+/// A source of a short HTTPS credential for one Git host (see `personal-server`). The token goes
+/// to `git` only through the environment of the child process. It is never on a command line or
+/// on disk.
+pub trait CredentialProvider: Send + Sync {
+    /// The current token, or `None` if none can be made.
+    fn token(&self) -> Option<String>;
+    /// Forget the current token, so that the next call makes a new one.
+    fn invalidate(&self);
+}
+
+static CREDENTIAL: std::sync::OnceLock<(String, Box<dyn CredentialProvider>)> =
+    std::sync::OnceLock::new();
+
+/// Use a credential for every `git` call to the URLs that start with `url_prefix`
+/// (for example `https://github.com/`). It can be set once per process.
+pub fn set_credential(url_prefix: String, provider: Box<dyn CredentialProvider>) {
+    let _ = CREDENTIAL.set((url_prefix, provider));
+}
+
+fn apply_credential(cmd: &mut Command) {
+    use base64::Engine;
+    if let Some((prefix, provider)) = CREDENTIAL.get() {
+        if let Some(token) = provider.token() {
+            let basic =
+                base64::engine::general_purpose::STANDARD.encode(format!("x-access-token:{token}"));
+            cmd.env("GIT_CONFIG_COUNT", "1")
+                .env("GIT_CONFIG_KEY_0", format!("http.{prefix}.extraheader"))
+                .env(
+                    "GIT_CONFIG_VALUE_0",
+                    format!("Authorization: Basic {basic}"),
+                );
+        }
+    }
+}
+
+/// Did `git` fail because the credential was refused? Then a new token may help.
+fn is_auth_failure(stderr: &str) -> bool {
+    // With a refused header, git asks for a user name next. It cannot, and says so.
+    [
+        "Authentication failed",
+        "error: 401",
+        "returned error: 401",
+        "could not read Username",
+    ]
+    .iter()
+    .any(|m| stderr.contains(m))
+}
+
+/// After a refused credential: drop the token. True if there was a credential to drop.
+fn retry_with_new_token(out: &Output) -> bool {
+    match CREDENTIAL.get() {
+        Some((_, p)) if !out.ok && is_auth_failure(&out.stderr) => {
+            p.invalidate();
+            true
+        }
+        _ => false,
+    }
+}
+
 /// The first useful line of git's error text.
 pub fn first_line(stderr: &str) -> String {
     stderr
@@ -40,9 +99,19 @@ pub fn first_line(stderr: &str) -> String {
         .to_string()
 }
 
-/// Run git in a folder. Never prompts. Returns the output also when git fails.
+/// Run git in a folder. Never prompts. Returns the output also when git fails. If a credential
+/// is set and git says that it was refused, it runs once more with a new token.
 pub fn run(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output> {
+    let out = run_once(dir, author, args)?;
+    if retry_with_new_token(&out) {
+        return run_once(dir, author, args);
+    }
+    Ok(out)
+}
+
+fn run_once(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output> {
     let mut cmd = Command::new("git");
+    apply_credential(&mut cmd);
     cmd.arg("-C").arg(dir);
     if let Some(a) = author {
         cmd.arg("-c").arg(format!("user.name={}", a.name));
@@ -69,9 +138,18 @@ pub fn run(dir: &Path, author: Option<&Author>, args: &[&str]) -> Result<Output>
 
 /// Like `run`, but kills git after `seconds` and returns `None` then.
 pub fn run_timeout(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Output>> {
+    let out = run_timeout_once(dir, args, seconds)?;
+    if out.as_ref().is_some_and(retry_with_new_token) {
+        return run_timeout_once(dir, args, seconds);
+    }
+    Ok(out)
+}
+
+fn run_timeout_once(dir: &Path, args: &[&str], seconds: u64) -> Result<Option<Output>> {
     use std::io::Read;
     use std::process::Stdio;
     let mut cmd = Command::new("git");
+    apply_credential(&mut cmd);
     cmd.arg("-C").arg(dir).args(args);
     cmd.env("GIT_TERMINAL_PROMPT", "0")
         .env("LC_ALL", "C")

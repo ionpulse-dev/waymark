@@ -111,6 +111,7 @@ For all options and every step, follow the [install guide](docs/install.md).
 ## Documentation
 
 - [Development](docs/development.md): build, test, and release from source.
+- [Personal server](docs/personal-server-setup.md): run waymark as a remote MCP server for one person, for phone apps and other MCP clients. Built and tested against a fake GitHub, not yet with the real apps.
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
 - [Waymark Memory Standard](standard/waymark-1.0.md): the document format.
 - [Specifications](specs/INDEX.md) and [how this project is built](specs/WORKFLOW.md).

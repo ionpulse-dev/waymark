@@ -50,6 +50,8 @@ pub struct Context {
     /// True only while a real clone is needed or runs. Opening an existing clone does not set it,
     /// although it holds the `repo` lock too (see `join-memory-repository`).
     cloning: AtomicBool,
+    /// The person who signed in to the personal server: name and email (see `personal-server`).
+    remote_author: Mutex<Option<(String, String)>>,
 }
 
 /// Clears the `cloning` flag when the open ends, also on an early return or a panic.
@@ -84,7 +86,13 @@ impl Context {
             notices: crate::notices::NoticeBook::default(),
             session_error: Mutex::new(None),
             cloning: AtomicBool::new(false),
+            remote_author: Mutex::new(None),
         }
+    }
+
+    /// Set the commit author from the sign-in of the personal server. It replaces the Git config.
+    pub fn set_remote_author(&self, name: &str, email: &str) {
+        *self.remote_author.lock().unwrap() = Some((name.to_string(), email.to_string()));
     }
 
     /// The effective limits. They load at every call, so an edit of a file applies at once.
@@ -260,6 +268,14 @@ impl Context {
         &self,
         dir: &Path,
     ) -> std::result::Result<crate::identity::Resolved, crate::identity::AuthorProblem> {
+        if let Some((name, email)) = self.remote_author.lock().unwrap().clone() {
+            return Ok(crate::identity::Resolved {
+                name,
+                email,
+                name_source: crate::identity::author::Source::SignIn,
+                email_source: crate::identity::author::Source::SignIn,
+            });
+        }
         crate::identity::resolve(
             self.args.author_name.as_deref(),
             self.args.author_email.as_deref(),
