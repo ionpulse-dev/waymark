@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - mcp-server
 ---
@@ -24,19 +24,18 @@ requires:
 
 | Tool | Task |
 |---|---|
-| `search` | Full-text search over path, title, description, tags, and body. Ranked. |
+| `search` | Full-text search over path, title, description, tags, and body. Ranked. Without a query it lists documents sorted by `id` (see `lean-tools`). |
 | `show` | Returns one document with its properties, body, version, backlinks, and replacement. |
-| `list` | Lists documents by filter. |
 | `stats` | Counts size and documents in folders. |
 
-All four are read tools. They work when writes are paused or `access` is `read-only`.
+All three are read tools. They work when writes are paused or `access` is `read-only`.
 
 ### What the server enforces
 
-- **Result caps.** `search` and `list` return at most `max_results` documents (default 5) and `max_tokens` tokens (default 800). A call may ask for fewer, never for more. The token count is the estimate of section 9.1 of the standard over the text of the returned entries. If nothing matches, the result is empty and is not an error.
+- **Result caps.** `search` returns at most `max_results` documents (default 5) and `max_tokens` tokens (default 800). A call may ask for fewer, never for more. The token count is the estimate of section 9.1 of the standard over the text of the returned entries. If nothing matches, the result is empty and is not an error.
 - **Read budget.** `show` opens at most `max_documents_opened` different documents per session (default 20). Opening the same document again costs nothing. After that, `show` fails with `access_denied`.
 - **Folders.** The `folders` limit narrows every read. A document outside it is not found. A `folders` argument narrows the call more. No folder means the whole memory repository. A folder includes its subfolders.
-- **Levels.** Level `0` returns only the `id`. Level `1` adds `title`, `status`, `updated`, and, for a disputed document, `disputed` and `dispute_reason`. Level `2` adds `description`. `search` returns a `snippet` at level 2.
+- **Levels.** Level `0` returns only the `id`. Level `1` adds `title`, `status`, `updated`, and, for a disputed document, `disputed` and `dispute_reason`. Level `2` adds `description`. `search` returns a `snippet` at level 2 when it has a query.
 - **Pull before read.** If the last good fetch is older than 3 minutes, a read fetches first. If that fails, the result carries a notice that the clone may be behind. The read still works.
 - **No stored index.** Search reads the local files. It sees manual edits that are not committed yet.
 
@@ -44,7 +43,7 @@ The server does not decide when an agent reads. That is the choice of the team, 
 
 ## Interfaces & Contracts
 
-The filters and the paging of `search` and `list` are in [search-filters](../search-filters/requirements.md). `show` with a `version`, and `history`, are in [document-history](../document-history/requirements.md). The tags are in [manage-tags](../manage-tags/requirements.md).
+The filters and the paging of `search` are in [search-filters](../search-filters/requirements.md). `show` with a `version`, and `history`, are in [document-history](../document-history/requirements.md). The tags are in [manage-tags](../manage-tags/requirements.md).
 
 Every result has `message`, `settings`, and optional `notices` (see `mcp-server`). The fields below are the tool's `data` fields at the top level of the result.
 
@@ -52,9 +51,9 @@ Every result has `message`, `settings`, and optional `notices` (see `mcp-server`
 
 | Input | Type | Required | Meaning |
 |---|---|---|---|
-| `query` | string | yes | One or more words. A document must contain all words, in any order, in the searched parts. Case is ignored. |
+| `query` | string | no | One or more words. A document must contain all words, in any order, in the searched parts. Case is ignored. Without it, `search` lists documents sorted by `id` (see `lean-tools`). |
 | `in` | array of `path`, `title`, `description`, `tags`, `body` | no | Parts to search. Default: all five. |
-| `level` | integer 0, 1, or 2 | no | Default 2. |
+| `level` | integer 0, 1, or 2 | no | Default 2 with a query, 1 without. |
 | `folders` | array of string | no | Default: all. |
 | `tag` | string | no | Only documents with this tag. |
 | `status` | `active`, `deprecated`, or `any` | no | Default `active`. |
@@ -146,31 +145,9 @@ The result has `is_current`: `true` for the current version. For an older versio
 - Optional properties (`trust`, `verified_by`, `verified`) appear when the document has them.
 - If `id` does not exist but Git history shows that the document moved, `show` returns the document at its new ID, sets `moved_from` to the old ID, and adds a notice.
 
-### `list`
+### `search` without a query
 
-| Input | Type | Required | Meaning |
-|---|---|---|---|
-| `folders` | array of string | no | Default: all. |
-| `status` | `active`, `deprecated`, or `any` | no | Default `any`. |
-| `disputed` | boolean | no | `true`: only disputed documents. |
-| `tag` | string | no | Only documents with this tag. |
-| `author`, `updated_after`, `updated_before` | | no | Filters. See `search-filters`. |
-| `level` | integer 0, 1, or 2 | no | Default 1. |
-| `limit` | integer ≥ 1 | no | Fewer than the cap. |
-| `offset` | integer ≥ 0 | no | Default 0. Documents are sorted by `id`. |
-
-```json
-{
-  "message": "2 of 7 documents.",
-  "settings": { "max_results": 5, "max_tokens": 800 },
-  "results": [ { "id": "ops/deploy", "title": "How we deploy", "status": "active", "updated": "2026-10-11" } ],
-  "total_matches": 7,
-  "truncated": true,
-  "next_offset": 2
-}
-```
-
-`next_offset` is absent when nothing is left.
+Since 0.5.0 the tool `list` is a mode of `search`: a call with no `query` lists the documents that pass the filters, sorted by `id`, at level 1 by default, with the same status default `active`, and the same paging (`offset`, `next_offset`). The message is "2 of 7 documents.". A call named `list` still works until 0.6.0 (see [lean-tools](../lean-tools/requirements.md)).
 
 ### `stats`
 
@@ -208,7 +185,7 @@ The result has `is_current`: `true` for the current version. For an older versio
 - **Given** a document that matches in the title and one that matches only in the body, **When** `search` runs, **Then** the title match ranks first.
 - **Given** the read budget is used up, **When** `show` runs for a new document, **Then** it fails with `access_denied` and says why.
 - **Given** a document already opened, **When** `show` runs for it again after the budget is used up, **Then** it works.
-- **Given** `level` 0, **When** `list` runs, **Then** each entry is only the ID.
+- **Given** `level` 0, **When** `search` runs with no query, **Then** each entry is only the ID.
 - **Given** a document that others link to, **When** `show` runs, **Then** it lists the backlinks.
 - **Given** a disputed document, **When** `show` runs, **Then** it shows the `dispute_reason`.
 - **Given** a deprecated document that another document supersedes, **When** `show` runs, **Then** `replaced_by` names the replacement.
@@ -222,7 +199,7 @@ The result has `is_current`: `true` for the current version. For an older versio
 
 - Documents are local files, so search takes milliseconds. Up to some thousand files, a plain scan is enough. No vector database and no stored index at the start.
 - The read budget is state of one session. It resets when the session ends.
-- A file that cannot be parsed is skipped by `search`, `list`, and `stats`. `lint` reports it. `show` fails with `validation_failed` and names the first finding.
+- A file that cannot be parsed is skipped by `search` and `stats`. `lint` reports it. `show` fails with `validation_failed` and names the first finding.
 
 ## Open Questions
 

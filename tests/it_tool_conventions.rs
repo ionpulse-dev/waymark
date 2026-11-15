@@ -15,7 +15,7 @@ fn personal(w: &World, text: &str) {
     std::fs::write(p, text).unwrap();
 }
 
-const OLD_NAMES: [&str; 9] = [
+const OLD_NAMES: [&str; 10] = [
     "add",
     "delete",
     "deprecate",
@@ -25,6 +25,7 @@ const OLD_NAMES: [&str; 9] = [
     "add_empty_folder",
     "remove_folder",
     "folders",
+    "list",
 ];
 
 fn with_verification() -> World {
@@ -158,26 +159,23 @@ fn every_description_says_what_it_returns_and_write_tools_say_they_commit() {
 }
 
 #[test]
-fn an_old_tool_name_still_runs_with_a_notice() {
+fn the_old_name_list_still_runs_with_a_notice() {
     let w = World::new();
     let mut c = client(&w);
-    let r = c.call(
-        "add",
-        json!({"folder": "ops", "title": "Old name", "description": "About the old name.", "body": "x"}),
-    );
+    let r = c.call("list", json!({}));
     assert!(!r.is_error, "{}", r.json);
-    assert_eq!(r.json["id"], "ops/old-name");
     let notice = r.json["notices"][0].as_str().unwrap_or("");
     assert!(
-        notice.contains("\"add\"")
-            && notice.contains("\"add_document\"")
-            && notice.contains("0.5.0"),
+        notice.contains("\"list\"") && notice.contains("\"search\"") && notice.contains("0.6.0"),
         "{notice}"
     );
-    let r = c.call("folders", json!({}));
-    assert!(!r.is_error, "{}", r.json);
-    assert!(r.json["notices"].to_string().contains("folder_tree"));
-    // A tool that never existed is still unknown.
+    // The names of 0.4.0 stopped working in 0.5.0, and a tool that never existed is unknown.
+    for old in OLD_NAMES.iter().filter(|n| **n != "list") {
+        assert!(
+            c.call_raw(old, json!({}))["error"].is_object(),
+            "{old} is still a tool"
+        );
+    }
     assert!(c.call_raw("set_limits", json!({}))["error"].is_object());
 }
 
@@ -192,9 +190,8 @@ fn an_old_name_in_a_limit_still_blocks_the_new_tool() {
     assert!(names.contains(&"add_document".to_string()));
     let r = c.call("delete_document", json!({"id": "x", "base": "y"}));
     assert_eq!(r.code(), Some("access_denied"));
-    // The old name in a call does not get around the limit.
-    let r = c.call("delete", json!({"id": "x", "base": "y"}));
-    assert_eq!(r.code(), Some("access_denied"));
+    // The old name in a call is an unknown tool, so it cannot get around the limit.
+    assert!(c.call_raw("delete", json!({"id": "x", "base": "y"}))["error"].is_object());
     // The entry flag `--no-delete` works too.
     let w = World::new();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::args(&["--no-delete"]));

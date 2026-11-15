@@ -34,15 +34,15 @@ impl Tool for Verify {
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The document ID: its path below the root, without .md."
+                    "description": "Document ID: its path without .md."
                 },
                 "base": {
                     "type": "string",
-                    "description": "The version from show. The call fails if the document changed since."
+                    "description": "Version from show. Fails if the document changed."
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [
@@ -80,7 +80,7 @@ impl Tool for Verify {
                 }
                 if fm.get_bool("disputed") == Some(true) {
                     return Err(Error::validation("This document is disputed.").with_next(
-                    "Fix it with update_document, or end the dispute with dispute and clear: true.",
+                    "Fix it with update_document, or end the dispute with dispute_document and clear: true.",
                 ));
                 }
                 if fm.get_text("trust") == Some("verified") {

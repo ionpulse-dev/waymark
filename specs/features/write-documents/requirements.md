@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - mcp-server
   - git-sync
@@ -110,9 +110,12 @@ Input:
 | `title`, `description`, `body` | string | no | New value. |
 | `sources`, `tags`, `related`, `anchors` | string[] | no | New list. It replaces the old list. An empty list removes the property. |
 | `supersedes` | string | no | ID of a document that this one replaces. It is added to the list, and that document gets `status: deprecated`, as with `add_document` (see `restore-and-replace`). |
+| `replace` | object `{old, new}` | no | Changes one passage of the body. `old` must occur exactly once (see `lean-tools`). |
+| `append` | string | no | Text added at the end of the body (see `lean-tools`). |
+| `add_tags`, `remove_tags` | string[] | no | Add or remove single tags (see `lean-tools`). |
 | `preview` | boolean | no | Default `false`. |
 
-At least one of the optional fields must be present, or the call fails with `invalid_arguments`. `status`, `disputed`, `dispute_reason`, the author and date fields, and trust fields cannot be sent. A change of `title` keeps the file name and the ID. If the new content equals the old content, nothing is committed, and the result has `"commit": null` and the message "No change."
+At least one of the optional fields must be present, or the call fails with `invalid_arguments`. Only one of `body`, `replace`, and `append` may be sent, and `tags` cannot be sent with `add_tags` or `remove_tags` (see `lean-tools`). `status`, `disputed`, `dispute_reason`, the author and date fields, and trust fields cannot be sent. A change of `title` keeps the file name and the ID. If the new content equals the old content, nothing is committed, and the result has `"commit": null` and the message "No change."
 
 Result `data`: as `add_document` (`deprecated` lists the documents that `supersedes` deprecated), plus `"changed": ["title", "body"]`.
 
@@ -136,7 +139,7 @@ Result `data`: `{ "id", "title", "version", "commit", "pushed", "status": "depre
 
 Input: `id` (string, required), `base` (string, required), `preview` (boolean).
 
-Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document." The tool never edits another document.
+Before it deletes, the tool finds every link to the document in all other documents: relative Markdown links, wikilinks, and embeds in bodies, and wikilinks in properties. If any exists, the call fails with `validation_failed` and changes nothing. The message says how many documents link to it, and `data.linked_from` lists each one with `id`, `where` (`body` or `property`), and `count`. The `next` sentence says: "Remove or replace the links with update_document, then call delete_document again. Or use deprecate_document to keep the document." The tool never edits another document.
 
 The `folders` limit applies to the document that is deleted. If the deleted document has `supersedes`, a notice says that the older documents stay deprecated. The message says that the file stays in the Git history.
 

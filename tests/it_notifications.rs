@@ -87,7 +87,7 @@ fn t1_t4_a_dispute_gives_one_notice_per_session() {
     assert!(notices(&r)[0].contains("Run `updates`"));
     // The same session: no repeat.
     assert!(notices(&search(&mut a)).is_empty());
-    let l = a.call("list", json!({}));
+    let l = a.call("search", json!({}));
     assert!(notices(&l.json).is_empty());
     // T11: status lists it again.
     let s = a.call("status", json!({}));

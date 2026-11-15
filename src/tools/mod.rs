@@ -10,7 +10,6 @@ pub mod folders;
 pub mod history;
 pub mod init;
 pub mod lint;
-pub mod list;
 pub mod list_tags;
 pub mod move_documents;
 pub mod read_common;
@@ -37,7 +36,6 @@ pub fn registry() -> Registry {
         Box::new(status::Status),
         Box::new(search::Search),
         Box::new(show::Show),
-        Box::new(list::List),
         Box::new(folders::Folders),
         Box::new(list_tags::ListTags),
         Box::new(history::History),

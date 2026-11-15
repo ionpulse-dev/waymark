@@ -98,7 +98,10 @@ fn a2_no_author_fails_a_write_but_not_a_read() {
     let w = World::new();
     let before = subjects(&w.remote);
     let mut c = start(&w, &[], &[]);
-    assert!(!c.call("list", json!({})).is_error, "reads need no author");
+    assert!(
+        !c.call("search", json!({})).is_error,
+        "reads need no author"
+    );
     let r = add(&mut c, "No author");
     assert_eq!(r.code(), Some("setup_problem"));
     assert!(r.json["next"].as_str().unwrap().contains("--author-name"));
@@ -281,9 +284,9 @@ fn a9_no_secret_leaves_the_server() {
     for (tool, args) in [
         ("status", json!({})),
         ("sync", json!({})),
-        ("list", json!({})),
+        ("search", json!({})),
         (
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
         ),
     ] {

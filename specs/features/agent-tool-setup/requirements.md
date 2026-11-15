@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - mcp-server
 ---
@@ -56,7 +56,7 @@ There is no tool and no code. The deliverables are text:
 | GitHub Copilot, CLI | JSON, `mcpServers`, `type: "local"` | `~/.copilot/mcp-config.json`, `.mcp.json`, `.github/mcp.json` |
 | OpenAI Codex | TOML, `[mcp_servers.waymark]` | `~/.codex/config.toml`, `.codex/config.toml` |
 
-**Permission advice.** Claude Code: `allow` rules for the read tools and `ask` rules for the write tools, as `mcp__waymark__<tool>`. Codex: `default_tools_approval_mode = "writes"`. Copilot: unverified, no advice beyond "check the permission settings of the tool". The text names the read tools (`status`, `search`, `show`, `list`, `folder_tree`, `list_tags`, `history`, `stats`, `updates`, `lint`, `activity`) and the write tools.
+**Permission advice.** Claude Code: `allow` rules for the read tools and `ask` rules for the write tools, as `mcp__waymark__<tool>`. Codex: `default_tools_approval_mode = "writes"`. Copilot: unverified, no advice beyond "check the permission settings of the tool". The text names the read tools (`status`, `search`, `show`, `folder_tree`, `list_tags`, `history`, `stats`, `updates`, `lint`, `activity`) and the write tools.
 
 **`AGENTS.md` examples.** Three short examples (manual, balanced, proactive). Each starts with the line "Suggestion only. waymark does not insert or check this text." and ends with "Never write secrets, tokens, or personal data."
 

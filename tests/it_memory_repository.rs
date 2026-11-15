@@ -125,10 +125,10 @@ fn a_higher_schema_blocks_every_tool_but_status() {
     std::fs::write(&path, text.replace("schema = 1", "schema = 2")).unwrap();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     for (tool, args) in [
-        ("list", json!({})),
+        ("search", json!({})),
         ("search", json!({"query": "x"})),
         (
-            "add",
+            "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."}),
         ),
     ] {
@@ -170,7 +170,7 @@ fn a_file_without_schema_works_as_schema_1() {
         .join("\n");
     std::fs::write(&path, without).unwrap();
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
-    let r = c.call("list", json!({}));
+    let r = c.call("search", json!({}));
     assert!(!r.is_error, "{}", r.json);
 }
 
@@ -207,7 +207,7 @@ fn a_write_repairs_a_missing_schema_in_its_own_commit() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     // Reads and previews never write.
     let head = git(&w.remote, &["rev-parse", "main"]);
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
     assert!(!c
         .call(
             "add_document",

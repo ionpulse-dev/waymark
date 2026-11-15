@@ -30,11 +30,11 @@ impl Tool for Deprecate {
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The document ID: its path below the root, without .md."
+                    "description": "Document ID: its path without .md."
                 },
                 "base": {
                     "type": "string",
-                    "description": "The version from show. The call fails if the document changed since."
+                    "description": "Version from show. Fails if the document changed."
                 },
                 "reason": {
                     "type": "string",
@@ -42,7 +42,7 @@ impl Tool for Deprecate {
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [

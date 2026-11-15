@@ -50,8 +50,9 @@ pub enum Denied {
     Paused,
 }
 
-/// Tools that got a new name, as (old name, new name) (see `tool-conventions`).
-pub const RENAMED_TOOLS: [(&str, &str); 9] = [
+/// Tools that got a new name, as (old name, new name) (see `tool-conventions` and `lean-tools`).
+/// An old name in a limit counts as the new name for good. In a call, only `list` still works (see `CALL_ALIASES`).
+pub const RENAMED_TOOLS: [(&str, &str); 10] = [
     ("add", "add_document"),
     ("delete", "delete_document"),
     ("deprecate", "deprecate_document"),
@@ -61,6 +62,7 @@ pub const RENAMED_TOOLS: [(&str, &str); 9] = [
     ("add_empty_folder", "create_folder"),
     ("remove_folder", "delete_folder"),
     ("folders", "folder_tree"),
+    ("list", "search"),
 ];
 
 /// The current name of a tool. An old name gives the new name. Any other name stays as it is.

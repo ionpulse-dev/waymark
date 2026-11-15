@@ -6,8 +6,8 @@
 
 ## Deferred
 
-- [ ] A tool or a field to make a deprecated document active again. Today a person edits the file, or runs `undo`.
-- [ ] Show the deprecation reason in `show` (it is in the commit message body). Belongs to `search-and-read`.
+- [x] ~~A tool or a field to make a deprecated document active again.~~ Done: `restore_document` (see `restore-and-replace`).
+- [x] ~~Show the deprecation reason in `show`.~~ Done: `deprecation_reason` (see `lean-tools`).
 - [ ] A secret scan with entropy checks and more patterns.
 - [ ] A link fix for `delete_document` that keeps the context better than the plain text.
 - [ ] Server mode: roles for write tools, and the web console for approval (see `server-mode` and `web-console`).

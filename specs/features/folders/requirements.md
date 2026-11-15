@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-14
-updated: 2026-11-14
+updated: 2026-11-15
 requires:
   - search-and-read
   - write-documents
@@ -28,7 +28,7 @@ A folder has no description. Its name must say what it holds. A person can struc
 
 ### What a folder is
 
-A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add_document` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `create_folder` or `init` made has a `.gitkeep` and stays until `delete_folder` removes it. A `.gitkeep` is an empty file. It is not a document: `lint`, `list`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
+A folder exists when it holds a document, a subfolder, or a file `.gitkeep`. A folder that only comes from `add_document` has no `.gitkeep`, so it is gone when its last document is deleted or moved. A folder that `create_folder` or `init` made has a `.gitkeep` and stays until `delete_folder` removes it. A `.gitkeep` is an empty file. It is not a document: `lint`, `search`, `stats`, and the size limits ignore it. Folder names follow the rule of `init`: parts of lowercase letters, digits, and `-`, joined by `/`.
 
 ### `folder_tree` (read)
 
@@ -90,7 +90,7 @@ Removes a folder with everything in it: all documents in it and below it, and al
 | `preview` | boolean | no |
 
 - **Count guard.** If `expect_documents` differs from the real number, the call fails with `validation_failed` and changes nothing. The message gives the real number. An empty folder needs `0`. The normal flow is a call with `preview: true`, which shows the list and the number, and then the real call with that number.
-- **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), `count`, and `to` (the document inside that it links to). `next`: "Remove or replace the links with update_document, then call remove_folder again." Links between documents inside the folder are no problem, because they go away together.
+- **Links.** If a document outside the folder links to a document inside it, the call fails with `validation_failed` and changes nothing. `data.linked_from` lists each linking document with `id`, `where` (`body` or `property`), `count`, and `to` (the document inside that it links to). `next`: "Remove or replace the links with update_document, then call delete_folder again." Links between documents inside the folder are no problem, because they go away together.
 - **Limits.** The `folders` limit applies to every document inside. If a limit does not allow one, the call fails with `access_denied` and names the first document.
 - **Other files.** If the folder holds a file that is not a document and not a `.gitkeep`, the call fails with `validation_failed` and names the file.
 - **Protected.** The root and `.waymark` are not valid folder names (`invalid_arguments`). A path that is not a folder is `not_found`.
@@ -117,7 +117,7 @@ Result `data`: `{ "folder", "documents": [<IDs>], "folders": [<paths>], "commit"
 - **Given** a path with an uppercase letter, `..`, or an absolute path, **When** `create_folder` runs, **Then** it fails with `invalid_arguments`.
 - **Given** `access = "read-only"`, **When** `create_folder` runs, **Then** it fails with `access_denied`. **Given** `paused`, **Then** it fails with `paused`.
 - **Given** `preview: true`, **When** `create_folder` runs, **Then** nothing is written.
-- **Given** a folder with a `.gitkeep`, **When** `lint`, `list`, `stats`, and `search` run, **Then** the file causes no finding and is not counted.
+- **Given** a folder with a `.gitkeep`, **When** `lint`, `stats`, and `search` run, **Then** the file causes no finding and is not counted.
 - **Given** a folder with documents and subfolders, **When** `delete_folder` runs with the right `expect_documents`, **Then** all documents and `.gitkeep` files are gone in one pushed commit, and `undo` brings them back.
 - **Given** a wrong `expect_documents`, **When** `delete_folder` runs, **Then** it fails with `validation_failed`, the message has the real number, and nothing changes.
 - **Given** an empty folder, **When** `delete_folder` runs with `expect_documents: 0`, **Then** the folder is gone and `folder_tree` no longer lists it.

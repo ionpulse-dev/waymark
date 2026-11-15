@@ -157,7 +157,7 @@ fn a_team_creates_joins_writes_moves_undoes_disputes_and_syncs() {
     std::fs::write(&file, text.replace("Use the pipeline.", "A hand edit.")).unwrap();
     let sync = ok(a.call("sync", json!({})));
     assert_eq!(sync["conflicts"].as_array().unwrap().len(), 1, "{sync}");
-    let after = ok(a.call("list", json!({})));
+    let after = ok(a.call("search", json!({})));
     assert!(
         ids(&after, "results")
             .iter()
@@ -215,7 +215,7 @@ fn project_binding_refuses_another_memory_repository() {
         Person::A,
         Spawn::args(&["--memory-repository-id", other]),
     );
-    assert_eq!(c.call("list", json!({})).code(), Some("setup_problem"));
+    assert_eq!(c.call("search", json!({})).code(), Some("setup_problem"));
     let s = ok(c.call("status", json!({})));
     assert_eq!(s["healthy"], false);
 }

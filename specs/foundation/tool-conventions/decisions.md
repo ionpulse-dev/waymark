@@ -47,3 +47,10 @@
 **Decision (decided autonomously):** The limits are 28000 bytes for the list and 9000 characters for the descriptions (before: 20000 and 6000).
 
 **Reason:** Four new tools, a description for every parameter, and a "Returns" sentence in every description. Each of these removes guesses of the agent. The list is still about 7000 tokens.
+
+## The call aliases end in 0.5.0, and `list` is the last one — 2026-11-15
+
+**Decision (decided autonomously):** The call aliases of the nine renames are removed in 0.5.0, as the notice and the changelog of 0.4.0 said. The tool `list` became a mode of `search` in the same release and gets one call alias, until 0.6.0. The aliases in limits stay for good, `list` included.
+
+**Reason:** Keep the public promise, and keep the rule that a switched-off tool never comes back by a rename. See [lean-tools](../../features/lean-tools/decisions.md).
+**Supersedes:** "Old names work in calls until 0.5.0, and in limits for good" (the call part only).

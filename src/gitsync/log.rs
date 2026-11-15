@@ -250,6 +250,43 @@ impl Repo {
             .collect())
     }
 
+    /// The reason that the newest `waymark: deprecate` commit of a file gave (its `Reason:` line).
+    /// `None` when that commit has no reason, when a restore came after it, or when no commit of
+    /// this kind exists (a change by hand).
+    pub fn deprecation_reason(&self, rel_path: &str) -> Result<Option<String>> {
+        let out = cmd::run(
+            &self.dir,
+            None,
+            &[
+                "log",
+                "--follow",
+                "--no-merges",
+                "--format=%x1e%s%x1f%b",
+                "--",
+                rel_path,
+            ],
+        )?;
+        if !out.ok {
+            return Ok(None);
+        }
+        for record in out.stdout.split('\u{1e}').skip(1) {
+            let (subject, body) = record.split_once('\u{1f}').unwrap_or((record, ""));
+            let subject = subject.trim();
+            if subject.starts_with("waymark: restore") {
+                return Ok(None);
+            }
+            if subject.starts_with("waymark: deprecate") {
+                let reason = body
+                    .lines()
+                    .find_map(|l| l.trim().strip_prefix("Reason:"))
+                    .map(|r| r.trim().to_string())
+                    .filter(|r| !r.is_empty());
+                return Ok(reason);
+            }
+        }
+        Ok(None)
+    }
+
     /// The files that a commit changed: (status letter, path). A rename is `R` with the new path.
     pub fn files_of(&self, commit: &str) -> Result<Vec<(char, String)>> {
         let out = cmd::run_ok(

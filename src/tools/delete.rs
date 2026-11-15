@@ -33,15 +33,15 @@ impl Tool for Delete {
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "The document ID: its path below the root, without .md."
+                    "description": "Document ID: its path without .md."
                 },
                 "base": {
                     "type": "string",
-                    "description": "The version from show. The call fails if the document changed since."
+                    "description": "Version from show. Fails if the document changed."
                 },
                 "preview": {
                     "type": "boolean",
-                    "description": "true shows what the call would do and writes nothing."
+                    "description": "true: dry run. Writes nothing."
                 }
             },
             "required": [
@@ -95,7 +95,7 @@ impl Tool for Delete {
                     if n == 1 { "s" } else { "" },
                 ))
                 .with_next(
-                    "Remove or replace the links with update_document, then call delete again. Or use deprecate to keep the document.",
+                    "Remove or replace the links with update_document, then call delete_document again. Or use deprecate_document to keep the document.",
                 )
                 .with_data(json!({ "linked_from": linked })));
                 }

@@ -373,7 +373,7 @@ fn a16_a_folder_with_the_marker_and_no_settings_file_gets_only_that_file() {
     // The same session works at once, and a second call is refused.
     let s = c.call("status", json!({}));
     assert_eq!(s.json["memory_repository"]["state"], "ready", "{}", s.json);
-    assert!(!c.call("list", json!({})).is_error);
+    assert!(!c.call("search", json!({})).is_error);
     let again = init(&mut c, json!({"name": "Mine"}));
     assert_eq!(again.code(), Some("validation_failed"));
 }

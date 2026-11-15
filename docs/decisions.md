@@ -211,6 +211,14 @@ feature specs keep their words. The reasons are in the spec
 **Added the same day:** The maintainer works on macOS only. So the spec also delivers a development container and `make linux-*` commands, which run all work in a Linux container on the Mac. That container is arm64 on Apple silicon, so build and tests are in scope for Linux arm64 and x86_64. The first release archive is still x86_64 only.
 
 
+## Leaner tools: `list` joins `search`, small edits get small calls — 2026-11-15
+
+**Decision:** The new feature spec [lean-tools](../specs/features/lean-tools/requirements.md) cuts the tool list from 24 to 23 tools and makes small changes cheap. `list` is a mode of `search` (no query lists). `update_document` takes `replace`, `append`, `add_tags`, and `remove_tags`. `show` returns `deprecation_reason`. `updates` pages with `offset`. The call aliases of the nine 0.4.0 renames end in 0.5.0, as promised, and `list` is the last call alias, until 0.6.0. A test now fails when a hint names a tool that does not exist (it found seven such hints).
+
+**Alternatives considered:** A settings tool, a CLI for setup, one `set_status` tool, one `delete` tool, and `folder_tree` or `list_tags` inside `stats` (all rejected: earlier decisions made them on purpose, see the `decisions.md` of `lean-tools`). A new `patch_document` tool (about 1 KB of context for a case that parameters cover).
+
+**Reason:** The tool schemas cost context in every session. Merging two read tools and shortening repeated texts saves more than the new parameters cost, and an agent that follows a hint must never land on a tool that does not exist.
+
 ## Linux support is implemented — 2026-11-15
 
 **Decision:** The spec [linux-support](../specs/foundation/linux-support/requirements.md) is `implemented`. waymark builds, passes all 633 tests, and runs on Linux (arm64 native in the development container, x86_64 through emulation). The release workflow (still disabled) adds a Linux x86_64 archive. The Linux install steps carry a note until the maintainer checks them once on a clean Linux machine.
