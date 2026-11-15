@@ -45,10 +45,10 @@ and the next one does not get lost on the same path.
   agent reads it, even in a different tool or session.
 - **Agent working memory:** pitfalls and decisions that a long-running agent
   leaves for its next session.
-- **Distributed software factory:** many agents and people work on the same
-  product from different places and tools. Specs, decisions, and handoffs live
-  in one memory repository, so every agent has the right context and no central
-  coordinator is needed.
+- **Distributed software factory:** agents and people build one product from
+  different places and with different tools. They share specs, decisions, and
+  handoffs through one memory repository, so each agent starts with the right
+  context and no central coordinator is needed.
 
 <br/>
 
