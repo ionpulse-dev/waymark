@@ -162,6 +162,9 @@ else
   else (cd dist && shasum -a 256 -c "$(basename "$out").sha256" >/dev/null 2>&1) && ok "the checksum matches the archive" || bad "the checksum matches the archive"; fi
 fi
 
+# release.sh builds, uploads, and verifies the Linux x86_64 archive too
+grep -q 'x86_64-unknown-linux-gnu' scripts/release.sh && grep -q 'ARCH=amd64 bash scripts/linux.sh bash scripts/package.sh' scripts/release.sh && grep -q '"\$linux_archive" "\$linux_archive.sha256"' scripts/release.sh && ok "release.sh publishes the Linux x86_64 archive and its checksum" || bad "release.sh publishes the Linux x86_64 archive and its checksum"
+
 # CI and release workflows (disabled files, ready to enable)
 ci=.github/workflows/ci.yml.disabled
 rel=.github/workflows/release.yml.disabled

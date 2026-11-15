@@ -62,13 +62,13 @@ A release is one command: `scripts/release.sh <version>`. `scripts/release.sh <v
 
 - **Every release has a description.** `CHANGELOG.md` holds one entry for each version, newest first, with a short text for people: what is new and what to do, with no commit list. The text of the entry is the text of the GitHub release. A release without an entry of at least 40 characters is refused (`scripts/changelog-entry.sh`).
 - **Steps of the script, in order:**
-  1. The checks: the entry exists, the version is not older than `Cargo.toml`, the branch is `main`, the working tree is clean (`.DS_Store` aside), `main` equals `origin/main`, the tag does not exist, `gh` is signed in, and the tap is reachable.
+  1. The checks: the entry exists, the version is not older than `Cargo.toml`, the branch is `main`, the working tree is clean (`.DS_Store` aside), `main` equals `origin/main`, the tag does not exist, `gh` is signed in, the tap is reachable, and the Linux container works.
   2. `make check` and `scripts/public-check.sh`.
   3. The version in `Cargo.toml` (and `Cargo.lock`), in a commit `Release <version>` that is pushed. If `Cargo.toml` already has the version, no commit is made.
-  4. The archive and its checksum (`scripts/package.sh`).
-  5. The tag `v<version>`, pushed, and the GitHub release with the archive, the checksum file, and the entry of the changelog as notes.
+  4. The archive and its checksum (`scripts/package.sh`). Then the Linux x86_64 archive and its checksum, built in the development container (`ARCH=amd64 scripts/linux.sh bash scripts/package.sh`).
+  5. The tag `v<version>`, pushed, and the GitHub release with both archives, the checksum files, and the entry of the changelog as notes.
   6. The formula in the tap, filled with the version and the checksum, in a commit `waymark <version>`.
-  7. The verification: the published archive has the checksum, its binary reports the version, `brew audit --strict --new` passes, and the tag points at `HEAD`.
+  7. The verification: the published archives have their checksums, the binaries report the version (the Linux one runs in an Ubuntu container), `brew audit --strict --new` passes, and the tag points at `HEAD`.
 - **The script never asks and never skips a failed check.** It does not install on the machine of the person. It prints the command: `brew update && brew upgrade <account>/tap/waymark`.
 - **Version numbers.** While waymark is below 1.0, a fix or a small change raises the patch number (0.1.5 to 0.1.6) and a larger change raises the minor number. The product owner decides.
 - **CI later.** The disabled workflow `.github/workflows/release.yml.disabled` may replace steps 4 to 6 when a token for the tap exists. The changelog rule stays.

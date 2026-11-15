@@ -2,15 +2,20 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
-## Unreleased
+## 0.5.1 (2026-11-15)
 
-waymark now runs on Linux.
+waymark now builds and runs on Linux, and this release fixes a serious bug on Linux. There is no change to the tools, so on a Mac you only need to update.
 
-- **Linux (x86_64 and arm64) is supported** for build, tests, and local mode. The release adds a Linux x86_64 archive with a checksum. The install steps are in the [install guide](docs/install.md). They are not yet tested on a real machine.
-- **A fix for Linux:** when `git` did not answer in time, waymark ended it with a `kill` call that the Linux `kill` could read as "kill every process of the user". The call now uses `--`. If you ran an earlier build on Linux, update.
-- The system settings file is `/etc/waymark/config.toml` on Linux (macOS is unchanged).
-- The update hint says `brew upgrade waymark` only when waymark was installed with Homebrew. The Git install hint fits the system.
-- For developers: a Linux development container and `make linux-test`, `make linux-check`, `make linux-build`, and `make linux-shell` run all work in Linux on a Mac.
+**Fixed (Linux):** when `git` did not answer in time, waymark stopped it with a `kill` call that the Linux `kill` can read as "kill every process of the user". The call is now safe. If you ran an earlier waymark build on Linux, update.
+
+**What is new:**
+- **Linux (x86_64 and arm64) works** for local mode, and all tests pass there. This release has a download for Linux x86_64 (`waymark-0.5.1-x86_64-unknown-linux-gnu.tar.gz`, with a checksum). The install steps are in the [install guide](docs/install.md). They are not yet tested on a real machine. For Linux arm64, build from source (see [development.md](docs/development.md)).
+- The system settings file is `/etc/waymark/config.toml` on Linux. On macOS nothing changes.
+- The update hint says `brew upgrade waymark` only when waymark was installed with Homebrew. The Git install hint fits your system.
+- For developers: a Linux development container, and `make linux-test` and `make linux-check` run all work in Linux on a Mac.
+
+What to do:
+- Update with `brew upgrade waymark` and restart your agent tool.
 
 A personal server comes with it, as a first version:
 
