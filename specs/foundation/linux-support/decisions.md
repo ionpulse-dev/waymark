@@ -57,6 +57,18 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The dev container makes arm64 the natural test target on the Mac, and servers and CI usually run x86_64. Testing both costs little and avoids a surprise.
 
+## OrbStack is the tested container runtime — 2026-11-15
+
+**Decision:** The commands are tested with OrbStack, the runtime of the maintainer. They use only the Docker-compatible command line, so other runtimes can work and are best effort.
+
+**Alternatives considered:**
+- Name one runtime as required — rejected: it would force a product and its license on every contributor.
+- Test with several runtimes — rejected for now: the maintainer uses one, and the Docker-compatible command line is the common part.
+
+**Reason:** Test what the maintainer really runs, and keep the interface to the standard command line.
+
+**Note:** The speed of x86_64 containers on Apple silicon through OrbStack is not verified here.
+
 ## The container image for development is not the image of `personal-server` — 2026-11-15
 
 **Decision:** They are two files with two jobs. They use the same Linux base.

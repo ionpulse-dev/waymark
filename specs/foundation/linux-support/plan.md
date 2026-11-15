@@ -49,7 +49,8 @@ First find out what really fails on a clean Linux machine, then fix the real pro
 - **Image.** One `Dockerfile` for development. It has no project files inside. The Rust version comes from `rust-toolchain.toml`, so the container and the host use the same compiler. `git` is installed because waymark calls it.
 - **Run.** `scripts/linux.sh <command>` does `docker`-compatible calls only (`build`, `run`). It mounts the source folder, and uses named volumes for `target/` and for the Cargo registry and git caches. The first run builds the image and fetches the crates. Later runs reuse them.
 - **User.** The container user gets the user and group ID of the host user at run time. Files that the container writes into the mounted folder then belong to the person on the Mac.
-- **Architecture.** On an Apple silicon Mac the container is Linux arm64, which runs natively and fast. CI runs x86_64. The suite runs on both, so that neither is a surprise. Running x86_64 on the Mac through emulation is possible and slow, so it is only a manual option.
+- **Architecture.** On an Apple silicon Mac the container is Linux arm64, which runs natively and fast. CI runs x86_64. The suite runs on both, so that neither is a surprise. `scripts/linux.sh` takes an optional architecture (for example `ARCH=amd64 make linux-test`) that runs the image as x86_64. OrbStack can run x86_64 containers on Apple silicon, and as far as I know it uses Rosetta for this, which is faster than a general emulator. This is not verified here, so the first task checks the speed and whether the whole suite passes that way.
+- **Runtime.** The tested runtime is OrbStack. The script uses only the Docker-compatible command (`docker build`, `docker run`), which OrbStack provides, so other runtimes can work. When the runtime is not running, the script stops with the message "Start OrbStack (or your container runtime) and try again."
 - **Case sensitivity.** The source folder is mounted from the Mac, and its file system is usually case-insensitive. The tests make their folders in the temp folder of the container, which is case-sensitive. The case test must use that folder, and a check shows which file system it ran on.
 - **CI.** The Linux job builds the same `Dockerfile` and runs `make check` in it. So the developer and CI see one environment.
 - **Agents.** An AI agent on a Mac calls `make linux-test` and `make linux-check`. The doctor tells it if no runtime is running.
@@ -71,7 +72,7 @@ First find out what really fails on a clean Linux machine, then fix the real pro
 - **File sharing speed.** A mounted folder from a Mac can be slow. The named volumes for `target/` and the caches are the main protection. Measure a full run on the Mac.
 - **Architecture surprise.** A bug may show only on x86_64 and a Mac tests arm64. CI is the second check, so CI must be enabled before this item is called done.
 - **A runtime on every Mac.** The container needs a running runtime. A runtime that is stopped makes `make linux-test` fail, so the message must say what to start.
-- **License.** Some container products need a paid license for a company. The spec does not pick one.
+- **License.** The license terms of OrbStack depend on how a person uses it. The project does not require OrbStack. It only tests with it.
 
 ## Open Questions
 
