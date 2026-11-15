@@ -129,6 +129,14 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Note:** The page names waymark. A visitor can learn that waymark runs at the address. This is accepted because the address is meant for apps, and the page gives no way in.
 
+## Linux support comes first, as its own spec — 2026-11-15
+
+**Decision:** This spec requires [linux-support](../linux-support/requirements.md). It does not start until that spec is `implemented`. The container image is built on the tested Linux build of that spec.
+
+**Alternatives considered:** A Linux build only inside the `Dockerfile` of this spec — rejected: the code and the tests would not be proven on Linux, and Linux also matters for local mode.
+
+**Reason:** Servers run Linux, and the project supports macOS only today. See the decisions of `linux-support`.
+
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
 **Decision:** Because the server stores nothing and the private key stays in the host's secret store, the principle "Secrets stay with Git — waymark never stores or passes a Git secret" holds unchanged.

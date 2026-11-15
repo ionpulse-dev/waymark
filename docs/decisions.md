@@ -200,3 +200,11 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** The product owner wants a personal remote knowledge base that is as easy as possible for technical people. The reasons for each choice are in the `decisions.md` of the spec.
 
+## Linux on x86_64 comes back into scope, first — 2026-11-15
+
+**Decision:** A new foundation spec, [linux-support](../specs/foundation/linux-support/requirements.md), makes waymark build, pass its tests, and run on Linux x86_64. It is `draft`. The spec `personal-server` requires it. The decision of 2026-11-14 "Linux is out of scope" changes for Linux x86_64 when the product owner approves the spec. Server mode, multi-tenancy, sign-in, and the web console stay out of scope.
+
+**Alternatives considered:** Build Linux only inside a container for the server (rejected: the code and the tests would not be proven on Linux, and Linux users of local mode gain nothing). Wait (rejected: servers run Linux, so every later server spec depends on it).
+
+**Reason:** A remote server needs a tested Linux build. On 2026-11-15 waymark already built on Linux and its 214 unit tests passed. The integration tests were not judged in that sandbox, so the first task of the spec is a run on a clean Linux machine.
+

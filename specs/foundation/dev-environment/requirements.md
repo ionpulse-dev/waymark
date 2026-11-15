@@ -7,6 +7,8 @@ updated: 2026-11-14
 
 # Development environment
 
+> **Note 2026-11-15:** The draft spec [linux-support](../linux-support/requirements.md) makes the commands and scripts work on Linux x86_64 too. The out-of-scope line "Linux and Intel Macs" changes for Linux when that spec is approved.
+
 ## Technical Goal
 
 One command sets up a new Mac for work on waymark, and a small set of commands covers all daily work: build, test, check, run, and prepare a release. A new person, or a new AI session, needs no other knowledge to build and test the project.

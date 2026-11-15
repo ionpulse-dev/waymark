@@ -5,6 +5,7 @@ created: 2026-11-15
 updated: 2026-11-15
 requires:
   - mcp-server
+  - linux-support
 ---
 
 # Personal server
@@ -24,7 +25,7 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - A sign-in door that follows the MCP authorization standard, so that Claude, ChatGPT, and Gemini can connect with no help from their vendors.
 - "Sign in with GitHub" as the first identity provider, with an allow-list of exactly one GitHub account. The identity step is a small interface, so other providers can be added later.
 - Background Git access through a GitHub App installed on the one memory repository.
-- A container image.
+- A container image. It holds the Linux build of waymark (see [linux-support](../linux-support/requirements.md)), `git`, and certificates.
 - One setup guide for the cloud host and for the GitHub App. It is written so that an agent can follow it and a person can read it as a recipe.
 - A small status page at the address of the server: a blue page with the word "Waymark" in white at the center, a line that says that the server is running, and a link to the project on GitHub. It shows nothing about the memory repository or the owner. A separate plain `/health` answer is for the health checks of hosts.
 - A safe log on standard output: one line for each start, sign-in, and tool call, with no secret and no document text.

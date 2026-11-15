@@ -119,6 +119,7 @@ One Markdown file for a cloud host and for the GitHub App. The order is: create 
 - `mcp-server` — provides the core and the tools. It is `implemented`.
 - `git-sync` — provides the clone, the lock, and the push. This item adds a credential source and a pull-on-request rule. Needs a check that its local-mode text allows this.
 - `trust-model` — provides the limit layers. This item adds the server config as a layer.
+- `linux-support` — provides a Linux build that is tested and a Linux release archive. The `Dockerfile` of this item builds on it. This item cannot start until `linux-support` is `implemented`.
 - `distribution` — owns the release of the image. Needs a short update to its text.
 
 ## Risks
