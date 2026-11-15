@@ -46,9 +46,8 @@ and the next one does not get lost on the same path.
 - **Agent working memory:** pitfalls and decisions that a long-running agent
   leaves for its next session.
 - **Distributed software factory:** agents and people build one product from
-  different places and with different tools. They share specs, decisions, and
-  handoffs through one memory repository, so each agent starts with the right
-  context and no central coordinator is needed.
+  anywhere, and share specs, decisions, and handoffs through one memory
+  repository.
 
 <br/>
 
