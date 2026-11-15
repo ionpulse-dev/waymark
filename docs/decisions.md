@@ -192,3 +192,11 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** An agent that has learned one tool can guess the next one. A rename must never loosen a limit. The details are in the `decisions.md` of each spec.
 
+## A remote MCP server for one person is drafted — 2026-11-15
+
+**Decision:** A new foundation spec, [personal-server](../specs/foundation/personal-server/requirements.md), describes a remote MCP server for one person. It is for phone apps and other MCP clients. It has a sign-in door of its own, "Sign in with GitHub" for one account, Git access through a GitHub App, no stored state, and one setup guide for agents and people. It stays `draft`. The decision "server mode is out of scope for now" is not changed. The spec waits until the product owner changes the scope.
+
+**Alternatives considered:** Extend `server-mode` (rejected: it is built for organizations, with roles and tenancy). Wait with the design (rejected: the design shapes later work, and a draft costs nothing).
+
+**Reason:** The product owner wants a personal remote knowledge base that is as easy as possible for technical people. The reasons for each choice are in the `decisions.md` of the spec.
+

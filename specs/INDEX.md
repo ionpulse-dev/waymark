@@ -2,7 +2,7 @@
 
 ```
 📦 Features      ██████████████████████████████████████░░  24 / 25 active
-🏗️ Foundation    ██████████████████████████████████░░░░░░  11 / 13 done+implemented
+🏗️ Foundation    ███████████████████████████████░░░░░░░░░  11 / 14 done+implemented
 ```
 
 ## Next Up
@@ -16,6 +16,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 5. On 2026-11-14 the place of the memory repository became explicit and is implemented: `--repo` clones into `~/.waymark/<name>`, `--path` sets the folder, and one of them is required (specs `project-binding`, `join-memory-repository`, `session-start`, `mcp-server`).
 6. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
 7. On 2026-11-15 the tools got one naming scheme and five specs were implemented: `tool-conventions` (nine tools renamed, descriptions for every parameter, old names as aliases), `search-filters`, `restore-and-replace`, `document-history`, and `manage-tags`. This is version 0.4.0.
+8. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. It is `draft` and waits for review. It is outside the current scope, because server mode is out of scope for now.
 
 ---
 
@@ -65,6 +66,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
+| [personal-server](foundation/personal-server/requirements.md) | `draft` | 2026-11-15 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 
 ## Superseded
