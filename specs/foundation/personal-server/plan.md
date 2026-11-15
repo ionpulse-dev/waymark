@@ -91,7 +91,11 @@ All values come from environment variables or mounted files. The names are propo
 The person creates an empty private repository on GitHub and installs the GitHub App on it. After the server starts, the clone of the empty repository gives the state `empty`. `status` says that `init` can set it up (see `create-memory-repository`). The person asks the agent to set up the memory repository. The agent calls `init`, which creates the structure, commits, and pushes with the App token. The same session then works with no restart. `init` is a write tool, so the limits and the approval of the client apply as for any write. The tool does not change.
 
 ### 8. Commit author
-Every write, and `init` too, needs an author name and an email. In HTTP mode both come from the identity step. If the GitHub account hides its email, the identity step returns the no-reply address of GitHub (`<id>+<login>@users.noreply.github.com`). The email check of `login-and-identity` must accept it. This is checked in the task phase.
+Every write, and `init` too, needs an author name and an email. In HTTP mode both come from the identity step.
+
+At sign-in, after GitHub names the person, the identity step asks GitHub for the email addresses of the account. It accepts an address only if GitHub marks it as verified and the existing check of `login-and-identity` passes (valid syntax, not on the blocklist, and in `people.email_domains` if the owner set it). The no-reply address of GitHub is blocked by that check and stays blocked. It prefers the primary address among those that pass. If no address passes, the sign-in is refused with a clear message: "Add and verify an email address on your GitHub account." No token is issued.
+
+A verified address means that GitHub confirmed that the person can receive mail there. This builds the item "the check against the verified emails of the Git host account", which `login-and-identity` deferred (see its `todo.md`). Waymark holds the GitHub user token only during the sign-in, reads the identity and the email list, and drops it. This is the only use of that token.
 
 ### 9. Setup guide
 One Markdown file for a cloud host and for the GitHub App. The order is: create the empty repository, deploy the server, create the GitHub App and install it on that repository, set the secrets, connect an app, and ask the agent to run `init`. Each step has three parts: what to do, what you should see, and what to do if you do not. Steps that only a person can do are marked. The guide lists the exact names of every secret, says never to print a secret in the chat, and ends with a check: open the address, add the connector, ask one question. A guide for each app (Claude, ChatGPT, Gemini) lists the plan and the steps to add the connector.
@@ -110,7 +114,9 @@ One Markdown file for a cloud host and for the GitHub App. The order is: create 
 - **Two instances.** Two writers at once can reject each other's push. The retry covers the normal case.
 - **Cold start.** A large memory repository clones slowly. A shallow clone helps. A very large one is a problem for the serverless case. A wait that is longer than the timeout of the app or of the host makes the first call fail, and the next call works.
 - **Empty remote.** The push of `init` to an empty GitHub repository, with an App token, must be tested. The spec of `init` says the branch is whatever the clone has.
-- **Hidden email.** A GitHub account with a hidden email needs the no-reply address as the author.
+- **No usable email.** A GitHub account with no verified, valid email cannot sign in. The message tells the person what to fix.
+- **Private email and pushes.** GitHub has a setting that blocks pushes that show a private email. It is not known whether it applies to a push with an App token. It needs a real test. The author email is visible in the history of the memory repository, as in local mode.
+- **Permission.** Reading the email list probably needs the permission "Email addresses: read" on the GitHub App. The guide must list it. To verify.
 - **Public exposure.** The server is on the open internet with one allowed account. The door and the token checks are the only protection, so they need a security review (see `docs/security-review.md`).
 - **Scope.** Server mode is out of scope for the current task (see [project decisions](../../../docs/decisions.md)). This item stays `draft` until the product owner changes that.
 
@@ -119,5 +125,5 @@ One Markdown file for a cloud host and for the GitHub App. The order is: create 
 - Which Rust crates fit for HTTP, token signing, and the GitHub App call? Prefer few dependencies.
 - Does the MCP library of `mcp-server` already support Streamable HTTP?
 - What is the exact current MCP authorization standard that the door must follow? Check it when the task phase starts.
-- Does the email check of `login-and-identity` accept the no-reply address of GitHub?
+- Which GitHub App permission reads the email list, and does it work with the sign-in flow that waymark uses?
 - Does the MCP library of `mcp-server` serve both stdio and HTTP with the same `Server` handler, so that the clone logic is shared with no change?

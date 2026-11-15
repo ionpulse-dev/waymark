@@ -81,11 +81,24 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 ## `init` runs through the agent, and the author comes from the sign-in — 2026-11-15
 
-**Decision:** A new memory repository is set up by the agent with the existing `init` tool, on an empty repository that the person created on GitHub. The tool does not change. In HTTP mode the commit author comes from the sign-in identity. A hidden email becomes the no-reply address of GitHub.
+**Decision:** A new memory repository is set up by the agent with the existing `init` tool, on an empty repository that the person created on GitHub. The tool does not change. In HTTP mode the commit author comes from the sign-in identity.
 
 **Alternatives considered:** A separate setup step for `init` — rejected: the tool already handles the empty state and the same-session switch to `ready`.
 
 **Reason:** Nothing new to build for first use, and the author rule stays the same: the commit belongs to the person.
+
+## The author email must be verified by GitHub — 2026-11-15
+
+**Decision:** At sign-in the server reads the email list of the GitHub account and accepts only an address that GitHub marks as verified and that passes the email check of `login-and-identity`. If none passes, the sign-in is refused. The no-reply address of GitHub stays blocked.
+
+**Alternatives considered:**
+- Use the no-reply address of GitHub when the email is hidden — rejected: `login-and-identity` blocks it on purpose, because a commit email must reach a person. An earlier draft of this spec said the opposite. This entry corrects it.
+- Syntax and blocklist checks only, as in local mode — rejected for HTTP mode: the server has the GitHub identity at hand, so a stronger check costs nothing.
+- An MX record check — not needed: a verified address is stronger.
+
+**Reason:** In local mode the author comes from the Git config of a computer, and waymark can only check the form. In HTTP mode GitHub can say that the person confirmed the address. This builds the deferred item "the check against the verified emails of the Git host account" in `login-and-identity`.
+
+**Open:** The permission that reads the email list, and whether the GitHub setting against private-email pushes applies to a push with an App token.
 
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
