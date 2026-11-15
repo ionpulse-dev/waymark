@@ -2,6 +2,24 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.5.0 (2026-11-15)
+
+Fewer tools and smaller calls. You must act on this release if your agent tool, a script, or a limit still uses `list` or one of the nine old tool names of 0.4.0.
+
+**What changed for you:**
+- **`list` is now part of `search`.** A `search` with no `query` lists the documents that pass the filters, sorted by ID, at level 1. Like `search`, it shows only active documents unless you send `status: any` (`list` used to show all). A call named `list` still works until 0.6.0, with its old defaults and a notice. A limit `tools_denied = ["list"]` now switches off `search`.
+- **The old names of 0.4.0 are gone,** as announced: `add`, `delete`, `deprecate`, `dispute`, `verify`, `reject`, `add_empty_folder`, `remove_folder`, and `folders` no longer work in calls. In limits (`tools_denied`, `approval.required_for`, `--tools-denied`) they still count as the new names, so a switched-off tool stays off.
+- **`update_document` makes small changes with small calls.** `replace` changes one passage of the body (the passage must occur once), `append` adds text at the end, and `add_tags` and `remove_tags` change single tags. You no longer have to send the whole body or the whole tag list.
+- **`show` tells you why a document was deprecated** (`deprecation_reason`).
+- **`updates` reads long windows.** It takes `offset` and returns `next_offset`. The result has `until`: pass it as `since` in your next call.
+- **Fixed:** several error hints named tools that do not exist (`delete`, `remove_folder`, `dispute`, `folders`, `list`). They name the current tools now, and a test keeps it so.
+- The tool list is smaller: 23 tools in about 4 percent fewer bytes than in 0.4.0, and the shorter parameter texts say the same.
+
+What to do:
+- Update with `brew upgrade waymark` and restart your agent tool.
+- Remove `mcp__waymark__list` from your allow rules in your agent tool. `mcp__waymark__search` covers it.
+- Call `search` instead of `list`, and the new names instead of the old ones.
+
 ## 0.4.0 (2026-11-15)
 
 Clearer tool names, four new tools, and better search. You must act on the first part if your agent tool has allow or ask rules for waymark tools.
