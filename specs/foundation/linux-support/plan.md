@@ -41,7 +41,7 @@ First find out what really fails on a clean Linux machine, then fix the real pro
 4. **Developer scripts.** `doctor.sh` reads the system (`uname`) and accepts Linux x86_64 and macOS arm64. It lists missing tools with a Linux or macOS hint. `setup.sh` on Linux prints the rustup command and exits if the toolchain is missing. It does not run a package manager.
 5. **CI.** One workflow with a matrix: `ubuntu-latest` and `macos-14`. It runs `make check` on both. It stays `.disabled`.
 6. **Release.** The release workflow builds on both runners and uploads one archive and one checksum per target. The Linux archive is x86_64. The C library choice is an open question that the first release build decides.
-7. **Docs.** The README badge and the setup text name both systems. `install.md` gets a Linux section: download the archive, check the checksum, put the binary on the path, and make sure `git` works.
+7. **Docs.** The README badge and the setup text name both systems. `install.md` gets a Linux section: download the archive, check the checksum, put the binary on the path, and make sure `git` works. The Linux text is written first from the commands, and it carries a visible note ("The Linux steps are not yet tested on a real machine"). Then the maintainer makes a small Ubuntu machine in OrbStack, follows the text step by step with no other knowledge, fixes every mistake, deletes the machine, and removes the note. This is one manual check and has no tooling. It needs the first Linux release archive. Before that exists, the build-from-source steps can be followed on the same kind of machine.
 8. **Specs.** Add a note to `distribution` and `dev-environment`. Record the scope change in `docs/decisions.md`.
 
 ### The development container
@@ -69,6 +69,7 @@ First find out what really fails on a clean Linux machine, then fix the real pro
 - **Homebrew on Linux.** If the tap also serves Linux, the formula needs a second archive and a test that this repository cannot run on macOS only.
 - **CI cost and trust.** The workflows are disabled. Enabling them is a decision of the product owner.
 - **Scope drift.** This item must not change a tool or a result. Only system texts and tools may differ.
+- **Docs not yet checked.** The Linux setup text may hold a mistake that only a real system shows (a package name, a path, a missing library). The visible note and the one manual check on a clean OrbStack machine limit the damage. If the check is skipped, the first Linux user finds the first error.
 - **File sharing speed.** A mounted folder from a Mac can be slow. The named volumes for `target/` and the caches are the main protection. Measure a full run on the Mac.
 - **Architecture surprise.** A bug may show only on x86_64 and a Mac tests arm64. CI is the second check, so CI must be enabled before this item is called done.
 - **A runtime on every Mac.** The container needs a running runtime. A runtime that is stopped makes `make linux-test` fail, so the message must say what to start.

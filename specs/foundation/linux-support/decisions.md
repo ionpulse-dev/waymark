@@ -57,6 +57,17 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** The dev container makes arm64 the natural test target on the Mac, and servers and CI usually run x86_64. Testing both costs little and avoids a surprise.
 
+## The Linux docs are checked once by hand on a small OrbStack machine — 2026-11-15
+
+**Decision:** The Linux setup steps in the README and `docs/install.md` are written first from the commands, with a visible "not yet tested on a real machine" note. The maintainer then follows them once on a clean Ubuntu machine in OrbStack, fixes what is wrong, deletes the machine, and removes the note. No script and no tooling for this check.
+
+**Alternatives considered:**
+- Leave the Linux docs untested — rejected: a small machine is cheap to make in OrbStack, and a wrong install text is the first thing a Linux user would meet.
+- A script that follows the steps in a clean container — rejected for now: it is more to build and keep than one manual check. It stays in `todo.md` in case the check repeats.
+- A permanent Linux machine — rejected: a throwaway machine is clean every time and needs no upkeep.
+
+**Reason:** One short manual check gives real evidence at almost no cost, so it fits the "low key" aim.
+
 ## OrbStack is the tested container runtime — 2026-11-15
 
 **Decision:** The commands are tested with OrbStack, the runtime of the maintainer. They use only the Docker-compatible command line, so other runtimes can work and are best effort.
