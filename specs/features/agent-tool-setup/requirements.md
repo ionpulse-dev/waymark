@@ -27,8 +27,8 @@ waymark does not install anything into agent tools. It ships **no skill** and **
 1. **MCP entry for each tool.** A copy-paste entry for Claude Code, GitHub Copilot (VS Code and CLI), and OpenAI Codex, for user scope and for project scope where the tool has one. The formats differ (JSON for some tools, TOML for Codex). The entry starts the binary over stdio with `--repo` (see `mcp-server`). Optional: the author in `env` (see `login-and-identity`).
 2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. The rules are in the permission settings of the tool, not in the MCP config. For Claude Code, they are `allow` and `ask` rules such as `mcp__waymark__search` in `settings.json`. Tool kind hints (read-only, write, destructive) support this. The README says that a mode without prompts ("YOLO") ignores `allow` rules, may still honor explicit `ask` rules (unverified), and that the built-in approval through elicitation is the other way (see `write-approval`).
 3. **Example `AGENTS.md` snippets.** Short examples that a team may copy and change. They are suggestions only. waymark does not insert them and does not check them. Suggested examples:
-   - *Balanced:* search at the start of a task, write only when asked or after the person says yes.
-   - *Proactive:* search first, save decisions and pitfalls, update before adding, dispute instead of deleting, and tell the person in one line what was saved.
+   - *Balanced:* search at the start of a task, open only relevant documents, write only when asked or after the person says yes.
+   - *Proactive:* search first, decide from context what to save automatically without asking, update before adding, dispute instead of deleting, and tell the person in one line what was saved.
    All examples end with "never write secrets, tokens, or personal data". The server enforces the hard rules. The examples only guide behavior.
 4. **How to tighten limits.** Where the personal config, the shared file, and the system config live (see `trust-model`).
 

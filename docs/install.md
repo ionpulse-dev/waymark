@@ -283,7 +283,7 @@ The agent searches memory at the start of work, but writes only when asked or af
 
 <!-- example: agents-md -->
 ```text
-At the start of a task, search waymark for the topic and open at most 3 documents.
+At the start of a task, search waymark for the topic and open only the relevant documents.
 If a document is old or marked disputed, say so and check the facts.
 Write only when the person asks, or after you ask "Save this?" and they say yes.
 One topic per document, with a one-line description. Update before you add.
@@ -296,11 +296,11 @@ The agent automatically saves memory during its work without asking. Undo (`undo
 
 <!-- example: agents-md -->
 ```text
-Search waymark before you start work. Automatically save decisions, pitfalls,
-and contracts that the next agent needs, without asking. Do not save what the
-code or the history already shows. Update a document that exists instead of
-adding a copy. If a document is wrong, mark it disputed with a reason. Tell the
-person in one line what you saved.
+Search waymark before you start work. Decide from the context what is
+worth remembering and save it automatically, without asking. Do not save
+what the code or the history already shows. Update a document that exists
+instead of adding a copy. If a document is wrong, mark it disputed with a
+reason. Tell the person in one line what you saved.
 Never write secrets, tokens, or personal data.
 ```
 
