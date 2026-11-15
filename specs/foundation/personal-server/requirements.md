@@ -56,6 +56,9 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **The commit author is the signed-in person.** The App credential only proves that the server may write.
 - **Writes are pushed at once.** The server may stop after any request, so a write may not wait for a later push.
 - **Pull on request.** The server updates its clone when a request arrives and the clone is old. It has no background timer that a serverless host cannot run.
+- **The data folder is not a setting.** In HTTP mode the server uses the temp folder of the system. `--path` is ignored, with one line in the log. The memory repository comes from `WAYMARK_REPO`.
+- **First clone as in local mode.** The clone starts at start and the first tool call waits for it, as in `join-memory-repository`. A wait that is longer than the timeout of the app or of the host is the choice of the host and the plan of the person. It is not a rule of waymark.
+- **The author needs a name and an email.** If GitHub hides the email, the no-reply address of GitHub is used.
 - **The client config is not a limit.** Limits come from the server config and the shared file, as in `trust-model`.
 - **Revoke by key.** A person cuts off all clients by changing the signing key. A single client cannot be revoked in this item.
 - **The setup guide is the interface for setup.** Waymark ships no installer and no skill (see `PROJECT.md`).
@@ -75,6 +78,10 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **Given** a stopped and later started process, **When** the first request arrives, **Then** it is served with no data from before.
 - **Given** the image, **When** it is inspected, **Then** it holds no secret.
 - **Given** a browser, **When** it opens the address of the server, **Then** a short text shows that the server is running and shows no memory content.
+- **Given** an empty repository on GitHub with the App installed, **When** the server starts and an agent calls `init` with a name, **Then** the structure and the first commit are on the remote and the same session works with no restart.
+- **Given** a start in HTTP mode with `--path`, **When** the server starts, **Then** the option is ignored and the log says so.
+- **Given** a GitHub account that hides its email, **When** it signs in and a write runs, **Then** the commit author has the no-reply address of GitHub.
+- **Given** a clone that is still running, **When** a tool call arrives, **Then** it waits for the clone, and after the wait it returns a clear error that tells the agent to call again.
 - **Given** the setup guide, **When** an agent follows it step by step, **Then** it stops at each step that only a person can do and does not print a secret in the chat.
 
 ## Open Questions
@@ -86,4 +93,6 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - Can the signing key be derived from the GitHub App private key, so that one secret fewer is needed? Is this safe?
 - Which hosting service does the first version of the guide cover? A second one can follow.
 - How long should the client tokens last? A short access token with a renewal token of weeks is the starting idea.
+- Does the email check of `login-and-identity` accept the no-reply address of GitHub?
+- Does a push of `init` to an empty GitHub repository work with an App token?
 - How does the server limit the damage when two instances push at the same time? The plan is pull, rebase, and retry once.

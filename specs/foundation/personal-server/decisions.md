@@ -61,6 +61,32 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** `PROJECT.md` puts installers out of scope, most people will use an agent anyway, and one guide is the least to keep correct.
 
+## Local clone only, in a fixed folder — 2026-11-15
+
+**Decision:** The server works only on a local clone. It does not use the GitHub API for reads or writes. In HTTP mode the data folder is the temp folder of the system and is not a setting. `--path` is ignored. The memory repository comes from `WAYMARK_REPO`.
+
+**Alternatives considered:**
+- GitHub API only, with no clone — rejected: search, the quality checks, move, and undo are built on local Git, and the API would tie waymark to GitHub. It could return later as a second backend behind one interface.
+- A data folder setting — rejected: every host has a writable temp folder, so the setting only adds a way to make a mistake.
+
+**Reason:** One code path for local and HTTP mode, and nothing for the person to configure.
+
+## First clone is reused from local mode — 2026-11-15
+
+**Decision:** HTTP mode reuses the clone logic of local mode: a clone at start in the background, one lock, and a wait in `ctx.repo()` with `WAYMARK_CLONE_WAIT_SECONDS`. No tool checks for the clone on its own. The sign-in door does not need the clone.
+
+**Alternatives considered:** A new lazy-start design for HTTP only — rejected: the existing design already covers it, and a second one adds concurrency to test.
+
+**Reason:** The host decides how often a cold start happens. The person chooses a cheap serverless host (longer first call) or an always-on server. Waymark only has to work correctly in both. It cannot control the timeout of an AI app or of a host.
+
+## `init` runs through the agent, and the author comes from the sign-in — 2026-11-15
+
+**Decision:** A new memory repository is set up by the agent with the existing `init` tool, on an empty repository that the person created on GitHub. The tool does not change. In HTTP mode the commit author comes from the sign-in identity. A hidden email becomes the no-reply address of GitHub.
+
+**Alternatives considered:** A separate setup step for `init` — rejected: the tool already handles the empty state and the same-session switch to `ready`.
+
+**Reason:** Nothing new to build for first use, and the author rule stays the same: the commit belongs to the person.
+
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
 **Decision:** Because the server stores nothing and the private key stays in the host's secret store, the principle "Secrets stay with Git — waymark never stores or passes a Git secret" holds unchanged.
