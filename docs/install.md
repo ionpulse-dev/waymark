@@ -4,6 +4,8 @@ waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a loc
 
 This guide is for people and for AI agents that install waymark for a person. The "Quick path" lists every step. The section "Install the binary" is owned by the `distribution` spec. The section "Agent tools" is owned by the `agent-tool-setup` spec. The facts and sources behind each snippet are in [agent-tools-research.md](agent-tools-research.md).
 
+<br/>
+
 ## Index
 
 - [Quick path](#quick-path)
@@ -24,6 +26,8 @@ This guide is for people and for AI agents that install waymark for a person. Th
 - [Update waymark](#update-waymark)
 - [Remove waymark](#remove-waymark)
 
+<br/>
+
 ## Quick path
 
 **Requirements:** macOS on Apple silicon or Linux on x86_64, and `git` 2.28 or newer installed.
@@ -41,7 +45,11 @@ Follow these steps in order. If you are an AI agent, do them for the person. Ask
 
 A team does the steps once. Everyone else follows steps 1, 3, and 4 with the same URL (see "Share a memory repository with a team").
 
+<br/>
+
 ## Install the binary
+
+<br/>
 
 ### macOS (Apple silicon)
 
@@ -50,6 +58,8 @@ Install with Homebrew:
 ```bash
 brew install ionpulse-dev/tap/waymark
 ```
+
+<br/>
 
 ### Linux (x86_64)
 
@@ -82,6 +92,8 @@ To build from source instead, see [development.md](development.md).
 
 `git` must work and be signed in to your Git host (an SSH key, or `gh auth login`). waymark never sees a Git secret.
 
+<br/>
+
 ## Where the memory repository lives
 
 waymark keeps the memory repository in a folder on your computer. You give it `--repo` (the Git URL), `--path` (a folder), or both. One of them is required. `<name>` is the repository name from the URL, without `.git`.
@@ -104,6 +116,8 @@ waymark keeps the memory repository in a folder on your computer. You give it `-
 - **Most people need only `--repo`.** waymark clones into `~/.waymark/<name>` and you never handle the clone. Use `--path` to keep the repository in a visible folder, for example as an Obsidian vault.
 - **First start.** The clone runs in the background, so your tool starts at once. `status` shows the state and the folder in use.
 
+<br/>
+
 ## Agent tools
 
 waymark installs nothing into your agent tools and ships no skill. You add one MCP entry, and you write your own rules in `AGENTS.md`. Every entry uses the server name `waymark`, so that an entry in a project can override an entry of the same name for the user (see `project-binding`).
@@ -111,6 +125,8 @@ waymark installs nothing into your agent tools and ships no skill. You add one M
 Replace the repository URL with the URL of your memory repository. Add `--path <folder>` to the arguments to choose where the clone lives (see "Where the memory repository lives"). The author name and email are optional. Without them, waymark uses the Git name and email of the person. The examples use `example.org`.
 
 The first time a tool starts a server from a project file, the tool may ask you to approve it. Claude Code does. GitHub Copilot CLI asks you to trust the folder.
+
+<br/>
 
 ### Any tool (generic entry)
 
@@ -127,6 +143,8 @@ A tool that starts an MCP server over stdio needs only a command and arguments.
   }
 }
 ```
+
+<br/>
 
 ### Claude Code
 
@@ -200,6 +218,8 @@ A mode without prompts (`bypassPermissions`) skips permission prompts. Whether a
 
 To remove the entry: `claude mcp remove waymark`.
 
+<br/>
+
 ### OpenAI Codex
 
 Add the table to `~/.codex/config.toml` (user). A trusted project may use `.codex/config.toml` in the project root. Or run `codex mcp add waymark -- waymark --repo git@github.com:example/waymark-agent-memory.git`.
@@ -219,6 +239,8 @@ WAYMARK_AUTHOR_EMAIL = "jane@example.org"
 `default_tools_approval_mode = "writes"` asks before the tools that are not marked read-only. Whether Codex uses the read-only hint of waymark for this is unverified. The default start time-out of 10 seconds is enough: waymark answers `initialize` at once. Whether a project entry overrides a user entry of the same name in Codex is unverified.
 
 To remove the entry: delete the table `[mcp_servers.waymark]` and its `env` table from `config.toml`.
+
+<br/>
 
 ### GitHub Copilot in VS Code
 
@@ -244,6 +266,8 @@ Write `.vscode/mcp.json` in the project. Click **Start** above the entry, open C
 An entry for all your projects goes in the personal `settings.json` of VS Code. The exact key is unverified, so use one location for each server. How Copilot asks before a write tool, and where to set it, is unverified. Check the permission settings of the tool.
 
 To remove the entry: delete the `waymark` entry in `.vscode/mcp.json`.
+
+<br/>
 
 ### GitHub Copilot CLI
 
@@ -271,11 +295,15 @@ The `tools` field chooses which tools exist. It is not an approval setting. How 
 
 To remove the entry: delete the `waymark` entry in the JSON file.
 
+<br/>
+
 ## Agent rules and skills (`AGENTS.md`)
 
 waymark installs nothing into your agent tools and ships no skill binary. You write your own rules in `AGENTS.md` in your project or repository root (or your tool's instruction file).
 
 Suggestions only. waymark does not insert or check these texts. Choose one of the two styles below and adapt it to your team's needs.
+
+<br/>
 
 ### Balanced: read alone, write on request
 
@@ -289,6 +317,8 @@ Write only when the person asks, or after you ask "Save this?" and they say yes.
 One topic per document, with a one-line description. Update before you add.
 Never write secrets, tokens, or personal data.
 ```
+
+<br/>
 
 ### Proactive: the agent decides, undo is the safety net
 
@@ -304,9 +334,13 @@ reason. Tell the person in one line what you saved.
 Never write secrets, tokens, or personal data.
 ```
 
+<br/>
+
 ## Check that waymark works
 
 Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.
+
+<br/>
 
 ## Share a memory repository with a team
 
@@ -322,6 +356,8 @@ A project shares its memory repository through the MCP entry in the project (for
 - Use the same server name in the personal and the project entry. In the agent tools that were checked, the project entry wins in the project.
 - Other tools wait up to 60 seconds for a running clone. A clone that takes more than 5 minutes stops. Clone the repository by hand into the folder (see "Where the memory repository lives") and start again.
 - `status` shows the state: `cloning`, `ready`, `empty`, `not_a_memory_repository`, or `broken`.
+
+<br/>
 
 ## Tighten the limits
 
@@ -354,6 +390,8 @@ required_for = ["delete_document", "update_document"]   # or ["write"] for every
 
 waymark then asks you in the agent tool (MCP elicitation) after all checks passed and before the commit. The question shows the tool, the author, and the full text. You tick "Approve this write" and accept. Decline, cancel, a box that is not ticked, or no answer in 2 minutes means nothing is written (`approval_denied`). A client that cannot show the question gets `approval_unavailable`, and nothing is written. A `preview` never asks. This guards against mistakes. A client hook can answer the question automatically, so it does not stop a deliberate bypass. The other way to get a yes is the permission prompt of your agent tool (see the permission advice above).
 
+<br/>
+
 ## Update waymark
 
 Update the binary the way you installed it. With Homebrew:
@@ -369,6 +407,8 @@ The tool descriptions come with the binary. The new version applies at the next 
 **When a team's memory repository needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This memory repository needs a newer waymark". Update waymark (`brew upgrade waymark` with Homebrew, or the way you installed it) and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
 
 **When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
+
+<br/>
 
 ## Remove waymark
 

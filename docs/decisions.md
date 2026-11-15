@@ -2,6 +2,8 @@
 
 Decisions that apply to the whole project. Decisions that belong to one spec are in the `decisions.md` of that spec. Never delete an entry. Add new ones, and mark a replaced one as superseded.
 
+<br/>
+
 ## Index
 
 - [Storage is Markdown in Git, and nothing else — 2026-11-06](#storage-is-markdown-in-git-and-nothing-else--2026-11-06)
@@ -36,6 +38,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 ---
 
+<br/>
+
 ## Storage is Markdown in Git, and nothing else — 2026-11-06
 
 **Decision:** Documents are Markdown files in a Git repository. There is no backend interface and no wiki backend such as Confluence.
@@ -45,6 +49,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** One storage keeps the tool small and lets every feature use Git fully: local search, blame per line, history, and undo. Reasons against a wiki as agent knowledge: pages are long and mix current and old content, so agents load too much; every read is an API call that is slow and rate-limited; there are no format or secret checks before a write; history is per page version, not per line; the page format is not plain Markdown; and it needs a license, while admins often restrict write access through the API.
 
+<br/>
+
 ## Everything runs locally, no servers that we operate — 2026-11-06
 
 **Decision:** The Git remote belongs to the owner. The project operates no servers.
@@ -52,6 +58,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Reason:** A hard user constraint. The only shared part is the Git host that the owner already has.
 
 **Amended by:** MCP is the only interface for agents. The part "no servers that we operate" stays valid. The part "everything runs locally" is widened by a second mode that anyone can host. See "Two modes" below and [architecture-direction.md](architecture-direction.md).
+
+<br/>
 
 ## No cloud agents — 2026-11-06
 
@@ -61,11 +69,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Amended by:** MCP is the only interface for agents. There is no skill. In server mode, a person's login stands for the local session. Every agent action still belongs to a person.
 
+<br/>
+
 ## Users need no Git knowledge — 2026-11-06
 
 **Decision:** waymark does all Git work. Users never see a branch, a commit, or a conflict.
 
 **Reason:** Managers and other non-developers are users too.
+
+<br/>
 
 ## A generic, open source product — 2026-11-06
 
@@ -73,11 +85,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** Private people want their own AI memory under their control, and other companies can use the same tool.
 
+<br/>
+
 ## The name is `waymark` — 2026-11-06
 
 **Decision:** The product and CLI are named `waymark`.
 
 **Reason:** A waymark is a marker on a trail: each traveler leaves a mark for the next one, and agents do the same with knowledge. The name is easy to say and type, and a search found no developer tool or AI project with the same name.
+
+<br/>
 
 ## The specification is public — 2026-11-08
 
@@ -85,25 +101,33 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** In spec-driven development the spec and the code share one checkout, and contributors must see the spec to improve it.
 
+<br/>
+
 ## Sources of the design problem — 2026-11-06
 
 **Decision:** The hard problems are write quality, concurrent writes, and staleness, not storage. The design starts with the file layout and the write rules for these three.
 
 **Reason:** Git plus Markdown is a good base: every agent can read files and use Git, history, blame, and review come free, and there is no lock-in. Up to some thousand files, plain search is enough.
 
+<br/>
+
 ## The standalone skill is a separate project — 2026-11-08
 
 **Decision:** The plain-Git rules for agents without the CLI are the `waymark-trail` skills, in their own repository. waymark depends on them, never the other way around.
 
-**Amended by:** "The MKBase standard lives in this repository" below. The standard moved here. The home of the skills after `waymark-trail` is retired is open (see [open-questions.md](next-steps/open-questions.md)).
+**Amended by:** "The MKBase standard lives in this repository" below. The standard moved here. The home of the skills after `waymark-trail` is retired is open.
 
 **Reason:** They are useful without waymark and can spread on their own.
+
+<br/>
 
 ## License and copyright holder — 2026-11-08
 
 **Decision:** MIT license. The copyright holder is IonPulse, the company behind the project's GitHub organization, not a person. The Unlicense and CC0 were rejected: the rights of an author cannot be fully waived in some countries (for example Austria and Germany), and the Unlicense has no fallback license.
 
 **Reason:** MIT is simple and permissive, and the holder should be the organization that owns the repositories.
+
+<br/>
 
 ## MCP is the only interface for agents — 2026-11-11
 
@@ -118,11 +142,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Supersedes:** "No MCP server first" in `specs/foundation/cli-core/decisions.md` (to be marked there when `cli-core` is revised).
 
+<br/>
+
 ## The server enforces, the team advises — 2026-11-11
 
 **Decision:** Hard rules live in the server as limits: format, size, secrets, duplicates, result caps, a read budget per session, access mode, and which tools exist. Behavior advice is not built in. There are no tools to change limits or credentials.
 
 **Reason:** Text can be ignored, code cannot. A limit makes the wrong action impossible, and a clear rejection message teaches the agent.
+
+<br/>
 
 ## Two modes, one core — 2026-11-11
 
@@ -134,11 +162,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** Local mode needs no infrastructure. Central limits, single sign-on, one Git credential for an organization, and audit need a shared server. One core serves both.
 
+<br/>
+
 ## No macOS app — 2026-11-11
 
 **Decision:** The macOS app is dropped. Setup uses the MCP config and the Git login of the person. Approval uses client prompts, elicitation, and a web console in server mode.
 
 **Reason:** The app's real value was a channel that the agent cannot reach. A web console with a separate sign-in gives the same, on every OS. The app is a large cost for one OS.
+
+<br/>
 
 ## The permission ceiling is layered — 2026-11-11
 
@@ -146,11 +178,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** In local mode a user controls their own machine, so a ceiling guards against mistakes only. In server mode the operator needs limits that the user cannot change.
 
+<br/>
+
 ## Git credentials stay out of waymark and out of the agent — 2026-11-11
 
 **Decision:** In local mode, Git uses its own login (SSH key or credential helper). In server mode, the secret comes from the secret store of the host. The commit author is the person who used the agent. The push credential is separate.
 
 **Reason:** The agent and the MCP config must never hold a secret. Separating the push credential from the author keeps the commit history correct, whatever the credential is.
+
+<br/>
 
 ## Specs are superseded, never deleted — 2026-11-11
 
@@ -162,11 +198,15 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** The specification describes the current state, and the history of why it changed stays readable.
 
+<br/>
+
 ## The specification follows the MCP-only direction — 2026-11-11
 
 **Decision:** All specs were rewritten for the direction above on the same day. Five specs are superseded: `cli-core`, `agent-skill`, `mac-app`, `app-link`, and `approval-dialog`. Five are new: `mcp-server`, `server-mode`, `multi-tenancy`, `write-approval`, and `web-console`. Every spec stays `draft`.
 
 **Reason:** The state of the repository should reflect the new direction completely. See [architecture-direction.md](architecture-direction.md).
+
+<br/>
 
 ## The MKBase standard lives in this repository — 2026-11-11
 
@@ -177,6 +217,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 - Keep it in `waymark-trail`. That repository is to be taken down.
 
 **Reason:** One repository, one spec workflow, and no second copy to keep in step. See `specs/foundation/document-format/decisions.md`.
+
+<br/>
 
 ## Current scope: local mode on macOS, delivered by Homebrew — 2026-11-14
 
@@ -192,6 +234,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** The fastest path to a binary that people can install is local mode on one platform. Everything else builds on it.
 
+<br/>
+
 ## Feature spec consistency pass (C20) — 2026-11-14
 
 **Decision (decided autonomously):** The 19 in-scope feature specs were checked together. Tool names, error codes, and `requires` agree with each other and with `src/error.rs` and `trust-model`. No cycle exists in `requires`. One order fix: `create-memory-repository` requires `plain-git-access`, so `plain-git-access` is implemented first. The `console` value of `approval.via` is out of scope. `write-approval` returns `approval_unavailable` for it. `create-memory-repository` still accepts the value in its input, and its tool must pass it on to that error path.
@@ -199,6 +243,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 **Implementation order:** write-documents, search-and-read, quality-checks, manual-edits, move-documents, activity-and-undo, verification, pause-and-resume, write-approval, project-binding, session-start, agent-tool-setup, login-and-identity, join-memory-repository, plain-git-access, create-memory-repository, updates, notifications-and-review, maintenance.
 
 **Reason:** `requires` says a spec may start only when its prerequisites are `implemented`.
+
+<br/>
 
 ## Vocabulary: agent memory and memory repository — 2026-11-14
 
@@ -208,6 +254,7 @@ only as a use case. The earlier entries of this file keep their original words,
 because they record what was said at the time. The rules and the reasons are in
 the spec [terminology](../specs/foundation/terminology/decisions.md).
 
+<br/>
 
 ## The `index` tool is removed — 2026-11-14
 
@@ -215,6 +262,8 @@ the spec [terminology](../specs/foundation/terminology/decisions.md).
 `index.md` is a normal document. The older entries of this file and of the
 feature specs keep their words. The reasons are in the spec
 [remove-index](../specs/foundation/remove-index/decisions.md).
+
+<br/>
 
 ## Tool names follow one scheme, and tools grow in five steps — 2026-11-15
 
@@ -224,6 +273,8 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** An agent that has learned one tool can guess the next one. A rename must never loosen a limit. The details are in the `decisions.md` of each spec.
 
+<br/>
+
 ## A remote MCP server for one person is drafted — 2026-11-15
 
 **Decision:** A new foundation spec, [personal-server](../specs/foundation/personal-server/requirements.md), describes a remote MCP server for one person. It is for phone apps and other MCP clients. It has a sign-in door of its own, "Sign in with GitHub" for one account, Git access through a GitHub App, no stored state, and one setup guide for agents and people. It stays `draft`. The decision "server mode is out of scope for now" is not changed. The spec waits until the product owner changes the scope.
@@ -231,6 +282,8 @@ feature specs keep their words. The reasons are in the spec
 **Alternatives considered:** Extend `server-mode` (rejected: it is built for organizations, with roles and tenancy). Wait with the design (rejected: the design shapes later work, and a draft costs nothing).
 
 **Reason:** The product owner wants a personal remote knowledge base that is as easy as possible for technical people. The reasons for each choice are in the `decisions.md` of the spec.
+
+<br/>
 
 ## Linux on x86_64 comes back into scope, first — 2026-11-15
 
@@ -242,6 +295,7 @@ feature specs keep their words. The reasons are in the spec
 
 **Added the same day:** The maintainer works on macOS only. So the spec also delivers a development container and `make linux-*` commands, which run all work in a Linux container on the Mac. That container is arm64 on Apple silicon, so build and tests are in scope for Linux arm64 and x86_64. The first release archive is still x86_64 only.
 
+<br/>
 
 ## Leaner tools: `list` joins `search`, small edits get small calls — 2026-11-15
 
@@ -251,11 +305,15 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** The tool schemas cost context in every session. Merging two read tools and shortening repeated texts saves more than the new parameters cost, and an agent that follows a hint must never land on a tool that does not exist.
 
+<br/>
+
 ## Linux support is implemented — 2026-11-15
 
 **Decision:** The spec [linux-support](../specs/foundation/linux-support/requirements.md) is `implemented`. waymark builds, passes all 633 tests, and runs on Linux (arm64 native in the development container, x86_64 through emulation). The release workflow (still disabled) adds a Linux x86_64 archive. The Linux install steps carry a note until the maintainer checks them once on a clean Linux machine.
 
 **Reason:** The first Linux run found a serious bug: a `kill` call that killed every process of the user on Linux. It is fixed, and it is in the changelog. Server mode, multi-tenancy, sign-in, and the web console stay out of scope.
+
+<br/>
 
 ## The personal server is built, and tested in real use at the end — 2026-11-15
 

@@ -5,6 +5,8 @@ Research from 2026-11-06. Star counts are a snapshot.
 **Result:** no mature project does what waymark plans. The close ones are
 small and new. The big ones are single-user memory tools.
 
+<br/>
+
 ## Index
 
 - [Projects](#projects)
@@ -19,6 +21,8 @@ small and new. The big ones are single-user memory tools.
   - [Gap that waymark could fill](#gap-that-waymark-could-fill)
 - [Obsidian and Obsidian Sync](#obsidian-and-obsidian-sync)
 
+<br/>
+
 ## Projects
 
 | Project | What it is | Storage | Agent access | Trust and review | Maturity |
@@ -32,7 +36,11 @@ small and new. The big ones are single-user memory tools.
 | Cline Memory Bank and clones (for example [memory-bank-mcp](https://github.com/alioshr/memory-bank-mcp)) | Fixed set of Markdown files that the agent reads each session | Markdown | Instructions or MCP | None, single user | Pattern, clones mostly stale |
 | [MADR](https://github.com/adr/madr), [log4brains](https://github.com/thomvaill/log4brains) | Decision record format and site | Markdown | Not agent-aware | Normal PR review | MADR active, log4brains dormant |
 
+<br/>
+
 ## Lessons for waymark
+
+<br/>
 
 ### Copy
 
@@ -43,6 +51,8 @@ small and new. The big ones are single-user memory tools.
 - **Honest output.** teamctx says plainly what it could not check. waymark output says "unverified" and "not checked" in plain words.
 - **MADR as the template** for documents that record a decision.
 
+<br/>
+
 ### Avoid
 
 - Anonymous writes. basic-memory lets agents write directly with no trace of the person. A wrong or poisoned note then spreads. waymark writes every commit under the person's Git account, so blame shows who is responsible.
@@ -50,6 +60,8 @@ small and new. The big ones are single-user memory tools.
 - Support for only one agent tool.
 - A cloud or database dependency.
 - A full dump of the memory into the agent context.
+
+<br/>
 
 ### Different on purpose
 
@@ -59,11 +71,15 @@ small and new. The big ones are single-user memory tools.
 - Autonomy is a personal setting. teamlore always needs a human pull request merge, which is strong but slow.
 - Three agent tools from day one.
 
+<br/>
+
 ## Not verified
 
 - Which `teamctx` repository is meant by the early research.
 - Trust and staleness behavior of repertory and waypost.
 - Whether Cline Memory Bank has a review step.
+
+<br/>
 
 ## Personal AI memory with a self-hosted MCP server
 
@@ -73,6 +89,8 @@ ChatGPT through a self-hosted remote MCP server?
 
 **Result:** no mature tool does exactly this. The pieces exist, but not
 together.
+
+<br/>
 
 ### Connectors of the AI apps
 
@@ -84,6 +102,8 @@ together.
 - **ChatGPT:** "developer mode" with MCP connectors on paid plans. Write
   actions may be limited to business plans. Not verified from OpenAI
   directly (the help page refused automated access).
+
+<br/>
 
 ### Closest tools
 
@@ -99,6 +119,8 @@ together.
 Also Git and Markdown, aimed at coding agents, remote not verified:
 `danielmarbach/mnemonic`, `okf-memory/okf-agent-memory`, `krimto-labs/krimto`.
 
+<br/>
+
 ### Gap that waymark could fill
 
 - Git-first documents (one topic per file) with a remote MCP front end that
@@ -110,6 +132,8 @@ Also Git and Markdown, aimed at coding agents, remote not verified:
 - Small tool set (search, read, add, update) and a read-only mode.
 - The same file format for the local CLI and the MCP server, so local
   agents and the chat apps share one memory.
+
+<br/>
 
 ## Obsidian and Obsidian Sync
 

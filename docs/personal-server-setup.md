@@ -6,6 +6,8 @@ This guide is written for an AI agent to follow, and a person can read it as a r
 
 > **Status:** The server is built and tested against a fake GitHub. It is **not yet tested against the real apps and a real GitHub App**. Steps and notes that depend on that are marked **to test in real use**. If a step fails, tell the maintainer what you saw.
 
+<br/>
+
 ## Index
 
 - [Rules for the agent](#rules-for-the-agent)
@@ -24,6 +26,8 @@ This guide is written for an AI agent to follow, and a person can read it as a r
 - [Sign out every app](#sign-out-every-app)
 - [What the server logs](#what-the-server-logs)
 
+<br/>
+
 ## Rules for the agent
 
 - Do the steps in order. Do one step at a time.
@@ -31,11 +35,15 @@ This guide is written for an AI agent to follow, and a person can read it as a r
 - **Never print a secret in the chat.** This covers the signing key, the private key of the GitHub App, the client secret, and every token. Do not ask the person to paste one into the chat. A secret goes only into the secret store of the host.
 - Ask the person one question at a time.
 
+<br/>
+
 ## What you need
 
 - A GitHub account that owns the memory repository.
 - A host that runs a container image and shows you a public HTTPS address. It can run all the time or start for each request. The host provides the certificate. Waymark speaks plain HTTP behind it and listens on `$PORT` (default 8080).
 - `git` 2.31 or newer on the host (the image has it).
+
+<br/>
 
 ## The settings
 
@@ -62,6 +70,8 @@ The server refuses to start when a required setting is missing, and the message 
 
 Server limits (read-only access, paused writes, and so on) go into a config file that you mount and name with `WAYMARK_SYSTEM_CONFIG`. See [install.md](install.md) for the format.
 
+<br/>
+
 ## Step 1. Create the memory repository (Person)
 
 **Do:** On GitHub, create an **empty private** repository, for example `memory`. Do not add a README. Note its HTTPS clone URL.
@@ -69,6 +79,8 @@ Server limits (read-only access, paused writes, and so on) go into a config file
 **You should see:** An empty repository with no commit.
 
 **If not:** A repository with files is fine too if it already is a memory repository. For a new one, keep it empty.
+
+<br/>
 
 ## Step 2. Make the signing key (Person)
 
@@ -79,6 +91,8 @@ openssl rand -base64 48
 ```
 
 **You should see:** A line of 64 characters.
+
+<br/>
 
 ## Step 3. Create the GitHub App (Person)
 
@@ -101,11 +115,15 @@ Then create the App. On the App page:
 
 **You should see:** An App ID, a client ID, a client secret, and a `.pem` file.
 
+<br/>
+
 ## Step 4. Install the App on the one repository (Person)
 
 **Do:** On the App page open Install App, choose your account, choose **Only select repositories**, and select the memory repository. After the install, look at the address of the page. It ends in `/installations/<number>`. That number is the installation number.
 
 **You should see:** The memory repository, and no other, in the list of the installation.
+
+<br/>
 
 ## Step 5. Deploy the image and set the secrets (Person or agent, with the person's host login)
 
@@ -128,9 +146,13 @@ Set `WAYMARK_PUBLIC_URL` to the address that the host gives you. Make the health
 
 **Cold start:** On a host that starts the server for each request, the first call after a pause clones the repository again. A large repository can take longer than the wait of the AI app or of the host. Then the first call fails with "Call again in a minute", and the next call works. Pick a host that keeps the process running if this is a problem.
 
+<br/>
+
 ## Step 6. Update the callback address (Person)
 
 **Do:** If you used a placeholder in step 3, edit the Callback URL of the GitHub App to `<WAYMARK_PUBLIC_URL>/callback`.
+
+<br/>
 
 ## Step 7. Connect an app (Person)
 
@@ -153,17 +175,23 @@ WAYMARK_SIGNING_KEY='<the key from step 2>' waymark --print-client
 
 It prints a client ID and a client secret that are derived from the key. Enter them in the app. The redirect address of the app must be an `https://` address.
 
+<br/>
+
 ## Step 8. Set up the memory repository
 
 **Do:** If the repository is empty, ask your agent in the connected app: "Set up my waymark memory repository and call it <name>." The agent calls `status`, which says that the repository is empty, and then `init`. `init` commits and pushes to the repository.
 
 **You should see:** The first commit appears on GitHub, with your name and your verified email as the author.
 
+<br/>
+
 ## Step 9. Check
 
 1. Open `<WAYMARK_PUBLIC_URL>` in a browser. The status page opens.
 2. In the connected app, ask: "Search my waymark memory for anything."
 3. Ask the agent to save one document, then look at the history of the repository on GitHub. The commit author is you.
+
+<br/>
 
 ## If something fails
 
@@ -176,9 +204,13 @@ It prints a client ID and a client secret that are derived from the key. Enter t
 | A write fails with a sign-in error for Git | The App is not installed on the repository, or it has no Contents write permission. |
 | An app asks you to sign in again and again | The signing key changed, or the app does not accept the renewal token. Tell the maintainer. **To test in real use.** |
 
+<br/>
+
 ## Sign out every app
 
 Change `WAYMARK_SIGNING_KEY` and restart the server. Every token stops working and every app signs in again. A single app cannot be signed out on its own.
+
+<br/>
 
 ## What the server logs
 

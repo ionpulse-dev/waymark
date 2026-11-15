@@ -115,7 +115,7 @@ For all options and every step, follow the [install guide](docs/install.md).
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
 - [Waymark Memory Standard](standard/waymark-1.0.md): the document format.
 - [Specifications](specs/INDEX.md) and [how this project is built](specs/WORKFLOW.md).
-- [Roadmap](docs/next-steps/roadmap.md), [ideas](docs/ideas.md), [project decisions](docs/decisions.md).
+- [Ideas](docs/ideas.md), [project decisions](docs/decisions.md).
 
 <br/>
 

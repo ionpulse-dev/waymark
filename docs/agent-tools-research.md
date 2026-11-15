@@ -6,6 +6,8 @@ Research for `specs/features/agent-tool-setup`. It records what is known on 2026
 
 The entry for waymark has the server name `waymark` in all tools. The examples use `example.org`.
 
+<br/>
+
 ## Index
 
 - [Claude Code](#claude-code)
@@ -13,6 +15,8 @@ The entry for waymark has the server name `waymark` in all tools. The examples u
 - [GitHub Copilot](#github-copilot)
 - [Other tools](#other-tools)
 - [Open items](#open-items)
+
+<br/>
 
 ## Claude Code
 
@@ -60,6 +64,8 @@ Permission rules (`~/.claude/settings.json`): allow the read tools, ask for the 
 }
 ```
 
+<br/>
+
 ## OpenAI Codex
 
 Source: `https://developers.openai.com/codex/mcp`, which redirects to `https://learn.chatgpt.com/docs/extend/mcp?surface=cli`, read on 2026-11-14. The ChatGPT desktop app, the Codex CLI, and the IDE extension share this configuration.
@@ -89,6 +95,8 @@ WAYMARK_AUTHOR_EMAIL = "jane@example.org"
 ```
 
 The first clone runs in the background, so the default start time-out of 10 seconds is enough (see `specs/features/join-memory-repository`).
+
+<br/>
 
 ## GitHub Copilot
 
@@ -138,9 +146,13 @@ CLI entry (`~/.copilot/mcp-config.json`):
 }
 ```
 
+<br/>
+
 ## Other tools
 
 Any tool that starts an MCP server over stdio can use the command `waymark` with the arguments of `specs/foundation/mcp-server/requirements.md`. This is the generic entry. It is not verified against any tool beyond the three above.
+
+<br/>
 
 ## Open items
 

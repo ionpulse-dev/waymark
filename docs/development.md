@@ -2,6 +2,8 @@
 
 waymark is built and tested on macOS with Apple silicon and on Linux (x86_64 and arm64). The work follows the spec-driven process in [specs/WORKFLOW.md](../specs/WORKFLOW.md).
 
+<br/>
+
 ## On macOS or Linux
 
 Clone the repository and run:
@@ -14,6 +16,8 @@ make check
 `make setup` checks what is missing. On macOS it can install `rustup` with Homebrew. On Linux it never runs a package manager: it tells you the command (you need `git` 2.28 or newer, `make`, a C compiler, and `rustup`; on Ubuntu or Debian: `sudo apt install git build-essential`, then install `rustup` from <https://rustup.rs>). `make doctor` shows what is ready.
 
 `make help` lists every command: build, test, lint, run, and release preparation.
+
+<br/>
 
 ## In a Linux container (on a Mac)
 
@@ -39,6 +43,8 @@ How it works:
 - `.devcontainer/devcontainer.json` lets an editor attach to the same container.
 
 If the runtime is not running, the commands say: "Start OrbStack (or your container runtime) and try again."
+
+<br/>
 
 ## For AI agents on a Mac
 

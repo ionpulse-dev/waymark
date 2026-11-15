@@ -2,6 +2,8 @@
 
 Status: agreed in a design discussion on 2026-11-11. All specs were revised to match it on the same day. They are all `draft`, and each needs review and approval before implementation starts. The section "Impact on the specs" records what changed.
 
+<br/>
+
 ## Index
 
 - [Summary](#summary)
@@ -17,6 +19,8 @@ Status: agreed in a design discussion on 2026-11-11. All specs were revised to m
 - [Impact on the specs](#impact-on-the-specs)
 - [Open questions](#open-questions)
 
+<br/>
+
 ## Summary
 
 waymark is **one binary**. It is an MCP server and it holds all logic: documents, Git work, checks, and limits. MCP is the **only interface for agents**. There is no CLI for agents, and waymark does not ship or install a skill. Teams describe the behavior they want in their own `AGENTS.md`. The README only gives examples.
@@ -24,6 +28,8 @@ waymark is **one binary**. It is an MCP server and it holds all logic: documents
 ```text
 agent tool or chat app ⇄ MCP ⇄ waymark (core: documents, checks, Git) ⇄ Git repository of the owner
 ```
+
+<br/>
 
 ## Why MCP and not a CLI with a skill
 
@@ -36,6 +42,8 @@ agent tool or chat app ⇄ MCP ⇄ waymark (core: documents, checks, Git) ⇄ Gi
 
 Costs: the tool schemas use context in every session, so the tool set must stay small. Agents without MCP support cannot use waymark. The standalone plain-Git skill remains the fallback for them.
 
+<br/>
+
 ## Principles
 
 1. **The server enforces, the team advises.** Hard rules live in the server: format, size, secrets, links, duplicates, result caps, a read budget per session, access mode, and which tools exist. Behavior advice ("read at most 5 documents") becomes a limit in the server. What an agent does and when, is the choice of the team, written in its `AGENTS.md`.
@@ -44,6 +52,8 @@ Costs: the tool schemas use context in every session, so the tool set must stay 
 4. **No control tools.** There is no tool to change limits, the access mode, or credentials. An agent can never loosen its own limits.
 5. **Git credentials never pass through the agent.** See "Credentials".
 6. **Git stays the source of truth.** A deployment never owns the data. It holds a cache clone of the Git repository.
+
+<br/>
 
 ## One core, two modes
 
@@ -56,6 +66,8 @@ The core has no knowledge of the transport. The same tools and the same logic ru
 
 Anyone can host the server mode: a company on its own infrastructure, or a provider for others. The same code serves both. The question whether the project itself operates a hosted service is not decided here. The decision "no servers that we operate" stays valid until it is changed on purpose.
 
+<br/>
+
 ### Build order
 
 1. Core and local mode (stdio). This is the first usable product and the quick start.
@@ -63,6 +75,8 @@ Anyone can host the server mode: a company on its own infrastructure, or a provi
 3. Multi-tenant server mode on top of step 2.
 
 Tenancy goes into the data model from step 1, so it does not have to be added later.
+
+<br/>
 
 ### Server mode components
 
@@ -78,6 +92,8 @@ client ⇄ MCP over HTTPS ⇄ [ identity | tenancy | policy | credentials | audi
 - **Workspace.** One cache clone per memory repository, with a write lock.
 - **Audit log.** Who did what, and when.
 - **Web console.** A web page for approval of writes, the activity list, and undo. The person signs in separately, so the agent cannot answer it. It replaces the macOS app.
+
+<br/>
 
 ## Configuration and limits
 
@@ -97,6 +113,8 @@ The MCP config entry of the agent tool starts the server and passes arguments an
 
 The server clones the repository on first start. No separate init or setup command is needed.
 
+<br/>
+
 ### Permission ceiling
 
 A ceiling is the most that the server ever allows. Layers, from loosest to strictest source:
@@ -112,6 +130,8 @@ A ceiling is the most that the server ever allows. Layers, from loosest to stric
 
 Possible ceilings: access mode (read-only or read-write), allowed tools (no delete, no move), allowed folders, result caps, size caps, and a read budget per session.
 
+<br/>
+
 ### Credentials
 
 | Where | How |
@@ -120,11 +140,15 @@ Possible ceilings: access mode (read-only or read-write), allowed tools (no dele
 | Server mode | Stored in the secret store of the host, passed as an environment variable or a mounted file. Never in the image, the repository, or the MCP config. |
 | Server mode, later | A web page where the person connects a Git account with "Sign in with GitHub". The server then stores tokens encrypted at rest. |
 
+<br/>
+
 ## What MCP can and cannot do
 
 **Can:** give every MCP client the same tools; run remotely for chat apps and phones; carry usage instructions to the model; ask the person through the client (elicitation, where supported).
 
 **Cannot:** force the agent to call a tool; prove that a human answered; run work without an open session; show windows or notifications of its own; stop an agent that has a shell from using raw Git in the repository.
+
+<br/>
 
 ## Impact on the specs
 
@@ -150,6 +174,8 @@ Done on 2026-11-11. All specs are `draft`.
 - `foundation/git-sync`, `foundation/distribution`, `foundation/document-format`.
 - All feature specs that remain: the commands became tools, and behavior advice left the specs.
 - `specs/PROJECT.md`, `specs/INDEX.md`, `specs/WORKFLOW.md` (new status `superseded`), and the README.
+
+<br/>
 
 ## Open questions
 

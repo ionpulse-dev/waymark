@@ -2,6 +2,8 @@
 
 Date: 2026-11-14. Scope: the `waymark` binary in local mode on macOS. The review was done by reading the code and by tests (`tests/it_security.rs`). It is not an outside audit.
 
+<br/>
+
 ## What was checked, and the result
 
 | Area | Result |
@@ -17,6 +19,8 @@ Date: 2026-11-14. Scope: the `waymark` binary in local mode on macOS. The review
 | Author fields | A name with a line break does not forge a header. Test S7. |
 | Secrets in results and logs | URLs pass `redact_text`. Test A9 of `login-and-identity` and A10 of `maintenance`. |
 
+<br/>
+
 ## Known limits (accepted)
 
 - A race between the symlink check and the write (time of check, time of use) is not closed. An attacker needs write access to the clone on the same machine.
@@ -28,6 +32,8 @@ Date: 2026-11-14. Scope: the `waymark` binary in local mode on macOS. The review
 # Security review of the personal server
 
 Date: 2026-11-15. Scope: the sign-in door, the tokens, and the Git credential of `--mode personal-server` (spec `personal-server`). It was done by reading the code and by the end-to-end tests (`tests/personal_server.rs`). It is not an outside audit, and the server was not yet tested on the open internet with the real apps.
+
+<br/>
 
 ## What was checked, and the result
 
@@ -46,6 +52,8 @@ Date: 2026-11-15. Scope: the sign-in door, the tokens, and the Git credential of
 | Git credential | Passed to `git` only through the environment of the child process. Never on a command line, on disk, or in the log. Scoped to the host of the repository. Test A33. |
 | Wrong private key | The server stops at start and does not print the key. |
 | Status page | Static. No script, no external file, no cookie, and no private fact. A strict `Content-Security-Policy`. Test A15. |
+
+<br/>
 
 ## Known limits (accepted)
 

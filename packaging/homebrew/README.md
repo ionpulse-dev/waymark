@@ -4,4 +4,3 @@
 
 - `make brew-local` builds the archive, writes the formula into a local tap (`local/waymark`), runs `brew style`, and installs it.
 - `bash scripts/brew-local.sh remove` removes the local install and the local tap.
-- The steps for a real release are in [docs/next-steps/release-checklist.md](../../docs/next-steps/release-checklist.md).
