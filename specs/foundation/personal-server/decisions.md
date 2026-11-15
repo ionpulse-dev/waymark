@@ -115,6 +115,20 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Listen address and HTTPS:** The listen address is `0.0.0.0:$PORT` (default 8080). The connection from the app is HTTPS, with the certificate from the host. Waymark speaks plain HTTP behind it and does not end TLS. It refuses a public URL that does not start with `https://`. This follows `server-mode`.
 
+## A small status page, a plain health answer, and a safe log — 2026-11-15
+
+**Decision:** The address of the server shows a static status page: blue background, "Waymark" in white at the center, a line that the server is running, and a link to the project on GitHub. `/health` gives a plain `ok` for hosts. The server writes a safe log to standard output. It has no log page and stores no log.
+
+**Alternatives considered:**
+- Plain text for the page — rejected: the page is the first thing a person sees after setup, and a small design costs little.
+- A richer public page (version, clone state, repository) — rejected: it is public, so it would tell a stranger what runs here. The `status` tool already tells the owner through the agent.
+- An owner-only log page — deferred: it needs a browser sign-in, and with no stored state it shows only one instance.
+- Webfonts, a script, or an image from outside — rejected: a page with no outside file never breaks, tracks no visitor, and needs no loosened security policy.
+
+**Reason:** A page that looks cared for builds trust at no cost. A public page must stay dumb. The log is for the operator, and the host already shows it, so the work is in what the log may never contain. A test with known secret values proves it.
+
+**Note:** The page names waymark. A visitor can learn that waymark runs at the address. This is accepted because the address is meant for apps, and the page gives no way in.
+
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
 **Decision:** Because the server stores nothing and the private key stays in the host's secret store, the principle "Secrets stay with Git — waymark never stores or passes a Git secret" holds unchanged.

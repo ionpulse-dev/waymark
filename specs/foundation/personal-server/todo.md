@@ -13,6 +13,8 @@ _None. Nothing is implemented._
 - [ ] Setup through the GitHub App manifest flow (one click creates the App and returns all secrets). Could be a command (see `waymark-doctor` in `PROJECT.md`) or only a part of the guide.
 - [ ] Several memory repositories on one server. This changes the rule "one process serves one memory repository" and needs its own decision. Two small servers work today.
 - [ ] Renewal tokens that rotate, with the state this needs.
+- [ ] An owner-only log page. It needs a browser sign-in for the owner (a session, signed like the tokens) and it would show only the current instance on a serverless host. The log on standard output and the log view of the host cover this for now.
+- [ ] More on the status page for the owner (clone state, last pull). The `status` tool already reports this to the owner through the agent.
 - [ ] Other identity providers (Google, a company OIDC login) through the identity interface.
 - [ ] A guide for a second hosting service.
 

@@ -28,7 +28,9 @@ MCP client ⇄ HTTPS (host) ⇄ [ door: discovery · sign-in · tokens ] ⇄ MCP
 The module names are a first idea. The task phase fixes them.
 
 - `src/http/mod.rs` — the HTTP server and the routes.
-- `src/http/health.rs` — the health page.
+- `src/http/health.rs` — the routes for the status page (`/`) and the plain health answer (`/health`).
+- `src/http/status.html` — the static status page. It is included in the binary at build time.
+- `src/log.rs` — the safe log: one line for each start, sign-in, and tool call, with redaction (reuses `src/identity/redact.rs`).
 - `src/auth/mod.rs` — the sign-in door and its routes.
 - `src/auth/discovery.rs` — the metadata that tells a client where and how to sign in.
 - `src/auth/registration.rs` — client registration: a client document by URL, automatic registration, and one manual client.
@@ -103,7 +105,13 @@ At sign-in, after GitHub names the person, the identity step asks GitHub for the
 
 A verified address means that GitHub confirmed that the person can receive mail there. This builds the item "the check against the verified emails of the Git host account", which `login-and-identity` deferred (see its `todo.md`). Waymark holds the GitHub user token only during the sign-in, reads the identity and the email list, and drops it. This is the only use of that token.
 
-### 9. Setup guide
+### 9. Status page, health answer, and log
+- **Status page (`/`).** One static HTML file with inline CSS. It has a blue background, the word "Waymark" in white at the center, a line "The server is running", and a link to `https://github.com/ionpulse-dev/waymark`. It has a viewport tag so that it reads well on a phone. It uses no script, no external file, no font from outside, and no cookie. The page carries the headers `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'` and `X-Content-Type-Options: nosniff`. White text on the blue must have enough contrast (to check with the chosen blue). The page is the same for every visitor. It shows no repository, owner, version, or clone state, so a stranger learns only that waymark runs here.
+- **Health (`/health`).** A plain `ok` with status 200, for the health checks of hosts. It does not touch the clone, so a server that is still cloning is not restarted by the host.
+- **Routes.** The page and the health answer must not shadow the MCP path or the discovery paths of the door (`/.well-known/...`).
+- **Log.** One structured line on standard output for each start, sign-in, and tool call. The fields are fixed in code. Free text from clients and documents never goes into a line. Redaction (`src/identity/redact.rs`) runs over the error text that does go in. A test runs the server with known secret values and searches the output for them. There is no log page and no stored log. The host shows the output. An owner-only log page is deferred (see `todo.md`).
+
+### 10. Setup guide
 One Markdown file for a cloud host and for the GitHub App. The order is: create the empty repository, deploy the server, create the GitHub App and install it on that repository, set the secrets, connect an app, and ask the agent to run `init`. Each step has three parts: what to do, what you should see, and what to do if you do not. Steps that only a person can do are marked. The guide lists the exact names of every secret, says never to print a secret in the chat, and ends with a check: open the address, add the connector, ask one question. A guide for each app (Claude, ChatGPT, Gemini) lists the plan and the steps to add the connector.
 
 ## Dependencies on Other Foundation Items

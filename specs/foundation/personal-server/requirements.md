@@ -26,7 +26,8 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - Background Git access through a GitHub App installed on the one memory repository.
 - A container image.
 - One setup guide for the cloud host and for the GitHub App. It is written so that an agent can follow it and a person can read it as a recipe.
-- A health page that shows that the server is running.
+- A small status page at the address of the server: a blue page with the word "Waymark" in white at the center, a line that says that the server is running, and a link to the project on GitHub. It shows nothing about the memory repository or the owner. A separate plain `/health` answer is for the health checks of hosts.
+- A safe log on standard output: one line for each start, sign-in, and tool call, with no secret and no document text.
 
 ## Scope
 
@@ -58,6 +59,8 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **Pull on request.** The server updates its clone when a request arrives and the clone is old. It has no background timer that a serverless host cannot run.
 - **One argument for the mode.** `--mode` (or `WAYMARK_MODE`) is the only switch between local use and a server. A value that is not known stops the start with a message that lists the values. The mode selects which settings are required. Settings of another mode stop the start. They are not ignored. The tool list is the same in every mode.
 - **HTTPS for clients.** The public URL must start with `https://` (a `localhost` address is allowed for tests). The host provides the certificate. Waymark does not end TLS and listens on `$PORT`, default 8080.
+- **The status page is static and public.** It is the same for every instance and every visitor. It uses no script, no external file, no font from outside, and no cookie. It shows no repository name, owner, clone state, or version. It does not wait for the clone.
+- **The log holds no secret and no document text.** Never in it: tokens, codes, the signing key, the GitHub App key, client secrets, `Authorization` headers, and document text. Allowed: start facts (mode), a sign-in result with the account name, one line per tool call (time, tool, outcome, document ID), and Git errors. The log goes to standard output, and the host shows it. The server stores no log and has no log page.
 - **The data folder is not a setting.** In `personal-server` mode the server uses the temp folder of the system. `--path` is ignored, with one line in the log. The memory repository comes from `WAYMARK_REPO`.
 - **First clone as in local mode.** The clone starts at start and the first tool call waits for it, as in `join-memory-repository`. A wait that is longer than the timeout of the app or of the host is the choice of the host and the plan of the person. It is not a rule of waymark.
 - **The author needs a name and a verified email.** At sign-in the server accepts only an email that GitHub marks as verified and that passes the email check of `login-and-identity`. The no-reply address of GitHub does not pass. If no email passes, the sign-in is refused and no token is issued.
@@ -79,7 +82,12 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **Given** a server limit `access = "read-only"`, **When** a client asks for a write, **Then** the write fails.
 - **Given** a stopped and later started process, **When** the first request arrives, **Then** it is served with no data from before.
 - **Given** the image, **When** it is inspected, **Then** it holds no secret.
-- **Given** a browser, **When** it opens the address of the server, **Then** a short text shows that the server is running and shows no memory content.
+- **Given** a browser, **When** it opens the address of the server, **Then** it shows the blue status page with "Waymark" in white at the center, a line that says that the server is running, and a link to the project on GitHub.
+- **Given** the status page, **When** its source is read, **Then** it holds no script, no external file, and no repository name, owner, version, or clone state.
+- **Given** a clone that is still running, **When** the status page or `/health` is requested, **Then** it answers at once.
+- **Given** a narrow phone screen, **When** the status page opens, **Then** the text is centered, readable, and does not scroll sideways.
+- **Given** a run with known secret values (signing key, App key, client secret, a token, and a document text), **When** sign-ins and tool calls happen, **Then** the log contains none of these values.
+- **Given** any tool call, **When** it ends, **Then** the log has one line with the time, tool, outcome, and document ID.
 - **Given** an empty repository on GitHub with the App installed, **When** the server starts and an agent calls `init` with a name, **Then** the structure and the first commit are on the remote and the same session works with no restart.
 - **Given** `--mode` with an unknown value, **When** the server starts, **Then** it stops and lists the values `local`, `personal-server`, and `team-server`.
 - **Given** `--mode team-server` before it exists, **When** the server starts, **Then** it stops and says that this mode is not available yet.
