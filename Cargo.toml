@@ -1,6 +1,6 @@
 [package]
 name = "waymark"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 rust-version = "1.100"
 description = "Long-term agent memory: an MCP server over plain Markdown in Git."
