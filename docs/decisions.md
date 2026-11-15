@@ -192,3 +192,21 @@ feature specs keep their words. The reasons are in the spec
 
 **Reason:** An agent that has learned one tool can guess the next one. A rename must never loosen a limit. The details are in the `decisions.md` of each spec.
 
+## A remote MCP server for one person is drafted — 2026-11-15
+
+**Decision:** A new foundation spec, [personal-server](../specs/foundation/personal-server/requirements.md), describes a remote MCP server for one person. It is for phone apps and other MCP clients. It has a sign-in door of its own, "Sign in with GitHub" for one account, Git access through a GitHub App, no stored state, and one setup guide for agents and people. It stays `draft`. The decision "server mode is out of scope for now" is not changed. The spec waits until the product owner changes the scope.
+
+**Alternatives considered:** Extend `server-mode` (rejected: it is built for organizations, with roles and tenancy). Wait with the design (rejected: the design shapes later work, and a draft costs nothing).
+
+**Reason:** The product owner wants a personal remote knowledge base that is as easy as possible for technical people. The reasons for each choice are in the `decisions.md` of the spec.
+
+## Linux on x86_64 comes back into scope, first — 2026-11-15
+
+**Decision:** A new foundation spec, [linux-support](../specs/foundation/linux-support/requirements.md), makes waymark build, pass its tests, and run on Linux x86_64. It is `draft`. The spec `personal-server` requires it. The decision of 2026-11-14 "Linux is out of scope" changes for Linux x86_64 when the product owner approves the spec. Server mode, multi-tenancy, sign-in, and the web console stay out of scope.
+
+**Alternatives considered:** Build Linux only inside a container for the server (rejected: the code and the tests would not be proven on Linux, and Linux users of local mode gain nothing). Wait (rejected: servers run Linux, so every later server spec depends on it).
+
+**Reason:** A remote server needs a tested Linux build. On 2026-11-15 waymark already built on Linux and its 214 unit tests passed. The integration tests were not judged in that sandbox, so the first task of the spec is a run on a clean Linux machine.
+
+**Added the same day:** The maintainer works on macOS only. So the spec also delivers a development container and `make linux-*` commands, which run all work in a Linux container on the Mac. That container is arm64 on Apple silicon, so build and tests are in scope for Linux arm64 and x86_64. The first release archive is still x86_64 only.
+
