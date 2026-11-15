@@ -1,6 +1,6 @@
 # Install waymark
 
-waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a local MCP server: your agent tool starts it over stdio for one session.
+waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a local MCP server: your agent tool starts it over stdio for one session. For a remote server for chat apps on a phone (Claude, ChatGPT, Gemini), see [personal-server-setup.md](personal-server-setup.md).
 
 This guide is for people and for AI agents that install waymark for a person. The "Quick path" lists every step. The section "Install the binary" is owned by the `distribution` spec. The section "Agent tools" is owned by the `agent-tool-setup` spec. The facts and sources behind each snippet are in [agent-tools-research.md](agent-tools-research.md).
 
@@ -17,11 +17,11 @@ This guide is for people and for AI agents that install waymark for a person. Th
   - [OpenAI Codex](#openai-codex)
   - [GitHub Copilot in VS Code](#github-copilot-in-vs-code)
   - [GitHub Copilot CLI](#github-copilot-cli)
-  - [Your rules in `AGENTS.md`](#your-rules-in-agentsmd)
-  - [Share a memory repository with a team](#share-a-memory-repository-with-a-team)
-  - [Tighten the limits](#tighten-the-limits)
-- [Update waymark](#update-waymark)
+- [Agent rules and skills (`AGENTS.md`)](#agent-rules-and-skills-agentsmd)
 - [Check that waymark works](#check-that-waymark-works)
+- [Share a memory repository with a team](#share-a-memory-repository-with-a-team)
+- [Tighten the limits](#tighten-the-limits)
+- [Update waymark](#update-waymark)
 - [Remove waymark](#remove-waymark)
 
 ## Quick path
@@ -36,7 +36,7 @@ Follow these steps in order. If you are an AI agent, do them for the person. Ask
 4. **Restart the agent tool.** Approve the `waymark` server if the tool asks.
 5. **Check.** Call the `status` tool. The first clone runs in the background, so the state may be `cloning` for a moment. Call `status` again until it is `ready` or `empty`.
 6. **Set up an empty repository.** If the state is `empty`, call the `init` tool once. It needs a `name` (ask the person) and takes an optional `audience`: `personal` for one person, `team` (the default) for a team.
-7. **Rules for the agent.** Ask the person which of the three suggestions in "Your rules in `AGENTS.md`" they want, and add it to their `AGENTS.md`.
+7. **Rules for the agent.** Ask the person which of the two suggestions in "Agent rules and skills (`AGENTS.md`)" they want (Balanced or Proactive), and add it to their `AGENTS.md`.
 8. **Tell the person it is done** and how to use it: ask their agent to search, save, or update documents in waymark.
 
 A team does the steps once. Everyone else follows steps 1, 3, and 4 with the same URL (see "Share a memory repository with a team").
@@ -271,26 +271,18 @@ The `tools` field chooses which tools exist. It is not an approval setting. How 
 
 To remove the entry: delete the `waymark` entry in the JSON file.
 
-### Your rules in `AGENTS.md`
+## Agent rules and skills (`AGENTS.md`)
 
-waymark ships no behavior text. Three suggestions to copy and change. waymark does not insert or check them.
+waymark installs nothing into your agent tools and ships no skill binary. You write your own rules in `AGENTS.md` in your project or repository root (or your tool's instruction file).
 
-**Manual: use waymark only when asked**
+Suggestions only. waymark does not insert or check these texts. Choose one of the two styles below and adapt it to your team's needs.
 
-<!-- example: agents-md -->
-```text
-Suggestion only. waymark does not insert or check this text.
-Use the waymark tools only when the person asks.
-Search first, then open at most 3 documents.
-Name the author and date when you use a document.
-Never write secrets, tokens, or personal data.
-```
+### Balanced: read alone, write on request
 
-**Balanced: read alone, write on request**
+The agent searches memory at the start of work, but writes only when asked or after confirming with you.
 
 <!-- example: agents-md -->
 ```text
-Suggestion only. waymark does not insert or check this text.
 At the start of a task, search waymark for the topic and open at most 3 documents.
 If a document is old or marked disputed, say so and check the facts.
 Write only when the person asks, or after you ask "Save this?" and they say yes.
@@ -298,19 +290,25 @@ One topic per document, with a one-line description. Update before you add.
 Never write secrets, tokens, or personal data.
 ```
 
-**Proactive: the agent decides, undo is the safety net**
+### Proactive: the agent decides, undo is the safety net
+
+The agent automatically saves memory during its work without asking. Undo (`undo` tool) and Git history serve as the safety net.
 
 <!-- example: agents-md -->
 ```text
-Suggestion only. waymark does not insert or check this text.
-Search waymark before you start work. Save decisions, pitfalls, and contracts that
-the next agent needs. Do not save what the code or the history already shows.
-Update a document that exists instead of adding a copy. If a document is wrong,
-mark it disputed with a reason. Tell the person in one line what you saved.
+Search waymark before you start work. Automatically save decisions, pitfalls,
+and contracts that the next agent needs, without asking. Do not save what the
+code or the history already shows. Update a document that exists instead of
+adding a copy. If a document is wrong, mark it disputed with a reason. Tell the
+person in one line what you saved.
 Never write secrets, tokens, or personal data.
 ```
 
-### Share a memory repository with a team
+## Check that waymark works
+
+Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.
+
+## Share a memory repository with a team
 
 A project shares its memory repository through the MCP entry in the project (for example `.mcp.json`). The entry holds the repository URL and no secret. Add `--path` with a `~` path if the team wants the clone in a fixed folder.
 
@@ -325,7 +323,7 @@ A project shares its memory repository through the MCP entry in the project (for
 - Other tools wait up to 60 seconds for a running clone. A clone that takes more than 5 minutes stops. Clone the repository by hand into the folder (see "Where the memory repository lives") and start again.
 - `status` shows the state: `cloning`, `ready`, `empty`, `not_a_memory_repository`, or `broken`.
 
-### Tighten the limits
+## Tighten the limits
 
 The server enforces limits. A limit can only tighten, and the strictest layer wins.
 
@@ -371,10 +369,6 @@ The tool descriptions come with the binary. The new version applies at the next 
 **When a team's memory repository needs a newer waymark.** The settings file `.waymark/settings.toml` has a `schema` number. If it is higher than your waymark supports, every tool except `status` fails with "This memory repository needs a newer waymark". Update waymark (`brew upgrade waymark` with Homebrew, or the way you installed it) and restart your agent tool. waymark never changes the number by itself. When a file is only missing something that older versions did not write, waymark adds it by itself at your next write, in its own commit (`waymark: repair "settings"`). It never changes a value that you set. See the section "Versions and updates" of the [memory-repository spec](../specs/foundation/memory-repository/requirements.md).
 
 **When your MCP entry needs a change.** waymark never writes into your agent tool. If an update needs a different entry, waymark still starts, and tells you: the agent reports "WAYMARK NEEDS AN UPDATE" with the exact fix, and `status` shows it as a failing check `entry`. Then run `claude mcp remove waymark`, add the entry again as the message says, and restart your agent tool.
-
-## Check that waymark works
-
-Ask your agent to call the `status` tool. It runs a list of checks and gives a plain fix for each problem. It changes nothing.
 
 ## Remove waymark
 

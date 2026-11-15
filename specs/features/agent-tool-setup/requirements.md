@@ -27,7 +27,6 @@ waymark does not install anything into agent tools. It ships **no skill** and **
 1. **MCP entry for each tool.** A copy-paste entry for Claude Code, GitHub Copilot (VS Code and CLI), and OpenAI Codex, for user scope and for project scope where the tool has one. The formats differ (JSON for some tools, TOML for Codex). The entry starts the binary over stdio with `--repo` (see `mcp-server`). Optional: the author in `env` (see `login-and-identity`).
 2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. The rules are in the permission settings of the tool, not in the MCP config. For Claude Code, they are `allow` and `ask` rules such as `mcp__waymark__search` in `settings.json`. Tool kind hints (read-only, write, destructive) support this. The README says that a mode without prompts ("YOLO") ignores `allow` rules, may still honor explicit `ask` rules (unverified), and that the built-in approval through elicitation is the other way (see `write-approval`).
 3. **Example `AGENTS.md` snippets.** Short examples that a team may copy and change. They are suggestions only. waymark does not insert them and does not check them. Suggested examples:
-   - *Manual:* use waymark only when asked.
    - *Balanced:* search at the start of a task, write only when asked or after the person says yes.
    - *Proactive:* search first, save decisions and pitfalls, update before adding, dispute instead of deleting, and tell the person in one line what was saved.
    All examples end with "never write secrets, tokens, or personal data". The server enforces the hard rules. The examples only guide behavior.
@@ -58,7 +57,7 @@ There is no tool and no code. The deliverables are text:
 
 **Permission advice.** Claude Code: `allow` rules for the read tools and `ask` rules for the write tools, as `mcp__waymark__<tool>`. Codex: `default_tools_approval_mode = "writes"`. Copilot: unverified, no advice beyond "check the permission settings of the tool". The text names the read tools (`status`, `search`, `show`, `folder_tree`, `list_tags`, `history`, `stats`, `updates`, `lint`, `activity`) and the write tools.
 
-**`AGENTS.md` examples.** Three short examples (manual, balanced, proactive). Each starts with the line "Suggestion only. waymark does not insert or check this text." and ends with "Never write secrets, tokens, or personal data."
+**`AGENTS.md` examples.** Two short examples (balanced, proactive). Marked as suggestions, and each ends with "Never write secrets, tokens, or personal data."
 
 **Removal step.** The section ends with the line for the tool: how to remove the entry (`claude mcp remove waymark`, delete the table in `config.toml`, delete the entry in the JSON file). The full removal steps are in `maintenance`.
 
