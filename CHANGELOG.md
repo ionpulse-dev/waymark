@@ -2,6 +2,18 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## Unreleased
+
+A personal server, as a first version.
+
+
+- **`waymark --mode personal-server`** runs waymark as a remote MCP server for one person, over HTTPS (the host provides the certificate). Chat apps and MCP clients sign in once with the one allowed GitHub account. The server keeps no database and no stored state, so it also runs on a host that starts it for each request.
+- It follows the MCP authorization standard (revision 2026-07-28): client documents, automatic registration, and one manual client ID and secret (`waymark --print-client`).
+- Git access is a GitHub App installed on the one memory repository. The commit author is the person who signed in, with a verified email.
+- A container image (`Dockerfile`) and a [setup guide](docs/personal-server-setup.md).
+- **Not yet tested against the real apps** (Claude, ChatGPT, Gemini) and a real GitHub App. It is tested against a fake GitHub. The guide marks what is still to test.
+- A write that the Git host rejects is now tried once more after a pull, in every mode.
+
 ## 0.5.1 (2026-11-15)
 
 waymark now builds and runs on Linux, and this release fixes a serious bug on Linux. There is no change to the tools, so on a Mac you only need to update.
@@ -16,15 +28,6 @@ waymark now builds and runs on Linux, and this release fixes a serious bug on Li
 
 What to do:
 - Update with `brew upgrade waymark` and restart your agent tool.
-
-A personal server comes with it, as a first version:
-
-- **`waymark --mode personal-server`** runs waymark as a remote MCP server for one person, over HTTPS (the host provides the certificate). Chat apps and MCP clients sign in once with the one allowed GitHub account. The server keeps no database and no stored state, so it also runs on a host that starts it for each request.
-- It follows the MCP authorization standard (revision 2026-07-28): client documents, automatic registration, and one manual client ID and secret (`waymark --print-client`).
-- Git access is a GitHub App installed on the one memory repository. The commit author is the person who signed in, with a verified email.
-- A container image (`Dockerfile`) and a [setup guide](docs/personal-server-setup.md).
-- **Not yet tested against the real apps** (Claude, ChatGPT, Gemini) and a real GitHub App. It is tested against a fake GitHub. The guide marks what is still to test.
-- A write that the Git host rejects is now tried once more after a pull, in every mode.
 
 ## 0.5.0 (2026-11-15)
 
