@@ -100,6 +100,21 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Open:** The permission that reads the email list, and whether the GitHub setting against private-email pushes applies to a push with an App token.
 
+## One `--mode` argument: `local`, `personal-server`, `team-server` — 2026-11-15
+
+**Decision:** One argument, `--mode` (or `WAYMARK_MODE`), selects both the transport and the kind of server. The values are `local` (the default, stdio, as today), `personal-server` (this spec), and `team-server` (later, the work of `server-mode`). A server mode needs `--mode`. Its settings are required or refused by the mode. Earlier entries of this file say "HTTP mode". They mean `personal-server` mode.
+
+**Alternatives considered:**
+- `--http <address>` plus a second option for the kind — rejected: two options that depend on each other, and invalid combinations.
+- A mode named `personal` — rejected: it says who uses it, and nothing about being online.
+- `remote` and `team`, or `online` and `shared` — rejected: they mix "where" and "who". `personal-server` and `team-server` name the audience in the same way, and "server" says it is online.
+- `single server` — rejected: it reads as one server instance, not one user.
+- A default of `personal-server` for a server — not needed: `local` is the default, and a server mode is always chosen on purpose, so a later `team-server` breaks nothing.
+
+**Reason:** The mode decides which settings are needed and which are refused, so that a server on the open internet never starts with guessed settings. A later, more complex setup can be added as a new value with no change for the existing ones.
+
+**Listen address and HTTPS:** The listen address is `0.0.0.0:$PORT` (default 8080). The connection from the app is HTTPS, with the certificate from the host. Waymark speaks plain HTTP behind it and does not end TLS. It refuses a public URL that does not start with `https://`. This follows `server-mode`.
+
 ## An exception to "waymark never stores a Git secret" is not needed — 2026-11-15
 
 **Decision:** Because the server stores nothing and the private key stays in the host's secret store, the principle "Secrets stay with Git — waymark never stores or passes a Git secret" holds unchanged.

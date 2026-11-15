@@ -4,7 +4,7 @@ _The technical approach. The requirements are in [requirements.md](requirements.
 
 ## Overview
 
-Add an HTTP transport to the existing MCP core, put a small OAuth sign-in door in front of it, and reach Git through a GitHub App. The door signs its own tokens, so the server keeps no state. GitHub only answers "who is this?".
+Add a server mode, `--mode personal-server`, to the existing MCP core. It serves MCP over HTTPS (the host provides TLS), puts a small OAuth sign-in door in front of the core, and reaches Git through a GitHub App. The door signs its own tokens, so the server keeps no state. GitHub only answers "who is this?".
 
 ```text
 MCP client ⇄ HTTPS (host) ⇄ [ door: discovery · sign-in · tokens ] ⇄ MCP core ⇄ clone (cache) ⇄ GitHub App token ⇄ memory repository
@@ -14,11 +14,11 @@ MCP client ⇄ HTTPS (host) ⇄ [ door: discovery · sign-in · tokens ] ⇄ MCP
 
 ## Components Affected
 
-- `src/main.rs` and the argument parser — a new `--http <address>` option, next to the stdio mode of `mcp-server`.
-- The MCP transport layer — serve the same tools over Streamable HTTP.
+- `src/main.rs` and the argument parser — a new `--mode` option with the values `local` (the default, stdio), `personal-server`, and later `team-server`. One argument sets the transport and the kind of server.
+- The MCP transport layer — serve the same tools over Streamable HTTP. The host adds TLS, so clients use HTTPS.
 - `git-sync` — an access mode that gets its credential from the GitHub App, a pull when a request arrives and the clone is old, and a pull, rebase, and retry once after a rejected push.
-- `src/mcp/context.rs` and `src/mcp/binding.rs` — in HTTP mode the data folder is fixed (the temp folder of the system) and `--path` is ignored. The clone on first use and the background clone at start stay as they are (see `join-memory-repository`).
-- `src/identity/author.rs` — in HTTP mode the commit author comes from the sign-in identity and not from the Git config of a person's computer.
+- `src/mcp/context.rs` and `src/mcp/binding.rs` — in `personal-server` mode the data folder is fixed (the temp folder of the system) and `--path` is ignored. The clone on first use and the background clone at start stay as they are (see `join-memory-repository`).
+- `src/identity/author.rs` — in `personal-server` mode the commit author comes from the sign-in identity and not from the Git config of a person's computer.
 - `trust-model` — the server config and the environment variables become a limit layer. The client config stays advice.
 - `distribution` — the container image. This item adds it, and `distribution` records it as its own deliverable.
 - `docs/` and the README — the setup guide and a pointer to it.
@@ -43,7 +43,11 @@ The module names are a first idea. The task phase fixes them.
 ## Technical Approach
 
 ### 1. Transport
-`--http` serves MCP over Streamable HTTP on plain HTTP. The host provides TLS. The server needs the public URL as a setting and refuses to start without it, as in `server-mode`. The MCP core does not change.
+`--mode personal-server` serves MCP over Streamable HTTP. The connection from the app to the host is HTTPS. The host provides the certificate and passes plain HTTP to waymark inside the host. Waymark does not end TLS itself.
+- **Listen address.** Waymark listens on `0.0.0.0:$PORT`, with 8080 as the default if `PORT` is not set. Many hosts set `PORT` (to verify for the hosts of the guide). A rarely needed `--listen <address>` overrides it.
+- **Public URL.** `WAYMARK_PUBLIC_URL` is required and must start with `https://`. The server refuses to start otherwise. A `localhost` address is allowed for tests.
+- **One argument.** `--mode` sets transport and kind at once. `--mode` is `local` when omitted. A value that is not known, or `team-server` before it exists, stops the start with a message that lists the values. The mode selects which settings are required: in `personal-server`, `WAYMARK_OWNER` and the GitHub App values. Settings that belong to another mode, such as a roles file, stop the start with a clear message and are not ignored.
+- The MCP core does not change. Only the outer layer and the sign-in differ between modes.
 
 ### 2. Sign-in door
 The door follows the current MCP authorization standard. It publishes discovery metadata and answers an unsigned request with `401` and a pointer to that metadata.
@@ -67,7 +71,7 @@ A GitHub App is installed on the one memory repository.
 - The sign-in uses the same App for its login step (client ID and client secret). The GitHub user token is read once for the identity and then dropped.
 
 ### 5. No state, and serverless
-- The clone is a cache in the data folder. The data folder is fixed: the temp folder of the system, which is the writable place on every host. `--path` is ignored in HTTP mode, with one line in the log.
+- The clone is a cache in the data folder. The data folder is fixed: the temp folder of the system, which is the writable place on every host. `--path` is ignored in `personal-server` mode, with one line in the log.
 - The clone logic of local mode is reused as it is. The server starts to clone in the background at start. The first tool call that needs the repository waits for the same clone through the existing lock (`ctx.repo()`), up to `WAYMARK_CLONE_WAIT_SECONDS` (default 60). After that it returns "The first clone is still running. Call again in a minute." No tool checks for the clone on its own. The first clone is shallow by default.
 - The sign-in door never needs the clone, so sign-in is fast on a cold start.
 - The wait of the AI app and the maximum time of the host are not under our control. A host or an app that waits less than the clone needs will fail the first call. The guide says so.
@@ -80,7 +84,9 @@ All values come from environment variables or mounted files. The names are propo
 
 | Value | Variable |
 |---|---|
-| Public URL | `WAYMARK_PUBLIC_URL` |
+| Mode (same as `--mode`) | `WAYMARK_MODE` (`personal-server`) |
+| Port | `PORT` (default 8080) |
+| Public URL (must be `https://`) | `WAYMARK_PUBLIC_URL` |
 | Memory repository | `WAYMARK_REPO` |
 | Allowed GitHub account | `WAYMARK_OWNER` |
 | Signing key | `WAYMARK_SIGNING_KEY` |
@@ -91,7 +97,7 @@ All values come from environment variables or mounted files. The names are propo
 The person creates an empty private repository on GitHub and installs the GitHub App on it. After the server starts, the clone of the empty repository gives the state `empty`. `status` says that `init` can set it up (see `create-memory-repository`). The person asks the agent to set up the memory repository. The agent calls `init`, which creates the structure, commits, and pushes with the App token. The same session then works with no restart. `init` is a write tool, so the limits and the approval of the client apply as for any write. The tool does not change.
 
 ### 8. Commit author
-Every write, and `init` too, needs an author name and an email. In HTTP mode both come from the identity step.
+Every write, and `init` too, needs an author name and an email. In `personal-server` mode both come from the identity step.
 
 At sign-in, after GitHub names the person, the identity step asks GitHub for the email addresses of the account. It accepts an address only if GitHub marks it as verified and the existing check of `login-and-identity` passes (valid syntax, not on the blocklist, and in `people.email_domains` if the owner set it). The no-reply address of GitHub is blocked by that check and stays blocked. It prefers the primary address among those that pass. If no address passes, the sign-in is refused with a clear message: "Add and verify an email address on your GitHub account." No token is issued.
 

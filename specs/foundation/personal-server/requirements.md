@@ -20,7 +20,7 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 
 ## Deliverables
 
-- `waymark --http`: the MCP server over Streamable HTTP, behind a host that provides TLS.
+- `waymark --mode personal-server`: the MCP server over HTTPS (Streamable HTTP, with TLS provided by the host). One argument sets the transport and the kind of server. The values of `--mode` are `local` (the default, stdio), `personal-server`, and later `team-server`.
 - A sign-in door that follows the MCP authorization standard, so that Claude, ChatGPT, and Gemini can connect with no help from their vendors.
 - "Sign in with GitHub" as the first identity provider, with an allow-list of exactly one GitHub account. The identity step is a small interface, so other providers can be added later.
 - Background Git access through a GitHub App installed on the one memory repository.
@@ -56,7 +56,9 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **The commit author is the signed-in person.** The App credential only proves that the server may write.
 - **Writes are pushed at once.** The server may stop after any request, so a write may not wait for a later push.
 - **Pull on request.** The server updates its clone when a request arrives and the clone is old. It has no background timer that a serverless host cannot run.
-- **The data folder is not a setting.** In HTTP mode the server uses the temp folder of the system. `--path` is ignored, with one line in the log. The memory repository comes from `WAYMARK_REPO`.
+- **One argument for the mode.** `--mode` (or `WAYMARK_MODE`) is the only switch between local use and a server. A value that is not known stops the start with a message that lists the values. The mode selects which settings are required. Settings of another mode stop the start. They are not ignored. The tool list is the same in every mode.
+- **HTTPS for clients.** The public URL must start with `https://` (a `localhost` address is allowed for tests). The host provides the certificate. Waymark does not end TLS and listens on `$PORT`, default 8080.
+- **The data folder is not a setting.** In `personal-server` mode the server uses the temp folder of the system. `--path` is ignored, with one line in the log. The memory repository comes from `WAYMARK_REPO`.
 - **First clone as in local mode.** The clone starts at start and the first tool call waits for it, as in `join-memory-repository`. A wait that is longer than the timeout of the app or of the host is the choice of the host and the plan of the person. It is not a rule of waymark.
 - **The author needs a name and a verified email.** At sign-in the server accepts only an email that GitHub marks as verified and that passes the email check of `login-and-identity`. The no-reply address of GitHub does not pass. If no email passes, the sign-in is refused and no token is issued.
 - **The client config is not a limit.** Limits come from the server config and the shared file, as in `trust-model`.
@@ -79,7 +81,13 @@ Let one person run waymark as a remote MCP server for their own memory repositor
 - **Given** the image, **When** it is inspected, **Then** it holds no secret.
 - **Given** a browser, **When** it opens the address of the server, **Then** a short text shows that the server is running and shows no memory content.
 - **Given** an empty repository on GitHub with the App installed, **When** the server starts and an agent calls `init` with a name, **Then** the structure and the first commit are on the remote and the same session works with no restart.
-- **Given** a start in HTTP mode with `--path`, **When** the server starts, **Then** the option is ignored and the log says so.
+- **Given** `--mode` with an unknown value, **When** the server starts, **Then** it stops and lists the values `local`, `personal-server`, and `team-server`.
+- **Given** `--mode team-server` before it exists, **When** the server starts, **Then** it stops and says that this mode is not available yet.
+- **Given** `--mode personal-server` and a public URL that does not start with `https://`, **When** the server starts, **Then** it stops with a clear message.
+- **Given** `--mode personal-server` and no `WAYMARK_OWNER`, **When** the server starts, **Then** it stops and names the missing setting.
+- **Given** no `--mode`, **When** the server starts, **Then** it runs as local mode over stdio, as before.
+- **Given** `PORT` is set, **When** the server starts, **Then** it listens on that port. **Given** it is not set, **Then** it listens on 8080.
+- **Given** a start in `personal-server` mode with `--path`, **When** the server starts, **Then** the option is ignored and the log says so.
 - **Given** a GitHub account with a verified email that passes the email check, **When** it signs in and a write runs, **Then** the commit author has that email.
 - **Given** a GitHub account whose only emails are unverified, blocked, or the no-reply address, **When** it signs in, **Then** the sign-in is refused, no token is issued, and the message says to add and verify an email on GitHub.
 - **Given** `people.email_domains` is set, **When** the verified email is in another domain, **Then** the sign-in is refused.

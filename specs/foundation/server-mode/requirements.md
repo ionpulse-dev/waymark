@@ -9,6 +9,8 @@ requires:
 
 # Server mode
 
+> **Note 2026-11-15:** The draft spec [personal-server](../personal-server/requirements.md) adds one argument, `--mode`, with the values `local`, `personal-server`, and `team-server`. This spec becomes the `team-server` mode. Where this text says `waymark --http <address>`, read `waymark --mode team-server`. The sign-in door and the signed tokens of `personal-server` may be reused here. Clients always reach the server over HTTPS, with TLS provided by the host.
+
 ## Technical Goal
 
 Run the same binary as a shared MCP server over HTTPS, so that a whole organization, and chat apps and phones, can use one memory repository through one address. Anyone can host it: a company on its own infrastructure, or a provider for others. The core and the tools are the same as in local mode. This item adds the transport, the login, the roles, the Git credentials, the workspace, and the audit log, for one organization. `multi-tenancy` adds many organizations.
