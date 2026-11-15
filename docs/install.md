@@ -4,6 +4,26 @@ waymark runs on macOS with Apple silicon and on Linux (x86_64). It runs as a loc
 
 This guide is for people and for AI agents that install waymark for a person. The "Quick path" lists every step. The section "Install the binary" is owned by the `distribution` spec. The section "Agent tools" is owned by the `agent-tool-setup` spec. The facts and sources behind each snippet are in [agent-tools-research.md](agent-tools-research.md).
 
+## Index
+
+- [Quick path](#quick-path)
+- [Install the binary](#install-the-binary)
+  - [macOS (Apple silicon)](#macos-apple-silicon)
+  - [Linux (x86_64)](#linux-x86_64)
+- [Where the memory repository lives](#where-the-memory-repository-lives)
+- [Agent tools](#agent-tools)
+  - [Any tool (generic entry)](#any-tool-generic-entry)
+  - [Claude Code](#claude-code)
+  - [OpenAI Codex](#openai-codex)
+  - [GitHub Copilot in VS Code](#github-copilot-in-vs-code)
+  - [GitHub Copilot CLI](#github-copilot-cli)
+  - [Your rules in `AGENTS.md`](#your-rules-in-agentsmd)
+  - [Share a memory repository with a team](#share-a-memory-repository-with-a-team)
+  - [Tighten the limits](#tighten-the-limits)
+- [Update waymark](#update-waymark)
+- [Check that waymark works](#check-that-waymark-works)
+- [Remove waymark](#remove-waymark)
+
 ## Quick path
 
 **Requirements:** macOS on Apple silicon or Linux on x86_64, and `git` 2.28 or newer installed.

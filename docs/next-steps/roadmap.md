@@ -6,6 +6,17 @@ The design changed on 2026-11-11: MCP is the only interface, and there is no ski
 
 No dates. Each phase ends with a clear result. The status of each spec is in [specs/INDEX.md](../../specs/INDEX.md).
 
+## Index
+
+- [Overview](#overview)
+- [Phase 0: Close the design](#phase-0-close-the-design)
+- [Phase 1: Core and local mode](#phase-1-core-and-local-mode)
+- [Phase 2: Dogfooding](#phase-2-dogfooding)
+- [Phase 3: Server mode](#phase-3-server-mode)
+- [Phase 4: Pilot](#phase-4-pilot)
+- [Phase 5: Public release](#phase-5-public-release)
+- [After the first release](#after-the-first-release)
+
 ## Overview
 
 | Phase | Result | Main risk it removes |

@@ -6,6 +6,14 @@ Research for `specs/features/agent-tool-setup`. It records what is known on 2026
 
 The entry for waymark has the server name `waymark` in all tools. The examples use `example.org`.
 
+## Index
+
+- [Claude Code](#claude-code)
+- [OpenAI Codex](#openai-codex)
+- [GitHub Copilot](#github-copilot)
+- [Other tools](#other-tools)
+- [Open items](#open-items)
+
 ## Claude Code
 
 Source: `https://code.claude.com/docs/en/mcp` and `https://code.claude.com/docs/en/permissions`, read on 2026-11-14.
