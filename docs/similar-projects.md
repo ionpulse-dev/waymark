@@ -5,6 +5,20 @@ Research from 2026-11-06. Star counts are a snapshot.
 **Result:** no mature project does what waymark plans. The close ones are
 small and new. The big ones are single-user memory tools.
 
+## Index
+
+- [Projects](#projects)
+- [Lessons for waymark](#lessons-for-waymark)
+  - [Copy](#copy)
+  - [Avoid](#avoid)
+  - [Different on purpose](#different-on-purpose)
+- [Not verified](#not-verified)
+- [Personal AI memory with a self-hosted MCP server](#personal-ai-memory-with-a-self-hosted-mcp-server)
+  - [Connectors of the AI apps](#connectors-of-the-ai-apps)
+  - [Closest tools](#closest-tools)
+  - [Gap that waymark could fill](#gap-that-waymark-could-fill)
+- [Obsidian and Obsidian Sync](#obsidian-and-obsidian-sync)
+
 ## Projects
 
 | Project | What it is | Storage | Agent access | Trust and review | Maturity |

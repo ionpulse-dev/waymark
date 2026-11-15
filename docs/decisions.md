@@ -2,6 +2,38 @@
 
 Decisions that apply to the whole project. Decisions that belong to one spec are in the `decisions.md` of that spec. Never delete an entry. Add new ones, and mark a replaced one as superseded.
 
+## Index
+
+- [Storage is Markdown in Git, and nothing else — 2026-11-06](#storage-is-markdown-in-git-and-nothing-else--2026-11-06)
+- [Everything runs locally, no servers that we operate — 2026-11-06](#everything-runs-locally-no-servers-that-we-operate--2026-11-06)
+- [No cloud agents — 2026-11-06](#no-cloud-agents--2026-11-06)
+- [Users need no Git knowledge — 2026-11-06](#users-need-no-git-knowledge--2026-11-06)
+- [A generic, open source product — 2026-11-06](#a-generic-open-source-product--2026-11-06)
+- [The name is `waymark` — 2026-11-06](#the-name-is-waymark--2026-11-06)
+- [The specification is public — 2026-11-08](#the-specification-is-public--2026-11-08)
+- [Sources of the design problem — 2026-11-06](#sources-of-the-design-problem--2026-11-06)
+- [The standalone skill is a separate project — 2026-11-08](#the-standalone-skill-is-a-separate-project--2026-11-08)
+- [License and copyright holder — 2026-11-08](#license-and-copyright-holder--2026-11-08)
+- [MCP is the only interface for agents — 2026-11-11](#mcp-is-the-only-interface-for-agents--2026-11-11)
+- [The server enforces, the team advises — 2026-11-11](#the-server-enforces-the-team-advises--2026-11-11)
+- [Two modes, one core — 2026-11-11](#two-modes-one-core--2026-11-11)
+- [No macOS app — 2026-11-11](#no-macos-app--2026-11-11)
+- [The permission ceiling is layered — 2026-11-11](#the-permission-ceiling-is-layered--2026-11-11)
+- [Git credentials stay out of waymark and out of the agent — 2026-11-11](#git-credentials-stay-out-of-waymark-and-out-of-the-agent--2026-11-11)
+- [Specs are superseded, never deleted — 2026-11-11](#specs-are-superseded-never-deleted--2026-11-11)
+- [The specification follows the MCP-only direction — 2026-11-11](#the-specification-follows-the-mcp-only-direction--2026-11-11)
+- [The MKBase standard lives in this repository — 2026-11-11](#the-mkbase-standard-lives-in-this-repository--2026-11-11)
+- [Current scope: local mode on macOS, delivered by Homebrew — 2026-11-14](#current-scope-local-mode-on-macos-delivered-by-homebrew--2026-11-14)
+- [Feature spec consistency pass (C20) — 2026-11-14](#feature-spec-consistency-pass-c20--2026-11-14)
+- [Vocabulary: agent memory and memory repository — 2026-11-14](#vocabulary-agent-memory-and-memory-repository--2026-11-14)
+- [The `index` tool is removed — 2026-11-14](#the-index-tool-is-removed--2026-11-14)
+- [Tool names follow one scheme, and tools grow in five steps — 2026-11-15](#tool-names-follow-one-scheme-and-tools-grow-in-five-steps--2026-11-15)
+- [A remote MCP server for one person is drafted — 2026-11-15](#a-remote-mcp-server-for-one-person-is-drafted--2026-11-15)
+- [Linux on x86_64 comes back into scope, first — 2026-11-15](#linux-on-x86_64-comes-back-into-scope-first--2026-11-15)
+- [Leaner tools: `list` joins `search`, small edits get small calls — 2026-11-15](#leaner-tools-list-joins-search-small-edits-get-small-calls--2026-11-15)
+- [Linux support is implemented — 2026-11-15](#linux-support-is-implemented--2026-11-15)
+- [The personal server is built, and tested in real use at the end — 2026-11-15](#the-personal-server-is-built-and-tested-in-real-use-at-the-end--2026-11-15)
+
 ---
 
 ## Storage is Markdown in Git, and nothing else — 2026-11-06

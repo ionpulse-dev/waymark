@@ -2,6 +2,21 @@
 
 Status: agreed in a design discussion on 2026-11-11. All specs were revised to match it on the same day. They are all `draft`, and each needs review and approval before implementation starts. The section "Impact on the specs" records what changed.
 
+## Index
+
+- [Summary](#summary)
+- [Why MCP and not a CLI with a skill](#why-mcp-and-not-a-cli-with-a-skill)
+- [Principles](#principles)
+- [One core, two modes](#one-core-two-modes)
+  - [Build order](#build-order)
+  - [Server mode components](#server-mode-components)
+- [Configuration and limits](#configuration-and-limits)
+  - [Permission ceiling](#permission-ceiling)
+  - [Credentials](#credentials)
+- [What MCP can and cannot do](#what-mcp-can-and-cannot-do)
+- [Impact on the specs](#impact-on-the-specs)
+- [Open questions](#open-questions)
+
 ## Summary
 
 waymark is **one binary**. It is an MCP server and it holds all logic: documents, Git work, checks, and limits. MCP is the **only interface for agents**. There is no CLI for agents, and waymark does not ship or install a skill. Teams describe the behavior they want in their own `AGENTS.md`. The README only gives examples.

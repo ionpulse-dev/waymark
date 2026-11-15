@@ -6,6 +6,24 @@ This guide is written for an AI agent to follow, and a person can read it as a r
 
 > **Status:** The server is built and tested against a fake GitHub. It is **not yet tested against the real apps and a real GitHub App**. Steps and notes that depend on that are marked **to test in real use**. If a step fails, tell the maintainer what you saw.
 
+## Index
+
+- [Rules for the agent](#rules-for-the-agent)
+- [What you need](#what-you-need)
+- [The settings](#the-settings)
+- [Step 1. Create the memory repository (Person)](#step-1-create-the-memory-repository-person)
+- [Step 2. Make the signing key (Person)](#step-2-make-the-signing-key-person)
+- [Step 3. Create the GitHub App (Person)](#step-3-create-the-github-app-person)
+- [Step 4. Install the App on the one repository (Person)](#step-4-install-the-app-on-the-one-repository-person)
+- [Step 5. Deploy the image and set the secrets (Person or agent, with the person's host login)](#step-5-deploy-the-image-and-set-the-secrets-person-or-agent-with-the-persons-host-login)
+- [Step 6. Update the callback address (Person)](#step-6-update-the-callback-address-person)
+- [Step 7. Connect an app (Person)](#step-7-connect-an-app-person)
+- [Step 8. Set up the memory repository](#step-8-set-up-the-memory-repository)
+- [Step 9. Check](#step-9-check)
+- [If something fails](#if-something-fails)
+- [Sign out every app](#sign-out-every-app)
+- [What the server logs](#what-the-server-logs)
+
 ## Rules for the agent
 
 - Do the steps in order. Do one step at a time.

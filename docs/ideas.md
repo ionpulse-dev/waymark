@@ -2,6 +2,19 @@
 
 Features that we want later, but not in the first release. When an idea moves into the plan, it gets a spec in `specs/` and leaves this list.
 
+## Index
+
+- [Web console](#web-console)
+- [Login and access](#login-and-access)
+- [Documents](#documents)
+- [Agent integration](#agent-integration)
+- [Personal use and mobile](#personal-use-and-mobile)
+- [Approval by a second person](#approval-by-a-second-person)
+- [Enforce that writes go through waymark](#enforce-that-writes-go-through-waymark)
+- [Permission levels on a server](#permission-levels-on-a-server)
+- [Per-folder settings](#per-folder-settings)
+- [Access without waymark](#access-without-waymark)
+
 ## Web console
 
 | Idea | What it does |
