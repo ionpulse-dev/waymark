@@ -27,12 +27,12 @@ a sign on a trail: a hiker leaves it so the next one finds the way. Your agents
 do the same — each one leaves a short mark of what it learned, so the next agent
 does not get lost on the same path.
 
-It stores data as plain Markdown in a Git repository instead of complex
-databases or proprietary formats. Written in Rust, waymark runs as a local MCP
-server. Operations are fast because they run locally in the Rust binary.
+It stores data as **plain Markdown in a Git repository** instead of complex
+databases or proprietary formats. Written in Rust, waymark runs as a **local MCP
+server**. Operations are fast because they run locally in the Rust binary.
 
-Agents interact with waymark through MCP tools to search, read, write, update,
-move, and sync documents, manage tags, inspect document history, and undo
+Agents interact with waymark through MCP tools to **search, read, write, update,
+move, and sync** documents, manage tags, inspect document history, and undo
 changes.
 
 <br/>
@@ -54,6 +54,20 @@ changes.
 
 <br/>
 
+## Setup (macOS and Linux)
+
+Tell your agent to install waymark:
+
+```text
+Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/local-install.md
+```
+
+Your agent will **install the binary**, **configure your MCP client**, and **set up your memory repository**.
+
+For manual installation steps, tool configurations, and options, see the [install guide](docs/local-install.md).
+
+<br/>
+
 ## Where the idea came from
 
 The idea for waymark came from a 2026 incident involving OpenAI agents, described in
@@ -68,22 +82,8 @@ messages and files. When they had to solve a hard
 problem, the first thing they built was a shared place to keep and exchange
 information. That showed us how much agents depend on shared memory.
 
-waymark offers that memory in a safe form: plain Markdown in a Git repository
-that you own, with rules that the server enforces.
-
-<br/>
-
-## Setup (macOS and Linux)
-
-Tell your agent to install waymark:
-
-```text
-Install waymark by following https://github.com/ionpulse-dev/waymark/blob/main/docs/local-install.md
-```
-
-Your agent will install the binary, configure your MCP client, and set up your memory repository.
-
-For manual installation steps, tool configurations, and options, see the [install guide](docs/local-install.md).
+waymark offers that memory in a safe form: **plain Markdown in a Git repository
+that you own**, with **rules that the server enforces**.
 
 <br/>
 
