@@ -18,7 +18,7 @@ impl Tool for Add {
     }
 
     fn description(&self) -> &'static str {
-        "Creates a document. Sets the dates and the author, picks a file name, checks the result, commits, and pushes. Returns id, title, deprecated, commit, and version."
+        "Creates a document. Sets the dates and the author, uses name or makes a file name from the title, checks the result, commits, and pushes. Returns id, title, deprecated, commit, and version."
     }
 
     fn kind(&self) -> Kind {
@@ -32,6 +32,10 @@ impl Tool for Add {
                 "folder": {
                     "type": "string",
                     "description": "Folder of the new document. Empty means the root."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "File name without .md, such as readme: lowercase letters, digits, and -. Default: made from the title."
                 },
                 "title": {
                     "type": "string",
@@ -108,6 +112,10 @@ impl Tool for Add {
         let related = writes::get_list(&args, "related").unwrap_or_default();
         let anchors = writes::get_list(&args, "anchors").unwrap_or_default();
         let supersedes = writes::get_str(&args, "supersedes").map(str::to_string);
+        let name = match writes::get_str(&args, "name") {
+            Some(n) => Some(writes::slug::check_name(n)?),
+            None => None,
+        };
         let preview = writes::get_bool(&args, "preview");
         let author = writes::author_string(ctx)?;
         let today = writes::today();
@@ -122,12 +130,29 @@ impl Tool for Add {
                 let ids = memrepo.id_set();
                 let taken: std::collections::HashSet<String> =
                     ids.iter().map(|i| i.to_lowercase()).collect();
-                let id =
-                    writes::slug::new_id(&folder, &title, &|i| taken.contains(&i.to_lowercase()))
-                        .ok_or_else(|| {
+                let id = match &name {
+                    Some(n) => {
+                        let id = if folder.is_empty() {
+                            n.clone()
+                        } else {
+                            format!("{folder}/{n}")
+                        };
+                        if taken.contains(&id.to_lowercase()) {
+                            return Err(Error::validation(format!(
+                                "A document with the name `{id}` exists."
+                            ))
+                            .with_next("Choose another name, or update that document."));
+                        }
+                        id
+                    }
+                    None => writes::slug::new_id(&folder, &title, &|i| {
+                        taken.contains(&i.to_lowercase())
+                    })
+                    .ok_or_else(|| {
                         Error::validation("No free file name is left for this title.")
                             .with_next("Choose a different title.")
-                    })?;
+                    })?,
+                };
                 if !env.effective.allows_folder(&id) {
                     return Err(Error::new(
                         Code::AccessDenied,
@@ -210,6 +235,25 @@ impl Tool for Add {
                     return Err(problems.into_error());
                 }
 
+                // Short wikilinks to a document with the same file name keep their target.
+                let dirty = tx.repo().dirty_paths()?;
+                let is_dirty = |i: &str| {
+                    memrepo
+                        .repo_relative(i)
+                        .map(|r| dirty.contains(&r))
+                        .unwrap_or(false)
+                };
+                let links_updated = writes::shortlinks::add_fixes_for_new_ids(
+                    memrepo,
+                    Some(env),
+                    &ids,
+                    std::slice::from_ref(&id),
+                    &is_dirty,
+                    &today,
+                    &author,
+                    &mut changes,
+                )?;
+
                 changes.insert(
                     0,
                     FileChange::Write {
@@ -222,6 +266,9 @@ impl Tool for Add {
                 data.insert("id".into(), json!(id));
                 data.insert("title".into(), json!(title));
                 data.insert("deprecated".into(), json!(deprecated));
+                if !links_updated.is_empty() {
+                    data.insert("links_updated".into(), json!(links_updated));
+                }
                 Ok(Plan {
                     first: None,
                     revert: None,

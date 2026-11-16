@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 ---
 
 # Document format
@@ -67,10 +67,11 @@ The format is defined by the [Waymark Memory Standard 1.0](../../../standard/way
 
 ### Document ID and links
 
-- The ID of a document is its path below the root of the memory repository without `.md`. The root is the folder that contains the marker folder `.waymark` (in a waymark repository: `agent-memory/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title. It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
+- The ID of a document is its path below the root of the memory repository without `.md`. The root is the folder that contains the marker folder `.waymark` (in a waymark repository: `agent-memory/`), for example `backend/payments/idempotency-keys`. A file name is a short form of the title, or a name that the writer chose (see `document-names`). It does not change only because the title changed. A rename is a move: it changes the ID and follows the rules of `move-documents`.
 - Links in the body are relative Markdown links with `.md`, or wikilinks. waymark reads both and writes relative Markdown links.
 - Links in properties are wikilinks with the full path, for example `"[[backend/payments/retry-policy]]"`, so they are clickable and show in the graph.
 - A link to a document that does not exist is a finding. In a property (`related`, `supersedes`) it is an error, and a write through waymark fails. In the body it is a warning, and the write goes through. The standard only says a link SHOULD point to an existing document, so this severity is a waymark rule.
+- A wikilink with a short path, such as `[[retry-policy]]`, finds a document only when exactly one document has that file name. A write that gives a second document the same file name first rewrites every short wikilink to the first document to its full path (section 8 of the standard, see `document-names`).
 - Backlinks are computed on demand. No document stores its backlinks, and there is no central index file.
 
 ### Size limits
@@ -101,6 +102,7 @@ There is no limit on words in the body. Headings are allowed. A full architectur
 - **Given** a document without `description`, **When** it is written through waymark, **Then** the write fails with `validation_failed`.
 - **Given** a document over the hard cap, **When** it is written, **Then** the write fails and tells the agent to split the document or move details into a source.
 - **Given** a title change, **When** the document is saved, **Then** the file name and the ID stay the same.
+- **Given** a body link `[[readme]]` that finds `people/readme`, **When** a write gives another document the file name `readme`, **Then** the link becomes `[[people/readme]]`.
 - **Given** a title of 16 words or a description of 51 words, **When** `lint` runs, **Then** it fails the document. **Given** exactly 15 and 50 words, **Then** it passes.
 - **Given** a body with callouts, embeds, highlights, and comments, **When** words are counted, **Then** the markup does not add words.
 - **Given** a `related` or `supersedes` link to a missing document, **When** a document is written through waymark, **Then** the write fails with `validation_failed`.

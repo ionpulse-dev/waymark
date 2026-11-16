@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - write-documents
   - git-sync
@@ -67,7 +67,7 @@ Result `data`:
 - `folder` is the folder of the first changed document. `ids` lists up to 5 IDs, `files` is the full count.
 - `undone` is `true` if an `undo` commit reverted this one. A reverted undo (a redo) makes `undone` `false` again.
 - `later_changes` is `true` if a later commit by anyone changed one of the same files. `undo` may then refuse.
-- A move shows as one entry with `verb: "move"`. Its link-fix commit (see `move-documents`) is part of it and has no entry of its own. `files` counts both commits.
+- A move shows as one entry with `verb: "move"`. Its link-fix commit (see `move-documents`) is part of it and has no entry of its own. `files` counts both commits. A rename by hand that `sync` published is one entry with `verb: "sync"` in the same way (see `document-names`). When a pull with rebase changed the hashes, the link-fix commit belongs to the commit just before it.
 - `next_before` is the commit to send as `before` for the next page. It is `null` at the end of the history.
 
 ### `undo`
@@ -87,7 +87,7 @@ Rules, in this order:
 4. If no later commit changed the same files, the revert is clean. If later commits did, the tool tries the revert. A clean result goes on. A conflict ends with `stale_base`. `message` names the later commits (hash, author, title) and `next` says "Change the document with `update_document` instead."
 5. The files must match the `folders` limit, or the call fails with `access_denied`.
 6. The revert is one commit. The message is `waymark: undo "<title>"` with the title of the undone commit, then an empty line and `Reverts: <hash>`. The author is the person. The commit is pushed (write flow of `git-sync`).
-7. An undo of a move reverts the move commit and its link-fix commit together, in one commit. The `Reverts:` line lists both hashes, separated by a space.
+7. An undo of a move (also a rename by hand that `sync` published) reverts the move commit and its link-fix commit together, in one commit. The `Reverts:` line lists both hashes, separated by a space.
 
 The revert restores the earlier state exactly. It does not run the content checks of `write-documents`. For example, the undo of a `delete_document` restores the document even if its links or title now clash with newer documents. `lint` reports such problems.
 

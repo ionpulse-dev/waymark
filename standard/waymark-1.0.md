@@ -104,7 +104,8 @@ Standard 1.0".
    closing line `---`. The body follows.
 5. A file name MUST use only lowercase letters `a` to `z`, digits, and `-`, then
    `.md`.
-6. A file name is a short form of the title. A producer SHOULD NOT change it
+6. A file name is a short form of the title, or a short name that the writer
+   chose, such as `readme`. A producer SHOULD NOT change it
    when the title changes. A rename changes the ID of the document, like a move
    (section 5), and the producer MUST fix the links that it breaks.
 7. The ID of a document is defined in section 5.
@@ -161,7 +162,11 @@ Rules for the fields:
 2. A link in a property MUST be a wikilink with the full path, in quotes, for
    example `"[[backend/payments/retry-policy]]"`.
 3. A link SHOULD point to an existing document. A producer MUST NOT write a link in the body to a document that does not exist, and MUST NOT delete a document while another document links to it.
-4. A document MUST NOT store its backlinks. A consumer computes them.
+4. A wikilink with a short path, such as `[[retry-policy]]`, finds a document
+   only when exactly one document has that file name. A producer that gives a
+   document a file name that another document already has MUST first rewrite
+   every such wikilink to that other document to its full path.
+5. A document MUST NOT store its backlinks. A consumer computes them.
 
 ## 9 Size limits
 

@@ -49,7 +49,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [ ] [manual] T20: edit in a real Obsidian vault and publish.
   - Setup: install the current Obsidian. Create a memory repository with `init` and a real Git remote (a private repository on a Git host that you control). Open the memory repository folder as a vault. Add the MCP entry to a real agent tool.
   - Steps: in Obsidian, open `ops/deploy`, change one sentence, and save. Create a new document through Obsidian with all required properties (use the properties panel). In the agent tool, ask it to run `sync`.
-  - Expected: the agent reports 2 documents published. The remote has one commit `waymark: sync "2 manual edits"` under your name. Obsidian shows no error and still shows the properties and links. `git status` in the folder is clean.
+  - Expected: the agent reports 2 documents published. The remote has two commits `waymark: sync "<title>"` under your name, one for each document, each with an `Action:` line (see `document-names`). Obsidian shows no error and still shows the properties and links. `git status` in the folder is clean.
   - Teardown: delete the test documents with `delete_document`.
 - [ ] [manual] T21: a new document without properties in Obsidian is blocked.
   - Setup: as T20.

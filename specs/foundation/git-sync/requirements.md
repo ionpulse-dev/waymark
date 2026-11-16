@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - memory-repository
 ---
@@ -66,7 +66,7 @@ A tool takes `preview: true`, which shows what would be written and writes nothi
 
 ### The `sync` tool
 
-`sync` commits pending manual edits (see `manual-edits`), runs `git pull --rebase`, and pushes. Because there is one topic per document, most changes touch different files and rebase cleanly. If a real conflict on the same file remains, waymark aborts the rebase, keeps both versions as two files, and reports it in `notices`. The repository never stays in a conflict state.
+`sync` commits pending manual edits (see `manual-edits`), runs `git pull --rebase`, and pushes. Because there is one topic per document, most changes touch different files and rebase cleanly. If a real conflict on the same file remains, waymark aborts the rebase, keeps both versions as two files, and reports it in `notices`. `sync` makes one commit for each manual edit, and a rebase stops at the first commit that conflicts. So waymark finds the conflicts of all local commits with a trial merge of the two tips (see `document-names`). When the rebase fails with no conflict, for example because a blocked manual edit is in the folder, and the trial merge is clean, waymark makes a merge commit and pushes. The repository never stays in a conflict state.
 
 ### When the clone is updated
 

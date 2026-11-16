@@ -224,17 +224,13 @@ impl Repo {
         .with_next("Run sync to merge and push it, or try again later."))
     }
 
-    /// The `sync` operation. First, `pending` may write files for edits made outside waymark and return
-    /// a change to commit. Then pull with rebase, apply the conflict rule, and push.
-    pub fn sync(&self, pending: impl FnOnce(&Tx) -> Result<Option<Change>>) -> Result<SyncResult> {
+    /// The `sync` operation. First, `pending` may write and commit files for edits made outside
+    /// waymark, and returns the commits it made. Then pull with rebase, apply the conflict rule, and push.
+    pub fn sync(&self, pending: impl FnOnce(&Tx) -> Result<Vec<String>>) -> Result<SyncResult> {
         let _lock = Lock::acquire(&self.git_dir()?, Duration::from_secs(30))?;
         let mut result = SyncResult::default();
         let tx = Tx::new_for_sync(self);
-        if let Some(change) = pending(&tx)? {
-            if let Some(h) = self.commit_change(&change)? {
-                result.commits.push(h);
-            }
-        }
+        result.commits = pending(&tx)?;
         if !self.has_remote() {
             result
                 .notices
@@ -311,6 +307,15 @@ impl Repo {
     /// that was edited on both sides: the remote version stays at the original path, and the local
     /// version is saved next to it as a disputed copy. Then merge, which is clean now.
     fn resolve_conflicts(&self, result: &mut SyncResult) -> Result<()> {
+        let _ = run(&self.dir, None, &["rebase", "--abort"]);
+        let _ = run(&self.dir, None, &["merge", "--abort"]);
+        // A rebase stops at the first local commit that conflicts, and `sync` makes one commit for
+        // each edit. A trial merge of the two tips finds the conflicts of all commits at once.
+        let trial = run(
+            &self.dir,
+            Some(&self.author()),
+            &["merge", "--no-commit", "--no-ff", "--quiet", "@{u}"],
+        )?;
         let conflicted = run(&self.dir, None, &["diff", "--name-only", "--diff-filter=U"])?;
         let paths: Vec<String> = conflicted
             .stdout
@@ -318,11 +323,29 @@ impl Repo {
             .map(str::to_string)
             .filter(|l| !l.is_empty())
             .collect();
-        let _ = run(&self.dir, None, &["rebase", "--abort"]);
         let _ = run(&self.dir, None, &["merge", "--abort"]);
+        if paths.is_empty() && trial.ok {
+            // The tips join without a conflict: merge them.
+            let merged = run(
+                &self.dir,
+                Some(&self.author()),
+                &["merge", "--no-edit", "--quiet", "@{u}"],
+            )?;
+            if merged.ok {
+                return Ok(());
+            }
+            let _ = run(&self.dir, None, &["merge", "--abort"]);
+            return Err(Error::sync(format!(
+                "The merge failed: {}",
+                cmd::first_line(&merged.stderr)
+            ))
+            .with_next("Look at the memory repository folder, or ask someone who knows Git."));
+        }
         if paths.is_empty() {
+            let why = cmd::first_line(&trial.stderr);
             return Err(
-                Error::sync("The local copy and the remote cannot be joined.").with_next(
+                Error::sync(format!("The local copy and the remote cannot be joined: {why}"))
+                    .with_next(
                     "Look at the memory repository folder, or ask someone who knows Git.",
                 ),
             );

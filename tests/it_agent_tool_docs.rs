@@ -103,6 +103,21 @@ fn a3_agents_md_examples_are_marked_as_suggestions() {
 }
 
 #[test]
+fn both_agents_md_suggestions_hold_the_sync_rule() {
+    // See `specs/features/document-names`.
+    let install = blocks(&read("docs/local-install.md"), "example");
+    for (_, text) in install {
+        let one_line = text.split_whitespace().collect::<Vec<_>>().join(" ");
+        assert!(
+            one_line.contains(
+                "Do not call `sync` unless the person asks for it after a manual edit."
+            ),
+            "{text}"
+        );
+    }
+}
+
+#[test]
 fn a4_the_server_writes_nothing_into_agent_tool_folders() {
     let w = World::new();
     let mut c = McpClient::for_person(&w, common::Person::A, Spawn::default());

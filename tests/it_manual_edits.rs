@@ -231,10 +231,9 @@ fn t10_a_hand_move_is_followed_by_show() {
         .iter()
         .map(|e| e["kind"].as_str().unwrap())
         .collect();
-    assert!(
-        kinds.contains(&"deleted") && kinds.contains(&"new"),
-        "{kinds:?}"
-    );
+    // The same text at a new place is one rename (see `document-names`).
+    assert_eq!(kinds, vec!["moved"], "{}", r.json);
+    assert_eq!(r.json["committed"][0]["from"], "ops/deploy");
     let s = c.call("show", json!({"id": "ops/deploy"}));
     assert!(!s.is_error, "{}", s.json);
     assert_eq!(s.json["id"], "guides/deploy");

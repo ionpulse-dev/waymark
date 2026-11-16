@@ -467,3 +467,61 @@ fn verify_asks_approval() {
     assert_eq!(requests(&seen), 1);
     assert_eq!(v.json["approval"], "approved");
 }
+
+#[test]
+fn sync_asks_when_add_document_needs_approval() {
+    // See `specs/features/document-names`: `sync` applies the approval rule of the matching tool.
+    let w = World::new();
+    require(&w, "[\"add_document\"]");
+    let seen: Seen = Default::default();
+    let mut c = asking(&w, yes(), 0, &seen);
+    common::memrepo::write_doc(
+        &w.a,
+        "ops/manual",
+        &common::memrepo::doc("Manual", "Hand made."),
+    );
+    let r = c.call("sync", json!({}));
+    assert!(!r.is_error, "{}", r.json);
+    assert_eq!(requests(&seen), 1);
+    let m = seen.lock().unwrap()[0].0["params"]["message"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    assert!(
+        m.contains("Tool: add_document") && m.contains("ops/manual"),
+        "{m}"
+    );
+}
+
+#[test]
+fn a_write_holds_back_an_edit_that_needs_approval() {
+    let w = World::new();
+    commit_doc(&w.a, "ops/deploy", "How we deploy", "Old.");
+    require(&w, "[\"add_document\"]");
+    common::memrepo::write_doc(
+        &w.a,
+        "ops/manual",
+        &common::memrepo::doc("Manual", "Hand made."),
+    );
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let base = c.call("show", json!({"id": "ops/deploy"})).json["version"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let r = c.call(
+        "update_document",
+        json!({"id": "ops/deploy", "base": base, "body": "New."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    assert!(
+        r.json["notices"]
+            .to_string()
+            .contains("1 manual edit is not published. Run `sync`."),
+        "{}",
+        r.json
+    );
+    assert!(!subjects(&w.remote)
+        .iter()
+        .any(|s| s.contains("\"Manual\"")));
+    assert!(exists(&w, "ops/manual"));
+}

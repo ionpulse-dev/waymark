@@ -90,11 +90,39 @@ pub fn entries(memrepo: &MemRepo, commits: &[CommitInfo], email: &str) -> Vec<En
         }
     }
 
-    // The link-fix commit of a move belongs to the move entry.
+    // The link-fix commit of a move belongs to the move entry. A move that `sync` published has
+    // the verb `sync` on both commits (see `document-names`).
     let mut grouped: HashMap<String, &CommitInfo> = HashMap::new();
-    for c in commits.iter().filter(|c| mine(c)) {
-        if let (Some((Verb::Update, _)), Some(mv)) = (parse_subject(&c.subject), move_ref(c)) {
-            grouped.insert(mv, c);
+    for (i, c) in commits.iter().enumerate().filter(|(_, c)| mine(c)) {
+        if let (Some((Verb::Update | Verb::Sync, _)), Some(mv)) =
+            (parse_subject(&c.subject), move_ref(c))
+        {
+            // A pull with rebase gives both commits new hashes, so the hash in `Move:` can be
+            // old. Then the move is the commit just before the link fixes.
+            let key = if commits.iter().any(|x| same(&x.hash, &mv)) {
+                mv
+            } else {
+                // The commit before must be the move itself: the same title, and a move (or a
+                // `sync` commit with `Action: move`).
+                let title = parse_subject(&c.subject).map(|(_, t)| t);
+                match commits.get(i + 1) {
+                    Some(prev)
+                        if mine(prev)
+                            && parse_subject(&prev.subject).map(|(_, t)| t) == title
+                            && match parse_subject(&prev.subject) {
+                                Some((Verb::Move, _)) => true,
+                                Some((Verb::Sync, _)) => {
+                                    prev.body.lines().any(|l| l.trim() == "Action: move")
+                                }
+                                _ => false,
+                            } =>
+                    {
+                        prev.hash.clone()
+                    }
+                    _ => mv,
+                }
+            };
+            grouped.insert(key, c);
         }
     }
     let mut seen_fix: HashSet<String> = grouped.values().map(|c| c.hash.clone()).collect();
@@ -110,7 +138,7 @@ pub fn entries(memrepo: &MemRepo, commits: &[CommitInfo], email: &str) -> Vec<En
         };
         let mut hashes = vec![c.hash.clone()];
         let mut files = c.files.clone();
-        if verb == Verb::Move {
+        if verb == Verb::Move || verb == Verb::Sync {
             if let Some(fix) = grouped
                 .iter()
                 .find(|(mv, _)| same(&c.hash, mv))

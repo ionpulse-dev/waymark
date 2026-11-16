@@ -42,6 +42,18 @@ fn skipped_json(o: &Outcome) -> Vec<Value> {
         .collect()
 }
 
+/// One entry of `committed`. `commit` is `None` in a preview.
+fn entry_json(p: &manual::Planned, commit: Option<Option<String>>) -> Value {
+    let mut v = json!({"id": p.edit.id, "kind": p.edit.kind.name()});
+    if let Some(from) = &p.edit.from {
+        v["from"] = json!(from.id);
+    }
+    if let Some(c) = commit {
+        v["commit"] = json!(c);
+    }
+    v
+}
+
 /// The ID of a path below the repository folder.
 fn rel_to_id(memrepo: &crate::memrepo::MemRepo, rel: &str) -> String {
     let prefix = memrepo
@@ -82,7 +94,7 @@ impl Tool for Sync {
     }
 
     fn description(&self) -> &'static str {
-        "Publishes documents that people edited by hand: checks them, commits the ones that pass, pulls, and pushes. With read-only access it only pulls. Returns committed, blocked, skipped, pulled, pushed, and conflicts."
+        "Publishes manual edits: documents that a person changed by hand, outside waymark. Each edit gets the checks of the matching write tool (add_document, update_document, delete_document, or move) and its own commit. Then it pulls and pushes. With read-only access it only pulls. Returns committed, blocked, skipped, pulled, pushed, and conflicts."
     }
 
     // `sync` stays listed when writes are paused or read-only. It checks the limits itself.
@@ -128,12 +140,8 @@ impl Tool for Sync {
         // Preview: check, and change nothing. No pull, no push.
         if preview {
             let tx = crate::gitsync::Tx::new_for_sync(&repo);
-            let o = manual::prepare(&tx, &memrepo, &author, &today, false)?;
-            let committed: Vec<Value> = o
-                .passing
-                .iter()
-                .map(|e| json!({"id": e.id, "kind": e.kind.name()}))
-                .collect();
+            let o = manual::prepare(&tx, &memrepo, env, &author, &today)?;
+            let committed: Vec<Value> = o.passing.iter().map(|p| entry_json(p, None)).collect();
             return Ok(ToolOutput::new(
                 summary(committed.len(), o.blocked.len()),
                 json!({
@@ -148,10 +156,10 @@ impl Tool for Sync {
             ));
         }
 
-        let outcome: RefCell<Option<Outcome>> = RefCell::new(None);
+        let outcome: RefCell<Option<(Outcome, Vec<Option<String>>)>> = RefCell::new(None);
         let result = repo.sync(|tx| {
-            let o = manual::prepare(tx, &memrepo, &author, &today, true)?;
-            if o.change.is_none() && !o.blocked.is_empty() {
+            let o = manual::prepare(tx, &memrepo, env, &author, &today)?;
+            if o.passing.is_empty() && !o.blocked.is_empty() {
                 let first = &o.blocked[0];
                 let detail = first
                     .findings
@@ -165,27 +173,47 @@ impl Tool for Sync {
                 )
                 .with_next("Fix the document, then run sync again."));
             }
-            if let Some(change) = &o.change {
-                writes::approve(
-                    ctx,
-                    env,
-                    &memrepo,
-                    "sync",
-                    Kind::Write,
-                    "Publish manual edits.",
-                    &change.paths,
-                )?;
+            if !o.passing.is_empty() {
+                // One question for all edits, when `sync` or a matching write tool needs approval.
+                let mut tools: Vec<&str> = vec!["sync"];
+                for p in &o.passing {
+                    if !tools.contains(&p.tool) {
+                        tools.push(p.tool);
+                    }
+                }
+                if let Some(tool) = tools
+                    .into_iter()
+                    .find(|t| env.effective.needs_approval(t, Kind::Write))
+                {
+                    let mut paths: Vec<String> = Vec::new();
+                    for p in &o.passing {
+                        if let Some(from) = &p.edit.from {
+                            paths.push(from.rel.clone());
+                        }
+                        paths.push(p.edit.rel.clone());
+                    }
+                    writes::approve(
+                        ctx,
+                        env,
+                        &memrepo,
+                        tool,
+                        Kind::Write,
+                        "Publish manual edits.",
+                        &paths,
+                    )?;
+                }
             }
-            let change = o.change.clone();
-            *outcome.borrow_mut() = Some(o);
-            Ok(change)
+            let commits = manual::commit_planned(tx, &memrepo, &o.passing)?;
+            let made: Vec<String> = commits.iter().flatten().cloned().collect();
+            *outcome.borrow_mut() = Some((o, commits));
+            Ok(made)
         })?;
-        let o = outcome.into_inner().expect("the hook ran");
-        let commit = result.commits.first().cloned();
+        let (o, commits) = outcome.into_inner().expect("the hook ran");
         let committed: Vec<Value> = o
             .passing
             .iter()
-            .map(|e| json!({"id": e.id, "kind": e.kind.name(), "commit": commit}))
+            .zip(commits.iter())
+            .map(|(p, c)| entry_json(p, Some(c.clone())))
             .collect();
         let conflicts: Vec<Value> = result
             .conflicts

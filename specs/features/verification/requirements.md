@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - write-documents
 ---
@@ -27,6 +27,7 @@ Verification is off by default. It is on when `.waymark/settings.toml` has `veri
 With verification on:
 
 - `add_document` sets `trust: unverified` (see `write-documents`).
+- A manual edit cannot verify. `sync` publishes a new file, or a hand change of `trust`, `verified_by`, or `verified`, with `trust: unverified` (see `document-names`).
 - A change of `title`, `description`, or `body` of a verified document sets it back to `unverified` and removes `verified_by` and `verified` (see `write-documents`).
 - A document without a `trust` field counts as unverified.
 

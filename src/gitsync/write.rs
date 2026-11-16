@@ -56,6 +56,12 @@ impl<'a> Tx<'a> {
         self.repo
     }
 
+    /// Forget the changes so far. They are committed, so a rollback must not put the old bytes
+    /// back.
+    pub(crate) fn forget(&self) {
+        self.undo.borrow_mut().clear();
+    }
+
     fn abs(&self, rel: &str) -> PathBuf {
         self.repo.dir.join(rel)
     }

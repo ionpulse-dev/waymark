@@ -235,6 +235,17 @@ impl Remap {
         }
     }
 
+    /// A remap with no moves, for documents that appear (see `document-names`). `added` are the new IDs.
+    pub fn added(old_ids: &HashSet<String>, added: &[String]) -> Remap {
+        let mut new_ids = old_ids.clone();
+        new_ids.extend(added.iter().cloned());
+        Remap {
+            moved: HashMap::new(),
+            old_ids: old_ids.clone(),
+            new_ids,
+        }
+    }
+
     pub fn new_id<'a>(&'a self, old: &'a str) -> &'a str {
         self.moved.get(old).map(String::as_str).unwrap_or(old)
     }
@@ -256,12 +267,14 @@ impl Remap {
         if name.contains('/') {
             return self.moved.get(name).cloned();
         }
+        // The document that the short name found before. It may move or stay. If its file name is
+        // not unique any more after the change, the link gets the full path (section 8 of the standard).
         let old = self.old_target_of_name(name)?;
-        let new = self.moved.get(old)?;
+        let new = self.new_id(old);
         if file_name(new) == name && self.new_name_is_unique(name, new) {
             None
         } else {
-            Some(new.clone())
+            Some(new.to_string())
         }
     }
 }
@@ -464,9 +477,38 @@ mod retarget_tests {
             retarget_body("c/z", "c/z", "[[x|alias]]\n", &r).0,
             "[[a/renamed|alias]]\n"
         );
-        // Another document with the same file name appears: the short name is ambiguous now.
+        // The short name was ambiguous before: it stays as it is.
         let r = remap(&[("a/x", "b/x")], &["a/x", "c/x", "d/z"]);
         assert_eq!(retarget_body("d/z", "d/z", "[[x]]\n", &r).0, "[[x]]\n");
+    }
+
+    #[test]
+    fn a_short_name_to_a_document_that_stays_gets_the_full_path_when_a_move_takes_its_name() {
+        let r = remap(&[("d/y", "e/x")], &["a/x", "d/y", "c/z"]);
+        assert_eq!(
+            retarget_body("c/z", "c/z", "[[x|alias]] [[x#H]]\n", &r).0,
+            "[[a/x|alias]] [[a/x#H]]\n"
+        );
+    }
+
+    #[test]
+    fn a_short_name_gets_the_full_path_when_a_new_document_takes_its_name() {
+        let old: HashSet<String> = ["people/readme", "ops/z"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        let r = Remap::added(&old, &["projects/readme".to_string()]);
+        let (b, n) = retarget_body(
+            "ops/z",
+            "ops/z",
+            "See [[readme]] and [m](../people/readme.md).\n",
+            &r,
+        );
+        assert_eq!(b, "See [[people/readme]] and [m](../people/readme.md).\n");
+        assert_eq!(n, 1);
+        // A new document with another name changes nothing.
+        let r = Remap::added(&old, &["projects/other".to_string()]);
+        assert_eq!(retarget_body("ops/z", "ops/z", "[[readme]]\n", &r).1, 0);
     }
 
     #[test]

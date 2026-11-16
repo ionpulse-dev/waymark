@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-15
+updated: 2026-11-16
 requires:
   - mcp-server
   - git-sync
@@ -38,7 +38,7 @@ All five follow the write flow of `git-sync` (limits, lock, fetch, base check, c
 
 - **Dates and authors.** `add_document` sets `created`, `created_by`, `updated`, `updated_by`. Every other tool sets `updated` and `updated_by` on each document it changes. The date is today's date on the machine. The author is `Name <email>` from the settings of waymark (see `git-sync`).
 - **Commit.** One commit for one call. The message is `waymark: <verb> "<title>"`, with `add`, `update`, `dispute`, `deprecate`, or `delete`. `deprecate` adds the line `Reason: <reason>` after an empty line. No agent tag.
-- **File name.** `add_document` makes the name from the title: lowercase ASCII letters and digits, other characters become `-`, repeated `-` are merged, and the result is cut at 60 characters at a `-`. An empty result becomes `document`. If the file exists, `-<4 hex>` is added (the start of the SHA-256 of folder and title). If that exists too, 6, then 8 hex. The name never changes when the title changes.
+- **File name.** With `name`, `add_document` uses that name (see `document-names`): lowercase letters, digits, and `-`, at most 60 characters. A taken name fails with `validation_failed`. Without `name`, `add_document` makes the name from the title: lowercase ASCII letters and digits, other characters become `-`, repeated `-` are merged, and the result is cut at 60 characters at a `-`. An empty result becomes `document`. If the file exists, `-<4 hex>` is added (the start of the SHA-256 of folder and title). If that exists too, 6, then 8 hex. The name never changes when the title changes. When the name is taken by a document in another folder, short wikilinks to that document get its full path in the same commit (see `document-names`).
 - **Folder.** `folder` is a path below the root, with no `..`, no leading `/`, and no hidden segment. Each segment follows the file name rules. A new folder is created. `""` is the root. It must match the `folders` limit, or the call fails with `access_denied` and `next` says "This folder is outside the allowed folders." A write never goes into `.waymark/` or a path of `.waymark/exclude`.
 - **Verification on** (see `verification`). `add_document` sets `trust: unverified`. A change of `title`, `description`, or `body` of a verified document sets `trust: unverified` and removes `verified_by` and `verified`. With verification off, trust fields are kept as they are.
 - **Unknown properties** of a document are kept and written after the known ones.
@@ -73,6 +73,7 @@ Input:
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `folder` | string | yes | Folder of the new document. `""` is the root. |
+| `name` | string | no | File name without `.md`. Default: made from the title (see `document-names`). |
 | `title` | string | yes | At most 15 words (the setting). |
 | `description` | string | yes | At most 50 words (the setting). |
 | `body` | string | yes | Markdown text. May be empty. |
@@ -170,6 +171,8 @@ With `preview: true` the tool runs all checks and returns the same `data` withou
 | `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `sync_failed` | As in `mcp-server` and `git-sync`. |
 
 ## Acceptance Criteria
+
+- **Given** `name: "readme"`, **When** `add_document` runs, **Then** the ID ends with `/readme` (see `document-names`).
 
 - **Given** a valid input, **When** `add_document` runs, **Then** one commit under the author reaches the remote and the document has all required fields.
 - **Given** a body with a secret pattern, **When** `add_document` runs, **Then** it fails with `validation_failed` and writes nothing.

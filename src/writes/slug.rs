@@ -30,6 +30,26 @@ pub fn stem(title: &str) -> String {
     }
 }
 
+/// A file name that the caller chose (see `document-names`): lowercase letters, digits, and `-`,
+/// not starting with `-`, at most 60 characters, no `/`, no `.md`.
+pub fn check_name(name: &str) -> crate::error::Result<String> {
+    let n = name;
+    let ok = !n.is_empty()
+        && n.len() <= MAX_LEN
+        && !n.starts_with('-')
+        && n
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
+    if ok {
+        Ok(n.to_string())
+    } else {
+        Err(crate::error::Error::invalid(format!(
+            "\"{name}\" is not a valid name."
+        ))
+        .with_next("Use lowercase letters, digits, and -, at most 60 characters, without .md, such as \"readme\"."))
+    }
+}
+
 fn hex_of(folder: &str, title: &str, len: usize) -> String {
     let mut h = Sha256::new();
     h.update(folder.as_bytes());
@@ -112,5 +132,15 @@ mod tests {
     #[test]
     fn the_root_folder_has_no_prefix() {
         assert_eq!(new_id("", "Deploy", &|_: &str| false).unwrap(), "deploy");
+    }
+
+    #[test]
+    fn a_chosen_name_is_checked() {
+        for good in ["readme", "a1-b2", "x", &"a".repeat(60)] {
+            assert_eq!(check_name(good).unwrap(), good);
+        }
+        for bad in ["", "Readme", "a/b", "readme.md", "-a", "a b", "ü", &"a".repeat(61)] {
+            assert!(check_name(bad).is_err(), "{bad}");
+        }
     }
 }

@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-11
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - mcp-server
   - write-documents
@@ -26,7 +26,7 @@ requires:
 Approval is a limit (see `trust-model`): `approval.required_for` lists the tools, or `write` for all write tools. The default is no approval. The keys are in `[approval]` of any config layer. The union of all layers applies.
 
 - **Channel.** `approval.via` is `elicitation`. The server asks the person through the MCP client (MCP elicitation, form mode). If any layer says `console`, the channel is not available in local mode (see "Errors").
-- **When it asks.** The write flow of `git-sync` asks after all checks passed and before the commit. A call asks only if the tool is in `required_for`, or `write` is in `required_for` and the tool is a write tool. A call with `preview: true` never asks. A call that commits nothing never asks. A read tool never asks. A person is asked once for each write. An earlier yes is never reused.
+- **When it asks.** The write flow of `git-sync` asks after all checks passed and before the commit. A call asks only if the tool is in `required_for`, or `write` is in `required_for` and the tool is a write tool. `sync` also asks when the matching write tool of one of its manual edits needs approval, and the request names that tool. A write of an agent does not publish a manual edit whose matching tool needs approval: the edit waits for `sync` (see `document-names`). A call with `preview: true` never asks. A call that commits nothing never asks. A read tool never asks. A person is asked once for each write. An earlier yes is never reused.
 - **Fail closed.** If approval is required and cannot be asked, the tool fails with `approval_unavailable` and writes nothing.
 - **Other ways to get a yes.** The agent tool can ask before it calls a write tool (its own permission prompt). This is outside waymark. The tool kind hints of `mcp-server` help clients to do it. The README explains it (see `agent-tool-setup`).
 - Manual edits use the same approval before they are committed (see `manual-edits`).

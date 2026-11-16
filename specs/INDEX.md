@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ██████████████████████████████████████░░  25 / 26 active
+📦 Features      ███████████████████████████████████████░  26 / 27 active
 🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
 ```
 
@@ -9,10 +9,10 @@
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-2. **Release 0.6.0.** The personal server is in the "Unreleased" entry of `CHANGELOG.md`. Release it after the real-use pass, so that the entry can drop the line "Not yet tested against the real apps".
-3. **`[manual]` tests of the implemented specs (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`). This includes the Linux install check on a clean machine ([linux-support](foundation/linux-support/test.md)).
-4. **Open release steps (product owner).** The CI release workflow, the tap license, the name checks, and the other steps in [distribution/todo.md](foundation/distribution/todo.md).
+1. **`document-names` is `in-progress`: build and test it.** The code, tests, specs, and docs are written (2026-11-16), but nothing is compiled. This Mac has no Rust toolchain. On a machine with Rust, run `make check` and `make linux-test`, fix what fails, tick the `[auto]` items in its [test.md](features/document-names/test.md), and set it to `implemented`. Then release 0.6.0.
+2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
+3. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`. Release after item 1. The real-use pass of item 2 can drop the line "Not yet tested against the real apps".
+4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
 5. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
@@ -21,15 +21,16 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
+| [document-names](features/document-names/requirements.md) | `in-progress` | 2026-11-16 |
 | [lean-tools](features/lean-tools/requirements.md) | `implemented` | 2026-11-15 |
-| [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-14 |
-| [activity-and-undo](features/activity-and-undo/requirements.md) | `implemented` | 2026-11-14 |
+| [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-16 |
+| [activity-and-undo](features/activity-and-undo/requirements.md) | `implemented` | 2026-11-16 |
 | [pause-and-resume](features/pause-and-resume/requirements.md) | `implemented` | 2026-11-14 |
-| [write-approval](features/write-approval/requirements.md) | `implemented` | 2026-11-14 |
-| [manual-edits](features/manual-edits/requirements.md) | `implemented` | 2026-11-14 |
-| [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-14 |
-| [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-14 |
-| [verification](features/verification/requirements.md) | `implemented` | 2026-11-14 |
+| [write-approval](features/write-approval/requirements.md) | `implemented` | 2026-11-16 |
+| [manual-edits](features/manual-edits/requirements.md) | `implemented` | 2026-11-16 |
+| [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-16 |
+| [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-16 |
+| [verification](features/verification/requirements.md) | `implemented` | 2026-11-16 |
 | [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-14 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-14 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
@@ -54,8 +55,8 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 |:--------|:-------|:--------|
 | [terminology](foundation/terminology/requirements.md) | `implemented` | 2026-11-14 |
 | [dev-environment](foundation/dev-environment/requirements.md) | `implemented` | 2026-11-14 |
-| [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-14 |
-| [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-14 |
+| [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-16 |
+| [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-16 |
 | [integration-testing](foundation/integration-testing/requirements.md) | `implemented` | 2026-11-14 |
 | [memory-repository](foundation/memory-repository/requirements.md) | `implemented` | 2026-11-14 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |

@@ -10,6 +10,8 @@ pub enum Kind {
     New,
     Changed,
     Deleted,
+    /// A deleted file and a new file with the same text: a rename.
+    Moved,
 }
 
 impl Kind {
@@ -18,6 +20,7 @@ impl Kind {
             Kind::New => "new",
             Kind::Changed => "changed",
             Kind::Deleted => "deleted",
+            Kind::Moved => "moved",
         }
     }
 }
@@ -28,6 +31,16 @@ pub struct Edit {
     /// The path below the repository folder.
     pub rel: String,
     pub kind: Kind,
+    /// For a rename: where the document was.
+    pub from: Option<Source>,
+}
+
+/// The old place of a renamed document.
+#[derive(Debug, Clone)]
+pub struct Source {
+    pub id: String,
+    /// The path below the repository folder.
+    pub rel: String,
 }
 
 #[derive(Debug, Clone)]
@@ -111,8 +124,50 @@ pub fn find(repo: &Repo, memrepo: &MemRepo) -> Result<Pending> {
             id: id.to_string(),
             rel: path.clone(),
             kind,
+            from: None,
         });
     }
+    pair_renames(repo, &mut pending.edits);
     pending.edits.sort_by(|a, b| a.id.cmp(&b.id));
     Ok(pending)
+}
+
+/// A deleted file and a new file with exactly the same text are one rename (see `document-names`).
+fn pair_renames(repo: &Repo, edits: &mut Vec<Edit>) {
+    let mut deleted: Vec<(usize, String)> = edits
+        .iter()
+        .enumerate()
+        .filter(|(_, e)| e.kind == Kind::Deleted)
+        .filter_map(|(i, e)| {
+            repo.show_at("HEAD", &e.rel)
+                .ok()
+                .flatten()
+                .map(|text| (i, text))
+        })
+        .collect();
+    if deleted.is_empty() {
+        return;
+    }
+    let mut gone = Vec::new();
+    for i in 0..edits.len() {
+        if edits[i].kind != Kind::New {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(repo.dir().join(&edits[i].rel)) else {
+            continue;
+        };
+        if let Some(pos) = deleted.iter().position(|(_, old)| *old == text) {
+            let (j, _) = deleted.remove(pos);
+            edits[i].kind = Kind::Moved;
+            edits[i].from = Some(Source {
+                id: edits[j].id.clone(),
+                rel: edits[j].rel.clone(),
+            });
+            gone.push(j);
+        }
+    }
+    gone.sort_unstable();
+    for j in gone.into_iter().rev() {
+        edits.remove(j);
+    }
 }

@@ -50,7 +50,7 @@ fn two_writers_different_files() {
     );
     // A sees both after its next update.
     a.refresh_if_stale();
-    a.sync(|_| Ok(None)).unwrap();
+    a.sync(|_| Ok(Vec::new())).unwrap();
     assert!(w.a.join("agent-memory/ops/two.md").exists());
 }
 
@@ -73,7 +73,7 @@ fn a_stale_base_is_rejected() {
     write_doc(&a, "agent-memory/ops/d.md", DOC, Verb::Add).unwrap();
     let v1 = a.last_commit("agent-memory/ops/d.md").unwrap().unwrap();
     // B changes the document and pushes.
-    b.sync(|_| Ok(None)).unwrap();
+    b.sync(|_| Ok(Vec::new())).unwrap();
     write_doc(
         &b,
         "agent-memory/ops/d.md",
@@ -110,7 +110,7 @@ fn a_real_conflict_keeps_both_versions_and_leaves_no_rebase() {
     let w = World::new();
     let (a, b) = (w.repo(Person::A), w.repo(Person::B));
     write_doc(&a, "agent-memory/ops/d.md", DOC, Verb::Add).unwrap();
-    b.sync(|_| Ok(None)).unwrap();
+    b.sync(|_| Ok(Vec::new())).unwrap();
     // B changes the line and pushes.
     write_doc(
         &b,
@@ -130,7 +130,7 @@ fn a_real_conflict_keeps_both_versions_and_leaves_no_rebase() {
         &w.a,
         &["commit", "-q", "-m", "waymark: update \"Deploy process\""],
     );
-    let result = a.sync(|_| Ok(None)).unwrap();
+    let result = a.sync(|_| Ok(Vec::new())).unwrap();
     assert!(
         no_operation_in_progress(&w.a),
         "no rebase or merge may stay"
@@ -268,7 +268,7 @@ fn sync_waits_for_the_lock() {
         .unwrap();
     });
     std::thread::sleep(Duration::from_millis(100));
-    a.sync(|_| Ok(None)).unwrap();
+    a.sync(|_| Ok(Vec::new())).unwrap();
     assert!(
         start.elapsed() >= Duration::from_millis(450),
         "sync must wait for the lock"

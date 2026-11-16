@@ -5,6 +5,7 @@
 //! brings the clone up to date, commits under the author, and pushes.
 
 pub mod linkfix;
+pub mod shortlinks;
 pub mod slug;
 pub mod titles;
 
@@ -523,7 +524,7 @@ pub fn execute(
         let (pending_notices, blocked) = if preview {
             (Vec::new(), Vec::new())
         } else {
-            crate::manual::commit_before_write(tx, &memrepo, &author, &today)?
+            crate::manual::commit_before_write(tx, &memrepo, env, &author, &today)?
         };
         let mut plan = build(tx, &memrepo)?;
         for change in &plan.changes {

@@ -264,3 +264,8 @@ A claim of conformance and the `version` file in `.waymark` name only major.mino
 **Decision (decided autonomously):** Section 7 of the standard now says that the frontmatter MUST be valid YAML, that a text value with `: ` or ` #` MUST be in double quotes, and that a producer SHOULD quote every `title` and `description`. The conformance set has a new invalid document, `bad-yaml.md`, with an unquoted colon in the title. The rule `bad-yaml` already existed in `lint`.
 
 **Reason:** The first real use of waymark found 16 documents that a skill had written with unquoted colons. `lint` reported them as `bad-yaml`, but the standard did not say how to fix them.
+
+## Short wikilinks keep their target — 2026-11-16
+
+**Decision (product owner):** Section 8 of the standard gets a rule: a producer that gives a document a file name that another document already has first rewrites every short wikilink to that other document to its full path. The standard stays 1.0 and is changed in place. The details and the reason are in [document-names/decisions.md](../../features/document-names/decisions.md).
+

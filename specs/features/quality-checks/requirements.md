@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - search-and-read
 ---
@@ -26,7 +26,7 @@ requires:
 |---|---|---|
 | `lint` | Checks documents and lists findings. Whole memory repository or some folders. | read |
 
-`lint` also runs automatically in every write flow before the commit, on the document that the write changes, and in `sync` on pending manual edits (see `manual-edits`). A failed check stops a write with `validation_failed`. The message is plain and the `next` sentence says what to fix.
+`lint` also runs automatically in every write flow before the commit, on the document that the write changes, and in `sync` on pending manual edits (see `manual-edits`). In `sync`, the rules of the matching write tool come on top, with the finding rules `near-duplicate-title`, `outside-folders`, and `tool-switched-off` (see `document-names`). They are not `lint` rules. A failed check stops a write with `validation_failed`. The message is plain and the `next` sentence says what to fix.
 
 ### Rules
 

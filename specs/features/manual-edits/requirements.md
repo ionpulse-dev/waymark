@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - quality-checks
 ---
@@ -30,11 +30,13 @@ In local mode, the clone of the memory repository is a normal folder. A person c
 
 ### What `sync` does
 
+> **Changed on 2026-11-16 by [document-names](../document-names/requirements.md):** each edit gets the rules of the matching write tool on top of `lint` (`add_document`, `update_document`, `delete_document`, or `move`), a renamed file with the same text is a move, and each edit gets its own commit with an `Action:` line. Steps 2, 4, and 5 below are read with this change.
+
 1. **Find pending edits.** Changed, new, and deleted `.md` documents below the root. Files that are not documents (images, `.waymark/` files, files that start with `.`, entries of `.waymark/exclude`) are never committed. They are listed under `skipped`.
 2. **Run `lint` first.** Every pending document goes through `lint` (see `quality-checks`). A document with an error is not committed. It is reported under `blocked` with its findings. It stays in the folder, unchanged. A document that passes later is committed by the next `sync`. Warnings do not block, with one exception: a broken body link that the edit adds counts as an error, like in a write tool (see `write-documents`). A link that was already broken in the last commit stays a warning. A document that is deleted by hand while another document still links to it is blocked too, and the finding names the linking documents. If the links go in the same `sync`, both go together.
 3. **Set the author fields.** For a changed document that passed, waymark sets `updated` to today and `updated_by` to the author, if they differ. It touches nothing else.
 4. **Ask for approval** if the limits require it for `sync` or for writes (see `write-approval`). The request lists the documents. A refusal ends the call, and nothing is committed.
-5. **Commit** all passing documents in one commit under the author: `waymark: sync "<title>"` for one document, or `waymark: sync "<N> manual edits"` for several.
+5. **Commit** each passing edit in its own commit under the author: `waymark: sync "<title>"`, then an empty line and `Action: add`, `update`, `delete`, or `move`. A move has two commits: the rename alone, then the link fixes.
 6. **Pull and push** as `git-sync` says: `git pull --rebase`, then `git push`. A real conflict keeps both versions (see `git-sync`).
 
 If nothing passes lint and at least one document is blocked, `sync` fails with `validation_failed` and does not pull or push. In all other cases it returns a result.
@@ -44,11 +46,11 @@ If nothing passes lint and at least one document is blocked, `sync` fails with `
 
 ### Before every other write
 
-Every write tool commits pending manual edits first, in a separate commit, so that an agent write never carries foreign changes. The same checks and approval apply. A document that fails lint is not committed, and the write goes on. The result then has a notice: "2 manual edits are not published. Run `sync`." If the write changes a file that has such an edit, it fails with `stale_base` and the `next` sentence "This document has manual edits that are not published. Run `sync`."
+Every write tool commits pending manual edits first, each in its own commit, so that an agent write never carries foreign changes. The same checks apply. An edit whose matching write tool needs approval is not published here: it waits for `sync`, which asks. A document that fails lint is not committed, and the write goes on. The result then has a notice: "2 manual edits are not published. Run `sync`." If the write changes a file that has such an edit, it fails with `stale_base` and the `next` sentence "This document has manual edits that are not published. Run `sync`."
 
 ### Moves and deletes by hand
 
-A document moved or renamed by hand (a delete and a new file) and a document deleted by hand are committed like any edit. Git detects the move. `show` with the old ID follows it (see `search-and-read`). A deleted or moved-away document that another document still links to is blocked (see step 2). A moved document whose links are not fixed is therefore blocked until the links are fixed.
+A document moved or renamed by hand with the same text is published with the rules of `move`: the links to it are rewritten. A move with a changed text is a delete and a new file. A document deleted by hand is committed like any edit. Git detects the move. `show` with the old ID follows it (see `search-and-read`). A deleted document that another document still links to is blocked (see step 2). So is the delete half of a move with a changed text, until the links are fixed.
 
 ## Interfaces & Contracts
 
@@ -80,7 +82,8 @@ A document moved or renamed by hand (a delete and a new file) and a document del
 }
 ```
 
-- `kind` is `new`, `changed`, or `deleted`. A hand move shows as one `deleted` and one `new`.
+- `kind` is `new`, `changed`, `deleted`, or `moved`. A hand move with the same text shows as one `moved` entry with `from`. A move with a changed text shows as one `deleted` and one `new`.
+- `commit` is the commit of the entry. A `moved` entry names the commit of the link fixes, or of the rename when no link changed. After a pull with rebase, the hashes can change. `activity` shows the current ones.
 - `pulled` is the number of commits that the pull brought in. `pushed` is true if a push ran and succeeded.
 - `conflicts` holds `{ "id", "copy" }` for each conflict that `git-sync` resolved (see `git-sync`).
 - With `preview: true`, `committed` lists what would be committed, without `commit`, and `pulled` and `pushed` are `0` and `false`.
@@ -91,6 +94,8 @@ A document moved or renamed by hand (a delete and a new file) and a document del
 `validation_failed` (all pending documents blocked), `sync_failed`, `setup_problem`, `approval_denied`, `approval_unavailable`, `stale_base` (in other write tools, see above).
 
 ## Acceptance Criteria
+
+- **Given** a manual edit that breaks a rule of its matching write tool (near-duplicate title, `folders` limit, switched-off tool), **When** `sync` runs, **Then** the edit is blocked with `near-duplicate-title`, `outside-folders`, or `tool-switched-off` (see `document-names`).
 
 - **Given** an edit in Obsidian, **When** `sync` runs, **Then** a commit `waymark: sync "<title>"` under my account reaches the remote.
 - **Given** an edit that fails `lint` and no other edit, **When** `sync` runs, **Then** it fails with `validation_failed`, names the problem, and pushes nothing. The file stays as it was.

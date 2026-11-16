@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - write-documents
   - git-sync
@@ -57,7 +57,7 @@ The `move` tool moves or renames a document or a folder and rewrites all links t
 | Relative Markdown link to a moved document, in any document | The path is recomputed from the new location of the linking document to the new location of the target. |
 | Relative Markdown link in a moved document to a document that did not move | The path is recomputed from the new location. |
 | Full-path wikilink in a property or in the body | The ID is replaced. Alias and `#heading` stay. |
-| Wikilink with a short name, in the body | Replaced by the full new path only if the short name no longer finds the document. |
+| Wikilink with a short name, in the body | Replaced by the full new path only if the short name no longer finds the document. This also holds for a document that does not move, when a moved document takes its file name (see `document-names`). |
 | `sources` and `anchors` | Not changed. |
 | Links in code fences and inline code | Not changed. |
 
@@ -94,6 +94,8 @@ If approval is required (see `write-approval`), the request shows a summary, for
 | `access_denied`, `paused`, `approval_denied`, `approval_unavailable`, `sync_failed` | As in `mcp-server` and `git-sync`. |
 
 ## Acceptance Criteria
+
+- **Given** `[[readme]]` that finds `people/readme`, **When** another document moves to the file name `readme`, **Then** the link becomes `[[people/readme]]`.
 
 - **Given** a folder with 42 documents, **When** it is moved, **Then** all links to them in other documents work after the move.
 - **Given** a moved document, **When** `git log --follow` runs on the new path, **Then** the old history shows.
