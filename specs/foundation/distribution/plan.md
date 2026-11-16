@@ -16,7 +16,7 @@ For the first release, Homebrew builds `waymark` from source on the person's Mac
 - `scripts/make-formula.sh` — fills the template with the URL and the SHA-256 of a tag tarball.
 - `scripts/brew-local.sh` — creates a local tap in a temporary folder, builds a tarball with `git archive`, writes the formula, and runs `brew install` from it.
 - `.github/workflows/release.yml` — on a tag: build the Apple silicon binary, upload `waymark-<version>-aarch64-apple-darwin.tar.gz` and its checksum. Written, not run.
-- `docs/next-steps/release-checklist.md` — the exact steps for the product owner: public-readiness checks, creating the tap, tagging, updating the formula.
+- `docs/next-steps/release-checklist.md` — the exact steps for the product owner: public-readiness checks, creating the tap, tagging, updating the formula. Removed on 2026-11-15: the release steps are in `requirements.md` (section "Release process"), and the open steps are in `todo.md`.
 - `docs/install.md` — the install guide with the MCP entry for each agent tool.
 
 ## Technical Approach
@@ -36,7 +36,7 @@ For the first release, Homebrew builds `waymark` from source on the person's Mac
 ## Risks
 
 - A source build needs a Rust toolchain on every machine and takes a few minutes. Accepted for the first release. A prebuilt bottle comes later.
-- The formula depends on the repository being public. Mitigation: `docs/next-steps/release-checklist.md` orders the steps.
+- The formula depends on the repository being public. Mitigation: the release checklist ordered the steps. The repository is public since 2026-11-14, so this risk is closed.
 
 ## Open Questions
 

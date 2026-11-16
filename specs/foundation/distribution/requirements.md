@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - mcp-server
 ---
@@ -11,7 +11,7 @@ requires:
 
 > **Note 2026-11-15:** The spec [linux-support](../linux-support/requirements.md) (`implemented`) brings Linux on x86_64 back into scope. The release workflow builds a Linux archive and a checksum next to the macOS one. The Homebrew formula stays macOS only. The scope line below, "macOS only", no longer holds for the archive.
 
-> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The repository and the tap `ionpulse-dev/homebrew-tap` are public, and the current release is published. `brew install ionpulse-dev/tap/waymark` works (see `docs/next-steps/release-checklist.md`). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
+> **Scope on 2026-11-14:** the current task covers local mode on macOS (Apple silicon) only. Only macOS on Apple silicon and Homebrew are built. The container image and Linux are out of scope for now. The repository and the tap `ionpulse-dev/homebrew-tap` are public, and the current release is published. `brew install ionpulse-dev/tap/waymark` works. The open steps for the product owner are in [todo.md](todo.md). Parts that need server mode stay in this text as a record, and they are not implemented now (see [project decisions](../../../docs/decisions.md)).
 
 ## Technical Goal
 

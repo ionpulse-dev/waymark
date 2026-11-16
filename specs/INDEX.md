@@ -7,18 +7,13 @@
 
 ## Next Up
 
-Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sign-in, the web console, and Linux are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
+Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. All in-scope foundation specs are `implemented`. The server starts, lists tools, and has the `status` tool. The harness has a real MCP client (`tests/common/mcp.rs`).
-2. The feature specs passed a consistency pass (see [project decisions](../docs/decisions.md)).
-3. `search-and-read`, `quality-checks`, and `manual-edits`, and `move-documents`, and `activity-and-undo`, and `verification`, and `pause-and-resume`, and `write-approval`, and `project-binding`, and `session-start`, `agent-tool-setup`, `login-and-identity`, and `join-memory-repository`, `plain-git-access`, and `create-memory-repository`, and `updates`, `notifications-and-review`, and `maintenance` are `implemented`. All in-scope features were implemented. Phase G (end-to-end checks, reviews) is done. On 2026-11-14 the rules changed and are implemented: a write may not create a broken body link, `delete_document` refuses linked documents, and the folder tools `folder_tree`, `create_folder`, and `delete_folder` exist (spec `folders`).
-4. `distribution` is `implemented` for the part that the AI can do: formula, local Homebrew install test, release workflow (disabled), release checklist (`docs/next-steps/release-checklist.md`). The tap, the tag, and the public repository are done (checked 2026-11-14: `brew install ionpulse-dev/tap/waymark` installs the current release). Still open for the product owner: the remaining items of the checklist (CI release workflow, tap license, name checks).
-5. On 2026-11-14 the place of the memory repository became explicit and is implemented: `--repo` clones into `~/.waymark/<name>`, `--path` sets the folder, and one of them is required (specs `project-binding`, `join-memory-repository`, `session-start`, `mcp-server`).
-6. The `[manual]` tests of the implemented specs are for the product owner (see each `test.md`).
-7. On 2026-11-15 the tools got one naming scheme and five specs were implemented: `tool-conventions` (nine tools renamed, descriptions for every parameter, old names as aliases), `search-filters`, `restore-and-replace`, `document-history`, and `manage-tags`. This is version 0.4.0.
-8. On 2026-11-15 `lean-tools` was implemented (version 0.5.0): `list` is a mode of `search`, `update_document` takes `replace`, `append`, `add_tags`, and `remove_tags`, `show` returns `deprecation_reason`, `updates` pages with `offset`, the call aliases of the 0.4.0 renames ended, and a test keeps hints from naming tools that do not exist. The tool list has 23 tools.
-9. On 2026-11-15 a new foundation spec `personal-server` was drafted: a remote MCP server for one person, for phone apps (Claude, ChatGPT, Gemini), with no stored state. On 2026-11-15 the requirements, plan, `test.md`, and `tasks.md` were approved, and the spec was implemented in one go (all `[auto]` tests pass on macOS and Linux). It is `implemented`. The approach is to build from the best knowledge and test in real use at the end (see its `decisions.md`). Still open for the product owner: the real-use pass (`[manual]` items M1 to M9 in its `test.md`) with the real apps and a real GitHub App, a host for the first run, and the merge of `main` (the changelog entry of 0.5.1, which also touches `CHANGELOG.md`).
-10. `linux-support` is `implemented` (2026-11-15). waymark builds and passes all 633 tests on Linux (arm64 in the development container, x86_64 emulated). A Linux x86_64 release archive is built by the release workflow (disabled). A serious Linux bug was found and fixed (a `kill` call that could kill every process). Still open for the product owner: the `[manual]` checks in its `test.md` (the Linux install steps on a clean OrbStack machine, the first Linux release), and enabling CI. `personal-server` can now be reviewed.
+1. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
+2. **Release 0.6.0.** The personal server is in the "Unreleased" entry of `CHANGELOG.md`. Release it after the real-use pass, so that the entry can drop the line "Not yet tested against the real apps".
+3. **`[manual]` tests of the implemented specs (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`). This includes the Linux install check on a clean machine ([linux-support](foundation/linux-support/test.md)).
+4. **Open release steps (product owner).** The CI release workflow, the tap license, the name checks, and the other steps in [distribution/todo.md](foundation/distribution/todo.md).
+5. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
 
@@ -64,7 +59,7 @@ Scope: local mode on macOS (Apple silicon) only. Server mode, multi-tenancy, sig
 | [integration-testing](foundation/integration-testing/requirements.md) | `implemented` | 2026-11-14 |
 | [memory-repository](foundation/memory-repository/requirements.md) | `implemented` | 2026-11-14 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
-| [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-14 |
+| [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-16 |
 | [remove-index](foundation/remove-index/requirements.md) | `implemented` | 2026-11-14 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |

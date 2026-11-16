@@ -16,6 +16,8 @@
 
 ## Outward steps are for the product owner — 2026-11-14
 
+**Superseded by (in part):** The release checklist is removed
+
 **Decision:** Creating the tap repository, tagging, and making this repository public are not done by the AI. They are written in `docs/next-steps/release-checklist.md` as exact steps.
 
 **Reason:** Public releases cannot be undone, and the product owner asked for it (see `docs/decisions.md`).
@@ -37,3 +39,14 @@
 **Decision (product owner):** The repository `ionpulse-dev/waymark` and the tap `ionpulse-dev/homebrew-tap` are public. Release 0.2.0 is published, and the install with Homebrew works. The README and `docs/install.md` now tell people to install with `brew install ionpulse-dev/tap/waymark`.
 
 **Reason:** The install path of the README (an agent reads the README and follows the install guide) needs a working Homebrew install. Checked: the tap is public, `brew info` shows 0.2.0, and `waymark --version` prints `waymark 0.2.0`.
+
+## The release checklist is removed — 2026-11-15
+
+**Decision (product owner):** The folder `docs/next-steps/` is removed, with `release-checklist.md` in it. The open steps of the checklist are now in `todo.md`. The release steps are in `requirements.md`, section "Release process", and in the skill `.claude/skills/release/SKILL.md`.
+
+**Supersedes (in part):** "Outward steps are for the product owner". The rule stays. Only the place of the steps changes.
+
+**Alternatives considered:** Keep the checklist as a document in `docs/` (rejected: it repeats the release process of `requirements.md` and goes stale, as the release list at its top did).
+
+**Reason:** One place for each fact. The spec is the source of truth, and `todo.md` is the place for open work.
+
