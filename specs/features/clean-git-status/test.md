@@ -28,7 +28,7 @@ Unit tests in `src/memrepo/repairs.rs`:
 - [ ] [auto] U3: the old `app.json` (with a final line end), and the same settings in another key order or indent, give the template.
 - [ ] [auto] U4: an `app.json` with a third key, another value, or text that is not JSON needs no repair. The template itself needs no repair.
 - [ ] [auto] U5: every repair is safe to run twice: the output of a repair needs no further repair.
-- [ ] [auto] U6: the template `obsidian-app.json` does not end with a line end, and equals `serde_json::to_string_pretty` of the two settings (`src/memrepo/init.rs`).
+- [ ] [auto] U6: the template `obsidian-app.json` does not end with a line end, equals the exact text of the requirements, and parses to the two settings (`src/memrepo/init.rs`).
 
 Integration tests:
 

@@ -1,2 +1,6 @@
+# Obsidian: share only the link settings. All other files are personal.
 .obsidian/*
 !.obsidian/app.json
+
+# macOS: Finder writes these files in every folder that it opens.
+.DS_Store

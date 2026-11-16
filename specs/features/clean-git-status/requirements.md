@@ -1,6 +1,6 @@
 ---
 type: feature
-status: draft
+status: in-progress
 created: 2026-11-16
 updated: 2026-11-16
 requires:

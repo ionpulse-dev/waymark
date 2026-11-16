@@ -24,6 +24,11 @@ Document names, and the same rules for manual edits.
 - **Short wikilinks keep their target.** When a second document gets a file name such as `readme`, every `[[readme]]` that found the first document becomes `[[people/readme]]`. This is now a rule in section 8 of the Waymark Memory Standard.
 - The `AGENTS.md` suggestions in the [install guide](docs/local-install.md) have a new line: do not call `sync` unless the person asks for it after a manual edit. Add it to your own `AGENTS.md`.
 
+A clean `git status` in the memory repository.
+
+- **`.DS_Store` files of macOS no longer show in `git status`.** A new memory repository ignores them. An existing one gets the line in `.gitignore` at the next write, in its own commit.
+- **A save in Obsidian no longer shows `.obsidian/app.json` as changed.** waymark now writes the file in the form that Obsidian writes. An existing memory repository gets the new form at the next write. A file with your own Obsidian settings is not touched.
+
 ## 0.5.1 (2026-11-15)
 
 waymark now builds and runs on Linux, and this release fixes a serious bug on Linux. There is no change to the tools, so on a Mac you only need to update.

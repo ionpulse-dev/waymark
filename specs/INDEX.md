@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      █████████████████████████████████████░░░  26 / 28 active
+📦 Features      ███████████████████████████████████████░  27 / 28 active
 🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
 ```
 
@@ -11,7 +11,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 1. **`document-names` is `in-progress`: build and test it.** The code, tests, specs, and docs are written (2026-11-16), but nothing is compiled. This Mac has no Rust toolchain. On a machine with Rust, run `make check` and `make linux-test`, fix what fails, tick the `[auto]` items in its [test.md](features/document-names/test.md), and set it to `implemented`. Then release 0.6.0.
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-3. **`clean-git-status` is `draft`: review the spec.** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. The requirements and the plan are approved. The tasks and the tests wait for approval.
+3. **`clean-git-status` is `in-progress`: build and test it.** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. The code and tests are written (2026-11-16), but nothing is compiled. On a machine with Rust, run `make check` and `make linux-test`, tick the `[auto]` items in its [test.md](features/clean-git-status/test.md), and set it to `implemented`.
 4. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`. Release after item 1. The real-use pass of item 2 can drop the line "Not yet tested against the real apps".
 5. **`[manual]` tests, open release steps (product owner), and next specs.** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md). The next spec candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
@@ -22,6 +22,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
 | [document-names](features/document-names/requirements.md) | `in-progress` | 2026-11-16 |
+| [clean-git-status](features/clean-git-status/requirements.md) | `in-progress` | 2026-11-16 |
 | [lean-tools](features/lean-tools/requirements.md) | `implemented` | 2026-11-15 |
 | [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-16 |
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `implemented` | 2026-11-16 |
@@ -35,7 +36,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-14 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `implemented` | 2026-11-14 |
-| [create-memory-repository](features/create-memory-repository/requirements.md) | `implemented` | 2026-11-14 |
+| [create-memory-repository](features/create-memory-repository/requirements.md) | `implemented` | 2026-11-16 |
 | [updates](features/updates/requirements.md) | `implemented` | 2026-11-14 |
 | [notifications-and-review](features/notifications-and-review/requirements.md) | `implemented` | 2026-11-14 |
 | [maintenance](features/maintenance/requirements.md) | `implemented` | 2026-11-14 |
@@ -47,7 +48,6 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [restore-and-replace](features/restore-and-replace/requirements.md) | `implemented` | 2026-11-15 |
 | [document-history](features/document-history/requirements.md) | `implemented` | 2026-11-15 |
 | [manage-tags](features/manage-tags/requirements.md) | `implemented` | 2026-11-15 |
-| [clean-git-status](features/clean-git-status/requirements.md) | `draft` | 2026-11-16 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
@@ -59,7 +59,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-16 |
 | [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-16 |
 | [integration-testing](foundation/integration-testing/requirements.md) | `implemented` | 2026-11-14 |
-| [memory-repository](foundation/memory-repository/requirements.md) | `implemented` | 2026-11-14 |
+| [memory-repository](foundation/memory-repository/requirements.md) | `implemented` | 2026-11-16 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
 | [distribution](foundation/distribution/requirements.md) | `implemented` | 2026-11-16 |
 | [remove-index](foundation/remove-index/requirements.md) | `implemented` | 2026-11-14 |

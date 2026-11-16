@@ -6,7 +6,9 @@ use super::settings;
 use crate::error::{Error, Result};
 
 const GITIGNORE_TEMPLATE: &str = include_str!("templates/gitignore");
-const OBSIDIAN_TEMPLATE: &str = include_str!("templates/obsidian-app.json");
+/// The bytes that Obsidian writes for the two link settings: two spaces of indent and no line end
+/// at the end. A save in Obsidian then changes nothing (see `clean-git-status`).
+pub const OBSIDIAN_TEMPLATE: &str = include_str!("templates/obsidian-app.json");
 const SETTINGS_TEMPLATE: &str = include_str!("templates/settings.toml");
 const EXCLUDE_TEMPLATE: &str =
     "# Files and folders below the root that are not part of the memory repository.\n";
@@ -157,6 +159,27 @@ mod tests {
         assert_eq!(derive_slug("  Ünï Corp "), "n-corp");
         assert_eq!(derive_slug("!!!"), "agent-memory");
         assert_eq!(derive_slug(&"a".repeat(60)).len(), 40);
+    }
+
+    #[test]
+    fn the_obsidian_template_has_the_bytes_that_obsidian_writes() {
+        // An editor can add a final line end to the template file. Obsidian writes none.
+        assert!(!OBSIDIAN_TEMPLATE.ends_with('\n'));
+        assert_eq!(
+            OBSIDIAN_TEMPLATE,
+            "{\n  \"useMarkdownLinks\": true,\n  \"newLinkFormat\": \"relative\"\n}"
+        );
+        let v: serde_json::Value = serde_json::from_str(OBSIDIAN_TEMPLATE).unwrap();
+        assert_eq!(v["useMarkdownLinks"], true);
+        assert_eq!(v["newLinkFormat"], "relative");
+    }
+
+    #[test]
+    fn the_gitignore_template_ignores_ds_store() {
+        assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == ".DS_Store"));
+        assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == ".obsidian/*"));
+        assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == "!.obsidian/app.json"));
+        assert!(GITIGNORE_TEMPLATE.ends_with('\n'));
     }
 
     #[test]

@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - document-format
 ---
@@ -52,7 +52,7 @@ Define the memory repository of a memory repository: its layout, its shared sett
 <name>/                     (cloned to ~/.waymark/<name> by default, or to --path)
   AGENTS.md                   rules for agents
   .obsidian/app.json          Markdown links and relative paths as defaults
-  .gitignore                  .obsidian/* except .obsidian/app.json
+  .gitignore                  .obsidian/* except .obsidian/app.json, and .DS_Store
   agent-memory/                  root of the memory repository
     .waymark/                   marker folder: metadata and configuration, committed
       version                 version of the document standard, for example 1.0
@@ -129,7 +129,7 @@ The repository holds the data and its two version labels. The binary holds the h
 
 | Kind | What it is | Who decides | State |
 |---|---|---|---|
-| **Repair** | Adds what is missing in the settings file (for example the key `schema`). Never changes a value that exists. Safe to run twice. Older builds can still read the result. | Automatic | implemented |
+| **Repair** | Adds what is missing in the settings file (for example the key `schema`), or fixes a file that an older `init` wrote (`.gitignore`, `.obsidian/app.json`). Never changes a value that exists. Safe to run twice. Older builds can still read the result. | Automatic | implemented |
 | **Migration** | A change of the format that older builds cannot read (schema 1 to 2, 2 to 3, and so on). | The owner, by a deliberate step | designed, not built (no schema 2 exists) |
 
 ### Automatic repairs
@@ -140,6 +140,8 @@ The repository holds the data and its two version labels. The binary holds the h
 - A repair never touches `[limits]`, `[approval]`, or any value that the owner set. It comes only from the list in the binary, never from the input of a tool or from a document. An agent cannot use it to loosen a limit.
 - Two people who trigger the same repair at once are handled by the write flow of `git-sync`: it fetches first, so the second finds the file fixed and does nothing.
 - The first repair: a file without the key `schema` gets `schema = 1`. The line goes after the leading comment lines of the file (a header comment stays on top) and after the empty lines that follow them. Every other line stays as it was, with its comments.
+- Two more repairs fix files of the repository root that an older `init` wrote: `.gitignore` gets the line `.DS_Store`, and `.obsidian/app.json` gets the bytes that Obsidian writes. Each file gets its own commit, `waymark: repair "<path>"`. The rules are in [clean-git-status](../../features/clean-git-status/requirements.md).
+- A repair never commits a file with uncommitted changes, so it never commits the work of a person. The one exception is in `clean-git-status`.
 
 ### Migrations (designed, not built)
 

@@ -28,7 +28,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 - [x] [auto] A4: a remote that holds `src/main.rs`: `validation_failed`, and the head did not move (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A5: a remote that holds an `AGENTS.md` with custom text: `validation_failed`, and the file is unchanged (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A6: a remote that holds only `README.md` and `LICENSE`: `init` works and both files are byte-equal to before (`tests/it_create_memory_repository.rs`)
-- [x] [auto] A7: the files `.obsidian/app.json` (both keys) and `.gitignore` (both lines) have the exact content; after a file `.obsidian/workspace.json` is created in the clone, `git status --porcelain` does not list it (`tests/it_create_memory_repository.rs`)
+- [ ] [auto] A7: the files `.obsidian/app.json` and `.gitignore` have the exact bytes of [clean-git-status](../clean-git-status/requirements.md); after a file `.obsidian/workspace.json` is created in the clone, `git status --porcelain` does not list it (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A8: `access = "read-only"` in the personal config: `access_denied`, and with `tools_denied = ["init"]` the tool is not in `tools/list`. With `paused = true`: `paused` (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A9: `preview: true`: no file in the clone, no commit, the result has `commit: null` and `pushed: false` (`tests/it_create_memory_repository.rs`)
 - [x] [auto] A10: after `init`, `add_document` a document and `search` it in the same session (`tests/it_create_memory_repository.rs`)

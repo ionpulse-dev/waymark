@@ -178,15 +178,48 @@ fn a7_obsidian_files_have_the_exact_content() {
     let w = World::empty();
     let mut c = client(&w, Person::A);
     assert!(!init(&mut c, json!({"name": "Example"})).is_error);
+    // The exact bytes of `clean-git-status`.
+    assert_eq!(remote_show(&w, ".obsidian/app.json"), OBSIDIAN_APP_JSON);
+    assert_eq!(remote_show(&w, ".gitignore"), GITIGNORE);
     let app: Value = serde_json::from_str(&remote_show(&w, ".obsidian/app.json")).unwrap();
     assert_eq!(app["useMarkdownLinks"], true);
     assert_eq!(app["newLinkFormat"], "relative");
-    let ignore = remote_show(&w, ".gitignore");
-    assert!(ignore.lines().any(|l| l == ".obsidian/*"));
-    assert!(ignore.lines().any(|l| l == "!.obsidian/app.json"));
     git(&w.a, &["pull", "-q"]);
     std::fs::write(w.a.join(".obsidian/workspace.json"), "{}").unwrap();
     assert!(!git(&w.a, &["status", "--porcelain"]).contains("workspace.json"));
+}
+
+const OBSIDIAN_APP_JSON: &str =
+    "{\n  \"useMarkdownLinks\": true,\n  \"newLinkFormat\": \"relative\"\n}";
+const GITIGNORE: &str = "# Obsidian: share only the link settings. All other files are personal.\n.obsidian/*\n!.obsidian/app.json\n\n# macOS: Finder writes these files in every folder that it opens.\n.DS_Store\n";
+
+/// A new memory repository from `init`, cloned by person A.
+fn new_clone() -> World {
+    let w = World::empty();
+    let mut c = client(&w, Person::A);
+    assert!(!init(&mut c, json!({"name": "Example", "folders": ["ops"]})).is_error);
+    git(&w.a, &["pull", "-q"]);
+    assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
+    w
+}
+
+// clean-git-status A1
+#[test]
+fn ds_store_files_do_not_show_in_git_status() {
+    let w = new_clone();
+    for dir in ["", "agent-memory", "agent-memory/ops", ".obsidian"] {
+        std::fs::write(w.a.join(dir).join(".DS_Store"), [0u8, 1, 2]).unwrap();
+    }
+    assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
+}
+
+// clean-git-status A2
+#[test]
+fn a_save_of_obsidian_does_not_show_in_git_status() {
+    let w = new_clone();
+    // Obsidian writes the same settings: two spaces of indent, no final line end.
+    std::fs::write(w.a.join(".obsidian/app.json"), OBSIDIAN_APP_JSON).unwrap();
+    assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
 }
 
 #[test]

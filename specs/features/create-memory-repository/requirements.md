@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-14
+updated: 2026-11-16
 requires:
   - join-memory-repository
   - plain-git-access
@@ -61,8 +61,8 @@ An unknown key, a wrong type, a bad slug, or a folder path with `..`, an absolut
    | File | Content |
    |---|---|
    | `AGENTS.md` | The plain-Git rules for the audience (see `plain-git-access`). |
-   | `.obsidian/app.json` | `{ "useMarkdownLinks": true, "newLinkFormat": "relative" }` (as [Waymark Memory Standard 1.0, section 11](../../../standard/waymark-1.0.md) recommends). |
-   | `.gitignore` | The lines `.obsidian/*` and `!.obsidian/app.json`. |
+   | `.obsidian/app.json` | `{ "useMarkdownLinks": true, "newLinkFormat": "relative" }` (as [Waymark Memory Standard 1.0, section 11](../../../standard/waymark-1.0.md) recommends), in the exact bytes that Obsidian writes: two spaces of indent and no line end after the last `}` (see [clean-git-status](../clean-git-status/requirements.md)). |
+   | `.gitignore` | The lines `.obsidian/*` and `!.obsidian/app.json`, and `.DS_Store`, each block with a comment line. The exact text is in [clean-git-status](../clean-git-status/requirements.md). |
    | `agent-memory/.waymark/version` | `1.0` and a final line end. |
    | `agent-memory/.waymark/settings.toml` | `schema = 1`, `name`, `id`, `slug`, `verification = false`, and the sections that the inputs set. |
    | `agent-memory/.waymark/exclude` | Empty. |

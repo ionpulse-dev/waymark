@@ -66,7 +66,7 @@ The settings file keeps its current behavior: step 3 is new for it too, but `too
 
 ### Templates
 
-`include_str!` keeps the bytes of the file. The file `obsidian-app.json` must have no line end at the end. An editor may add one, so a unit test checks that the constant does not end with `\n`, and that it equals `serde_json::to_string_pretty` of the two settings (the same form that Obsidian writes).
+`include_str!` keeps the bytes of the file. The file `obsidian-app.json` must have no line end at the end. An editor may add one, so a unit test checks that the constant does not end with `\n` and equals the exact text of the requirements. (`serde_json::to_string_pretty` cannot be the reference: without its feature `preserve_order`, it sorts the keys.)
 
 ## Cross-Feature Dependencies
 

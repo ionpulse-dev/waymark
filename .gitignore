@@ -2,5 +2,8 @@ tmp/
 target/
 dist/
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # macOS
 .DS_Store

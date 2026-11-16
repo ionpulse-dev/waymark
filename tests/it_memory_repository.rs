@@ -298,3 +298,213 @@ fn the_template_explains_every_setting_and_keeps_no_wrong_header() {
         }
     }
 }
+
+// clean-git-status: the repairs of `.gitignore` and `.obsidian/app.json`.
+
+const OLD_GITIGNORE: &str = ".obsidian/*\n!.obsidian/app.json\n";
+const OLD_APP_JSON: &str =
+    "{\n  \"useMarkdownLinks\": true,\n  \"newLinkFormat\": \"relative\"\n}\n";
+const NEW_APP_JSON: &str = "{\n  \"useMarkdownLinks\": true,\n  \"newLinkFormat\": \"relative\"\n}";
+
+/// Write (or remove) files in the clone of person A, commit them as an older tool would, and push.
+fn commit_files(w: &World, files: &[(&str, Option<&str>)]) {
+    for (path, text) in files {
+        let p = w.a.join(path);
+        match text {
+            Some(t) => std::fs::write(&p, t).unwrap(),
+            None => std::fs::remove_file(&p).unwrap(),
+        }
+    }
+    git(&w.a, &["add", "-A"]);
+    git(
+        &w.a,
+        &[
+            "-c",
+            "user.name=Host",
+            "-c",
+            "user.email=host@corp.org",
+            "commit",
+            "-q",
+            "-m",
+            "old files",
+        ],
+    );
+    git(&w.a, &["push", "-q", "origin", "HEAD"]);
+}
+
+fn add(c: &mut McpClient, title: &str) -> common::Reply {
+    let r = c.call(
+        "add_document",
+        json!({"folder": "ops", "title": title, "description": "D.", "body": "B."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    r
+}
+
+fn remote_subjects(w: &World, n: usize) -> Vec<String> {
+    git(&w.remote, &["log", "--format=%s", &format!("-{n}"), "main"])
+        .lines()
+        .map(String::from)
+        .collect()
+}
+
+fn remote_file(w: &World, path: &str) -> String {
+    git(&w.remote, &["show", &format!("main:{path}")])
+}
+
+// A3
+#[test]
+fn a_write_adds_ds_store_to_an_old_gitignore() {
+    let w = World::new();
+    commit_files(&w, &[(".gitignore", Some(OLD_GITIGNORE))]);
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    // Reads and previews never write.
+    let head = git(&w.remote, &["rev-parse", "main"]);
+    assert!(!c.call("search", json!({})).is_error);
+    assert!(!c
+        .call(
+            "add_document",
+            json!({"folder": "ops", "title": "T", "description": "D.", "body": "B.", "preview": true})
+        )
+        .is_error);
+    assert_eq!(git(&w.remote, &["rev-parse", "main"]), head);
+    // A write repairs first, then makes its own commit.
+    let r = add(&mut c, "After gitignore repair");
+    assert!(
+        r.json
+            .to_string()
+            .contains("Git now ignores the .DS_Store files"),
+        "{}",
+        r.json
+    );
+    let subjects = remote_subjects(&w, 2);
+    assert_eq!(subjects[0], "waymark: add \"After gitignore repair\"");
+    assert_eq!(subjects[1], "waymark: repair \".gitignore\"");
+    let ignore = remote_file(&w, ".gitignore");
+    assert!(ignore.starts_with(OLD_GITIGNORE), "{ignore}");
+    assert!(ignore.ends_with("\n.DS_Store\n"), "{ignore}");
+    // A second write has nothing to repair.
+    let r = add(&mut c, "Again");
+    assert!(!r.json.to_string().contains("Repaired"), "{}", r.json);
+    assert_eq!(
+        remote_subjects(&w, 2)[1],
+        "waymark: add \"After gitignore repair\""
+    );
+}
+
+// A3
+#[test]
+fn a_gitignore_with_a_glob_for_ds_store_needs_no_repair() {
+    let w = World::new();
+    commit_files(
+        &w,
+        &[(".gitignore", Some(".obsidian/*\n!.obsidian/app.json\n**/.DS_Store\n"))],
+    );
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = add(&mut c, "No repair");
+    assert!(!r.json.to_string().contains("Repaired"), "{}", r.json);
+    assert_eq!(remote_subjects(&w, 2)[1], "old files");
+}
+
+// A4
+#[test]
+fn a_write_gives_an_old_app_json_the_bytes_of_obsidian() {
+    let w = World::new();
+    commit_files(&w, &[(".obsidian/app.json", Some(OLD_APP_JSON))]);
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = add(&mut c, "After app repair");
+    assert!(
+        r.json.to_string().contains("the format that Obsidian writes"),
+        "{}",
+        r.json
+    );
+    let subjects = remote_subjects(&w, 2);
+    assert_eq!(subjects[0], "waymark: add \"After app repair\"");
+    assert_eq!(subjects[1], "waymark: repair \".obsidian/app.json\"");
+    assert_eq!(remote_file(&w, ".obsidian/app.json"), NEW_APP_JSON);
+    let r = add(&mut c, "Again");
+    assert!(!r.json.to_string().contains("Repaired"), "{}", r.json);
+}
+
+// A5
+#[test]
+fn a_save_of_obsidian_is_committed_by_the_repair() {
+    let w = World::new();
+    commit_files(&w, &[(".obsidian/app.json", Some(OLD_APP_JSON))]);
+    // Obsidian saves its own form.
+    std::fs::write(w.a.join(".obsidian/app.json"), NEW_APP_JSON).unwrap();
+    assert!(git(&w.a, &["status", "--porcelain"]).contains("app.json"));
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    add(&mut c, "After Obsidian save");
+    assert_eq!(
+        remote_subjects(&w, 2)[1],
+        "waymark: repair \".obsidian/app.json\""
+    );
+    assert_eq!(remote_file(&w, ".obsidian/app.json"), NEW_APP_JSON);
+    assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
+}
+
+// A6
+#[test]
+fn files_of_the_person_are_left_alone() {
+    let w = World::new();
+    let own_app =
+        "{\n  \"useMarkdownLinks\": true,\n  \"newLinkFormat\": \"relative\",\n  \"vimMode\": true\n}";
+    commit_files(
+        &w,
+        &[
+            (".obsidian/app.json", Some(own_app)),
+            (".gitignore", Some(OLD_GITIGNORE)),
+        ],
+    );
+    // An uncommitted edit of the person in `.gitignore`.
+    let edited = format!("{OLD_GITIGNORE}tmp/\n");
+    std::fs::write(w.a.join(".gitignore"), &edited).unwrap();
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = add(&mut c, "Leave alone");
+    assert!(!r.json.to_string().contains("Repaired"), "{}", r.json);
+    assert_eq!(remote_file(&w, ".obsidian/app.json"), own_app);
+    assert_eq!(remote_file(&w, ".gitignore"), OLD_GITIGNORE);
+    assert_eq!(
+        std::fs::read_to_string(w.a.join(".gitignore")).unwrap(),
+        edited
+    );
+    assert!(git(&w.a, &["status", "--porcelain"]).contains(".gitignore"));
+}
+
+// A7
+#[test]
+fn a_missing_file_is_not_created() {
+    let w = World::new();
+    commit_files(&w, &[(".gitignore", None), (".obsidian/app.json", None)]);
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
+    let r = add(&mut c, "No new files");
+    assert!(!r.json.to_string().contains("Repaired"), "{}", r.json);
+    let files = git(&w.remote, &["ls-tree", "-r", "--name-only", "main"]);
+    assert!(!files.lines().any(|l| l == ".gitignore"), "{files}");
+    assert!(!files.lines().any(|l| l == ".obsidian/app.json"), "{files}");
+}
+
+// A8
+#[test]
+fn read_only_access_never_repairs() {
+    let w = World::new();
+    commit_files(
+        &w,
+        &[
+            (".gitignore", Some(OLD_GITIGNORE)),
+            (".obsidian/app.json", Some(OLD_APP_JSON)),
+        ],
+    );
+    let head = git(&w.remote, &["rev-parse", "main"]);
+    let mut ro = McpClient::for_person(&w, Person::A, Spawn::args(&["--access", "read-only"]));
+    assert!(!ro.call("search", json!({})).is_error);
+    assert!(ro
+        .call(
+            "add_document",
+            json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."})
+        )
+        .is_error);
+    assert_eq!(git(&w.remote, &["rev-parse", "main"]), head);
+    assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
+}

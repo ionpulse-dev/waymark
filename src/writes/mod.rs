@@ -505,6 +505,67 @@ pub(crate) fn approve_named(
     }
 }
 
+/// Run the automatic repairs: one commit for each file that changed, and the notices.
+///
+/// A file that is missing is never created. A file with uncommitted changes is not repaired, so
+/// that a repair never commits the work of a person. The one exception: an `app.json` that
+/// Obsidian already saved in the new form is committed as it is (see `clean-git-status`).
+fn run_repairs(tx: &Tx, memrepo: &MemRepo, notices: &mut Vec<String>) -> Result<()> {
+    use crate::memrepo::init::OBSIDIAN_TEMPLATE;
+    use crate::memrepo::layout::{MARKER, SETTINGS_FILE};
+    use crate::memrepo::repairs::{repair, Target};
+
+    for target in Target::ALL {
+        let (rel, name) = match target {
+            Target::Settings => {
+                let rel = memrepo
+                    .root
+                    .join(MARKER)
+                    .join(SETTINGS_FILE)
+                    .strip_prefix(&memrepo.repo_dir)
+                    .map(|p| p.to_string_lossy().to_string())
+                    .unwrap_or_default();
+                (rel, "settings".to_string())
+            }
+            Target::Gitignore => (".gitignore".to_string(), ".gitignore".to_string()),
+            Target::ObsidianApp => (
+                ".obsidian/app.json".to_string(),
+                ".obsidian/app.json".to_string(),
+            ),
+        };
+        let Some(working) = tx.read(&rel)? else {
+            continue;
+        };
+        let committed = tx.repo().show_at("HEAD", &rel)?;
+        let (fixed, done) = if committed.as_deref() == Some(working.as_str()) {
+            match repair(target, &working) {
+                Some((fixed, done)) => (Some(fixed), done),
+                None => continue,
+            }
+        } else if target == Target::ObsidianApp && working == OBSIDIAN_TEMPLATE {
+            // Obsidian saved the new form already. Commit it if the committed file is the old
+            // waymark file, so that the change of Obsidian goes away.
+            match committed.as_deref().and_then(|c| repair(target, c)) {
+                Some((_, done)) => (None, done),
+                None => continue,
+            }
+        } else {
+            continue;
+        };
+        if let Some(fixed) = fixed {
+            tx.write_file(&rel, &fixed)?;
+        }
+        tx.repo().commit_change(&Change {
+            paths: vec![rel],
+            message: commit_message(Verb::Repair, &name),
+        })?;
+        for r in done {
+            notices.push(r.notice.to_string());
+        }
+    }
+    Ok(())
+}
+
 /// Run a write: build the plan inside the lock, ask for approval, apply the files, commit, push.
 pub fn execute(
     ctx: &Context,
@@ -564,27 +625,10 @@ pub fn execute(
         } else if preview && env.effective.needs_approval(tool, kind) {
             plan.data.insert("approval".into(), Value::String("required".into()));
         }
-        // A repair of the settings file goes in its own commit, before the change of the caller.
+        // Each repaired file goes in its own commit, before the change of the caller (see
+        // `memory-repository`, "Automatic repairs", and `clean-git-status`).
         if !preview {
-            let rel = memrepo
-                .root
-                .join(crate::memrepo::layout::MARKER)
-                .join(crate::memrepo::layout::SETTINGS_FILE)
-                .strip_prefix(&memrepo.repo_dir)
-                .map(|p| p.to_string_lossy().to_string())
-                .unwrap_or_default();
-            if let Some(text) = tx.read(&rel)? {
-                if let Some((fixed, done)) = crate::memrepo::repairs::repair(&text) {
-                    tx.write_file(&rel, &fixed)?;
-                    tx.repo().commit_change(&Change {
-                        paths: vec![rel],
-                        message: commit_message(Verb::Repair, "settings"),
-                    })?;
-                    for r in done {
-                        plan.notices.push(r.notice.to_string());
-                    }
-                }
-            }
+            run_repairs(tx, &memrepo, &mut plan.notices)?;
         }
         let mut paths = Vec::new();
         let mut first_hash: Option<String> = None;
