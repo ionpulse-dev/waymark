@@ -19,7 +19,12 @@ This guide is for people and for AI agents that install waymark for a person. Th
   - [OpenAI Codex](#openai-codex)
   - [GitHub Copilot in VS Code](#github-copilot-in-vs-code)
   - [GitHub Copilot CLI](#github-copilot-cli)
-- [Agent rules and skills (`AGENTS.md`)](#agent-rules-and-skills-agentsmd)
+- [Choose how the agent uses memory](#choose-how-the-agent-uses-memory)
+  - [If you are an AI agent that installs waymark](#if-you-are-an-ai-agent-that-installs-waymark)
+  - [Setting 1: when the agent reads and writes](#setting-1-when-the-agent-reads-and-writes)
+  - [Setting 2: which writes need a confirmation](#setting-2-which-writes-need-a-confirmation)
+  - [Combinations](#combinations)
+  - [Rules for `AGENTS.md`](#rules-for-agentsmd)
 - [Check that waymark works](#check-that-waymark-works)
 - [Share a memory repository with a team](#share-a-memory-repository-with-a-team)
 - [Tighten the limits](#tighten-the-limits)
@@ -40,10 +45,11 @@ Follow these steps in order. If you are an AI agent, do them for the person. Ask
 4. **Restart the agent tool.** Approve the `waymark` server if the tool asks.
 5. **Check.** Call the `status` tool. The first clone runs in the background, so the state may be `cloning` for a moment. Call `status` again until it is `ready` or `empty`.
 6. **Set up an empty repository.** If the state is `empty`, call the `init` tool once. It needs a `name` (ask the person) and takes an optional `audience`: `personal` for one person, `team` (the default) for a team.
-7. **Rules for the agent.** Ask the person which of the two suggestions in "Agent rules and skills (`AGENTS.md`)" they want (Balanced or Proactive), and add it to their `AGENTS.md`.
-8. **Tell the person it is done** and how to use it: ask their agent to search, save, or update documents in waymark.
+7. **Ask how the agent should use memory.** Follow "If you are an AI agent that installs waymark" in "Choose how the agent uses memory". Ask the person about reading, writing, and confirmation, one question at a time.
+8. **Write the rules.** Show the person the `AGENTS.md` lines and the permission rules. After their yes, write them.
+9. **Tell the person it is done** and how to use it: ask their agent to search, save, or update documents in waymark.
 
-A team does the steps once. Everyone else follows steps 1, 3, and 4 with the same URL (see "Share a memory repository with a team").
+A team does the steps once. Everyone else follows steps 1, 3, 4, 7, and 8 with the same URL (see "Share a memory repository with a team"). Steps 7 and 8 are personal choices.
 
 <br/>
 
@@ -175,7 +181,9 @@ Or write the file `.mcp.json` in the project root by hand:
 
 A session started by a person asks you to approve a server from `.mcp.json` before it is used. `claude mcp reset-project-choices` resets your answers. A local entry wins over a project entry, and a project entry wins over a user entry. The winner is used whole. Fields are not merged.
 
-**Permissions.** The permission rules are in the settings of Claude Code, not in the MCP entry. Put this in `~/.claude/settings.json` (user) or `.claude/settings.json` (project). The read tools run without a prompt. The write tools ask first.
+**Permissions.** The permission rules are in the settings of Claude Code, not in the MCP entry. Put them in `~/.claude/settings.json` (user) or `.claude/settings.json` (project). Choose the rules from "Setting 2: which writes need a confirmation".
+
+**Confirm every write.** The read tools run without a prompt. The write tools ask first.
 
 <!-- snippet: claude-code-permissions -->
 ```json
@@ -212,7 +220,19 @@ A session started by a person asks you to approve a server from `.mcp.json` befo
 }
 ```
 
-The rules name each tool. A glob works only after the prefix `mcp__waymark__`, and the read tools share no pattern.
+The rules name each tool. A glob works only after the prefix `mcp__waymark__`, and the read tools share no pattern. To confirm only some write tools, move the others from `ask` to `allow`.
+
+**No confirmation.** One rule allows all waymark tools:
+
+```json
+{
+  "permissions": {
+    "allow": ["mcp__waymark__*"]
+  }
+}
+```
+
+Remove any waymark tool from the `ask` list in all settings files. An `ask` rule wins over an `allow` rule, also in auto mode.
 
 A mode without prompts (`bypassPermissions`) skips permission prompts. Whether an explicit `ask` rule still prompts in that mode is unverified, so do not rely on it. The other way to get a yes is the approval of waymark itself, through elicitation (see "Tighten the limits"). Whether Claude Code shows that question is unverified.
 
@@ -236,7 +256,7 @@ WAYMARK_AUTHOR_NAME = "Jane Doe"
 WAYMARK_AUTHOR_EMAIL = "jane@example.org"
 ```
 
-`default_tools_approval_mode = "writes"` asks before the tools that are not marked read-only. Whether Codex uses the read-only hint of waymark for this is unverified. The default start time-out of 10 seconds is enough: waymark answers `initialize` at once. Whether a project entry overrides a user entry of the same name in Codex is unverified.
+`default_tools_approval_mode = "writes"` asks before the tools that are not marked read-only. This is "Confirm every write" (see "Setting 2: which writes need a confirmation"). Codex also has the modes `auto`, `prompt`, and `approve`. Which of them runs waymark tools without a prompt is unverified. Whether Codex uses the read-only hint of waymark for this is unverified. The default start time-out of 10 seconds is enough: waymark answers `initialize` at once. Whether a project entry overrides a user entry of the same name in Codex is unverified.
 
 To remove the entry: delete the table `[mcp_servers.waymark]` and its `env` table from `config.toml`.
 
@@ -297,40 +317,134 @@ To remove the entry: delete the `waymark` entry in the JSON file.
 
 <br/>
 
-## Agent rules and skills (`AGENTS.md`)
+## Choose how the agent uses memory
 
-waymark installs nothing into your agent tools and ships no skill binary. You write your own rules in `AGENTS.md` in your project or repository root (or your tool's instruction file).
+Two settings decide how your agent works with waymark. They are independent. Choose each one for yourself.
 
-Suggestions only. waymark does not insert or check these texts. Choose one of the two styles below and adapt it to your team's needs.
+1. **When the agent reads and writes on its own.** This is a rule in `AGENTS.md`. The agent follows it by judgment. waymark does not enforce it.
+2. **Which writes need your confirmation.** These are the permission rules of your agent tool. The agent tool enforces them, whatever the agent decides.
+
+waymark installs nothing into your agent tools and ships no skill binary. You write the rules in `AGENTS.md` in your project or repository root (or your tool's instruction file). You set the permission rules in the settings of your agent tool (see "Agent tools").
 
 <br/>
 
-### Balanced: read alone, write on request
+### If you are an AI agent that installs waymark
 
-The agent searches memory at the start of work, but writes only when asked or after confirming with you.
+The person decides these settings, not you. Do these steps with the person:
+
+1. **Ask about reading.** For example: "Should I search waymark at the start of each task, or only when you ask?" Explain the effect of each choice in one sentence (see "Setting 1").
+2. **Ask about writing.** For example: "Should I save what is worth remembering on my own, suggest each save in the chat, or write only when you ask?" Explain the effect of each choice.
+3. **Ask about confirmation.** For example: "Should your agent tool ask you before each write, or should writes run at once? You can undo every write with `undo`." Explain the limits of `undo` (see "Setting 2").
+4. **Check the combination.** Compare the answers with "Watch for these effects". If an effect applies, tell the person and ask if they want to change an answer.
+5. **Ask where the rules go.** For all projects of the person (their user instruction file and user settings), or for this project only (`AGENTS.md` and the project settings).
+6. **Show the result before you write it.** Show the `AGENTS.md` lines and the permission rules that you will add. Write them only after the person says yes.
+7. **Write the rules.** Add the lines to the instruction file. Keep all other lines. Merge the permission rules into the settings file. Keep all other rules. For "No confirmation", remove the waymark tools from every `ask` list, because an `ask` rule wins.
+8. **Name what you cannot set.** If the confirmation setting of the agent tool is unverified (see "Agent tools"), tell the person to set it themselves.
+
+Ask one question at a time and wait for the answer. Do not choose an answer for the person, and do not skip a question. If the person has no preference, suggest automatic reading, writing on request, and no confirmation.
+
+<br/>
+
+### Setting 1: when the agent reads and writes
+
+**Reading:**
+
+| Choice | Effect |
+|---|---|
+| Automatic | The agent searches waymark at the start of each task. It finds earlier knowledge without a request. Each search costs some context. |
+| On request | The agent reads waymark only when you ask. It uses no context for memory otherwise, but it does not know what it does not look up. |
+
+**Writing:**
+
+| Choice | Effect |
+|---|---|
+| Automatic | The agent decides what is worth remembering and saves it. It tells you in one line what it saved. |
+| Ask in chat | The agent suggests a save ("Save this?") and writes only after you say yes. |
+| On request | The agent writes only when you ask. |
+
+<br/>
+
+### Setting 2: which writes need a confirmation
+
+Every waymark write is one Git commit, and waymark pushes it at once. The `activity` tool lists your writes, and `undo` reverts one of them with a new commit. This is true for every write tool, also for `delete_folder`, `move`, and `init`. So the risk is about the same for all write tools. Choose one rule for all of them:
+
+| Choice | Effect |
+|---|---|
+| No confirmation | Write tools run at once. `activity` and `undo` are your safety net. |
+| Confirm every write | Your agent tool asks you before each write. You see the full call and you can deny it. |
+
+You can also confirm only some write tools. Put those tools in the `ask` list and the others in the `allow` list (see "Claude Code").
+
+`undo` has limits. They are the same for every write tool:
+
+- If someone changed the same document later, `undo` can fail. Then use `update_document` or plain Git.
+- `undo` cannot remove content from the Git history. If a secret was pushed, rotate it.
+- `undo` reverts only your own writes.
+- Your team can pull a write before you undo it.
+
+Read tools never need a confirmation. Allow them always.
+
+<br/>
+
+### Combinations
+
+| Reading | Writing | Confirmation | What you get |
+|---|---|---|---|
+| On request | On request | None | You decide everything in the chat. A write runs at once when you ask for it. |
+| Automatic | On request | None | The agent knows the earlier knowledge. It writes only when you ask, without a dialog. |
+| Automatic | Ask in chat | None | The agent suggests saves. Your "yes" in the chat is the only check. |
+| Automatic | Automatic | None | The agent keeps memory on its own. Check `activity` from time to time. |
+| Automatic | Automatic | Every write | The agent suggests each save as a tool call. The dialog is your yes. |
+| Any | On request | Every write | You ask for a write, and then you confirm it again in the dialog. |
+
+Watch for these effects:
+
+- **Ask in chat with Confirm every write** asks you twice for each write. Choose one of the two. Use "Automatic" writing with "Confirm every write", or "Ask in chat" with "No confirmation".
+- **On request writing is a soft rule.** An agent can still write when you did not ask. With "No confirmation", only `activity` and `undo` catch such a write.
+- **Automatic writing with Confirm every write** shows a dialog often. This is good when you want to see every save, and tiring when you do not.
+
+<br/>
+
+### Rules for `AGENTS.md`
+
+Suggestions only. waymark does not insert or check these texts. Take one line for reading and one line for writing. Then add the common lines. Adapt the text to your team's needs.
+
+**Reading:**
+
+- Automatic: `At the start of a task, search waymark for the topic and open only the relevant documents.`
+- On request: `Search or open waymark documents only when the person asks.`
+
+**Writing:**
+
+- Automatic: `Decide from the context what is worth remembering and save it in waymark without asking in the chat. Tell the person in one line what you saved.`
+- Ask in chat: `When something is worth remembering, ask "Save this in waymark?" and write only after the person says yes.`
+- On request: `Write to waymark only when the person asks.`
+
+**Common lines (always add them):**
 
 <!-- example: agents-md -->
 ```text
-At the start of a task, search waymark for the topic and open only the relevant documents.
 If a document is old or marked disputed, say so and check the facts.
-Write only when the person asks, or after you ask "Save this?" and they say yes.
-One topic per document, with a one-line description. Update before you add.
+One topic per document, with a one-line description.
+Update a document that exists instead of adding a copy.
+Do not save what the code or the history already shows.
+If a document is wrong, mark it disputed with a reason.
+Write with the waymark tools. Do not call `sync` unless the person asks for it after a manual edit.
 Never write secrets, tokens, or personal data.
 ```
 
-<br/>
-
-### Proactive: the agent decides, undo is the safety net
-
-The agent automatically saves memory during its work without asking. Undo (`undo` tool) and Git history serve as the safety net.
+For example, reading on request and writing on request, with no confirmation, gives this `AGENTS.md` text:
 
 <!-- example: agents-md -->
 ```text
-Search waymark before you start work. Decide from the context what is
-worth remembering and save it automatically, without asking. Do not save
-what the code or the history already shows. Update a document that exists
-instead of adding a copy. If a document is wrong, mark it disputed with a
-reason. Tell the person in one line what you saved.
+Search or open waymark documents only when the person asks.
+Write to waymark only when the person asks.
+If a document is old or marked disputed, say so and check the facts.
+One topic per document, with a one-line description.
+Update a document that exists instead of adding a copy.
+Do not save what the code or the history already shows.
+If a document is wrong, mark it disputed with a reason.
+Write with the waymark tools. Do not call `sync` unless the person asks for it after a manual edit.
 Never write secrets, tokens, or personal data.
 ```
 
