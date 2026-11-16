@@ -1,7 +1,7 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ███████████████████████████████████████░  26 / 27 active
+📦 Features      █████████████████████████████████████░░░  26 / 28 active
 🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
 ```
 
@@ -11,9 +11,9 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 1. **`document-names` is `in-progress`: build and test it.** The code, tests, specs, and docs are written (2026-11-16), but nothing is compiled. This Mac has no Rust toolchain. On a machine with Rust, run `make check` and `make linux-test`, fix what fails, tick the `[auto]` items in its [test.md](features/document-names/test.md), and set it to `implemented`. Then release 0.6.0.
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-3. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`. Release after item 1. The real-use pass of item 2 can drop the line "Not yet tested against the real apps".
-4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
-5. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
+3. **`clean-git-status` is `draft`: review the spec.** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. The requirements and the plan wait for approval.
+4. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`. Release after item 1. The real-use pass of item 2 can drop the line "Not yet tested against the real apps".
+5. **`[manual]` tests, open release steps (product owner), and next specs.** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md). The next spec candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
 
@@ -47,6 +47,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [restore-and-replace](features/restore-and-replace/requirements.md) | `implemented` | 2026-11-15 |
 | [document-history](features/document-history/requirements.md) | `implemented` | 2026-11-15 |
 | [manage-tags](features/manage-tags/requirements.md) | `implemented` | 2026-11-15 |
+| [clean-git-status](features/clean-git-status/requirements.md) | `draft` | 2026-11-16 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
