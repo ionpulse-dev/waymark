@@ -4,6 +4,7 @@ _Known bugs, deferred improvements, and open questions. Updated throughout the l
 
 ## Bugs
 
+- **A test can fail with "Address already in use".** Seen on 2026-11-17 in `the_server_listens_on_the_given_port` (`tests/it_mode_and_settings.rs`) during a full `make check`. `free_port()` in `tests/common/server.rs` binds port 0, drops the socket, and the server binds the port later, so another process can take it in between. The test passed when run again. A fix: retry the start with a new port, or let the server bind port 0 and report it.
 _None. Nothing is implemented._
 
 ## Deferred

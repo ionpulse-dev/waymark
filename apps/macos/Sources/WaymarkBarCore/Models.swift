@@ -294,8 +294,10 @@ public struct UpdateChange: Equatable, Sendable {
     public var title: String
     public var by: String
     public var from: String?
+    public var date: String
 
     init(_ j: JSON) {
+        date = j["date"].string ?? ""
         id = j["id"].string ?? ""
         kind = j["change"].string ?? j["kind"].string ?? "updated"
         title = j["title"].string ?? id
@@ -310,16 +312,21 @@ public struct UpdateChange: Equatable, Sendable {
         self.title = title
         self.by = by
         from = nil
+        date = ""
     }
 }
 
 public struct UpdatesResult: Equatable, Sendable {
     public var changes: [UpdateChange]
     public var until: String?
+    public var truncated: Bool
+    public var nextOffset: Int?
 
     init(_ j: JSON) {
         changes = j["changes"].array.map(UpdateChange.init)
         until = j["until"].string
+        truncated = j["truncated"].bool ?? false
+        nextOffset = j["next_offset"].int
     }
 }
 
@@ -356,6 +363,21 @@ public enum Person {
 }
 
 public enum DocumentID {
+    /// Does the `folders` limit allow the document? An empty list allows all. A plain folder name
+    /// means the folder and everything below it, as in `trust-model`.
+    public static func allowed(_ id: String, folders patterns: [String]) -> Bool {
+        if patterns.isEmpty { return true }
+        let folder = self.folder(of: id)
+        return patterns.contains { raw in
+            let p = raw.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            if p.rangeOfCharacter(from: CharacterSet(charactersIn: "*?[{")) == nil {
+                return folder == p || folder.hasPrefix(p + "/")
+            }
+            if p.hasSuffix("/**"), folder == String(p.dropLast(3)) { return true }
+            return fnmatch(p, folder, 0) == 0
+        }
+    }
+
     public static func folder(of id: String) -> String {
         guard let i = id.lastIndex(of: "/") else { return "" }
         return String(id[..<i])

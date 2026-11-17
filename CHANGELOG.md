@@ -2,6 +2,28 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.7.0 (2026-11-18)
+
+Every read now sees the latest state of the memory repository, and a first menu bar app for macOS.
+
+**Every read updates first.**
+
+- **Every read tool brings the clone up to date at its start**, as every write already did. Before, a read used the clone for up to 3 minutes after the last fetch, so a change that a teammate pushed a moment ago could be missing. Now `search`, `show`, `updates`, and the other read tools always see it.
+- Reads that start at the same time share one fetch, so a burst of calls costs one round trip to the Git host.
+- A failed update (for example a rebase that could not run) is tried again at the next call, not 3 minutes later.
+- The environment variable `WAYMARK_FETCH_MAX_AGE` is gone.
+
+**Waymark Bar, a menu bar app for macOS (first version).**
+
+- Watch a document or a folder in a small window that updates by itself when someone pushes a change. Search the memory repository without an agent.
+- **Recent writes:** every write that your agents made under your name, from every agent tool, with a diff of each change. Mark writes as reviewed, and **undo** a bad write after a preview.
+- The app is an MCP client of `waymark`: it starts its own `waymark` with the same memory repository and only reads. Its one write is Undo of your own writes. It needs macOS 14 and `waymark` from Homebrew.
+- This release does not include a notarized download of the app yet. Build it from the repository with `make app`. See the [README](README.md#menu-bar-app-macos).
+
+What to do:
+- Update with `brew upgrade waymark` and restart your agent tool. A running session keeps the old version until it restarts.
+- Remove `WAYMARK_FETCH_MAX_AGE` from your environment if you set it.
+
 ## 0.6.0 (2026-11-17)
 
 A personal server as a first version, document names, the same rules for manual edits, and a clean `git status`. The old tool name `list` stops working, as announced in 0.5.0.

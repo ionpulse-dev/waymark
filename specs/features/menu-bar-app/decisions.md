@@ -137,3 +137,18 @@
 **Decision:** When the default `debugLogFile` holds a path (`defaults write dev.waymark.bar debugLogFile <path>`), the app appends one line per poll: the state, the watched items, the counts, and the notices. Off by default. No document text is written.
 
 **Reason:** The app has no window for diagnostics, and the unified log is not readable in every environment. The real-app checks of 2026-11-17 used it.
+
+## Fixes after an independent code review — 2026-11-17
+
+**Decision:** A review of the Swift code by a separate agent found these problems. All are fixed, and the first five have tests:
+- A write to a `waymark` that had just stopped could end the app with SIGPIPE. The pipe now has `F_SETNOSIGPIPE`, and writes are serialized.
+- After `waymark` stopped, the read handler fired in a busy loop. The handlers now stop at the end of the output.
+- A restart for the read budget stopped the process while other calls ran on it, for example an Undo that waits for approval. Now a replaced process stops only after its last call, one start is shared by all callers, and only a failure of the current process starts the back-off.
+- The read budget counted `show` calls. `waymark` counts each document once, so the app now counts distinct IDs.
+- The folder signal used a 10-minute overlap and a list of reported changes, which hid a second change of the same document. Each folder now passes the `until` of its last `updates` call as the next `since`, as the tool description of `updates` says, and reads all pages.
+- A poll of an old session after a change of the settings was applied to the new one. Polls now carry a generation, and a poll that is asked for during a poll runs right after it. A new interval applies at once.
+- "Load more" entries and the Undone flag could be lost when a poll ended at the same time. The poller now merges.
+- A deleted or moved watched document got the dot again at every poll. A document that the `folders` limit hides showed as deleted (`show` says `not_found`). It now shows "Not available".
+- Search and document windows ignored late answers of an older query. A restored window started before the session. The `waymark-doc:` URL was decoded twice.
+
+**Reason:** Decided autonomously during the build.

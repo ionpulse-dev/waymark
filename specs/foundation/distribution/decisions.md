@@ -56,3 +56,12 @@
 **Decision:** The last check of `scripts/release.sh` (the Linux binary reports the version) uses `CONTAINER_RUNTIME`, like `scripts/linux.sh`, and not `docker`. The check folder is in `dist/` inside the project, not in the system temp folder.
 
 **Reason:** Found before the release of 0.6.0, on a Mac with Colima and `nerdctl` instead of OrbStack. `docker` was missing, and Colima shares only the home folder with its VM. Both would have failed the check after the release was already published.
+
+## The menu bar app is an option of the release — 2026-11-17
+
+**Decision:** `scripts/release.sh` gets `--with-app`. The app ships only with that option, and the option fails without a Developer ID identity and a `notarytool` profile. The cask `waymark-bar` lives in the same tap and depends on the formula.
+
+**Alternatives considered:** Always ship the app (rejected: the maintainer's Mac had no Developer ID identity on 2026-11-17, and an app that is not notarized is blocked by Gatekeeper after a cask install). Ship it signed ad hoc (rejected for the same reason).
+
+**Reason:** Decided autonomously for `menu-bar-app`. The binary release stays as it is, and the app joins when it can be notarized.
+

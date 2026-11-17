@@ -4,6 +4,7 @@
 #                                      identity if this Mac has one, else ad hoc (runs on this Mac only)
 #   bash scripts/macos-app.sh --dist   also notarize and staple, and make WaymarkBar.zip and its checksum.
 #                                      Needs a Developer ID identity and a notarytool keychain profile.
+#   bash scripts/macos-app.sh --strings  write Localizable.strings from every L("...") key in the sources.
 # Environment: WAYMARK_SIGN_IDENTITY (default: the first "Developer ID Application" identity),
 #              WAYMARK_NOTARY_PROFILE (default: waymark), WAYMARK_APP_VERSION (default: Cargo.toml).
 set -euo pipefail
@@ -12,6 +13,16 @@ cd "$(dirname "$0")/.."
 dist=0
 [ "${1:-}" = "--dist" ] && dist=1
 pkg=apps/macos
+if [ "${1:-}" = "--strings" ]; then
+  f=$pkg/Sources/WaymarkBar/Resources/en.lproj/Localizable.strings
+  { echo "/* All window strings of the menu bar app. The key is the English text. */"; echo
+    grep -rhoE '\bL\("([^"\\]|\\.)*"' $pkg/Sources/WaymarkBar | sed -E 's/^L\(//' | LC_ALL=C sort -u | while IFS= read -r k; do
+      echo "$k = $k;"
+    done; } > "$f"
+  plutil -lint -s "$f"
+  echo "macos-app: wrote $f"
+  exit 0
+fi
 out=$pkg/build
 app=$out/WaymarkBar.app
 version=${WAYMARK_APP_VERSION:-$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)}

@@ -32,7 +32,7 @@ Prerequisite: `git-sync`, `search-and-read`, and `updates` reach `implemented` w
 ## Build and release
 
 - [x] `scripts/macos-app.sh`: build, bundle, sign ad hoc or with a Developer ID, and with `--dist` notarize and zip.
-- [ ] `Makefile`: `app` and `app-test`. `check` runs `app-test` on macOS.
-- [ ] `packaging/homebrew/waymark-bar.rb` and `scripts/release.sh --with-app`.
-- [ ] `README.md`: the app section.
-- [ ] Run the full suite (`make check`) and the app build.
+- [x] `Makefile`: `app` and `app-test`. `check` runs `app-test` on macOS.
+- [x] `packaging/homebrew/waymark-bar.rb` and `scripts/release.sh --with-app`.
+- [x] `README.md`: the app section.
+- [x] Run the full suite (`make check`) and the app build.

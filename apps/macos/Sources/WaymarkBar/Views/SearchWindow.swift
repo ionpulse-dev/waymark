@@ -96,6 +96,8 @@ struct SearchWindow: View {
         defer { loading = false }
         do {
             let page = try await model.search(q, offset: offset)
+            // A newer query or page may have started meanwhile.
+            guard q == query.trimmingCharacters(in: .whitespaces), offset == (offset == 0 ? 0 : hits.count) else { return }
             if offset == 0 { hits = page.hits } else { hits += page.hits }
             total = page.total
             error = nil

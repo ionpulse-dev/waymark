@@ -75,7 +75,7 @@ public enum Links {
     public static func id(of url: URL) -> String? {
         guard url.scheme == scheme else { return nil }
         let c = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        return c?.path.removingPercentEncoding ?? c?.path
+        return c?.path
     }
 
     private static func rewriteLine(_ line: String, from: String) -> String {

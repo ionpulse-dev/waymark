@@ -91,7 +91,7 @@ client ⇄ MCP over HTTPS ⇄ [ identity | tenancy | policy | credentials | audi
 - **Authorization.** Who may read or write which memory repository.
 - **Workspace.** One cache clone per memory repository, with a write lock.
 - **Audit log.** Who did what, and when.
-- **Web console.** A web page for approval of writes, the activity list, and undo. The person signs in separately, so the agent cannot answer it. It replaces the macOS app.
+- **Web console.** A web page for approval of writes, the activity list, and undo. The person signs in separately, so the agent cannot answer it. It replaces the old macOS app as the approval channel. The new menu bar app ([menu-bar-app](../specs/features/menu-bar-app/requirements.md), 2026-11-17) is an MCP client for reading and undo, not an approval channel.
 
 <br/>
 

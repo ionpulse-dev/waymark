@@ -138,9 +138,13 @@ struct DocumentWindow: View {
     private func load() async {
         error = nil
         if watchedItem != nil, state?.document != nil { return }
+        let id = currentID
         do {
-            loaded = try await model.show(currentID)
+            let d = try await model.show(id)
+            guard id == currentID else { return }
+            loaded = d
         } catch {
+            guard id == currentID else { return }
             loaded = nil
             self.error = model.describe(error)
         }

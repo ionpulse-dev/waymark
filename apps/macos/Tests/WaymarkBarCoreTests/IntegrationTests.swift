@@ -294,16 +294,55 @@ final class IntegrationTests: XCTestCase {
     // A19
     func testTheReadBudgetStartsANewSession() async throws {
         let a = try await f.agent(.a)
-        try await a.add("ops", "Budget")
+        for i in 0..<5 { try await a.add("ops", "Budget \(i)") }
         try f.personalConfig("[limits]\nmax_documents_opened = 2\n")
         let s = f.appSession()
         defer { Task { await s.stop() } }
-        for _ in 0..<5 {
-            let d = try await s.show("ops/budget").value
-            XCTAssertEqual(d.title, "Budget")
+        // The same document again costs nothing: waymark counts each ID once.
+        for _ in 0..<3 { _ = try await s.show("ops/budget-0") }
+        var starts = await s.starts
+        XCTAssertEqual(starts, 1)
+        for i in 0..<5 {
+            let d = try await s.show("ops/budget-\(i)").value
+            XCTAssertEqual(d.title, "Budget \(i)")
+        }
+        starts = await s.starts
+        XCTAssertGreaterThanOrEqual(starts, 3)
+    }
+
+    // Review finding: calls that start together share one process.
+    func testParallelCallsStartOneProcess() async throws {
+        let s = f.appSession()
+        defer { Task { await s.stop() } }
+        try await withThrowingTaskGroup(of: Void.self) { g in
+            for _ in 0..<6 { g.addTask { _ = try await s.status() } }
+            try await g.waitForAll()
         }
         let starts = await s.starts
-        XCTAssertGreaterThanOrEqual(starts, 3)
+        XCTAssertEqual(starts, 1)
+    }
+
+    // Review finding: a restart (the read budget) does not stop an undo that waits for approval.
+    func testARestartDoesNotBreakAnUndoInFlight() async throws {
+        let a = try await f.agent(.a)
+        try await a.add("ops", "Slow", body: "One.")
+        try await a.update("ops/slow", body: "Two.")
+        try f.personalConfig("[approval]\nrequired_for = [\"undo\"]\n")
+        let s = f.appSession()
+        defer { Task { await s.stop() } }
+        await s.setElicitationHandler { _, _ in
+            try await Task.sleep(nanoseconds: 1_500_000_000)
+            return ["action": "accept", "content": ["approve": true]]
+        }
+        let listed = try await s.activity().value.entries
+        let update = try XCTUnwrap(listed.first { $0.verb == "update" })
+        async let undone = s.undo(commit: update.commit, preview: false)
+        try await Task.sleep(nanoseconds: 500_000_000)
+        try await s.restart()
+        let r = try await undone
+        XCTAssertEqual(r.value.pushed, true)
+        let body = try await s.show("ops/slow").value.body
+        XCTAssertEqual(body, "One.")
     }
 
     // The search window: paging with the small max_results.

@@ -61,7 +61,10 @@ Integration tests (`swift test`, a real `waymark` built from this repository aga
 - [x] [auto] A17: with `access = "read-only"` in the shared settings, the session says that Undo is not allowed and why (`IntegrationTests.swift`).
 - [x] [auto] A18: the app polls `updates` with `since`. An agent of A then calls `updates` without `since` and still lists B's change (`IntegrationTests.swift`).
 - [x] [auto] A19: with a low `max_documents_opened`, more `show` calls than the budget still work, through a new session (`IntegrationTests.swift`).
-- [ ] [auto] A20: `scripts/macos-app.sh` builds `WaymarkBar.app`, and its `Info.plist` has `LSUIElement` (`make app`).
+- [x] [auto] A21: six calls that start together start one `waymark` process (`IntegrationTests.swift`).
+- [x] [auto] A22: a restart while an undo waits for approval does not stop the undo (`IntegrationTests.swift`).
+- [x] [auto] A23: a `waymark` that stops at once gives an error, not a crash; a missing binary cannot start (`MCPClientTests.swift`).
+- [x] [auto] A20: `scripts/macos-app.sh` builds `WaymarkBar.app`, and its `Info.plist` has `LSUIElement` (`make app`; it also fails when a window string is missing from `Localizable.strings`).
 
 Manual tests (on a Mac, with the app built by `make app`):
 

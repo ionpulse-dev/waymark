@@ -54,12 +54,13 @@ public enum RecentWrites {
             guard let next = r.value.nextBefore else { break }
             before = next
         }
-        _ = reachedKnown
         let knownSet = Set(known.map(\.commit))
         let freshSet = Set(fresh.map(\.commit))
         let new = fresh.filter { !knownSet.contains($0.commit) }.map(\.commit)
-        // Fresh entries carry the current flags (undone, later changes). Keep older known entries.
-        let merged = fresh + known.filter { !freshSet.contains($0.commit) }
+        // Fresh entries carry the current flags (undone, later changes). Keep older known entries,
+        // unless the pages did not reach them: then the list would have a gap, and "Load more" goes on
+        // from the oldest fresh entry.
+        let merged = reachedKnown ? fresh + known.filter { !freshSet.contains($0.commit) } : fresh
         return (merged, new, notices, limits)
     }
 

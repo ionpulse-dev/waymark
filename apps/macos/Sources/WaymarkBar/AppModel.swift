@@ -71,6 +71,11 @@ final class AppModel {
     private var poller: Poller?
     private var loop: Task<Void, Never>?
     private var pendingFull: Set<String> = []
+    /// Counts session rebuilds. A poll of an older session is dropped.
+    private var generation = 0
+    /// A poll was asked for while one ran. It runs right after.
+    private var pollAgain = false
+    private var lastPollStart: Date?
 
     private init() {
         settings = settingsStore.settings
@@ -85,9 +90,10 @@ final class AppModel {
         loop = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                await self.pollNow()
-                let seconds = self.settings.clampedInterval
-                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                // Check every second, so that a new interval applies at once.
+                let due = (self.lastPollStart ?? .distantPast).addingTimeInterval(self.settings.clampedInterval)
+                if Date() >= due { await self.pollNow() }
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
             }
         }
     }
@@ -104,18 +110,28 @@ final class AppModel {
     }
 
     func pollNow() async {
-        guard !polling else { return }
+        if polling {
+            pollAgain = true
+            return
+        }
         guard let poller, session != nil else {
             updateSetupWithoutSession()
             return
         }
         polling = true
-        defer { polling = false }
+        lastPollStart = Date()
+        let gen = generation
         let full = pendingFull.union(
             watched.filter { $0.kind == .folder && visible.contains("folder:\($0.path)") }.map(\.path))
         pendingFull = []
         let r = await poller.poll(watched, fullFolders: full)
-        apply(r)
+        polling = false
+        // A settings change during the poll made a new session: this result is of the old one.
+        if gen == generation { apply(r) }
+        if pollAgain || gen != generation {
+            pollAgain = false
+            await pollNow()
+        }
     }
 
     private func updateSetupWithoutSession() {
@@ -126,6 +142,7 @@ final class AppModel {
     }
 
     private func rebuildSession() {
+        generation += 1
         let old = session
         Task { await old?.stop() }
         session = nil
@@ -202,6 +219,8 @@ final class AppModel {
             case .document:
                 guard let p = r.documents[item.path] else { continue }
                 var st = documents[item.path] ?? DocumentState()
+                let hadProblem = st.problem != nil
+                let wasMoved = st.movedTo != nil
                 st.problem = nil
                 st.movedTo = nil
                 switch p {
@@ -216,9 +235,9 @@ final class AppModel {
                 case .moved(let d):
                     st.document = d
                     st.movedTo = d.id
-                    markChanged(item)
+                    if !wasMoved { markChanged(item) }
                 case .deleted(let e):
-                    if st.problem == nil && st.document != nil { markChanged(item) }
+                    if !hadProblem && st.document != nil { markChanged(item) }
                     st.problem = L("This document was deleted.") + " " + e.message
                 case .unavailable(let e):
                     st.problem = L("Not available") + ": " + e.message
@@ -381,6 +400,7 @@ final class AppModel {
     // MARK: - Reading
 
     func readFolder(_ path: String) async {
+        start()
         guard let poller else { return }
         do {
             let l = try await poller.readFolder(path)
@@ -396,11 +416,13 @@ final class AppModel {
     }
 
     func show(_ id: String, version: String? = nil) async throws -> Document {
+        start()
         guard let session else { throw SessionError.notConfigured }
         return try await session.show(id, version: version).value
     }
 
     func search(_ query: String, offset: Int) async throws -> SearchPage {
+        start()
         guard let session else { throw SessionError.notConfigured }
         return try await session.search(query: query, level: 2, offset: offset).value
     }

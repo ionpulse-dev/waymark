@@ -1,6 +1,6 @@
 ---
 type: feature
-status: in-progress
+status: implemented
 created: 2026-11-17
 updated: 2026-11-17
 requires:
@@ -112,7 +112,7 @@ For a person whose agents write on their own: one place to see what was written 
 
 - `waymark` not found: "waymark is not installed. Install it with Homebrew, then choose Retry."
 - `setup_problem` from `waymark`: the app shows the `message` and the `next` sentence of the error.
-- The read budget is used up: `show` opens at most `max_documents_opened` documents in one session (20 by default), and a flag cannot raise it. The app counts its `show` calls and starts a new `waymark` process, which is a new session, before the budget runs out. If `show` still fails with `access_denied`, it starts a new process and tries once more.
+- The read budget is used up: `show` opens at most `max_documents_opened` documents in one session (20 by default), and a flag cannot raise it. The app counts the documents that `show` opened and starts a new `waymark` process, which is a new session, before the budget runs out. If `show` still fails with `access_denied`, it starts a new process and tries once more.
 - Writes are not allowed (`access_denied` because a layer sets `read-only`, or `undo` is in a `tools_denied`): the Undo button is hidden, and the recent writes window says why.
 - Writes are paused (`paused`): the Undo button is disabled, with the line "Writes are paused."
 - The push of an undo fails (`sync_failed`): the app shows the message. The undo commit stays local and goes out with the next write or `sync`, as in `git-sync`.
@@ -128,7 +128,7 @@ The app uses only existing MCP tools and the MCP elicitation of `write-approval`
 | Check the switched-off tools | `tools/list` after the start. If a tool with `readOnlyHint: false` other than `undo` is listed (a newer `waymark` with a new write tool), the app adds it to `--tools-denied` and starts the process again. |
 | Search | `search` with `query`, `level: 2` |
 | Poll a document | `show` with the ID. A different `version` from the last poll means a change. |
-| Poll a folder | `updates` with `folders: [<path>]` and `since` (the time of the last poll) gives the changes of other people and their names. The `activity` entries of the same poll give the person's own writes in the folder. Only when one of the two names the folder, or when the window opens, the app reads the full list: `search` with no query, `folders: [<path>]`, `level: 2` (for the description), `status: "any"`, paged with `offset` (`search` returns at most `max_results` per call). |
+| Poll a folder | `updates` with `folders: [<path>]` and `since` (the time of the last poll) gives the changes of other people and their names. The next poll passes the `until` of this call as `since`. The `activity` entries of the same poll give the person's own writes in the folder. Only when one of the two names the folder, or when the window opens, the app reads the full list: `search` with no query, `folders: [<path>]`, `level: 2` (for the description), `status: "any"`, paged with `offset` (`search` returns at most `max_results` per call). |
 | Recent writes | `activity` with `limit: 50`, then `before` for older pages. A poll reads until it reaches the newest write it already knows. |
 | Change of one write | `history` of the document, to find the version before the write. Then `show` with `version` for both versions. The app computes the diff of the two bodies and properties. |
 | Undo | `undo` with `commit` and `preview: true`, then the same without `preview` after the person confirms. |

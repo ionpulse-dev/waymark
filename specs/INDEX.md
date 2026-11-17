@@ -9,7 +9,7 @@
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **`menu-bar-app` is `in-progress`.** The product owner approved it on 2026-11-17 and asked for the full build, all automated tests, and a release prepared up to the publish step. See [menu-bar-app/tasks.md](features/menu-bar-app/tasks.md). Its `[manual]` items are for the product owner.
+1. **`menu-bar-app` is `implemented`: the manual tests and the release (product owner).** Build with `make app` and run the `[manual]` items M1 to M11 in its [test.md](features/menu-bar-app/test.md). The release 0.7.0 is prepared up to the publish step: the changelog entry waits for your yes, and a notarized app needs a Developer ID identity (see [menu-bar-app/todo.md](features/menu-bar-app/todo.md)).
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
 3. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is part of the 0.6.0 release.
 4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
@@ -21,7 +21,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
-| [menu-bar-app](features/menu-bar-app/requirements.md) | `in-progress` | 2026-11-17 |
+| [menu-bar-app](features/menu-bar-app/requirements.md) | `implemented` | 2026-11-17 |
 | [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-17 |
 | [updates](features/updates/requirements.md) | `implemented` | 2026-11-17 |
 | [clean-git-status](features/clean-git-status/requirements.md) | `implemented` | 2026-11-17 |

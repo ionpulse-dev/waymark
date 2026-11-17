@@ -71,18 +71,20 @@ public actor Poller {
     private var listings: [String: FolderListing] = [:]
     private var activity: [ActivityEntry] = []
     private var activityLoaded = false
-    private var lastPollStart: Date?
-    /// Changes from `updates` that were already reported: key and the time they were seen.
-    private var reported: [String: Date] = [:]
+    private let startedAt: Date
+    /// Per folder: the `until` of its last `updates` call, the `since` of the next one (as the tool
+    /// description of `updates` says). So no change is listed twice.
+    private var folderSince: [String: String] = [:]
     /// Since when the clone may be behind. `waymark` gives a notice once per session, so the state
     /// stays until `status` reports a good fetch after this time.
     private var behindSince: Date?
-    /// `updates` looks back this far before the last poll, for commits that were pushed late.
-    public static let overlap: TimeInterval = 600
+    /// Commits that an undo of this app reverted. Kept, so that a poll that ran meanwhile does not lose them.
+    private var undoneCommits: Set<String> = []
+    private var limits = Limits()
 
     public init(caller: ToolCaller, startedAt: Date = Date()) {
         self.caller = caller
-        lastPollStart = startedAt
+        self.startedAt = startedAt
     }
 
     public var knownActivity: [ActivityEntry] { activity }
@@ -90,29 +92,31 @@ public actor Poller {
     /// Run one poll. `fullFolders` are read in full in any case (window opened, Refresh now).
     public func poll(_ watched: [WatchedItem], fullFolders: Set<String> = [], now: Date = Date()) async -> PollResult {
         var result = PollResult()
-        let since = (lastPollStart ?? now).addingTimeInterval(-Self.overlap)
-        reported = reported.filter { now.timeIntervalSince($0.value) < Self.overlap * 2 }
         do {
             // 1. The writes of the person.
             let r = try await RecentWrites.refresh(caller, known: activity)
             result.notices += r.notices
             result.limits = r.limits
+            if let l = r.limits { limits = l }
             let newEntries = activityLoaded ? r.entries.filter { r.new.contains($0.commit) } : []
             result.newWrites = activityLoaded ? r.new : []
-            activity = r.entries
+            // `activity` may have changed while this poll waited ("Load more", an undo): merge.
+            let got = Set(r.entries.map(\.commit))
+            let older = activity.filter { !got.contains($0.commit) }
+            let tail = r.entries.last.map { last in older.filter { ($0.date ?? .distantPast) <= (last.date ?? .distantFuture) } } ?? older
+            activity = applyUndone(r.entries + tail)
             activityLoaded = true
 
             // 2. Watched folders.
             for item in watched where item.kind == .folder {
                 result.folders[item.path] = try await pollFolder(
-                    item.path, since: since, ownWrites: newEntries, full: fullFolders.contains(item.path),
+                    item.path, ownWrites: newEntries, full: fullFolders.contains(item.path),
                     notices: &result.notices, now: now)
             }
             // 3. Watched documents.
             for item in watched where item.kind == .document {
                 result.documents[item.path] = try await pollDocument(item.path, notices: &result.notices)
             }
-            lastPollStart = now
         } catch let e as ToolError {
             result.error = e.description
             result.state = .error(e.description)
@@ -153,9 +157,15 @@ public actor Poller {
 
     /// Set the undone flag after an undo, also for an entry that is older than the pages read.
     public func markUndone(_ commits: [String]) {
-        activity = activity.map { e in
+        undoneCommits.formUnion(commits)
+        activity = applyUndone(activity)
+    }
+
+    private func applyUndone(_ list: [ActivityEntry]) -> [ActivityEntry] {
+        guard !undoneCommits.isEmpty else { return list }
+        return list.map { e in
             var e = e
-            if commits.contains(where: { RecentWrites.same($0, e.commit) }) { e.undone = true }
+            if undoneCommits.contains(where: { RecentWrites.same($0, e.commit) }) { e.undone = true }
             return e
         }
     }
@@ -165,7 +175,7 @@ public actor Poller {
         guard let last = activity.last?.commit else { return activity }
         let page = try await caller.activity(before: last, limit: 50).value
         let known = Set(activity.map(\.commit))
-        activity += page.entries.filter { !known.contains($0.commit) }
+        activity = applyUndone(activity + page.entries.filter { !known.contains($0.commit) })
         return activity
     }
 
@@ -191,6 +201,9 @@ public actor Poller {
             return .loaded(doc)
         } catch let e as ToolError {
             switch e.code {
+            case "not_found" where !DocumentID.allowed(id, folders: limits.folders):
+                // `show` says not_found for a document that the `folders` limit hides.
+                return .unavailable(ToolError(code: "access_denied", message: "The folders limit hides this document."))
             case "not_found": return .deleted(e)
             case "access_denied", "invalid_arguments": return .unavailable(e)
             default: throw e
@@ -199,19 +212,25 @@ public actor Poller {
     }
 
     private func pollFolder(
-        _ path: String, since: Date, ownWrites: [ActivityEntry], full: Bool, notices: inout [String], now: Date
+        _ path: String, ownWrites: [ActivityEntry], full: Bool, notices: inout [String], now: Date
     ) async throws -> FolderPoll {
         var poll = FolderPoll()
         do {
             var hinted: Set<String> = []
             var names: [String] = []
             if listings[path] != nil {
-                let u = try await caller.updates(since: since, folders: path.isEmpty ? [] : [path])
-                notices += u.notices
-                for c in u.value.changes where DocumentID.isInside(c.id, folder: path) {
-                    let key = "\(c.id)|\(c.kind)|\(c.by)|\(c.from ?? "")"
-                    if reported[key] != nil { continue }
-                    reported[key] = now
+                var changes: [UpdateChange] = []
+                var offset = 0
+                for _ in 0..<10 {
+                    let since = folderSince[path].flatMap(Time.parse) ?? startedAt
+                    let u = try await caller.updates(since: since, folders: path.isEmpty ? [] : [path], offset: offset)
+                    notices += u.notices
+                    changes += u.value.changes
+                    if let until = u.value.until, !u.value.truncated || u.value.nextOffset == nil { folderSince[path] = until }
+                    guard u.value.truncated, let next = u.value.nextOffset, next > offset else { break }
+                    offset = next
+                }
+                for c in changes where DocumentID.isInside(c.id, folder: path) {
                     hinted.insert(c.id)
                     if !c.by.isEmpty && !names.contains(c.by) { names.append(c.by) }
                 }
@@ -226,6 +245,7 @@ public actor Poller {
                 return poll
             }
             let old = listings[path]
+            if old == nil && folderSince[path] == nil { folderSince[path] = Time.rfc3339(now) }
             let fresh = try await fullRead(path)
             listings[path] = fresh
             poll.listing = fresh

@@ -36,6 +36,8 @@ public final class MCPClient: @unchecked Sendable {
     private let stdout = Pipe()
     private let stderr = Pipe()
     private let lock = NSLock()
+    /// One message at a time on the pipe, so that two writes never interleave.
+    private let writeLock = NSLock()
     private var nextID = 1
     private var pending: [Int: CheckedContinuation<JSON, Error>] = [:]
     private var buffer = Data()
@@ -69,18 +71,34 @@ public final class MCPClient: @unchecked Sendable {
         process.standardInput = stdin
         process.standardOutput = stdout
         process.standardError = stderr
+        // A write to a pipe whose reader is gone must fail with an error, not stop the app (SIGPIPE).
+        _ = fcntl(stdin.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1)
         stdout.fileHandleForReading.readabilityHandler = { [weak self] h in
             let data = h.availableData
+            if data.isEmpty {
+                // End of file: the process is gone. Stop the handler, or it fires again and again.
+                h.readabilityHandler = nil
+                self?.didExit()
+                return
+            }
             self?.receive(data)
         }
         stderr.fileHandleForReading.readabilityHandler = { [weak self] h in
             let data = h.availableData
-            guard let self, !data.isEmpty else { return }
+            guard let self else { return }
+            if data.isEmpty {
+                h.readabilityHandler = nil
+                return
+            }
             self.lock.withLock {
                 self.errorTail = String((self.errorTail + String(decoding: data, as: UTF8.self)).suffix(2000))
             }
         }
-        process.terminationHandler = { [weak self] _ in self?.didExit() }
+        // The end of stdout fails the open requests, after the last answer was read. A short wait
+        // covers a process whose stdout stays open (a child that holds it).
+        process.terminationHandler = { [weak self] _ in
+            DispatchQueue.global().asyncAfter(deadline: .now() + 1) { self?.didExit() }
+        }
         do {
             try process.run()
         } catch {
@@ -144,7 +162,8 @@ public final class MCPClient: @unchecked Sendable {
         var data = message.serialized()
         data.append(0x0A)
         do {
-            try stdin.fileHandleForWriting.write(contentsOf: data)
+            if lock.withLock({ exited }) { throw MCPError.processExited("") }
+            try writeLock.withLock { try stdin.fileHandleForWriting.write(contentsOf: data) }
         } catch {
             throw MCPError.processExited(lock.withLock { lastError })
         }
@@ -156,6 +175,8 @@ public final class MCPClient: @unchecked Sendable {
     }
 
     private func didExit() {
+        stdout.fileHandleForReading.readabilityHandler = nil
+        stderr.fileHandleForReading.readabilityHandler = nil
         let (waiting, message, first): ([CheckedContinuation<JSON, Error>], String, Bool) = lock.withLock {
             let first = !exited
             exited = true

@@ -61,8 +61,9 @@ extension ToolCaller {
     }
 
     /// Always with `since`: without it, `updates` would move the stored time of the agent tools.
-    public func updates(since: Date, folders: [String]) async throws -> Reply<UpdatesResult> {
+    public func updates(since: Date, folders: [String], offset: Int = 0) async throws -> Reply<UpdatesResult> {
         var a: [String: JSON] = ["since": .string(Time.rfc3339(since))]
+        if offset > 0 { a["offset"] = .number(Double(offset)) }
         if !folders.isEmpty { a["folders"] = JSON(folders) }
         return try await reply("updates", .object(a), UpdatesResult.init)
     }
@@ -111,8 +112,15 @@ public actor Session: ToolCaller {
     public let config: Config
     private let findBinary: @Sendable (String?) -> URL?
     private var client: MCPClient?
+    /// Clients replaced by a restart. Each stops when its last call ends.
+    private var retired: [MCPClient] = []
+    /// Open calls per client.
+    private var inFlight: [ObjectIdentifier: Int] = [:]
+    /// The start that runs now. Callers that come meanwhile wait for it.
+    private var starting: Task<Void, Error>?
     private var denied: [String] = Binary.deniedTools
-    private var showCount = 0
+    /// The documents that `show` opened in this process. `waymark` counts each ID once.
+    private var opened: Set<String> = []
     private var failures = 0
     private var notBefore: Date?
     private var elicitation: MCPClient.RequestHandler?
@@ -138,32 +146,43 @@ public actor Session: ToolCaller {
     /// The deny list in use (it grows when a newer `waymark` lists a new write tool).
     public var deniedTools: [String] { denied }
 
+    /// Stop every process of this session.
     public func stop() {
+        starting?.cancel()
+        starting = nil
         client?.terminate()
         client = nil
+        for c in retired { c.terminate() }
+        retired = []
     }
 
-    /// Start a new process now, even if one runs (a new session for the read budget).
+    /// Start a new process (a new session for the read budget). Calls that run on the old process
+    /// finish there first.
     public func restart() async throws {
-        stop()
+        if let old = client {
+            retired.append(old)
+            client = nil
+            stopIdleRetired()
+        }
         notBefore = nil
         try await ensureStarted()
     }
 
     public func call(_ tool: String, _ arguments: JSON) async throws -> JSON {
         try await ensureStarted()
-        if tool == "show" && showCount >= max(1, limits.maxDocumentsOpened) {
+        let id = tool == "show" ? arguments["id"].string : nil
+        if let id, !opened.contains(id), opened.count >= max(1, limits.maxDocumentsOpened) {
             try await restart()
         }
         do {
             let j = try await rawCall(tool, arguments)
-            if tool == "show" { showCount += 1 }
+            if let id { opened.insert(id) }
             return j
-        } catch let e as ToolError where e.code == "access_denied" && tool == "show" && showCount > 0 {
+        } catch let e as ToolError where e.code == "access_denied" && tool == "show" && !opened.isEmpty {
             // The read budget of the session is used up: one new session, one more try.
             try await restart()
             let j = try await rawCall(tool, arguments)
-            showCount += 1
+            if let id { opened.insert(id) }
             return j
         }
     }
@@ -171,18 +190,35 @@ public actor Session: ToolCaller {
     // MARK: - Internals
 
     private func rawCall(_ tool: String, _ arguments: JSON) async throws -> JSON {
-        guard let client else { throw MCPError.processExited("") }
+        guard let c = client else { throw MCPError.processExited("") }
+        let key = ObjectIdentifier(c)
+        inFlight[key, default: 0] += 1
+        defer {
+            inFlight[key, default: 1] -= 1
+            if inFlight[key] == 0 { inFlight[key] = nil }
+            stopIdleRetired()
+        }
         let r: JSON
         do {
-            r = try await client.request("tools/call", ["name": .string(tool), "arguments": arguments])
+            r = try await c.request("tools/call", ["name": .string(tool), "arguments": arguments])
         } catch let e as MCPError {
-            if case .processExited = e { processFailed(e.description) }
+            if case .processExited = e { processFailed(c) }
             throw e
         }
         let content = r["structuredContent"].object != nil ? r["structuredContent"] : Self.textContent(r)
         if let l = Limits(content["settings"]) { limits = l }
         if r["isError"].bool == true { throw ToolError(content) }
         return content
+    }
+
+    private func stopIdleRetired() {
+        retired.removeAll { c in
+            if inFlight[ObjectIdentifier(c)] == nil {
+                c.terminate()
+                return true
+            }
+            return false
+        }
     }
 
     private static func textContent(_ r: JSON) -> JSON {
@@ -192,8 +228,10 @@ public actor Session: ToolCaller {
         return .null
     }
 
-    private func processFailed(_ reason: String) {
-        client?.terminate()
+    /// The process `c` failed. Only the current client counts: an old one may end after a restart.
+    private func processFailed(_ c: MCPClient?, starting: Bool = false) {
+        c?.terminate()
+        guard starting || c === client else { return }
         client = nil
         failures += 1
         let delay = min(60.0, pow(2.0, Double(failures - 1)))
@@ -202,6 +240,14 @@ public actor Session: ToolCaller {
 
     private func ensureStarted() async throws {
         if let client, client.isRunning { return }
+        if let starting { return try await starting.value }
+        let t = Task { try await self.startProcess() }
+        starting = t
+        defer { starting = nil }
+        try await t.value
+    }
+
+    private func startProcess() async throws {
         client = nil
         if config.repository.isEmpty { throw SessionError.notConfigured }
         guard let binary = findBinary(config.binarySetting) else { throw SessionError.notInstalled }
@@ -214,35 +260,34 @@ public actor Session: ToolCaller {
                 environment: config.environment)
             c.setRequestHandler(elicitation)
             starts += 1
+            var listed: [String: Bool] = [:]
             do {
                 try await c.start(clientName: "waymark-bar", clientVersion: config.clientVersion)
+                // Check the switched-off tools. A newer waymark may have a new write tool.
+                var cursor: String?
+                repeat {
+                    let page = try await c.request("tools/list", cursor.map { ["cursor": .string($0)] } ?? [:])
+                    for t in page["tools"].array {
+                        if let name = t["name"].string {
+                            listed[name] = t["annotations"]["readOnlyHint"].bool ?? false
+                        }
+                    }
+                    cursor = page["nextCursor"].string
+                } while cursor != nil
             } catch {
-                c.terminate()
-                processFailed(String(describing: error))
+                processFailed(c, starting: true)
                 throw error
             }
-            // Check the switched-off tools. A newer waymark may have a new write tool.
-            var listed: [String: Bool] = [:]
-            var cursor: String?
-            repeat {
-                let page = try await c.request("tools/list", cursor.map { ["cursor": .string($0)] } ?? [:])
-                for t in page["tools"].array {
-                    if let name = t["name"].string {
-                        listed[name] = t["annotations"]["readOnlyHint"].bool ?? false
-                    }
-                }
-                cursor = page["nextCursor"].string
-            } while cursor != nil
             let extra = listed.filter { !$0.value && $0.key != "undo" && !denied.contains($0.key) }.map(\.key).sorted()
             if !extra.isEmpty {
-                denied += extra.filter { !denied.contains($0) }
+                denied += extra
                 c.terminate()
                 continue
             }
             client = c
             tools = listed
             serverVersion = c.serverVersion
-            showCount = 0
+            opened = []
             failures = 0
             notBefore = nil
             if let s = try? await rawCall("status", [:]), let l = Limits(s["settings"]) { limits = l }

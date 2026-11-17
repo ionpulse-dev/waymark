@@ -68,7 +68,13 @@ final class PollerTests: XCTestCase {
         let p = Poller(caller: f)
         let items = [WatchedItem(kind: .folder, path: "ops")]
         _ = await p.poll(items)
-        f.answers["updates"] = { _ in ["changes": [["id": "ops/sub/b", "kind": "new", "by": "Bob Roe <b@example.org>"]]] }
+        // The fake lists the change once: for a `since` before its time.
+        let changedAt = Date().addingTimeInterval(1)
+        f.answers["updates"] = { a in
+            let since = Time.parse(a["since"].string ?? "") ?? .distantPast
+            let list: JSON = since < changedAt ? [["id": "ops/sub/b", "kind": "new", "by": "Bob Roe <b@example.org>"]] : []
+            return ["changes": list, "until": .string(Time.rfc3339(changedAt.addingTimeInterval(1)))]
+        }
         f.answers["search"] = { _ in
             [
                 "results": [

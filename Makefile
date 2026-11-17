@@ -11,7 +11,7 @@ UNIT_ARGS := $(patsubst tests/%.rs,--test %,$(UNIT_FILES))
 INTEGRATION_ARGS := $(patsubst tests/%.rs,--test %,$(INTEGRATION_FILES))
 
 .DEFAULT_GOAL := help
-.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local public-check clean linux-build linux-test linux-check linux-shell
+.PHONY: help setup doctor build release test test-integration test-all fmt lint check spec-check run sample-memory brew-local public-check clean linux-build linux-test linux-check linux-shell app app-test
 
 help: ## List all targets
 	@echo "waymark: development commands"
@@ -50,7 +50,18 @@ lint: ## Check format and run clippy with warnings as errors
 	@$(CARGO) fmt --check
 	@$(CARGO) clippy --all-targets -- -D warnings
 
-check: lint test-all spec-check ## Everything to run before a commit
+# The menu bar app is macOS only (see specs/features/menu-bar-app).
+APP_CHECK := $(if $(filter Darwin,$(shell uname -s)),app-test,)
+
+check: lint test-all spec-check $(APP_CHECK) ## Everything to run before a commit
+
+app-test: ## Menu bar app: unit and integration tests (macOS, builds waymark first)
+	@echo "Running the menu bar app tests..."
+	@$(CARGO) build -q
+	@cd apps/macos && swift test
+
+app: ## Menu bar app: build apps/macos/build/WaymarkBar.app (macOS)
+	@bash scripts/macos-app.sh
 
 spec-check: ## Check the spec folders against INDEX.md
 	@bash scripts/spec-check.sh
