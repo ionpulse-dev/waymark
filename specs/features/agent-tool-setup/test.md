@@ -16,7 +16,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 ## Test Cases
 
 - [x] [auto] A1: every snippet parses, has the server name `waymark`, the command `waymark`, and no secret-like key (`tests/it_agent_tool_docs.rs`)
-- [x] [auto] A3: each `AGENTS.md` example starts with the suggestion line and ends with the secrets line (`tests/it_agent_tool_docs.rs`)
+- [x] [auto] A3: the `AGENTS.md` lines are marked as suggestions, and each of the two example blocks ends with the secrets line (`tests/it_agent_tool_docs.rs`)
 - [x] [auto] A4: after `status` and a read call, the temporary home has no folder or file of an agent tool (`tests/it_agent_tool_docs.rs`)
 - [x] [auto] A5: every tool name in the permission advice is in `tools/list` of the real binary (`tests/it_agent_tool_docs.rs`)
 - [x] [auto] A6: every row marked unverified in `docs/agent-tools-research.md` has the word "unverified" next to the statement in `docs/install.md` (`tests/it_agent_tool_docs.rs`)
