@@ -173,13 +173,14 @@ grep -q 'scripts/linux.sh' "$ci" && ok "the CI Linux job uses the development co
 grep -q 'ubuntu' "$rel" && grep -q 'scripts/linux.sh' "$rel" && grep -q 'linux' "$rel" && ok "the release workflow builds a Linux archive" || bad "the release workflow builds a Linux archive"
 grep -q 'sha256' scripts/package.sh && ok "package.sh writes a checksum, and the release workflow uploads *.sha256" || bad "package.sh writes a checksum"
 
-# README and install guide: both systems, and the note on the Linux steps until the manual check is done
+# README and install guide: both systems, the README links to the guide, and the guide carries the note on the Linux steps until the manual check is done
 for f in README.md docs/local-install.md; do
   grep -qi 'linux' "$f" && grep -qi 'macos' "$f" && ok "$f names Linux and macOS" || bad "$f names Linux and macOS"
 done
 note="The Linux steps are not yet tested on a real machine"
 pending=$(grep -c '^- \[ \] \[manual\] Linux docs check' specs/foundation/linux-support/test.md || true)
-for f in README.md docs/local-install.md; do
+grep -q 'docs/local-install.md' README.md && ok "README.md links to the install guide" || bad "README.md links to the install guide"
+for f in docs/local-install.md; do
   if [ "$pending" -gt 0 ]; then
     grep -q "$note" "$f" && ok "$f carries the Linux note until the manual check is done" || bad "$f carries the Linux note until the manual check is done"
   else

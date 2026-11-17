@@ -29,7 +29,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | IDs `Notes/Plan` and `notes/plan`: same behavior on both systems | case ID tests |
 | Release workflow for a tag: Linux x86_64 archive and checksum | release workflow check, manual first release |
 | Downloaded Linux archive: `waymark --version` prints the version | manual OrbStack check |
-| README and `docs/install.md` name both systems and how to install | docs check |
+| README and `docs/local-install.md` name both systems, the guide says how to install, the README links to it | docs check |
 
 ## Test Cases
 
@@ -52,12 +52,12 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 - [x] [auto] `scripts/package.sh` names the archive after the host target and makes a checksum (`scripts/tests/run.sh`)
 - [x] [auto] The release binary of Linux links only to the system libraries of the supported systems, with a C library not newer than Ubuntu LTS and Debian stable (`scripts/tests/run.sh`)
 - [x] [auto] The CI workflow has a Linux and a macOS job and the Linux job builds `.devcontainer/Dockerfile`; the release workflow builds a Linux x86_64 archive and a checksum (`scripts/tests/run.sh`, YAML check)
-- [x] [auto] The Linux setup text in `README.md` and `docs/install.md` carries the "not yet tested on a real machine" note, until the manual check is done (`scripts/tests/run.sh`)
-- [x] [auto] `README.md` and `docs/install.md` name Linux x86_64 and macOS Apple silicon (`scripts/tests/run.sh`)
+- [x] [auto] The Linux setup text in `docs/local-install.md` carries the "not yet tested on a real machine" note, until the manual check is done (`scripts/tests/run.sh`)
+- [x] [auto] `README.md` and `docs/local-install.md` name Linux x86_64 and macOS Apple silicon, and `README.md` links to `docs/local-install.md` (`scripts/tests/run.sh`)
 - [ ] [manual] Linux docs check on a clean machine.
   - Setup: in OrbStack, create a new Ubuntu LTS machine with nothing installed.
-  - Steps: follow the Linux steps in `docs/install.md` exactly as written (before the first Linux release exists, follow the build-from-source steps). Run `waymark --version`.
-  - Expected: it prints the version. Fix every mistake in the text, then remove the "not yet tested" note from `README.md` and `docs/install.md`.
+  - Steps: follow the Linux steps in `docs/local-install.md` exactly as written (before the first Linux release exists, follow the build-from-source steps). Run `waymark --version`.
+  - Expected: it prints the version. Fix every mistake in the text, then remove the "not yet tested" note from `docs/local-install.md`.
   - Teardown: delete the machine.
 - [x] [manual] Optional speed check of x86_64 on the Mac. Done 2026-11-15 by the AI: `ARCH=amd64` passes the whole suite (633 tests) in about 6 minutes with the first build.
   - Steps: run `ARCH=amd64 make linux-test`.

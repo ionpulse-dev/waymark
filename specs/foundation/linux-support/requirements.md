@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-15
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - dev-environment
   - distribution
@@ -70,7 +70,7 @@ Checked on 2026-11-15 on Linux x86_64 (Rust 1.100.0, Git 2.43), in a sandbox:
 - **No change in behavior.** A tool returns the same result on both systems. Only texts about the system (install and update hints) differ.
 - **Decide at run time, not with `cfg` where possible.** The hint text depends on the system and the install path. Code that needs a system-specific branch is small, in one place, and tested.
 - **One test suite.** There is no list of tests that run on one system only. A test that cannot run on a system is a bug to fix, not a skip.
-- **Linux docs are checked on a real system.** The maintainer has no Linux computer, but a small Linux machine in OrbStack is quick to create and to delete. The Linux setup text in the README and in `docs/install.md` is written first from the commands. It carries a visible note ("The Linux steps are not yet tested on a real machine") until the maintainer follows it, step by step, on a clean machine of that kind, fixes what is wrong, and removes the note. The check is manual and low key: one machine, made for the check and deleted after. The steps use only common commands, so that a reader can fix a small mistake alone.
+- **Linux docs are checked on a real system.** The maintainer has no Linux computer, but a small Linux machine in OrbStack is quick to create and to delete. The Linux setup text is in `docs/local-install.md`. The README has no setup steps of its own: it links to that guide. The text is written first from the commands. It carries a visible note ("The Linux steps are not yet tested on a real machine") until the maintainer follows it, step by step, on a clean machine of that kind, fixes what is wrong, and removes the note. The check is manual and low key: one machine, made for the check and deleted after. The steps use only common commands, so that a reader can fix a small mistake alone.
 - **The container is a development tool, not a release.** It is separate from the container image of `personal-server`, which is a product. It holds no secret, and no project file is copied into it for good. The source is mounted.
 - **The container and the host give the same results.** `make linux-check` and `make check` on Linux are the same checks. A difference between the host and the container on macOS is a finding to report.
 - **Files made in the container belong to the person on the Mac.** The container runs as a user with the same ID as the host user, so that no file in the project folder becomes owned by `root`.
@@ -92,7 +92,7 @@ Checked on 2026-11-15 on Linux x86_64 (Rust 1.100.0, Git 2.43), in a sandbox:
 - **Given** CI, **When** the Linux job runs, **Then** it uses the same development container definition as `make linux-check`.
 - **Given** a Mac with no container runtime, **When** `make doctor` runs, **Then** it reports the container commands as unavailable and says how to get a runtime, and it does not fail the other checks.
 - **Given** the tests that depend on case, **When** they run in the container, **Then** they run on the file system of the container (case-sensitive) and not on the shared Mac folder, so that the result means something.
-- **Given** the Linux setup text in the README and in `docs/install.md`, **When** it has not been followed on a clean Linux machine, **Then** it carries the visible note that the Linux steps are not yet tested on a real machine.
+- **Given** the Linux setup text in `docs/local-install.md`, **When** it has not been followed on a clean Linux machine, **Then** it carries the visible note that the Linux steps are not yet tested on a real machine.
 - **Given** a clean small Linux machine (for example Ubuntu in OrbStack) with nothing installed, **When** the maintainer follows the Linux install steps exactly as written, **Then** `waymark --version` works, and any mistake in the text is fixed and the note is removed. This is a `[manual]` check.
 - **Given** `make doctor` on Linux, **When** a tool is missing (for example `git` or the Rust toolchain), **Then** it names the missing tool and how to get it on Linux, and it does not mention Homebrew as the only way.
 - **Given** `make doctor` on Linux x86_64, **When** all tools exist, **Then** it reports no warning about the platform.
@@ -102,7 +102,7 @@ Checked on 2026-11-15 on Linux x86_64 (Rust 1.100.0, Git 2.43), in a sandbox:
 - **Given** a document with the ID `Notes/Plan` and another with `notes/plan`, **When** both are written and read on Linux and on macOS, **Then** the behavior is the same on both, and it is the behavior that the Waymark Memory Standard defines.
 - **Given** the release workflow, **When** it runs for a tag, **Then** it produces a Linux x86_64 archive and a checksum, next to the macOS one.
 - **Given** the downloaded Linux archive on a supported system, **When** `waymark --version` runs, **Then** it prints the version.
-- **Given** the README and `docs/install.md`, **When** they are read, **Then** they name Linux x86_64 and macOS Apple silicon, and say how to install on each.
+- **Given** the README and `docs/local-install.md`, **When** they are read, **Then** both name Linux x86_64 and macOS Apple silicon, the install guide says how to install on each, and the README links to the install guide.
 
 ## Open Questions
 
