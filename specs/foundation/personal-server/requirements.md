@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-15
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - mcp-server
   - linux-support

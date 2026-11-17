@@ -233,3 +233,9 @@ Research of 2026-11-15 was done from documentation only. Nothing was tested. Eac
 
 All assumptions listed in "Assumptions to test in real use" are still assumptions. The build was tested against a fake GitHub only (see `test.md`, A1 to A34). Nothing in the real apps or in a real GitHub App was tested yet.
 
+
+## The domain-list test does not race the clone — 2026-11-17
+
+**Decision:** In `the_email_domain_list_of_the_memory_repository_is_applied`, the first sign-in uses an owner address in the allowed domain (`olivia@corp.example`). The second sign-in, with `olivia@example.org`, must still fail with 403.
+
+**Reason:** Found in the first Linux run (2026-11-17). The test assumed that the first sign-in comes before the clone is ready, so that the domain list does not apply yet. In the Linux container the local clone was faster, the first sign-in already met the list, and it failed 3 times out of 3. The server behavior was right. Only the test changed.

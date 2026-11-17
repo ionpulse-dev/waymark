@@ -9,7 +9,7 @@
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`, which is now `implemented` and tested on macOS. `make linux-test` is not run yet: the Mac has no container runtime, and the CI workflow is disabled. Run it before the release.
+1. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`, which is now `implemented` and tested on macOS. `make check` passes on macOS and `make linux-test` on Linux arm64. The x86_64 run (`ARCH=amd64`) is not done, and the CI workflow is disabled.
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
 3. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
 4. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
@@ -64,7 +64,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-17 |
-| [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-15 |
+| [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-17 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 
