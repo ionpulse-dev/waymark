@@ -10,7 +10,7 @@
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
 1. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-2. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). The code is in the 0.6.0 release, but the 0.6.0 release notes do not mention it yet: the "Unreleased" entry of `CHANGELOG.md` holds the text.
+2. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is part of the 0.6.0 release.
 3. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
 4. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 

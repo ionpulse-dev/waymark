@@ -2,16 +2,9 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
-## Unreleased
-
-A clean `git status` in the memory repository.
-
-- **`.DS_Store` files of macOS no longer show in `git status`.** A new memory repository ignores them. An existing one gets the line in `.gitignore` at the next write, in its own commit.
-- **A save in Obsidian no longer shows `.obsidian/app.json` as changed.** waymark now writes the file in the form that Obsidian writes. An existing memory repository gets the new form at the next write. A file with your own Obsidian settings is not touched.
-
 ## 0.6.0 (2026-11-17)
 
-A personal server as a first version, document names, and the same rules for manual edits. The old tool name `list` stops working, as announced in 0.5.0.
+A personal server as a first version, document names, the same rules for manual edits, and a clean `git status`. The old tool name `list` stops working, as announced in 0.5.0.
 
 **A personal server, as a first version.**
 
@@ -31,6 +24,11 @@ A personal server as a first version, document names, and the same rules for man
 - **A renamed file with the same text is published as a move**, and links to it are rewritten.
 - **Short wikilinks keep their target.** When a second document gets a file name such as `readme`, every `[[readme]]` that found the first document becomes `[[people/readme]]`. This is now a rule in section 8 of the Waymark Memory Standard.
 - The `AGENTS.md` suggestions in the [install guide](docs/local-install.md) have a new line: do not call `sync` unless the person asks for it after a manual edit. Add it to your own `AGENTS.md`.
+
+**A clean `git status` in the memory repository.**
+
+- **`.DS_Store` files of macOS no longer show in `git status`.** A new memory repository ignores them. An existing one gets the line in `.gitignore` at the next write, in its own commit.
+- **A save in Obsidian no longer shows `.obsidian/app.json` as changed.** waymark now writes the file in the form that Obsidian writes. An existing memory repository gets the new form at the next write. A file with your own Obsidian settings is not touched.
 
 **The old name `list` is gone.** A call named `list` is now an unknown tool. Use `search` without a `query`. In limits, `list` still switches off `search`.
 
