@@ -155,3 +155,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** Raise the limit (rejected by the product owner: the limit is the requirement, and the search itself is fast enough).
 
 **Reason:** Found when the suite first ran on the maintainer's Mac (2026-11-17). Cargo runs the tests of one file in parallel, and the other 17 tests of the file start their own servers and Git repositories. Under that load T21 took 700 to 1 150 ms and failed every time, also before `document-names`. Alone it passed 5 times out of 5. Cargo runs the test files one after the other, so a file of its own measures the search, not the load of the other tests.
+
+## No timing test — 2026-11-17
+
+**Decision:** The timing test T21 (2 000 documents, `search` in under 500 ms) is removed, with its file `tests/it_search_speed.rs`. No automatic test measures the time of `search`. This replaces "The timing test runs alone" above.
+
+**Alternatives considered:** Keep it in its own file (it failed again during the 0.6.0 release, under load from other programs on the Mac, and passed alone right after). Split it into a scale test without a clock and an opt-in benchmark (not chosen by the product owner).
+
+**Reason:** A test that depends on time tests the machine, not waymark. T21 timed the debug build, with the files warm in the file cache, and included the load of other programs (for example a virus scanner that checks each file open). It could only find a slowdown of 5 to 10 times, and it failed at random. A failed release check for no fault in the code costs more than it protects.

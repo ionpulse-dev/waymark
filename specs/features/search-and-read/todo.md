@@ -24,5 +24,5 @@ None.
 
 ## Done in the implementation (2026-11-14)
 
-- All 22 `[auto]` cases pass in `tests/it_search_and_read.rs`. A scan of 2 000 documents takes well under 500 ms in a debug build.
+- All 22 `[auto]` cases pass in `tests/it_search_and_read.rs`. A scan of 2 000 documents took well under 500 ms in a debug build. The timing test T21 was removed on 2026-11-17 (see `decisions.md`).
 - Deferred: a cache for `Store` if a memory repository grows past some thousand files.

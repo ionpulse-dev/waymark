@@ -26,7 +26,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 ## Test Cases
 
-All tests are in `tests/it_search_and_read.rs`, except T21, which is alone in `tests/it_search_speed.rs`. Each starts a `World` and an `McpClient` (see `integration-testing`). Unit tests are in the files of `src/store/`.
+All tests are in `tests/it_search_and_read.rs`. Each starts a `World` and an `McpClient` (see `integration-testing`). Unit tests are in the files of `src/store/`.
 
 - [x] [auto] T1: `search` for a word that no document holds returns `results: []` and no error.
 - [x] [auto] T2: 8 matching documents: `search` returns 5 and `truncated: true`, `total_matches: 8`.
@@ -48,7 +48,7 @@ All tests are in `tests/it_search_and_read.rs`, except T21, which is alone in `t
 - [x] [auto] T18: `stats` with `metric: "documents"` and `by: "folder"` counts match the files.
 - [x] [auto] T19: `list` with `offset` pages through 7 documents with `limit: 3` and returns all of them once.
 - [x] [auto] T20: a manual, uncommitted edit shows in `search`, and `show` has `pending_edit: true`.
-- [x] [auto] T21: with 2 000 generated documents, `search` answers in under 500 ms (`tests/it_search_speed.rs`).
+- T21: removed on 2026-11-17. It was a timing test (see `decisions.md`). The number stays free.
 - [x] [auto] T22: `search` with an empty `query` fails with `invalid_arguments` and a `next` sentence.
 
 ## Notes

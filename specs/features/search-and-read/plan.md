@@ -25,7 +25,6 @@ A new `store` module loads the documents of the memory repository from the worki
 - `src/tools/stats.rs` — the `stats` tool.
 - `src/tools/read_common.rs` — level rendering, the cap by results and tokens, the read refresh and its notice.
 - `tests/it_search_and_read.rs` — end-to-end tests through the MCP client.
-- `tests/it_search_speed.rs` — T21, the timing test, alone in its own test binary.
 
 ## Technical Approach
 
@@ -50,7 +49,7 @@ A new `store` module loads the documents of the memory repository from the worki
 
 ## Risks
 
-- A cold scan of a large repository (more than 10 000 files) may take over a second. Mitigation: the plan keeps `Store` behind one function, so a cache can replace it. A test with 2 000 generated documents fails above 500 ms.
+- A cold scan of a large repository (more than 10 000 files) may take over a second. Mitigation: the plan keeps `Store` behind one function, so a cache can replace it. No automatic test measures the time (see `decisions.md`, 2026-11-17).
 - Plain substring match finds "key" inside "monkey". Accepted for the first release. Ranking puts whole-term title matches first only by weight, not by word boundary.
 - A path that Git reports as renamed twice. The chain follows up to 10 steps.
 
