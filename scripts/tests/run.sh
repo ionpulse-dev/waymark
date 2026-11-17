@@ -165,6 +165,10 @@ fi
 # release.sh builds, uploads, and verifies the Linux x86_64 archive too
 grep -q 'x86_64-unknown-linux-gnu' scripts/release.sh && grep -q 'ARCH=amd64 bash scripts/linux.sh bash scripts/package.sh' scripts/release.sh && grep -q '"\$linux_archive" "\$linux_archive.sha256"' scripts/release.sh && ok "release.sh publishes the Linux x86_64 archive and its checksum" || bad "release.sh publishes the Linux x86_64 archive and its checksum"
 
+# release.sh uses the container runtime of linux.sh, and a check folder that every runtime can see
+grep -q 'docker run' scripts/release.sh && bad "release.sh calls docker directly" || ok "release.sh uses CONTAINER_RUNTIME for the Linux check"
+grep -q 'mktemp -d "$PWD/dist/' scripts/release.sh && ok "release.sh verifies in a folder inside the project" || bad "release.sh verifies in a folder inside the project"
+
 # CI and release workflows (disabled files, ready to enable)
 ci=.github/workflows/ci.yml.disabled
 rel=.github/workflows/release.yml.disabled
