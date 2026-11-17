@@ -91,7 +91,9 @@ fn a1_every_snippet_parses_and_names_waymark() {
 #[test]
 fn a3_agents_md_examples_are_marked_as_suggestions() {
     let install_text = read("docs/local-install.md");
-    assert!(install_text.contains("Suggestions only. waymark does not insert or check these texts."));
+    assert!(
+        install_text.contains("Suggestions only. waymark does not insert or check these texts.")
+    );
     let install = blocks(&install_text, "example");
     assert_eq!(install.len(), 2);
     for (_, text) in install {
@@ -109,9 +111,8 @@ fn both_agents_md_suggestions_hold_the_sync_rule() {
     for (_, text) in install {
         let one_line = text.split_whitespace().collect::<Vec<_>>().join(" ");
         assert!(
-            one_line.contains(
-                "Do not call `sync` unless the person asks for it after a manual edit."
-            ),
+            one_line
+                .contains("Do not call `sync` unless the person asks for it after a manual edit."),
             "{text}"
         );
     }

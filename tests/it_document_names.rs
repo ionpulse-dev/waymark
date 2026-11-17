@@ -129,11 +129,25 @@ fn without_a_name_the_title_gives_the_name() {
 fn a_second_readme_rewrites_short_links() {
     let w = World::new();
     commit_doc(&w.a, "people/readme", "People readme", "x");
-    commit_doc(&w.a, "ops/overview", "Overview", "See [[readme]] and [[readme|the rules]].");
+    commit_doc(
+        &w.a,
+        "ops/overview",
+        "Overview",
+        "See [[readme]] and [[readme|the rules]].",
+    );
     let mut c = client(&w);
-    let r = add(&mut c, "projects", "Projects readme", json!({"name": "readme"}));
+    let r = add(
+        &mut c,
+        "projects",
+        "Projects readme",
+        json!({"name": "readme"}),
+    );
     assert!(!r.is_error, "{}", r.json);
-    assert_eq!(r.json["links_updated"][0]["id"], "ops/overview", "{}", r.json);
+    assert_eq!(
+        r.json["links_updated"][0]["id"], "ops/overview",
+        "{}",
+        r.json
+    );
     let t = file(&w, "ops/overview");
     assert!(
         t.contains("See [[people/readme]] and [[people/readme|the rules]]."),
@@ -147,7 +161,11 @@ fn a_second_readme_rewrites_short_links() {
     );
     // The first readme keeps its backlink.
     let s = c.call("show", json!({"id": "people/readme"}));
-    assert!(s.json["backlinks"].to_string().contains("ops/overview"), "{}", s.json);
+    assert!(
+        s.json["backlinks"].to_string().contains("ops/overview"),
+        "{}",
+        s.json
+    );
 }
 
 #[test]
@@ -157,7 +175,10 @@ fn a_move_to_a_taken_file_name_rewrites_short_links() {
     commit_doc(&w.a, "ops/notes", "Notes", "y");
     commit_doc(&w.a, "ops/overview", "Overview", "See [[readme]].");
     let mut c = client(&w);
-    let r = c.call("move", json!({"from": "ops/notes", "to": "projects/readme"}));
+    let r = c.call(
+        "move",
+        json!({"from": "ops/notes", "to": "projects/readme"}),
+    );
     assert!(!r.is_error, "{}", r.json);
     assert!(file(&w, "ops/overview").contains("See [[people/readme]]."));
 }
@@ -264,8 +285,14 @@ fn sync_makes_one_commit_for_each_edit() {
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
     assert_eq!(subjects(&w.remote).len(), before + 2);
-    let c0 = r.json["committed"][0]["commit"].as_str().unwrap().to_string();
-    let c1 = r.json["committed"][1]["commit"].as_str().unwrap().to_string();
+    let c0 = r.json["committed"][0]["commit"]
+        .as_str()
+        .unwrap()
+        .to_string();
+    let c1 = r.json["committed"][1]["commit"]
+        .as_str()
+        .unwrap()
+        .to_string();
     assert_ne!(c0, c1);
     let bodies = git(&w.remote, &["log", "-2", "--format=%B"]);
     assert!(
@@ -290,7 +317,12 @@ fn a_rename_by_hand_is_published_as_a_move() {
     let mut c = client(&w);
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
-    assert_eq!(r.json["committed"].as_array().unwrap().len(), 1, "{}", r.json);
+    assert_eq!(
+        r.json["committed"].as_array().unwrap().len(),
+        1,
+        "{}",
+        r.json
+    );
     assert_eq!(r.json["committed"][0]["kind"], "moved");
     assert_eq!(r.json["committed"][0]["from"], "ops/deploy");
     assert!(file(&w, "ops/linker").contains("[d](../guides/deploy.md)"));
@@ -307,7 +339,10 @@ fn the_sync_description_names_manual_edits() {
     let tools = c.list_tools();
     let sync = tools.iter().find(|t| t["name"] == "sync").unwrap();
     let d = sync["description"].as_str().unwrap();
-    assert!(d.contains("manual edits") && d.contains("add_document"), "{d}");
+    assert!(
+        d.contains("manual edits") && d.contains("add_document"),
+        "{d}"
+    );
     for word in ["should", "only when", "please"] {
         assert!(!d.to_lowercase().contains(word), "{d}");
     }
@@ -317,8 +352,8 @@ fn the_sync_description_names_manual_edits() {
 fn sync_does_not_let_a_hand_edit_verify() {
     let w = World::new();
     set_verification_on(&w);
-    let unverified = doc("How we deploy", "Steps.")
-        .replace("---\n\n", "trust: unverified\n---\n\n");
+    let unverified =
+        doc("How we deploy", "Steps.").replace("---\n\n", "trust: unverified\n---\n\n");
     write_doc(&w.a, "ops/deploy", &unverified);
     git(&w.a, &["add", "-A"]);
     git(&w.a, &["commit", "-q", "-m", "test: unverified"]);
@@ -354,7 +389,12 @@ fn two_conflicting_hand_edits_keep_both_versions() {
     let mut c = client(&w);
     let r = c.call("sync", json!({}));
     assert!(!r.is_error, "{}", r.json);
-    assert_eq!(r.json["conflicts"].as_array().unwrap().len(), 2, "{}", r.json);
+    assert_eq!(
+        r.json["conflicts"].as_array().unwrap().len(),
+        2,
+        "{}",
+        r.json
+    );
     assert!(file(&w, "ops/one").contains("B version one."));
     assert!(file(&w, "ops/two").contains("B version two."));
     assert!(git(&w.a, &["status", "--porcelain"]).trim().is_empty());

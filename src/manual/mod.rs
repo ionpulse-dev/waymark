@@ -109,7 +109,12 @@ pub fn prepare(
         None
     } else {
         let store = Store::load(memrepo);
-        Some(lint::run(memrepo, &store, &|id| checked.contains(id), None)?)
+        Some(lint::run(
+            memrepo,
+            &store,
+            &|id| checked.contains(id),
+            None,
+        )?)
     };
 
     let disk_ids = memrepo.id_set();
@@ -263,24 +268,17 @@ pub fn prepare(
                         .ok()
                         .flatten()
                         .map(|old| {
-                            format::check(
-                                &path,
-                                &old,
-                                &memrepo.settings.documents,
-                                Some(&disk_ids),
-                            )
-                            .into_iter()
-                            .filter(|f| f.rule == "broken-link")
-                            .map(|f| f.message)
-                            .collect()
+                            format::check(&path, &old, &memrepo.settings.documents, Some(&disk_ids))
+                                .into_iter()
+                                .filter(|f| f.rule == "broken-link")
+                                .map(|f| f.message)
+                                .collect()
                         })
                         .unwrap_or_default(),
                     _ => Vec::new(),
                 };
                 for f in findings.iter_mut() {
-                    if f.rule == "broken-link"
-                        && !f.is_error()
-                        && !old_broken.contains(&f.message)
+                    if f.rule == "broken-link" && !f.is_error() && !old_broken.contains(&f.message)
                     {
                         *f = Finding::error(
                             &path,
@@ -499,7 +497,7 @@ fn overlay(passing: &[Planned]) -> Vec<FileChange> {
                 out.push(FileChange::Write {
                     id: id.clone(),
                     text: text.clone(),
-                    action: *action,
+                    action,
                 });
             }
         }

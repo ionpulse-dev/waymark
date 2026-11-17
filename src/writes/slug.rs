@@ -37,8 +37,7 @@ pub fn check_name(name: &str) -> crate::error::Result<String> {
     let ok = !n.is_empty()
         && n.len() <= MAX_LEN
         && !n.starts_with('-')
-        && n
-            .chars()
+        && n.chars()
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
     if ok {
         Ok(n.to_string())
@@ -139,7 +138,16 @@ mod tests {
         for good in ["readme", "a1-b2", "x", &"a".repeat(60)] {
             assert_eq!(check_name(good).unwrap(), good);
         }
-        for bad in ["", "Readme", "a/b", "readme.md", "-a", "a b", "ü", &"a".repeat(61)] {
+        for bad in [
+            "",
+            "Readme",
+            "a/b",
+            "readme.md",
+            "-a",
+            "a b",
+            "ü",
+            &"a".repeat(61),
+        ] {
             assert!(check_name(bad).is_err(), "{bad}");
         }
     }

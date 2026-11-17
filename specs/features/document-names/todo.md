@@ -11,7 +11,6 @@ None.
 - [ ] If the link commit of a hand rename fails after the rename commit, the rename stays committed without its link fixes. Take the rename back with `undo_commit_keep_files` in that case.
 - [ ] The approval question of `sync` lists the edits, not the other documents that link fixes change.
 - [ ] With `approval.required_for = ["sync"]`, an agent write still publishes hand edits without a question. Only the matching tools hold an edit back. Decide whether `sync` in the list should hold them too.
-- [ ] Measure the tool list (`it_context_budget.rs`). This change adds about 300 bytes. The margin is about 460 bytes.
 - [ ] Freeze and version the Waymark Memory Standard (see `document-format/decisions.md`). The product owner decides when.
 
 ## Open Questions
