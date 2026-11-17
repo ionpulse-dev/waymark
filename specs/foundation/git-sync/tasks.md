@@ -12,3 +12,12 @@
 - [x] Unit tests for each file with temporary repositories.
 - [x] `tests/it_git_sync.rs`: the acceptance criteria with two clones.
 - [x] Run the full suite.
+
+### Update at the start of every call (2026-11-17)
+
+- [ ] `src/gitsync/mod.rs`: remove `last_fetch` and the freshness parts of `mark_fetched`. Keep `last_pull` and the fetch-failed flag. Add the update gate (`Mutex` plus `Condvar`).
+- [ ] `src/gitsync/sync.rs`: remove `FRESH_FOR` and `fresh_for()`. Replace `refresh_if_stale` with `refresh_for_read`, which uses the update gate. Unit test: two threads that call it at the same time cause one fetch.
+- [ ] `src/tools/*.rs`: every read tool calls `refresh_for_read`.
+- [ ] `tests/*.rs`: remove `WAYMARK_FETCH_MAX_AGE` from the test harnesses (`it_updates`, `it_end_to_end`, `it_lean_tools`, `it_notifications`, `it_pause_and_resume`, `it_search_and_read`).
+- [ ] `tests/it_git_sync.rs`: the three new acceptance criteria.
+- [ ] Run the full suite.

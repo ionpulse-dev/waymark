@@ -1,6 +1,6 @@
 ---
 type: feature
-status: implemented
+status: planned
 created: 2026-11-08
 updated: 2026-11-17
 requires:
@@ -36,7 +36,7 @@ All three are read tools. They work when writes are paused or `access` is `read-
 - **Read budget.** `show` opens at most `max_documents_opened` different documents per session (default 20). Opening the same document again costs nothing. After that, `show` fails with `access_denied`.
 - **Folders.** The `folders` limit narrows every read. A document outside it is not found. A `folders` argument narrows the call more. No folder means the whole memory repository. A folder includes its subfolders.
 - **Levels.** Level `0` returns only the `id`. Level `1` adds `title`, `status`, `updated`, and, for a disputed document, `disputed` and `dispute_reason`. Level `2` adds `description`. `search` returns a `snippet` at level 2 when it has a query.
-- **Pull before read.** If the last good fetch is older than 3 minutes, a read fetches first. If that fails, the result carries a notice that the clone may be behind. The read still works.
+- **Pull before read.** Every read call brings the clone up to date at its start (see `git-sync`). If that fails, the result carries a notice that the clone may be behind. The read still works.
 - **No stored index.** Search reads the local files. It sees manual edits that are not committed yet.
 
 The server does not decide when an agent reads. That is the choice of the team, in its `AGENTS.md`.
@@ -191,7 +191,7 @@ Since 0.5.0 the tool `list` is a mode of `search`: a call with no `query` lists 
 - **Given** a deprecated document that another document supersedes, **When** `show` runs, **Then** `replaced_by` names the replacement.
 - **Given** the limit `folders = ["engineering/**"]`, **When** `search` runs, **Then** no document outside it appears, and `show` of one fails with `not_found`.
 - **Given** a folder, **When** `stats` runs with `by: "author"`, **Then** it counts per `created_by`.
-- **Given** a clone that is more than 3 minutes behind, **When** `search` runs, **Then** it fetches first and finds a document from the remote.
+- **Given** a document that another clone pushed a moment ago, **When** `search` runs, **Then** it fetches first and finds the document.
 - **Given** a failed fetch, **When** `search` runs, **Then** it answers from the local clone with a notice that the clone may be behind.
 - **Given** a document that moved, **When** `show` runs with the old ID, **Then** it returns the document and `moved_from`.
 

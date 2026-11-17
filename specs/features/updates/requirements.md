@@ -1,8 +1,8 @@
 ---
 type: feature
-status: implemented
+status: planned
 created: 2026-11-08
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - search-and-read
 ---
@@ -31,7 +31,7 @@ requires:
 - Changes by the person themselves are not listed. The person knows them (see `activity` for their own writes).
 - A document is "mine" when `created_by` has the email of the person.
 - No folder means everything. Folders include subfolders. The `folders` limit applies.
-- It reads Git history, after a fetch if the last good fetch is older than 3 minutes. It lists only committed changes.
+- It reads Git history after it brings the clone up to date (see `git-sync`). It lists only committed changes.
 - The output is honest. The message says that waymark did not check the changes for truth. A document with a `trust` property shows it.
 - The same facts that matter most arrive as `notices` in other results (see `notifications-and-review`). When an agent runs `updates` is the choice of the team.
 - The stored time is one small file for each person and memory repository. All agent tools of the person on this machine share it. The last call without `since` wins.

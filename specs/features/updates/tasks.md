@@ -9,3 +9,10 @@ _Prerequisite: `search-and-read` is `implemented` or `done`._
 - [x] `tests/it_updates.rs`: the test cases of `test.md`.
 - [x] Check the size of `tools/list` against the budget of `mcp-server`.
 - [x] Run the full suite (`make check`).
+
+### Update at the start of every call (2026-11-17)
+
+`git-sync` owns the code change (see its `tasks.md`). This spec only changes its test.
+
+- [ ] `tests/it_updates.rs`: rewrite T10 without `WAYMARK_FETCH_MAX_AGE`. B pushes, A runs `updates` at once and lists the change.
+- [ ] Run the full suite (`make check`).

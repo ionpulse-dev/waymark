@@ -219,9 +219,11 @@ draft → planned → in-progress → implemented → done
 | `blocked`     | Cannot proceed — a `requires` dependency is not yet `implemented` or `done`          |
 | `implemented` | All tasks in `tasks.md` are checked off                                              |
 | `done`        | All items in `test.md` are checked off (auto + manual)                               |
-| `superseded`  | Replaced by other specs. The files stay as a record.                                 |
+| `superseded`  | Replaced by other specs. The files stay as a record, until the product owner removes them. |
 
-`superseded` is an end state. A spec is superseded when other specs replace it, for example after a change of direction. Its `requirements.md` gets `status: superseded` and a `superseded_by` list in the frontmatter, and a short note at the top. The folder and its files stay, because specs are never deleted. `INDEX.md` lists it in a Superseded table and does not count it.
+`superseded` is an end state. A spec is superseded when other specs replace it, for example after a change of direction. Its `requirements.md` gets `status: superseded` and a `superseded_by` list in the frontmatter, and a short note at the top. The folder and its files stay. `INDEX.md` lists it in a Superseded table and does not count it.
+
+**Removing a superseded spec.** When a superseded spec only confuses, the product owner can decide to remove it. Only a `superseded` spec can be removed, and only on that explicit decision. Then: record the decision in the project decisions, fix every link to the folder, delete the folder, and replace its row in `INDEX.md` with a line that names the spec and the last commit that holds it. Git keeps the files. Old decision entries that name the spec stay as they are.
 
 `blocked` can interrupt any active status. When the blocking dependency is resolved, status reverts to what it was before being blocked.
 
@@ -304,7 +306,7 @@ When working in this project, AI must:
 8. **List all new files in `plan.md` before creating them** — before finalising `plan.md`, enumerate every file that will be created under the `## New Files` section with its full path and purpose. If a task requires creating a file not yet listed there, update `plan.md` first. This ensures every file is permanently traceable to the spec that owns it.
 9. **Check `requires` before starting implementation** — read the `requires` frontmatter of the spec being implemented. Verify every listed spec is at status `implemented` or `done` in `INDEX.md`. If any prerequisite is incomplete, set status to `blocked`, note the blocking spec in `INDEX.md` `## Next Up`, and flag it to the user. When the dependency resolves, revert to the previous status.
 10. **Record decisions** in `decisions.md` when making non-obvious choices
-11. **Never delete** spec files — they are permanent records (git tracks history)
+11. **Never delete** spec files — they are permanent records (git tracks history). The only exception is a `superseded` spec that the product owner decides to remove (see "Removing a superseded spec")
 12. **Ask for approval** at each phase gate before proceeding to the next phase
 13. **Reverse-propagate** any manual code changes back into the spec files immediately
 14. **Keep `## Next Up` current in `INDEX.md`** — after every status change or completed task, update the `## Next Up` section. List items in execution order: what is actively in progress, what is next in line, what is blocked and why. Maximum 5 entries. Remove an item once it reaches `done`. Foundation blockers must appear above the features they unblock.

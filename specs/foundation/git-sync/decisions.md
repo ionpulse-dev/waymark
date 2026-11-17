@@ -35,3 +35,20 @@
 **Decision:** waymark does not skip Git hooks. A failing hook gives `sync_failed` with the hook output in `message`.
 
 **Reason:** The owner of the repository set the hook on purpose. Decided autonomously.
+
+## Update at the start of every call — 2026-11-17
+
+**Decision:** Every read call brings the clone up to date at its start, as every write already does. The 3 minute freshness window and its variable `WAYMARK_FETCH_MAX_AGE` are removed. Calls in one process that start while an update runs share that update.
+
+**Supersedes:** "Pull before read — 2026-11-06" and "The fetch age is a variable that tests can set — 2026-11-14" in [search-and-read](../../features/search-and-read/decisions.md).
+
+**Alternatives considered:**
+- Keep the window, with a default of 0. Rejected: a setting that nobody changes is code, spec, and tests with no use.
+- A shorter window (10 to 30 seconds). Rejected: a read can still miss a change, and the window is hard to explain.
+- Fetch in every call without sharing. Rejected: parallel calls would each fetch and wait for the lock.
+
+**Reason:** The product owner wants every call to see the latest state. The window existed to make bursts of reads cheap. The shared update covers parallel calls. A burst of calls one after another pays one fetch per call, about 0.2 to 2 seconds. The old window also had a gap: the timestamp was set after the fetch and before the fast-forward or rebase, so a failed rebase was not tried again for 3 minutes.
+
+## Approved — 2026-11-17
+
+**Decision:** The product owner approved the change "Update at the start of every call" on 2026-11-17. The spec moves to `planned`.

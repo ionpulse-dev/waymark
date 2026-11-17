@@ -36,6 +36,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Reason:** Agents never read an old clone, even if the background sync is off.
 
+**Superseded by:** "Update at the start of every call — 2026-11-17" in [git-sync](../../foundation/git-sync/decisions.md).
+
 ## Caps and a read budget are limits — 2026-11-11
 
 **Decision:** `search` is capped by `max_results` and `max_tokens`. `show` is capped by `max_documents_opened` per session. The advice "read at most 5 documents" is gone, because the server enforces it.
@@ -130,6 +132,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Alternatives considered:** A fake clock in the code (rejected: tests run the real binary).
 
 **Reason:** Tests must not wait 3 minutes. The variable is a setting of the person and cannot loosen a limit. Decided autonomously.
+
+**Superseded by:** "Update at the start of every call — 2026-11-17" in [git-sync](../../foundation/git-sync/decisions.md). The window and the variable are removed.
 
 ## Implementation notes — 2026-11-14
 

@@ -20,3 +20,10 @@ _Tasks are in prerequisite-first order._
 - [x] Remove the timing test T21 and `tests/it_search_speed.rs` (see `decisions.md`, 2026-11-17).
 - [x] Check the size of `tools/list` against the budget of `mcp-server`.
 - [x] Run the full suite (`make check`).
+
+### Update at the start of every call (2026-11-17)
+
+`git-sync` owns the code change (see its `tasks.md`). This spec only changes its test.
+
+- [ ] `tests/it_search_and_read.rs`: rewrite T14 without `WAYMARK_FETCH_MAX_AGE`. A runs `search` once, B pushes, A runs `search` again at once and finds the document.
+- [ ] Run the full suite (`make check`).

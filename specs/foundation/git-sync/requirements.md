@@ -1,8 +1,8 @@
 ---
 type: foundation
-status: implemented
+status: planned
 created: 2026-11-08
-updated: 2026-11-16
+updated: 2026-11-17
 requires:
   - memory-repository
 ---
@@ -70,7 +70,9 @@ A tool takes `preview: true`, which shows what would be written and writes nothi
 
 ### When the clone is updated
 
-- **Local mode.** The server runs for one session. It pulls at start, before a read if the last good pull is older than a few minutes, and in every write flow. There is no background job and no app.
+- **Local mode.** The server runs for one session. It pulls at start, at the start of every read call, and in every write flow. There is no background job and no app.
+- **One update for calls at the same time.** When a call starts while an update of the same clone is running, it waits for that update and uses its result. It does not start a second fetch.
+- There is no freshness window. A call never skips the update because an earlier call updated a short time ago.
 - **Server mode.** The server also pulls in the background at an interval, default 5 minutes (see `server-mode`).
 - A pull that fails never blocks a read. The result carries a notice that the clone may be behind.
 
@@ -84,6 +86,9 @@ A tool takes `preview: true`, which shows what would be written and writes nothi
 - **Given** a running write, **When** `sync` starts, **Then** it waits for the lock.
 - **Given** `preview: true`, **When** a write tool runs, **Then** nothing is written or committed.
 - **Given** no network, **When** `search` runs, **Then** it answers from the local clone with a notice that the clone may be behind.
+- **Given** a document that another clone pushed a moment ago, **When** a read tool runs, **Then** it fetches first and sees the document.
+- **Given** several read calls that start at the same time, **When** they run, **Then** they share one fetch.
+- **Given** a fetch that worked and a fast-forward or rebase that failed, **When** the next read runs, **Then** it tries the update again.
 
 ## Open Questions
 

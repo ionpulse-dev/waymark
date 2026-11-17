@@ -20,7 +20,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** a deprecated document that another supersedes, **When** `show` runs, **Then** `replaced_by` names the replacement. | T11 |
 | **Given** the limit `folders = ["engineering/**"]`, **When** `search` runs, **Then** no document outside it appears, and `show` fails with `not_found`. | T12 |
 | **Given** a folder, **When** `stats` runs with `by: "author"`, **Then** it counts per `created_by`. | T13 |
-| **Given** a clone more than 3 minutes behind, **When** `search` runs, **Then** it fetches first and finds the remote document. | T14 |
+| **Given** a document that another clone pushed a moment ago, **When** `search` runs, **Then** it fetches first and finds the document. | T14 |
 | **Given** a failed fetch, **When** `search` runs, **Then** it answers locally with a notice. | T15 |
 | **Given** a document that moved, **When** `show` runs with the old ID, **Then** it returns the document and `moved_from`. | T16 |
 
@@ -41,7 +41,7 @@ All tests are in `tests/it_search_and_read.rs`. Each starts a `World` and an `Mc
 - [x] [auto] T11: `show` of a deprecated document names the superseding document in `replaced_by`.
 - [x] [auto] T12: with a shared limit `folders = ["engineering/**"]`, `search` returns only `engineering/` documents and `show` of `ops/deploy` is `not_found`.
 - [x] [auto] T13: `stats` with `by: "author"` returns one group per `created_by`, and the values add up to `total`.
-- [x] [auto] T14: clone B commits a document and pushes. Clone A has a last fetch older than 3 minutes (the test sets the freshness clock back). `search` on A finds the document.
+- [ ] [auto] T14: clone A runs `search` once. Clone B commits a document and pushes. Clone A runs `search` again at once, with no freshness setting. It finds the document.
 - [x] [auto] T15: the remote path is broken. `search` still returns results and has a notice that the clone may be behind.
 - [x] [auto] T16: `git mv` a document and commit. `show` with the old ID returns the new document, `moved_from` is the old ID, and there is a notice.
 - [x] [auto] T17: a document `ops/index.md` with the tag `index` is found by `search` and `list` like any document.

@@ -29,7 +29,8 @@ The short version of the rules (the full rules are in `WORKFLOW.md`):
 - Keep the status in `requirements.md` and in `specs/INDEX.md` in sync.
 - Record non-obvious choices in the `decisions.md` of the spec.
 - If code changes without a spec, update the spec at once.
-- Never delete spec files. Git keeps the history.
+- Never delete spec files. Git keeps the history. The only exception: the product
+  owner can decide to remove a `superseded` spec (see `WORKFLOW.md`).
 - Mark work as done at once: tick the task in `tasks.md`, the `[auto]` items in
   `test.md`, and the plan you follow, as soon as the work is finished.
 

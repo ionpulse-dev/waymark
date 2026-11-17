@@ -35,6 +35,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 - [Leaner tools: `list` joins `search`, small edits get small calls — 2026-11-15](#leaner-tools-list-joins-search-small-edits-get-small-calls--2026-11-15)
 - [Linux support is implemented — 2026-11-15](#linux-support-is-implemented--2026-11-15)
 - [The personal server is built, and tested in real use at the end — 2026-11-15](#the-personal-server-is-built-and-tested-in-real-use-at-the-end--2026-11-15)
+- [A menu bar app as an MCP client is drafted — 2026-11-17](#a-menu-bar-app-as-an-mcp-client-is-drafted--2026-11-17)
+- [Superseded specs can be removed; the old Mac app specs are removed — 2026-11-17](#superseded-specs-can-be-removed-the-old-mac-app-specs-are-removed--2026-11-17)
 
 ---
 
@@ -198,6 +200,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 
 **Reason:** The specification describes the current state, and the history of why it changed stays readable.
 
+**Superseded by:** "Superseded specs can be removed; the old Mac app specs are removed — 2026-11-17" (only the rule that a superseded spec is never deleted).
+
 <br/>
 
 ## The specification follows the MCP-only direction — 2026-11-11
@@ -322,4 +326,28 @@ feature specs keep their words. The reasons are in the spec
 **Alternatives considered:** Test every app before building (rejected: one maintainer, and some tests need paid plans and admin access).
 
 **Reason:** The unknowns touch only the sign-in door and the Git credential code, not the MCP core. A wrong assumption is a fix in one module. See the decisions of the spec.
+
+<br/>
+
+## A menu bar app as an MCP client is drafted — 2026-11-17
+
+**Decision:** A new feature spec, [menu-bar-app](../specs/features/menu-bar-app/requirements.md), describes a macOS menu bar app that reads a memory repository. It is an MCP client of `waymark`: it starts its own `waymark` process, polls at an interval to show changes to watched documents and folders, and lists the person's recent writes for a fast review. Its only write is `undo` of the person's own writes. It stays `draft`. The decision "No macOS app — 2026-11-11" and "A desktop app" under out of scope in [PROJECT.md](../specs/PROJECT.md) are not changed. The spec waits until the product owner changes the scope.
+
+**Alternatives considered:** Restore the superseded `mac-app` spec (rejected: it was built on the CLI and the app link, which no longer exist; see the `decisions.md` of the new spec). A watch feature with MCP subscriptions in `waymark` (rejected: polling works with no change to `waymark`, now that every read updates the clone at its start).
+
+**Reason:** The product owner wants a native window that shows a document or a folder and updates by itself. As an MCP client, the app keeps "MCP is the only interface" and adds no logic to `waymark`.
+
+<br/>
+
+## Superseded specs can be removed; the old Mac app specs are removed — 2026-11-17
+
+**Supersedes:** "Specs are superseded, never deleted — 2026-11-11", for the rule that a superseded spec is never deleted. A replaced spec still gets the status `superseded` first.
+
+**Decision:** The product owner can decide to remove a superseded spec. The steps are in `specs/WORKFLOW.md`, under "Removing a superseded spec". The first use: the three old Mac app specs `foundation/mac-app`, `foundation/app-link`, and `features/approval-dialog` are removed. Their last version is in commit `1e588d9`, for example `git show 1e588d9:specs/foundation/mac-app/requirements.md`. The superseded specs `cli-core` and `agent-skill` stay.
+
+**Alternatives considered:**
+- Keep them, with a line at the top that points to `menu-bar-app` (rejected by the product owner: the old specs still confuse).
+- Remove all five superseded specs (not asked for now. The same steps apply later).
+
+**Reason:** The new draft [menu-bar-app](../specs/features/menu-bar-app/requirements.md) describes a Mac app again. Three old specs with a different architecture next to it confuse people and agents. Git keeps them, and this entry names the commit. The decisions of the new spec record what it took from `mac-app`.
 

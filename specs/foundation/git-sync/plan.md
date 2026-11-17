@@ -7,7 +7,7 @@ A `gitsync` module wraps the `git` binary. It gives the rest of the code one typ
 ## Components Affected
 
 - Every write tool uses `Repo::write`.
-- Read tools call `Repo::refresh_if_stale`.
+- Read tools call `Repo::refresh_for_read`.
 - `sync`, `activity-and-undo`, and `manual-edits` call the other methods listed below.
 
 ## New Files
@@ -34,7 +34,8 @@ A `gitsync` module wraps the `git` binary. It gives the rest of the code one typ
 9. **Preview.** With `preview: true` the transaction runs the checks and returns the planned change without writing.
 10. **Sync.** `sync`: commit pending manual edits (owned by `manual-edits`), `git pull --rebase`, `git push`. On a conflict, abort the rebase. Then for each conflicted path: the remote version stays at the original path. The local version is saved as `<name>-conflict-<7 hex>.md` next to it, where the hex is the start of the SHA-256 of the local content. The saved copy gets the title suffix " (conflict copy <7 hex>)", `disputed: true`, and `dispute_reason: "Edited at the same time as <id>. Merge the two."`. Both files are committed (`waymark: sync "<title>"`), and a notice names both.
 11. **Clone on first start.** `--repo` with a URL: `git clone` into `--path` if it does not exist. A clone failure is `sync_failed`.
-12. **Pull freshness.** A read pulls when the last good fetch is older than 3 minutes (kept in memory for the session).
+12. **Update at the start of every call.** `Repo::refresh_for_read` (it replaces `refresh_if_stale`) runs `update(false)` at the start of every read call. There is no freshness window: `last_fetch`, `FRESH_FOR`, `fresh_for()`, and the variable `WAYMARK_FETCH_MAX_AGE` are removed. `last_pull` (wall-clock time for `status`) and the "last fetch failed" flag stay.
+13. **Shared update in one process.** `Repo` holds an update gate: a `Mutex` with `running: bool`, a generation number, and the notices of the last update, plus a `Condvar`. A call that finds `running == false` sets it, runs the update under the file lock, stores the result, increments the generation, and wakes the waiters. A call that finds `running == true` waits until the generation changes and returns the stored notices. So calls that overlap cost one fetch. Different processes still use the file lock (step 3). A read that cannot get the file lock in 5 seconds answers from the local clone, as before.
 
 ## Dependencies on Other Foundation Items
 

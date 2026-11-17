@@ -1,0 +1,73 @@
+# Decisions: Menu bar app
+
+## A new spec, not a restore of `mac-app` — 2026-11-17
+
+**Decision:** The menu bar app gets a new feature spec. The superseded specs `mac-app`, `app-link`, and `approval-dialog` are not restored. On the same day the product owner removed them (see "Superseded specs can be removed; the old Mac app specs are removed" in [project decisions](../../../docs/decisions.md)). Their last version is in commit `1e588d9`.
+
+**Alternatives considered:** Set `mac-app` back to `draft` (rejected: it never had a plan, tasks, or tests, and it is built on the CLI, the app link socket, exit codes, and settings that only the app can change. None of these exist now. A restore would also bring back the native parts of about 15 feature specs that the MCP-only rewrite removed.)
+
+**Reason:** The shell decisions of `mac-app` still hold. The architecture does not. A new spec takes the first and leaves the second.
+
+**Kept from `mac-app`:** menu bar only with no Dock icon, native Swift, a direct download that is signed and notarized and not in the Mac App Store, start at login, icon states, all window strings in resource files, no document or Git logic in the app.
+
+## The app is an MCP client of `waymark` — 2026-11-17
+
+**Decision:** The app starts its own `waymark` process and talks MCP over stdio. It uses only existing tools.
+
+**Alternatives considered:**
+- Read the files of the clone and run `git` in the app (rejected: it copies document and Git logic into a second language, against "MCP is the only interface").
+- A new socket between `waymark` and the app (rejected: that is the old app link, with its own protocol to keep).
+
+**Reason:** MCP is the only interface. The app gets the same rules (limits, folders, read budget) as every other client for free.
+
+## Read only in the first version — 2026-11-17
+
+**Decision:** The app starts `waymark` with `--access read-only` and has no write action.
+
+**Reason:** A write needs approval and an author, and the approval channel of the old design (the app link) is gone. Reading covers the user story. Writing is an open question.
+
+**Superseded by:** "Undo is the only write — 2026-11-17".
+
+## Polling, not subscriptions — 2026-11-17
+
+**Decision:** The app polls at an interval it sets itself (10 seconds to 1 hour, default 60). `waymark` gets no timer, no MCP resources, and no subscriptions.
+
+**Alternatives considered:** A background update setting in `waymark` and MCP resource subscriptions (the draft `watch-changes`, dropped on 2026-11-17 before it was committed). Rejected: with "Update at the start of every call", a poll is always fresh, and polling needs no change to `waymark`.
+
+**Reason:** No new code in `waymark`, no background job in local mode, and the interval belongs to the client that needs it.
+
+## A small MCP client of our own — 2026-11-17
+
+**Decision:** The app has its own small JSON-RPC client over stdio, not an MCP SDK.
+
+**Reason:** The app calls a few read tools (`search`, `show`, `updates`, `activity`, `history`, `status`). A small client has no dependency to update and is easy to test against a real `waymark`. Decided as a draft proposal. Open for review.
+
+## The app raises its own read budget — 2026-11-17
+
+**Decision:** The app passes `--max-documents-opened 500`. After `access_denied` it starts a new `waymark` process and tries once more.
+
+**Reason:** The default of 20 is for an agent session, which is short. The app runs all day and opens many documents. The flag is a layer of the person. A stricter layer, such as the shared settings of the team, still wins. The restart is only a fallback for that case.
+
+## Recent writes for a fast review — 2026-11-17
+
+**Decision:** The app has a recent writes window. It lists the writes of the person from `activity`, shows each change as a diff, and lets the person mark writes as reviewed. The reviewed state stays on the Mac.
+
+**Alternatives considered:**
+- Show the writes in the folder windows only (rejected: the person must watch every folder, and writes outside them are missed).
+- A new tool in `waymark` that returns a diff (rejected for now: `history` and `show` with `version` give both versions, and a diff for display is UI work).
+- Store the reviewed state in the memory repository (rejected: it is personal and would make commits for nothing).
+
+**Reason:** The product owner asked for a fast review for people who let their agents write on their own. `activity` already gives exactly the writes under the person's name, from every agent tool. The app adds the overview and the diff.
+
+## Undo is the only write — 2026-11-17
+
+**Supersedes:** "Read only in the first version — 2026-11-17".
+
+**Decision:** The recent writes window has an Undo button. The app's `waymark` process has every write tool switched off with `--tools-denied`, except `undo`. An undo always shows its preview first and runs only after the person confirms. If an approval rule covers `undo`, the app answers the MCP elicitation request itself, as a native dialog.
+
+**Alternatives considered:**
+- Stay read only, and tell the person to ask an agent to undo (rejected: a review that cannot act is slow, and the point is a fast review).
+- Start a second `waymark` process for writes only (rejected: two processes for one app, with no gain over the deny list).
+- `--access read-only` and a special exception for `undo` in `waymark` (rejected: it needs a change to the limits of `trust-model`).
+
+**Reason:** The product owner asked for Undo on 2026-11-17. Undo is the safety net of `activity-and-undo`, and it is safe: it only reverts the person's own writes, it is itself a commit that can be undone, and it never overwrites newer changes. The old approval problem does not apply: a click in the app is the person, not an agent, and the elicitation of `write-approval` already reaches the app as the MCP client.

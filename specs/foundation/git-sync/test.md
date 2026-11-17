@@ -12,10 +12,14 @@
 | `sync` waits for the lock | `sync_waits_for_lock` |
 | `preview: true` writes nothing | `preview_writes_nothing` |
 | No network, `search` answers from the clone with a notice | `offline_read_has_notice` |
+| A read sees a document that another clone pushed a moment ago | `read_sees_fresh_push` |
+| Read calls at the same time share one fetch | `parallel_reads_share_one_fetch` |
+| A failed fast-forward or rebase is tried again by the next read | `failed_update_retried` |
 
 ## Test Cases
 
-- [x] [auto] All eight criteria above (`tests/it_git_sync.rs`)
+- [x] [auto] The first eight criteria above (`tests/it_git_sync.rs`)
+- [ ] [auto] The three criteria of 2026-11-17: fresh push, shared fetch, retry after a failed update (`tests/it_git_sync.rs`, `src/gitsync/sync.rs`)
 - [x] [auto] The repository is never left in a rebase or merge state after any failure (`tests/it_git_sync.rs`)
 - [x] [auto] The conflict copy has a unique title, `disputed: true`, and the name rule (`tests/it_git_sync.rs`)
 - [x] [auto] The commit message has the format `waymark: <verb> "<title>"` and no agent tag (`src/gitsync/message.rs`)

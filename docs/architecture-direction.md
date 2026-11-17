@@ -168,6 +168,8 @@ Done on 2026-11-11. All specs are `draft`.
 - `foundation/app-link` by `write-approval` and `web-console`.
 - `features/approval-dialog` by `write-approval` and `web-console`.
 
+_Note 2026-11-17: `mac-app`, `app-link`, and `approval-dialog` are removed. Their last version is in commit `1e588d9` (see `docs/decisions.md`)._
+
 **Rewritten or revised**
 - `foundation/trust-model`: limits and config layers replace the read level, write level, and the app.
 - `foundation/memory-repository`: the `settings.toml` schema has `[limits]` and `[approval]`. No `.waymark/` folder.

@@ -1,18 +1,19 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      ███████████████████████████████████████░  27 / 28 active
-🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
+📦 Features      █████████████████████████████████████░░░  27 / 29 active
+🏗️ Foundation    ████████████████████████████████░░░░░░░░  12 / 15 done+implemented
 ```
 
 ## Next Up
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-2. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is part of the 0.6.0 release.
-3. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
-4. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
+1. **Update at the start of every call.** `git-sync`, `search-and-read`, and `updates` are `planned`: every read updates the clone at its start, and the 3 minute window goes away (see the git-sync decisions of 2026-11-17). Build the new tasks in [git-sync/tasks.md](foundation/git-sync/tasks.md) first, then the test rewrites in `search-and-read` and `updates`.
+2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
+3. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is part of the 0.6.0 release.
+4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
+5. **Next specs.** The candidates are the drafts (`menu-bar-app`, `web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
 
@@ -31,12 +32,10 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-16 |
 | [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-16 |
 | [verification](features/verification/requirements.md) | `implemented` | 2026-11-16 |
-| [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-17 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-17 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `implemented` | 2026-11-14 |
 | [create-memory-repository](features/create-memory-repository/requirements.md) | `implemented` | 2026-11-16 |
-| [updates](features/updates/requirements.md) | `implemented` | 2026-11-14 |
 | [notifications-and-review](features/notifications-and-review/requirements.md) | `implemented` | 2026-11-14 |
 | [maintenance](features/maintenance/requirements.md) | `implemented` | 2026-11-14 |
 | [folders](features/folders/requirements.md) | `implemented` | 2026-11-14 |
@@ -47,6 +46,9 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [restore-and-replace](features/restore-and-replace/requirements.md) | `implemented` | 2026-11-15 |
 | [document-history](features/document-history/requirements.md) | `implemented` | 2026-11-15 |
 | [manage-tags](features/manage-tags/requirements.md) | `implemented` | 2026-11-15 |
+| [search-and-read](features/search-and-read/requirements.md) | `planned` | 2026-11-17 |
+| [updates](features/updates/requirements.md) | `planned` | 2026-11-17 |
+| [menu-bar-app](features/menu-bar-app/requirements.md) | `draft` | 2026-11-17 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
@@ -56,7 +58,6 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [terminology](foundation/terminology/requirements.md) | `implemented` | 2026-11-14 |
 | [dev-environment](foundation/dev-environment/requirements.md) | `implemented` | 2026-11-14 |
 | [document-format](foundation/document-format/requirements.md) | `implemented` | 2026-11-16 |
-| [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-16 |
 | [integration-testing](foundation/integration-testing/requirements.md) | `implemented` | 2026-11-14 |
 | [memory-repository](foundation/memory-repository/requirements.md) | `implemented` | 2026-11-16 |
 | [trust-model](foundation/trust-model/requirements.md) | `implemented` | 2026-11-14 |
@@ -66,6 +67,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-17 |
 | [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-17 |
+| [git-sync](foundation/git-sync/requirements.md) | `planned` | 2026-11-17 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 
@@ -73,13 +75,12 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 Replaced on 2026-11-11 by the MCP-only design. The folders stay as a record. They are not part of the current specification.
 
+Removed on 2026-11-17 (see [project decisions](../docs/decisions.md)): `mac-app`, `app-link`, and `approval-dialog`. Their last version is in commit `1e588d9`. The current Mac app design is [menu-bar-app](features/menu-bar-app/requirements.md).
+
 | Spec | Superseded by |
 |:-----|:--------------|
 | [cli-core](foundation/cli-core/requirements.md) | `mcp-server` |
 | [agent-skill](foundation/agent-skill/requirements.md) | `agent-tool-setup`, `mcp-server` |
-| [mac-app](foundation/mac-app/requirements.md) | `web-console`, `distribution` |
-| [app-link](foundation/app-link/requirements.md) | `write-approval`, `web-console` |
-| [approval-dialog](features/approval-dialog/requirements.md) | `write-approval`, `web-console` |
 
 ---
 

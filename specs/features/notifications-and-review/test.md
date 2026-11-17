@@ -22,7 +22,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 ## Test Cases
 
-All tests are in `tests/it_notifications.rs`, with a `World` of two clones. Person A runs the server. Person B commits. The harness sets `WAYMARK_FETCH_MAX_AGE=0` and `WAYMARK_STATE_DIR`.
+All tests are in `tests/it_notifications.rs`, with a `World` of two clones. Person A runs the server. Person B commits. The harness sets `WAYMARK_STATE_DIR`.
 
 - [x] [auto] T1: A's document is disputed by B and pushed. A's next `search` has one notice that names the document and says "disputed".
 - [x] [auto] T2: B edits A's document and pushes. A's next `search` has a notice that says "changed".
