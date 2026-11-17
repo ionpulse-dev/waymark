@@ -178,7 +178,9 @@ mod tests {
     fn the_gitignore_template_ignores_ds_store() {
         assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == ".DS_Store"));
         assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == ".obsidian/*"));
-        assert!(GITIGNORE_TEMPLATE.lines().any(|l| l == "!.obsidian/app.json"));
+        assert!(GITIGNORE_TEMPLATE
+            .lines()
+            .any(|l| l == "!.obsidian/app.json"));
         assert!(GITIGNORE_TEMPLATE.ends_with('\n'));
     }
 

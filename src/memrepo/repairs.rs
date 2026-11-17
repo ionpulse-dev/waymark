@@ -203,7 +203,10 @@ mod tests {
         );
         // A text with no final line end gets one first.
         let (fixed, _) = repair(Target::Gitignore, ".obsidian/*").unwrap();
-        assert_eq!(fixed, format!(".obsidian/*\n\n{DS_STORE_COMMENT}\n.DS_Store\n"));
+        assert_eq!(
+            fixed,
+            format!(".obsidian/*\n\n{DS_STORE_COMMENT}\n.DS_Store\n")
+        );
         // An empty file gets the lines only.
         let (fixed, _) = repair(Target::Gitignore, "").unwrap();
         assert_eq!(fixed, format!("{DS_STORE_COMMENT}\n.DS_Store\n"));
@@ -230,7 +233,10 @@ mod tests {
         assert_eq!(fixed, OBSIDIAN_TEMPLATE);
         // Another key order or indent is the same file.
         let other = "{\"newLinkFormat\":\"relative\",\n\t\"useMarkdownLinks\":true}";
-        assert_eq!(repair(Target::ObsidianApp, other).unwrap().0, OBSIDIAN_TEMPLATE);
+        assert_eq!(
+            repair(Target::ObsidianApp, other).unwrap().0,
+            OBSIDIAN_TEMPLATE
+        );
     }
 
     // U4

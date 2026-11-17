@@ -17,4 +17,4 @@ Prerequisites: `create-memory-repository` and `memory-repository` are `implement
 - [x] T10: Integration tests A3 to A8 (`tests/it_memory_repository.rs`).
 - [x] T11: Add `.claude/worktrees/` to `.gitignore` of this code repository.
 - [x] T12: Add an entry to "Unreleased" in `CHANGELOG.md`.
-- [ ] T13: Build and test on a machine with Rust: `make check` and `make linux-test`. Fix what fails. Tick the `[auto]` items in `test.md`. Set the status to `implemented`.
+- [x] T13: Build and test on a machine with Rust: `make check` and `make linux-test`. Fix what fails. Tick the `[auto]` items in `test.md`. Set the status to `implemented`.

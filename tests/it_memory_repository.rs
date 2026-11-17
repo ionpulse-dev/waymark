@@ -398,7 +398,10 @@ fn a_gitignore_with_a_glob_for_ds_store_needs_no_repair() {
     let w = World::new();
     commit_files(
         &w,
-        &[(".gitignore", Some(".obsidian/*\n!.obsidian/app.json\n**/.DS_Store\n"))],
+        &[(
+            ".gitignore",
+            Some(".obsidian/*\n!.obsidian/app.json\n**/.DS_Store\n"),
+        )],
     );
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     let r = add(&mut c, "No repair");
@@ -414,7 +417,9 @@ fn a_write_gives_an_old_app_json_the_bytes_of_obsidian() {
     let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     let r = add(&mut c, "After app repair");
     assert!(
-        r.json.to_string().contains("the format that Obsidian writes"),
+        r.json
+            .to_string()
+            .contains("the format that Obsidian writes"),
         "{}",
         r.json
     );
@@ -499,12 +504,13 @@ fn read_only_access_never_repairs() {
     let head = git(&w.remote, &["rev-parse", "main"]);
     let mut ro = McpClient::for_person(&w, Person::A, Spawn::args(&["--access", "read-only"]));
     assert!(!ro.call("search", json!({})).is_error);
-    assert!(ro
-        .call(
+    assert!(
+        ro.call(
             "add_document",
             json!({"folder": "ops", "title": "T", "description": "D.", "body": "B."})
         )
-        .is_error);
+        .is_error
+    );
     assert_eq!(git(&w.remote, &["rev-parse", "main"]), head);
     assert_eq!(git(&w.a, &["status", "--porcelain"]), "");
 }

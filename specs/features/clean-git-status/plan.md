@@ -78,7 +78,7 @@ The settings file keeps its current behavior: step 3 is new for it too, but `too
 
 - **Obsidian changes its format.** Then the file shows as changed again. The repair would not fix it, because the template would be wrong. The risk is small: Obsidian uses `JSON.stringify` with two spaces and has done so for years. If it happens, a new template and a new repair fix it.
 - **A team member on an older waymark.** The old `init` is gone for them, and the older binary has no repair. Nothing breaks: the old files work as before.
-- **This Mac has no Rust toolchain.** The code cannot be compiled here. The build and the tests run on a machine with Rust, or with `make linux-test` (see `docs/development.md`).
+- **Linux not run.** The tests ran on macOS only. The change uses no code that depends on the system, but `make linux-test` needs Docker, which this Mac does not have.
 
 ## Open Questions
 
