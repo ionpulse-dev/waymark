@@ -48,9 +48,9 @@ pub fn add_fixes_for_new_ids(
             continue;
         }
         // The newest planned text of the document, if any.
-        let planned = changes.iter().rposition(|c| {
-            matches!(c, FileChange::Write { id: cid, .. } if cid == id)
-        });
+        let planned = changes
+            .iter()
+            .rposition(|c| matches!(c, FileChange::Write { id: cid, .. } if cid == id));
         let text = match planned {
             Some(i) => match &changes[i] {
                 FileChange::Write { text, .. } => text.clone(),

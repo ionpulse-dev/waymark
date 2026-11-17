@@ -520,8 +520,6 @@ fn a_write_holds_back_an_edit_that_needs_approval() {
         "{}",
         r.json
     );
-    assert!(!subjects(&w.remote)
-        .iter()
-        .any(|s| s.contains("\"Manual\"")));
+    assert!(!subjects(&w.remote).iter().any(|s| s.contains("\"Manual\"")));
     assert!(exists(&w, "ops/manual"));
 }

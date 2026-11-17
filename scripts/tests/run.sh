@@ -165,6 +165,10 @@ fi
 # release.sh builds, uploads, and verifies the Linux x86_64 archive too
 grep -q 'x86_64-unknown-linux-gnu' scripts/release.sh && grep -q 'ARCH=amd64 bash scripts/linux.sh bash scripts/package.sh' scripts/release.sh && grep -q '"\$linux_archive" "\$linux_archive.sha256"' scripts/release.sh && ok "release.sh publishes the Linux x86_64 archive and its checksum" || bad "release.sh publishes the Linux x86_64 archive and its checksum"
 
+# release.sh uses the container runtime of linux.sh, and a check folder that every runtime can see
+grep -q 'docker run' scripts/release.sh && bad "release.sh calls docker directly" || ok "release.sh uses CONTAINER_RUNTIME for the Linux check"
+grep -q 'mktemp -d "$PWD/dist/' scripts/release.sh && ok "release.sh verifies in a folder inside the project" || bad "release.sh verifies in a folder inside the project"
+
 # CI and release workflows (disabled files, ready to enable)
 ci=.github/workflows/ci.yml.disabled
 rel=.github/workflows/release.yml.disabled
@@ -173,13 +177,14 @@ grep -q 'scripts/linux.sh' "$ci" && ok "the CI Linux job uses the development co
 grep -q 'ubuntu' "$rel" && grep -q 'scripts/linux.sh' "$rel" && grep -q 'linux' "$rel" && ok "the release workflow builds a Linux archive" || bad "the release workflow builds a Linux archive"
 grep -q 'sha256' scripts/package.sh && ok "package.sh writes a checksum, and the release workflow uploads *.sha256" || bad "package.sh writes a checksum"
 
-# README and install guide: both systems, and the note on the Linux steps until the manual check is done
+# README and install guide: both systems, the README links to the guide, and the guide carries the note on the Linux steps until the manual check is done
 for f in README.md docs/local-install.md; do
   grep -qi 'linux' "$f" && grep -qi 'macos' "$f" && ok "$f names Linux and macOS" || bad "$f names Linux and macOS"
 done
 note="The Linux steps are not yet tested on a real machine"
 pending=$(grep -c '^- \[ \] \[manual\] Linux docs check' specs/foundation/linux-support/test.md || true)
-for f in README.md docs/local-install.md; do
+grep -q 'docs/local-install.md' README.md && ok "README.md links to the install guide" || bad "README.md links to the install guide"
+for f in docs/local-install.md; do
   if [ "$pending" -gt 0 ]; then
     grep -q "$note" "$f" && ok "$f carries the Linux note until the manual check is done" || bad "$f carries the Linux note until the manual check is done"
   else

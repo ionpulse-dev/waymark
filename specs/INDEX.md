@@ -9,11 +9,11 @@
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **`document-names` is `in-progress`: build and test it.** The code, tests, specs, and docs are written (2026-11-16), but nothing is compiled. This Mac has no Rust toolchain. On a machine with Rust, run `make check` and `make linux-test`, fix what fails, tick the `[auto]` items in its [test.md](features/document-names/test.md), and set it to `implemented`. Then release 0.6.0.
+1. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server and `document-names`, which is now `implemented` and tested on macOS. `make check` passes on macOS and `make linux-test` on Linux arm64. On x86_64 (`ARCH=amd64`, QEMU emulation) all tests pass except the timing test T21, which is too slow under emulation. No run on real x86_64 hardware yet, and the CI workflow is disabled.
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
-3. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md).
-4. **Release 0.6.0.** The "Unreleased" entry of `CHANGELOG.md` holds the personal server, `document-names`, and `clean-git-status`. Release after item 1. The real-use pass of item 2 can drop the line "Not yet tested against the real apps".
-5. **`[manual]` tests, open release steps (product owner), and next specs.** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md). The next spec candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
+3. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is not part of the 0.6.0 entry: the "Unreleased" entry of `CHANGELOG.md` holds it for the next release.
+4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
+5. **Next specs.** All in-scope specs are `implemented`. The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
 
@@ -21,8 +21,8 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
-| [document-names](features/document-names/requirements.md) | `in-progress` | 2026-11-16 |
 | [clean-git-status](features/clean-git-status/requirements.md) | `implemented` | 2026-11-17 |
+| [document-names](features/document-names/requirements.md) | `implemented` | 2026-11-17 |
 | [lean-tools](features/lean-tools/requirements.md) | `implemented` | 2026-11-15 |
 | [write-documents](features/write-documents/requirements.md) | `implemented` | 2026-11-16 |
 | [activity-and-undo](features/activity-and-undo/requirements.md) | `implemented` | 2026-11-16 |
@@ -32,8 +32,8 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-16 |
 | [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-16 |
 | [verification](features/verification/requirements.md) | `implemented` | 2026-11-16 |
-| [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-14 |
-| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-14 |
+| [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-17 |
+| [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-17 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |
 | [plain-git-access](features/plain-git-access/requirements.md) | `implemented` | 2026-11-14 |
 | [create-memory-repository](features/create-memory-repository/requirements.md) | `implemented` | 2026-11-16 |
@@ -65,8 +65,8 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [remove-index](foundation/remove-index/requirements.md) | `implemented` | 2026-11-14 |
 | [mcp-server](foundation/mcp-server/requirements.md) | `implemented` | 2026-11-14 |
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
-| [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-15 |
-| [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-15 |
+| [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-17 |
+| [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-17 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

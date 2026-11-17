@@ -25,6 +25,7 @@ A new `store` module loads the documents of the memory repository from the worki
 - `src/tools/stats.rs` — the `stats` tool.
 - `src/tools/read_common.rs` — level rendering, the cap by results and tokens, the read refresh and its notice.
 - `tests/it_search_and_read.rs` — end-to-end tests through the MCP client.
+- `tests/it_search_speed.rs` — T21, the timing test, alone in its own test binary.
 
 ## Technical Approach
 

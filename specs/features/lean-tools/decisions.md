@@ -89,3 +89,11 @@
 **Decision (decided autonomously):** The descriptions of `preview`, `id`, and `base` become shorter, and the same text is used in every tool. (`folders` stays as it is: it is already short.) The rule of `tool-conventions` stays: every parameter has a description, with its default or allowed values.
 
 **Reason:** About 13 tools repeat these words. The meaning does not change.
+
+## The call alias of `list` ends in 0.6.0 — 2026-11-17
+
+**Decision (product owner):** As announced in 0.5.0, a call named `list` is an unknown tool from 0.6.0. In limits, `list` still counts as `search`.
+
+**Alternatives considered:** Keep the alias until 0.7.0 (rejected: 0.5.0, its release notes, and the notice of every `list` call said 0.6.0).
+
+**Reason:** The tool list has not shown `list` since 0.5.0, so agents in new sessions use `search`. Only fixed texts or scripts that call `list` get an error. A session that runs an older binary is not affected until it restarts.

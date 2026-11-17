@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - mcp-server
 ---
@@ -25,11 +25,11 @@ requires:
 waymark does not install anything into agent tools. It ships **no skill** and **no instruction block**. It gives documentation in the README:
 
 1. **MCP entry for each tool.** A copy-paste entry for Claude Code, GitHub Copilot (VS Code and CLI), and OpenAI Codex, for user scope and for project scope where the tool has one. The formats differ (JSON for some tools, TOML for Codex). The entry starts the binary over stdio with `--repo` (see `mcp-server`). Optional: the author in `env` (see `login-and-identity`).
-2. **Permission advice for each tool.** How to allow the read tools and let the tool ask before a write tool. The rules are in the permission settings of the tool, not in the MCP config. For Claude Code, they are `allow` and `ask` rules such as `mcp__waymark__search` in `settings.json`. Tool kind hints (read-only, write, destructive) support this. The README says that a mode without prompts ("YOLO") ignores `allow` rules, may still honor explicit `ask` rules (unverified), and that the built-in approval through elicitation is the other way (see `write-approval`).
-3. **Example `AGENTS.md` snippets.** Short examples that a team may copy and change. They are suggestions only. waymark does not insert them and does not check them. Suggested examples:
-   - *Balanced:* search at the start of a task, open only relevant documents, write only when asked or after the person says yes.
-   - *Proactive:* search first, decide from context what to save automatically without asking, update before adding, dispute instead of deleting, and tell the person in one line what was saved.
-   All examples end with "never write secrets, tokens, or personal data". The server enforces the hard rules. The examples only guide behavior.
+2. **Permission advice for each tool.** How to allow the read tools, and two choices for the write tools: "Confirm every write" (the tool asks before each write tool) or "No confirmation" (all waymark tools are allowed, and `activity` and `undo` are the safety net). The person may also confirm only some write tools. The rules are in the permission settings of the tool, not in the MCP config. For Claude Code, they are `allow` and `ask` rules such as `mcp__waymark__search` in `settings.json`. Tool kind hints (read-only, write, destructive) support this. The README says that a mode without prompts ("YOLO") ignores `allow` rules, may still honor explicit `ask` rules (unverified), and that the built-in approval through elicitation is the other way (see `write-approval`).
+3. **A choice of how the agent uses memory, with `AGENTS.md` lines.** The install guide splits this into two independent settings, and the person chooses each one:
+   - *When the agent reads and writes* (a rule in `AGENTS.md`, followed by judgment). Reading: automatic (search at the start of each task) or on request. Writing: automatic (decide from context what to save, and tell the person in one line), ask in chat ("Save this?"), or on request.
+   - *Which writes need a confirmation* (the permission rules of the agent tool, see item 2).
+   The guide explains the effect of each choice, lists typical combinations, and names the combinations to watch for (for example "Ask in chat" with "Confirm every write" asks twice). It gives one `AGENTS.md` line for each reading and writing choice, and common lines to always add: check old or disputed documents, one topic per document, update before adding, dispute instead of deleting, write with the waymark tools and call `sync` only after a manual edit when the person asks, and never write secrets, tokens, or personal data. An agent that installs waymark asks the person about each setting, one question at a time, and shows the lines and rules before it writes them. All texts are suggestions only. waymark does not insert them and does not check them. The server enforces the hard rules. The texts only guide behavior.
 4. **How to tighten limits.** Where the personal config, the shared file, and the system config live (see `trust-model`).
 
 The entries use the same server name, `waymark`, so that a project entry can override a user entry (see `project-binding`).
@@ -40,8 +40,8 @@ There is no tool and no code. The deliverables are text:
 
 | Where | What |
 |---|---|
-| `README.md`, section "Setup" | One generic entry, and a link to `docs/install.md`. |
-| `docs/install.md`, section "Agent tools" | For each tool: the entry (user scope and project scope), the permission advice, the `AGENTS.md` examples, and the removal step. `distribution` owns the file. This spec owns the section. |
+| `README.md`, section "Setup" | A link to `docs/local-install.md`. |
+| `docs/local-install.md`, sections "Agent tools" and "Choose how the agent uses memory" | For each tool: the entry (user scope and project scope), the permission advice for both confirmation choices, and the removal step. Then the two settings, their effects, the combinations, and the `AGENTS.md` lines. `distribution` owns the file. This spec owns the sections. |
 | `docs/agent-tools-research.md` | The facts and the sources behind each snippet, with `verified` or `unverified` for each. |
 
 **Verification mark.** Every statement about a tool that is not in the verified column of `docs/agent-tools-research.md` carries the word "unverified" in the text, next to the statement. Each snippet names the tool version it was tested with. Before the first manual test the version reads "not yet tested".
@@ -55,9 +55,9 @@ There is no tool and no code. The deliverables are text:
 | GitHub Copilot, CLI | JSON, `mcpServers`, `type: "local"` | `~/.copilot/mcp-config.json`, `.mcp.json`, `.github/mcp.json` |
 | OpenAI Codex | TOML, `[mcp_servers.waymark]` | `~/.codex/config.toml`, `.codex/config.toml` |
 
-**Permission advice.** Claude Code: `allow` rules for the read tools and `ask` rules for the write tools, as `mcp__waymark__<tool>`. Codex: `default_tools_approval_mode = "writes"`. Copilot: unverified, no advice beyond "check the permission settings of the tool". The text names the read tools (`status`, `search`, `show`, `folder_tree`, `list_tags`, `history`, `stats`, `updates`, `lint`, `activity`) and the write tools.
+**Permission advice.** Claude Code: for "Confirm every write", `allow` rules for the read tools and `ask` rules for the write tools, as `mcp__waymark__<tool>`. For "No confirmation", one `allow` rule `mcp__waymark__*`, and no waymark tool in any `ask` list, because an `ask` rule wins. Codex: `default_tools_approval_mode = "writes"` is "Confirm every write". Which Codex mode runs waymark tools without a prompt is unverified. Copilot: unverified, no advice beyond "check the permission settings of the tool". The text names the read tools (`status`, `search`, `show`, `folder_tree`, `list_tags`, `history`, `stats`, `updates`, `lint`, `activity`) and the write tools.
 
-**`AGENTS.md` examples.** Two short examples (balanced, proactive). Marked as suggestions, and each ends with "Never write secrets, tokens, or personal data."
+**`AGENTS.md` examples.** One line for each reading and writing choice, and two example blocks: the common lines, and a full example (reading on request, writing on request). The text is marked as suggestions, and each block ends with "Never write secrets, tokens, or personal data."
 
 **Removal step.** The section ends with the line for the tool: how to remove the entry (`claude mcp remove waymark`, delete the table in `config.toml`, delete the entry in the JSON file). The full removal steps are in `maintenance`.
 

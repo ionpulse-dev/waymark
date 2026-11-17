@@ -113,29 +113,12 @@ fn search_without_a_query_hides_deprecated_documents() {
 }
 
 #[test]
-fn the_old_name_list_runs_search_with_a_notice() {
+fn the_old_name_list_is_an_unknown_tool() {
+    // The call alias of 0.5.x ended in 0.6.0 (see `decisions.md`).
     let w = World::new();
     let mut c = client(&w);
-    let id = add_with(&mut c, "ops", "Old thing", "x", &[]);
-    let base = version(&mut c, &id);
-    c.call(
-        "deprecate_document",
-        json!({"id": id, "base": base, "reason": "Old."}),
-    );
-    add_with(&mut c, "ops", "New thing", "x", &[]);
-    let r = c.call("list", json!({"folders": ["ops"]}));
-    assert!(!r.is_error, "{}", r.json);
-    // As before: all statuses, level 1.
-    assert_eq!(ids(&r.json), ["ops/new-thing", "ops/old-thing"]);
-    assert!(r.json["results"][0].get("description").is_none());
-    let notice = r.json["notices"][0].as_str().unwrap_or("");
-    assert!(
-        notice.contains("\"list\"") && notice.contains("\"search\"") && notice.contains("0.6.0"),
-        "{notice}"
-    );
-    // A call that sends its own status keeps it.
-    let r = c.call("list", json!({"folders": ["ops"], "status": "active"}));
-    assert_eq!(ids(&r.json), ["ops/new-thing"]);
+    assert!(c.call_raw("list", json!({}))["error"].is_object());
+    assert!(c.call_raw("list", json!({"folders": ["ops"]}))["error"].is_object());
 }
 
 #[test]
@@ -145,8 +128,6 @@ fn list_in_a_limit_switches_off_search() {
     let mut c = client(&w);
     assert!(!c.tool_names().contains(&"search".to_string()));
     let r = c.call("search", json!({"query": "x"}));
-    assert_eq!(r.code(), Some("access_denied"));
-    let r = c.call("list", json!({}));
     assert_eq!(r.code(), Some("access_denied"));
 }
 

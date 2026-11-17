@@ -621,10 +621,22 @@ fn the_email_domain_list_of_the_memory_repository_is_applied() {
     );
     git(&seed, &["push", "-q"]);
     let server = Server::start(&env);
-    let t0 = sign_in(&server, &env, "owner-code");
+    // The first sign-in uses an address in the allowed domain, so it passes whether or not the
+    // clone is ready yet. On a fast machine the clone is ready before it.
+    let redirect = "http://localhost:7777/cb";
+    env.fake.set_account(
+        "corp-code",
+        Account {
+            login: "owner".into(),
+            name: Some("Olivia Owner".into()),
+            emails: vec![("olivia@corp.example".into(), true, true)],
+        },
+    );
+    let first = register_client(&server, redirect);
+    let t0 = sign_in_with(&server, &first, redirect, "corp-code");
     // Wait for the clone: the domain list is read from it at the next sign-in.
     wait_ready(&server, &t0.access);
-    let redirect = "http://localhost:7777/cb";
+    env.fake.set_account("owner-code", Env::owner_account());
     let client = register_client(&server, redirect);
     let (_, challenge) = pkce();
     let r = browse(&server, &client, redirect, &challenge, "owner-code");

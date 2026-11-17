@@ -159,18 +159,12 @@ fn every_description_says_what_it_returns_and_write_tools_say_they_commit() {
 }
 
 #[test]
-fn the_old_name_list_still_runs_with_a_notice() {
+fn the_old_names_are_unknown_tools() {
     let w = World::new();
     let mut c = client(&w);
-    let r = c.call("list", json!({}));
-    assert!(!r.is_error, "{}", r.json);
-    let notice = r.json["notices"][0].as_str().unwrap_or("");
-    assert!(
-        notice.contains("\"list\"") && notice.contains("\"search\"") && notice.contains("0.6.0"),
-        "{notice}"
-    );
-    // The names of 0.4.0 stopped working in 0.5.0, and a tool that never existed is unknown.
-    for old in OLD_NAMES.iter().filter(|n| **n != "list") {
+    // The names of 0.4.0 stopped working in 0.5.0, `list` in 0.6.0, and a tool that never
+    // existed is unknown.
+    for old in OLD_NAMES.iter() {
         assert!(
             c.call_raw(old, json!({}))["error"].is_object(),
             "{old} is still a tool"

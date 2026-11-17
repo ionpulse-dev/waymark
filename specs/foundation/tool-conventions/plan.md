@@ -7,7 +7,7 @@ One table of renames in `src/config/limits.rs` serves the registry (alias calls)
 ## Components Affected
 
 - `src/config/limits.rs`: `RENAMED_TOOLS`, `canonical_tool(name)`. `Effective::from_layers` maps the names in `tools_denied` and `approval_required_for`.
-- `src/mcp/tool.rs`: `Registry::call` resolves an old name and adds the notice. `list` shows new names only.
+- `src/mcp/tool.rs`: `Registry::call` knows only current names (the last call alias, `list`, ended in 0.6.0). `list` shows new names only.
 - `src/tools/*.rs`: new names and descriptions. Every `writes::execute(ctx, env, "<tool>", ...)` and every check by name uses the new name.
 - `src/tools/read_common.rs`: `parse_when` (one parser for `since`), shared by `updates` and `activity`.
 - `src/mcp/args.rs`: the help text of `--no-delete` and `--tools-denied`.

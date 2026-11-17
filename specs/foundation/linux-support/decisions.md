@@ -134,3 +134,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** `DOCTOR_OS` and `DOCTOR_ARCH` replace `uname` in `scripts/doctor.sh`. They exist only for the shell tests.
 
 **Reason:** The Linux hints and the platform warning must be tested on macOS too, with one test suite.
+
+## The Linux note is in the install guide only — 2026-11-17
+
+**Decision:** The "not yet tested on a real machine" note is only in `docs/local-install.md`. The README has no Linux steps of its own. It names both systems and links to the install guide. `scripts/tests/run.sh` checks the note in the guide and the link in the README.
+
+**Alternatives considered:** Put the note back into the README (rejected: the README has no Linux steps that the note could refer to).
+
+**Reason:** The product owner shortened the README setup on 2026-11-15 (commit 28571a8): it now tells the agent to follow the install guide. The spec follows the docs, as `specs/WORKFLOW.md` requires for a manual change.

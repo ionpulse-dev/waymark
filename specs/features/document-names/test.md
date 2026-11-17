@@ -32,9 +32,9 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 
 ## Test Cases
 
-- [ ] [auto] All cases of the table above, through the real binary (`tests/it_document_names.rs`, `tests/it_write_approval.rs`, `tests/it_agent_tool_docs.rs`).
-- [ ] [auto] Unit tests of `check_name`, `Remap::wiki_target`, and `Remap::added`.
-- [ ] [auto] The existing suites pass, including `it_manual_edits.rs` and the tool-list budget (`it_context_budget.rs`).
+- [x] [auto] All cases of the table above, through the real binary (`tests/it_document_names.rs`, `tests/it_write_approval.rs`, `tests/it_agent_tool_docs.rs`).
+- [x] [auto] Unit tests of `check_name`, `Remap::wiki_target`, and `Remap::added`.
+- [x] [auto] The existing suites pass, including `it_manual_edits.rs` and the tool-list budget (`it_context_budget.rs`).
 - [ ] [manual] Ask an agent (Claude Code) to "create a readme in the folder people". Expected: it calls `add_document` with `name: "readme"`, and it does not write a file or call `sync`.
 - [ ] [manual] In Obsidian, rename a document that another document links to, then ask the agent to sync. Expected: one `moved` entry, and the link in the other document points to the new name.
 

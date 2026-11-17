@@ -88,3 +88,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 **Decision:** Test A2 (start the binary with the generic entry of the README) is removed. No test reads `README.md` any more. Test A1 checks the snippets of `docs/install.md` only. The generic entry is covered by manual test M5.
 
 **Reason:** The README is a short project page. A test that pins its content makes edits costly for little value.
+
+## The person chooses how the agent uses memory — 2026-11-17
+
+**Decision (product owner):** The two fixed `AGENTS.md` styles (Balanced and Proactive) are replaced by two independent settings that the person chooses: when the agent reads and writes (`AGENTS.md` lines), and which writes need a confirmation (permission rules). The install guide explains the effects and the combinations, and an installing agent asks about each setting, one question at a time.
+
+**Supersedes:** the Balanced and Proactive examples of requirements item 3.
+
+**Reason:** The docs changed first (commit 82313c9, 2026-11-16). The old snippets did not match the single permission snippet that asked for every write: Proactive could not work, and Balanced asked twice. The spec follows the docs, as `specs/WORKFLOW.md` requires for a manual change.

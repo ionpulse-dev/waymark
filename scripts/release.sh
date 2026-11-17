@@ -95,7 +95,9 @@ git -C "$tmp/tap" commit -q -m "waymark $version"
 git -C "$tmp/tap" push -q origin HEAD
 
 say "verify the published release"
-chk=$(mktemp -d)
+# Inside the project, so that a container runtime that shares only the home folder (Colima) sees it.
+mkdir -p dist
+chk=$(mktemp -d "$PWD/dist/.verify.XXXXXX")
 curl -sL "https://github.com/$OWNER/$REPO/releases/download/v$version/waymark-$version-$TARGET.tar.gz" -o "$chk/a.tgz"
 [ "$(shasum -a 256 "$chk/a.tgz" | cut -d' ' -f1)" = "$sha" ] || { echo "release: the published archive has another checksum" >&2; exit 1; }
 tar -xzf "$chk/a.tgz" -C "$chk"
@@ -103,7 +105,7 @@ tar -xzf "$chk/a.tgz" -C "$chk"
 curl -sL "https://github.com/$OWNER/$REPO/releases/download/v$version/waymark-$version-$LINUX_TARGET.tar.gz" -o "$chk/l.tgz"
 [ "$(shasum -a 256 "$chk/l.tgz" | cut -d' ' -f1)" = "$linux_sha" ] || { echo "release: the published Linux archive has another checksum" >&2; exit 1; }
 mkdir "$chk/linux" && tar -xzf "$chk/l.tgz" -C "$chk/linux"
-[ "$(docker run --rm --platform linux/amd64 -v "$chk/linux:/t:ro" ubuntu:22.04 /t/waymark --version)" = "waymark $version" ] || { echo "release: the published Linux binary reports another version" >&2; exit 1; }
+[ "$("${CONTAINER_RUNTIME:-docker}" run --rm --platform linux/amd64 -v "$chk/linux:/t:ro" ubuntu:22.04 /t/waymark --version)" = "waymark $version" ] || { echo "release: the published Linux binary reports another version" >&2; exit 1; }
 brew update >/dev/null 2>&1 || true
 brew audit --strict --new "$OWNER/tap/$REPO" >/dev/null 2>&1 || { echo "release: brew audit failed" >&2; exit 1; }
 [ "$(git rev-parse HEAD)" = "$(git rev-parse "v$version^{commit}")" ] || { echo "release: the tag does not point at HEAD" >&2; exit 1; }

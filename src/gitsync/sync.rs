@@ -343,12 +343,10 @@ impl Repo {
         }
         if paths.is_empty() {
             let why = cmd::first_line(&trial.stderr);
-            return Err(
-                Error::sync(format!("The local copy and the remote cannot be joined: {why}"))
-                    .with_next(
-                    "Look at the memory repository folder, or ask someone who knows Git.",
-                ),
-            );
+            return Err(Error::sync(format!(
+                "The local copy and the remote cannot be joined: {why}"
+            ))
+            .with_next("Look at the memory repository folder, or ask someone who knows Git."));
         }
         if let Some(bad) = paths.iter().find(|p| !p.ends_with(".md")) {
             return Err(Error::sync(format!(

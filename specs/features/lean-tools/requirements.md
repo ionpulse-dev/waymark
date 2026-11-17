@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-15
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - search-and-read
   - search-filters
@@ -49,7 +49,7 @@ Seven changes. Each one comes from a review of all tools against `tool-conventio
 
 All other filters (`folders`, `tag`, `disputed`, `author`, `updated_after`, `updated_before`, `limit`, `offset`) work in both modes. Without a query the order is by `id`. The caps of `search` (`max_results`, `max_tokens`) apply. The result has the fields of `search`: `results`, `total_matches`, `truncated`, and `next_offset`. The message is "N of M documents." without a query.
 
-**Alias of `list`.** A call with the name `list` runs `search` with no query. If the call sends no `status`, it uses `any`, and if it sends no `level`, it uses 1, so an old call returns what it returned before. The result has the notice "The tool "list" is now "search". The old name stops working in 0.6.0." In limits, `list` counts as `search` for good: `tools_denied = ["list"]` switches off `search`, because a switched-off tool must never come back by a rename.
+**The old name `list`.** From 0.5.0 to 0.5.1, a call with the name `list` ran `search` with no query, with the old defaults and a notice that the old name stops working in 0.6.0. Since 0.6.0, a call named `list` is an unknown tool, like the old names of 0.4.0. In limits, `list` counts as `search` for good: `tools_denied = ["list"]` switches off `search`, because a switched-off tool must never come back by a rename.
 
 ### Aliases of 0.4.0
 
@@ -95,7 +95,7 @@ The `next` sentences of `delete_document`, `delete_folder`, and `verify_document
 - **Given** a client lists the tools, **When** the list is read, **Then** `list` is not in it, and `search` has no required parameter.
 - **Given** documents in two folders, **When** `search` runs with no `query` and `folders`, **Then** it lists the documents of that folder sorted by `id`, at level 1, with the filters applied.
 - **Given** a deprecated document, **When** `search` runs with no `query`, **Then** it is not listed. **When** it runs with `status: any`, **Then** it is listed.
-- **Given** a call named `list` with no arguments, **When** it runs, **Then** it lists all documents (also deprecated ones) at level 1, with the notice that names `search` and 0.6.0.
+- **Given** a call named `list`, **When** it runs, **Then** it is an unknown tool (since 0.6.0).
 - **Given** `tools_denied = ["list"]`, **When** the client lists the tools, **Then** `search` is not listed and a call to it is denied.
 - **Given** a call named `add`, `folders`, or `delete`, **When** it runs, **Then** it is an unknown tool.
 - **Given** `tools_denied = ["delete", "folders"]`, **When** the client lists the tools, **Then** `delete_document` and `folder_tree` are not listed.
@@ -118,7 +118,7 @@ The `next` sentences of `delete_document`, `delete_folder`, and `verify_document
 - The tool list has 23 tools (26 with verification on), one fewer than in 0.4.0.
 - `replace` compares the passage as written, after line ends of the call are changed to LF. It does not trim.
 - `search` without a query ignores `in`, and does not fail on it.
-- `list` as an alias works for one version only. Its name in limits stays.
+- `list` as a call alias worked for 0.5.x only and ended in 0.6.0. Its name in limits stays.
 
 ## Open Questions
 

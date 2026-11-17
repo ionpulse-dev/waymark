@@ -50,3 +50,9 @@
 
 **Reason:** One place for each fact. The spec is the source of truth, and `todo.md` is the place for open work.
 
+
+## The release check uses the container runtime of `linux.sh` — 2026-11-17
+
+**Decision:** The last check of `scripts/release.sh` (the Linux binary reports the version) uses `CONTAINER_RUNTIME`, like `scripts/linux.sh`, and not `docker`. The check folder is in `dist/` inside the project, not in the system temp folder.
+
+**Reason:** Found before the release of 0.6.0, on a Mac with Colima and `nerdctl` instead of OrbStack. `docker` was missing, and Colima shares only the home folder with its VM. Both would have failed the check after the release was already published.

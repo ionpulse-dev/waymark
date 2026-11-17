@@ -147,3 +147,11 @@ _Records why technical choices were made. Never delete entries — add new ones 
 ## Index files are normal documents — 2026-11-14
 
 **Decision:** `search`, `list`, `stats`, and backlinks no longer skip a file named `index.md` with the tag `index`. It is a normal document. This replaces "Generated index files are not search results" above. See [remove-index](../../foundation/remove-index/decisions.md).
+
+## The timing test runs alone — 2026-11-17
+
+**Decision:** T21 (2 000 documents, `search` in under 500 ms) moves from `tests/it_search_and_read.rs` to its own file, `tests/it_search_speed.rs`. The limit stays 500 ms.
+
+**Alternatives considered:** Raise the limit (rejected by the product owner: the limit is the requirement, and the search itself is fast enough).
+
+**Reason:** Found when the suite first ran on the maintainer's Mac (2026-11-17). Cargo runs the tests of one file in parallel, and the other 17 tests of the file start their own servers and Git repositories. Under that load T21 took 700 to 1 150 ms and failed every time, also before `document-names`. Alone it passed 5 times out of 5. Cargo runs the test files one after the other, so a file of its own measures the search, not the load of the other tests.
