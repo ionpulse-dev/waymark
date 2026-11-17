@@ -2,7 +2,8 @@
 
 ## Bugs
 
-None.
+- **A clone with commits does not pick up a later `init` of the remote.** Found on 2026-11-17 by the tests of `menu-bar-app`. What happens: a person clones a repository that has commits but no memory repository yet. Another person runs `init` and pushes. A `waymark` that starts in the first clone answers every tool with "This repository is empty. Call `init`." and does not pull. What should happen: the start, or the next call, updates the clone (as `refresh_if_unborn` does for a clone with no commit) and finds the memory repository. Rare in practice: people join after `init`.
+- **`updates` can miss a change in the same second as the stored time.** Found on 2026-11-17 by the tests of `menu-bar-app`. Commit times have whole seconds, and a change in the second of the stored `since` is not listed. Low impact. A fix compares with `>=` and removes duplicates.
 
 ## Deferred
 

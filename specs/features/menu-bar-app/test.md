@@ -36,31 +36,31 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 
 Unit tests (`swift test` in `apps/macos`, no `waymark` needed):
 
-- [ ] [auto] U1: the line diff marks added, removed, and kept lines, and lists changed properties (`DiffTests.swift`).
-- [ ] [auto] U2: the binary is found in the setting, then `/opt/homebrew/bin`, then `/usr/local/bin`. None found is the error "not installed". The arguments hold the deny list with every write tool except `undo` (`BinaryTests.swift`).
-- [ ] [auto] U3: `[[ops/a]]`, `[[ops/a|Label]]`, `[[ops/a#part]]`, `[x](../b.md)`, and `[x](c.md)` from `ops/deep/d` resolve to document IDs. External links stay as they are (`LinksTests.swift`).
-- [ ] [auto] U4: the reviewed set, the watched list, and the settings survive a new store on the same defaults. The reviewed set keeps the last 1000 (`StoresTests.swift`).
-- [ ] [auto] U5: with a fake session, a poll with the same `version` and no `updates` gives no event (`PollerTests.swift`).
-- [ ] [auto] U6: with a fake session, a notice "may be behind" sets the state "Behind" and keeps the last content (`PollerTests.swift`).
+- [x] [auto] U1: the line diff marks added, removed, and kept lines, and lists changed properties (`DiffTests.swift`).
+- [x] [auto] U2: the binary is found in the setting, then `/opt/homebrew/bin`, then `/usr/local/bin`. None found is the error "not installed". The arguments hold the deny list with every write tool except `undo` (`BinaryTests.swift`).
+- [x] [auto] U3: `[[ops/a]]`, `[[ops/a|Label]]`, `[[ops/a#part]]`, `[x](../b.md)`, and `[x](c.md)` from `ops/deep/d` resolve to document IDs. External links stay as they are (`LinksTests.swift`).
+- [x] [auto] U4: the reviewed set, the watched list, and the settings survive a new store on the same defaults. The reviewed set keeps the last 1000 (`StoresTests.swift`).
+- [x] [auto] U5: with a fake session, a poll with the same `version` and no `updates` gives no event (`PollerTests.swift`).
+- [x] [auto] U6: with a fake session, a notice "may be behind" sets the state "Behind" and keeps the last content (`PollerTests.swift`).
 
 Integration tests (`swift test`, a real `waymark` built from this repository against a temporary memory repository with a bare remote and two clones):
 
-- [ ] [auto] A1: `tools/list` of the app's session has `undo` as the only tool with `readOnlyHint: false` (`IntegrationTests.swift`).
-- [ ] [auto] A2: a session with a missing binary fails with "not installed" (`IntegrationTests.swift`).
-- [ ] [auto] A6: B updates a watched document and pushes. The next poll of A gives a change with the new `version`, the new body, and B's name (`IntegrationTests.swift`).
-- [ ] [auto] A7: B adds a document in a subfolder of a watched folder. The next poll gives the folder as changed and the new ID as new (`IntegrationTests.swift`).
-- [ ] [auto] A8: a second poll with no change gives no event (`IntegrationTests.swift`).
-- [ ] [auto] A9: a deprecated document has `replaced_by`, and the model gives the replacement link (`IntegrationTests.swift`).
-- [ ] [auto] A10: the remote is gone. The poll gives the state "Behind" and the last content stays (`IntegrationTests.swift`).
-- [ ] [auto] A11: A's agent adds a document. The recent writes list has it as not reviewed, count 1. B's writes are not listed (`IntegrationTests.swift`).
-- [ ] [auto] A12: A's agent updates a document. The change of the write has the version before and after and a diff with the new line (`IntegrationTests.swift`).
-- [ ] [auto] A13: Undo preview lists the change and writes nothing (the head of the remote is the same) (`IntegrationTests.swift`).
-- [ ] [auto] A14: Undo pushes a revert under A's name. The write shows "Undone", and the undo commit is listed (`IntegrationTests.swift`).
-- [ ] [auto] A15: B changes the document after A's write. Undo refuses with a message and changes nothing (`IntegrationTests.swift`).
-- [ ] [auto] A16: with `approval.required_for = ["undo"]`, the handler gets the request. A no writes nothing. A yes runs the undo (`IntegrationTests.swift`).
-- [ ] [auto] A17: with `access = "read-only"` in the shared settings, the session says that Undo is not allowed and why (`IntegrationTests.swift`).
-- [ ] [auto] A18: the app polls `updates` with `since`. An agent of A then calls `updates` without `since` and still lists B's change (`IntegrationTests.swift`).
-- [ ] [auto] A19: with a low `max_documents_opened`, more `show` calls than the budget still work, through a new session (`IntegrationTests.swift`).
+- [x] [auto] A1: `tools/list` of the app's session has `undo` as the only tool with `readOnlyHint: false` (`IntegrationTests.swift`).
+- [x] [auto] A2: a session with a missing binary fails with "not installed" (`IntegrationTests.swift`).
+- [x] [auto] A6: B updates a watched document and pushes. The next poll of A gives a change with the new `version`, the new body, and B's name (`IntegrationTests.swift`).
+- [x] [auto] A7: B adds a document in a subfolder of a watched folder. The next poll gives the folder as changed and the new ID as new (`IntegrationTests.swift`).
+- [x] [auto] A8: a second poll with no change gives no event (`IntegrationTests.swift`).
+- [x] [auto] A9: a deprecated document has `replaced_by`, and the model gives the replacement link (`IntegrationTests.swift`).
+- [x] [auto] A10: the remote is gone. The poll gives the state "Behind" and the last content stays (`IntegrationTests.swift`).
+- [x] [auto] A11: A's agent adds a document. The recent writes list has it as not reviewed, count 1. B's writes are not listed (`IntegrationTests.swift`).
+- [x] [auto] A12: A's agent updates a document. The change of the write has the version before and after and a diff with the new line (`IntegrationTests.swift`).
+- [x] [auto] A13: Undo preview lists the change and writes nothing (the head of the remote is the same) (`IntegrationTests.swift`).
+- [x] [auto] A14: Undo pushes a revert under A's name. The write shows "Undone", and the undo commit is listed (`IntegrationTests.swift`).
+- [x] [auto] A15: B changes the document after A's write. Undo refuses with a message and changes nothing (`IntegrationTests.swift`).
+- [x] [auto] A16: with `approval.required_for = ["undo"]`, the handler gets the request. A no writes nothing. A yes runs the undo (`IntegrationTests.swift`).
+- [x] [auto] A17: with `access = "read-only"` in the shared settings, the session says that Undo is not allowed and why (`IntegrationTests.swift`).
+- [x] [auto] A18: the app polls `updates` with `since`. An agent of A then calls `updates` without `since` and still lists B's change (`IntegrationTests.swift`).
+- [x] [auto] A19: with a low `max_documents_opened`, more `show` calls than the budget still work, through a new session (`IntegrationTests.swift`).
 - [ ] [auto] A20: `scripts/macos-app.sh` builds `WaymarkBar.app`, and its `Info.plist` has `LSUIElement` (`make app`).
 
 Manual tests (on a Mac, with the app built by `make app`):

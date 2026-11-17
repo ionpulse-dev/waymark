@@ -117,3 +117,9 @@
 **Alternatives considered:** An Xcode project (rejected: a large generated file in the repository, and the build needs the Xcode UI or `xcodebuild` settings that are hard to review).
 
 **Reason:** One script that the release can run. The maintainer's Mac had no Developer ID identity on 2026-11-17, so the ad hoc path is the one that runs now.
+
+## Notes from the core tests — 2026-11-17
+
+- A result carries the limits that `waymark` read at the start of the call, before its pull. A change of the shared settings shows from the next call. The app uses the limits of the last result, so the Undo button follows one poll later. An undo in between still gets the refusal of `waymark`.
+- The elicitation capability is announced as `{"form": {}}`. `waymark` accepts it (test A16).
+- Two `waymark` bugs that the tests found are in [git-sync/todo.md](../../foundation/git-sync/todo.md). Neither blocks the app.

@@ -1,1 +1,2 @@
-print("placeholder")
+@main
+struct Placeholder { static func main() {} }
