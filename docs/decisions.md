@@ -37,6 +37,7 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 - [The personal server is built, and tested in real use at the end — 2026-11-15](#the-personal-server-is-built-and-tested-in-real-use-at-the-end--2026-11-15)
 - [A menu bar app as an MCP client is drafted — 2026-11-17](#a-menu-bar-app-as-an-mcp-client-is-drafted--2026-11-17)
 - [Superseded specs can be removed; the old Mac app specs are removed — 2026-11-17](#superseded-specs-can-be-removed-the-old-mac-app-specs-are-removed--2026-11-17)
+- [The menu bar app is in scope — 2026-11-17](#the-menu-bar-app-is-in-scope--2026-11-17)
 
 ---
 
@@ -167,6 +168,8 @@ Decisions that apply to the whole project. Decisions that belong to one spec are
 <br/>
 
 ## No macOS app — 2026-11-11
+
+**Superseded by:** "The menu bar app is in scope — 2026-11-17".
 
 **Decision:** The macOS app is dropped. Setup uses the MCP config and the Git login of the person. Approval uses client prompts, elicitation, and a web console in server mode.
 
@@ -350,4 +353,16 @@ feature specs keep their words. The reasons are in the spec
 - Remove all five superseded specs (not asked for now. The same steps apply later).
 
 **Reason:** The new draft [menu-bar-app](../specs/features/menu-bar-app/requirements.md) describes a Mac app again. Three old specs with a different architecture next to it confuse people and agents. Git keeps them, and this entry names the commit. The decisions of the new spec record what it took from `mac-app`.
+
+<br/>
+
+## The menu bar app is in scope — 2026-11-17
+
+**Supersedes:** "No macOS app — 2026-11-11".
+
+**Decision:** The product owner approved the spec [menu-bar-app](../specs/features/menu-bar-app/requirements.md) and asked to build it end to end, with a release prepared up to the publish step. A macOS menu bar app is in scope. It is an MCP client of `waymark`, it has no document or Git logic of its own, and its only write is `undo`. "A desktop app" under out of scope in [PROJECT.md](../specs/PROJECT.md) now names this one exception. Approval in general still uses elicitation and, later, the web console. The app is not an approval channel for agents.
+
+**Alternatives considered:** Keep the app out of scope and use only agents (rejected by the product owner: a native window that updates by itself, and a fast review of the person's own writes, are the user story).
+
+**Reason:** The cost that "No macOS app" named was the app link, the settings that only the app could change, and native code in many specs. The new app has none of these: it uses the existing MCP tools, and `waymark` gets no change for it.
 

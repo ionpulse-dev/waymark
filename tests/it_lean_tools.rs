@@ -8,14 +8,7 @@ use serde_json::{json, Value};
 use std::path::Path;
 
 fn client(w: &World) -> McpClient {
-    McpClient::for_person(
-        w,
-        Person::A,
-        Spawn {
-            env: vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())],
-            ..Spawn::default()
-        },
-    )
+    McpClient::for_person(w, Person::A, Spawn::default())
 }
 
 fn personal(w: &World, text: &str) {

@@ -53,7 +53,7 @@ impl Tool for History {
         let memrepo = ctx.memrepo()?;
         // An invalid ID is `invalid_arguments`.
         memrepo.path_of(&id)?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let not_found = || {
             Error::not_found(format!("There is no document with the ID \"{id}\"."))

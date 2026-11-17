@@ -21,14 +21,28 @@ pub use write::{Change, Tx, WriteResult};
 
 use crate::error::{Error, Result};
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
-use std::time::Instant;
+use std::sync::{Condvar, Mutex};
+
+/// The state of the update gate of one process.
+#[derive(Default)]
+pub(crate) struct Gate {
+    /// Is an update running now?
+    pub(crate) running: bool,
+    /// Counts the finished updates. A waiter returns when it changes.
+    pub(crate) generation: u64,
+    /// The notices of the last finished update.
+    pub(crate) notices: Vec<String>,
+    /// The number of updates that ran (for tests).
+    pub(crate) runs: u64,
+}
 
 /// A Git working tree that waymark writes to.
 pub struct Repo {
     pub(crate) dir: PathBuf,
     author: Mutex<Author>,
-    pub(crate) last_fetch: Mutex<Option<Instant>>,
+    /// The update gate: calls that overlap share one update (see `git-sync`, plan step 13).
+    pub(crate) gate: Mutex<Gate>,
+    pub(crate) gate_cv: Condvar,
     fetch_failed: std::sync::atomic::AtomicBool,
     last_pull: Mutex<Option<chrono::DateTime<chrono::Utc>>>,
 }
@@ -47,7 +61,8 @@ impl Repo {
         Ok(Repo {
             dir: dir.to_path_buf(),
             author: Mutex::new(author),
-            last_fetch: Mutex::new(None),
+            gate: Mutex::new(Gate::default()),
+            gate_cv: Condvar::new(),
             fetch_failed: std::sync::atomic::AtomicBool::new(false),
             last_pull: Mutex::new(None),
         })
@@ -113,7 +128,6 @@ impl Repo {
     }
 
     pub(crate) fn mark_fetched(&self) {
-        *self.last_fetch.lock().unwrap() = Some(Instant::now());
         *self.last_pull.lock().unwrap() = Some(chrono::Utc::now());
     }
 

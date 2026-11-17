@@ -10,17 +10,6 @@ use crate::format;
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 
-const FRESH_FOR: Duration = Duration::from_secs(180);
-
-/// How long a fetch counts as fresh. The variable `WAYMARK_FETCH_MAX_AGE` (seconds) sets it, for tests.
-fn fresh_for() -> Duration {
-    std::env::var("WAYMARK_FETCH_MAX_AGE")
-        .ok()
-        .and_then(|v| v.parse::<u64>().ok())
-        .map(Duration::from_secs)
-        .unwrap_or(FRESH_FOR)
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct SyncResult {
     pub commits: Vec<String>,
@@ -178,24 +167,44 @@ impl Repo {
         Ok(Vec::new())
     }
 
-    /// Update before a read, if the last good fetch is older than a few minutes.
+    /// Update at the start of every read call. There is no freshness window. Calls that overlap in
+    /// this process share one update: the first runs it, the others wait for its result.
     /// A failure never blocks a read. It gives a notice.
-    pub fn refresh_if_stale(&self) -> Vec<String> {
+    pub fn refresh_for_read(&self) -> Vec<String> {
         if !self.has_remote() {
             return vec!["This repository has no remote, so nothing is shared.".to_string()];
         }
-        let fresh = self
-            .last_fetch
-            .lock()
-            .unwrap()
-            .is_some_and(|t| t.elapsed() < fresh_for());
-        if fresh {
-            return Vec::new();
+        let mut gate = self.gate.lock().unwrap();
+        if gate.running {
+            let seen = gate.generation;
+            while gate.running && gate.generation == seen {
+                gate = self.gate_cv.wait(gate).unwrap();
+            }
+            return gate.notices.clone();
         }
-        match Lock::acquire(&self.git_dir().unwrap_or_default(), Duration::from_secs(5)) {
-            Ok(_lock) => self.update(false).unwrap_or_else(|e| vec![e.message]),
-            Err(_) => Vec::new(),
-        }
+        gate.running = true;
+        drop(gate);
+        let notices =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                match Lock::acquire(&self.git_dir().unwrap_or_default(), Duration::from_secs(5)) {
+                    Ok(_lock) => self.update(false).unwrap_or_else(|e| vec![e.message]),
+                    Err(_) => Vec::new(),
+                }
+            }))
+            .unwrap_or_default();
+        let mut gate = self.gate.lock().unwrap();
+        gate.running = false;
+        gate.generation += 1;
+        gate.runs += 1;
+        gate.notices = notices.clone();
+        drop(gate);
+        self.gate_cv.notify_all();
+        notices
+    }
+
+    /// The number of updates that `refresh_for_read` ran in this process (for tests).
+    pub fn read_updates_run(&self) -> u64 {
+        self.gate.lock().unwrap().runs
     }
 
     /// Push. Returns a notice instead of an error when there is no remote. A rejected push is `sync_failed`.

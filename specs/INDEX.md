@@ -1,19 +1,19 @@
 # Waymark · Spec Index
 
 ```
-📦 Features      █████████████████████████████████████░░░  27 / 29 active
-🏗️ Foundation    ████████████████████████████████░░░░░░░░  12 / 15 done+implemented
+📦 Features      ███████████████████████████████████████░  28 / 29 active
+🏗️ Foundation    ███████████████████████████████████░░░░░  13 / 15 done+implemented
 ```
 
 ## Next Up
 
 Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. Server mode, multi-tenancy, sign-in, and the web console are out of scope for now (see [project decisions](../docs/decisions.md)). The decisions of the autonomous work are tagged "decided autonomously".
 
-1. **Update at the start of every call.** `git-sync`, `search-and-read`, and `updates` are `planned`: every read updates the clone at its start, and the 3 minute window goes away (see the git-sync decisions of 2026-11-17). Build the new tasks in [git-sync/tasks.md](foundation/git-sync/tasks.md) first, then the test rewrites in `search-and-read` and `updates`.
+1. **`menu-bar-app` is `in-progress`.** The product owner approved it on 2026-11-17 and asked for the full build, all automated tests, and a release prepared up to the publish step. See [menu-bar-app/tasks.md](features/menu-bar-app/tasks.md). Its `[manual]` items are for the product owner.
 2. **`personal-server` real-use pass (product owner).** The spec is `implemented` and tested against a fake GitHub only. Run the `[manual]` items M1 to M9 in its [test.md](foundation/personal-server/test.md) with a real GitHub App, a host, and the Claude, ChatGPT, and Gemini apps.
 3. **`clean-git-status` is `implemented`: the Obsidian check (product owner).** It stops `.DS_Store` and the Obsidian save of `.obsidian/app.json` from showing in `git status` of a memory repository. Run the `[manual]` item M1 in its [test.md](features/clean-git-status/test.md). It is part of the 0.6.0 release.
 4. **`[manual]` tests and open release steps (product owner).** A spec moves to `done` only when its `[manual]` items pass (see each `test.md`), including the Linux install check. The release steps are in [distribution/todo.md](foundation/distribution/todo.md).
-5. **Next specs.** The candidates are the drafts (`menu-bar-app`, `web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
+5. **Next specs.** The candidates are the drafts (`web-console`, `server-mode`, `multi-tenancy`) and the Post-MVP list in [PROJECT.md](PROJECT.md).
 
 ---
 
@@ -21,6 +21,9 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 
 | Feature | Status | Updated |
 |:--------|:-------|:--------|
+| [menu-bar-app](features/menu-bar-app/requirements.md) | `in-progress` | 2026-11-17 |
+| [search-and-read](features/search-and-read/requirements.md) | `implemented` | 2026-11-17 |
+| [updates](features/updates/requirements.md) | `implemented` | 2026-11-17 |
 | [clean-git-status](features/clean-git-status/requirements.md) | `implemented` | 2026-11-17 |
 | [document-names](features/document-names/requirements.md) | `implemented` | 2026-11-17 |
 | [lean-tools](features/lean-tools/requirements.md) | `implemented` | 2026-11-15 |
@@ -46,9 +49,6 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [restore-and-replace](features/restore-and-replace/requirements.md) | `implemented` | 2026-11-15 |
 | [document-history](features/document-history/requirements.md) | `implemented` | 2026-11-15 |
 | [manage-tags](features/manage-tags/requirements.md) | `implemented` | 2026-11-15 |
-| [search-and-read](features/search-and-read/requirements.md) | `planned` | 2026-11-17 |
-| [updates](features/updates/requirements.md) | `planned` | 2026-11-17 |
-| [menu-bar-app](features/menu-bar-app/requirements.md) | `draft` | 2026-11-17 |
 | [web-console](features/web-console/requirements.md) | `draft` | 2026-11-11 |
 
 ## Foundation
@@ -67,7 +67,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [tool-conventions](foundation/tool-conventions/requirements.md) | `implemented` | 2026-11-15 |
 | [linux-support](foundation/linux-support/requirements.md) | `implemented` | 2026-11-17 |
 | [personal-server](foundation/personal-server/requirements.md) | `implemented` | 2026-11-17 |
-| [git-sync](foundation/git-sync/requirements.md) | `planned` | 2026-11-17 |
+| [git-sync](foundation/git-sync/requirements.md) | `implemented` | 2026-11-17 |
 | [multi-tenancy](foundation/multi-tenancy/requirements.md) | `draft` | 2026-11-11 |
 | [server-mode](foundation/server-mode/requirements.md) | `draft` | 2026-11-11 |
 

@@ -153,7 +153,7 @@ The long-term goal is a building block for a software factory, where agents do m
 
 **Out of scope:**
 - A skill or any installer that writes into agent tools.
-- A desktop app.
+- A desktop app, with one exception: the macOS menu bar app of `menu-bar-app`, an MCP client that reads and can undo the person's own writes (see [project decisions](../docs/decisions.md), 2026-11-17).
 - Background or cloud agents. Every agent action happens in a session that a
   person starts or a person's login on a server.
 - Binary data in the memory repository. A document describes it and links to it.
@@ -170,7 +170,7 @@ Its home after `waymark-trail` is retired is open (see the open questions).
 _Capabilities intentionally deferred. No specs exist yet — this section is a reminder only._
 
 - `connect-git-account` — a console page where an owner connects a Git account, with tokens stored encrypted.
-- `memory-browser` — a window to search and read documents without an agent.
+- `memory-browser` — a window to search and read documents without an agent. On macOS, `menu-bar-app` covers it.
 - `pull-request-gate` — approval of a write by a second person.
 - `anchor-check` — flag documents whose anchored code changed.
 - `message-channels` — email or webhook messages from a server.

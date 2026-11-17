@@ -55,7 +55,7 @@ impl Tool for Lint {
     fn call(&self, ctx: &Context, env: &Env, args: Value) -> Result<ToolOutput, Error> {
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
         let report = lint::run(&memrepo, &store, &|id| scope.allows(id), Some(&repo))?;

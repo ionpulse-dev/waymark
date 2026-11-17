@@ -105,7 +105,7 @@ impl Tool for Show {
         let memrepo = ctx.memrepo()?;
         // An invalid ID is `invalid_arguments`.
         memrepo.path_of(&asked)?;
-        let mut notices = repo.refresh_if_stale();
+        let mut notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let limit_scope = Scope::limit(&env.effective);
         if !limit_scope.allows(&asked) {

@@ -49,7 +49,7 @@ fn two_writers_different_files() {
             && remote_files.contains("agent-memory/ops/two.md")
     );
     // A sees both after its next update.
-    a.refresh_if_stale();
+    a.refresh_for_read();
     a.sync(|_| Ok(Vec::new())).unwrap();
     assert!(w.a.join("agent-memory/ops/two.md").exists());
 }
@@ -291,7 +291,7 @@ fn a_read_without_network_gives_a_notice_and_does_not_fail() {
     let w = World::new();
     let a = w.repo(Person::A); // opened fresh: the last fetch is unknown
     std::fs::rename(&w.remote, w.root.join("gone.git")).unwrap();
-    let notices = a.refresh_if_stale();
+    let notices = a.refresh_for_read();
     assert!(
         notices.iter().any(|n| n.contains("may be behind")),
         "{notices:?}"
@@ -348,4 +348,69 @@ fn history_helpers() {
         DOC
     );
     assert!(a.last_commit("agent-memory/ops/none.md").unwrap().is_none());
+}
+
+// Update at the start of every call (2026-11-17).
+
+#[test]
+fn a_read_sees_a_push_of_a_moment_ago() {
+    let w = World::new();
+    let (a, b) = (w.repo(Person::A), w.repo(Person::B));
+    a.refresh_for_read();
+    write_doc(&b, "agent-memory/ops/fresh.md", DOC, Verb::Add).unwrap();
+    // No waiting and no freshness window: the next read fetches first.
+    let notices = a.refresh_for_read();
+    assert!(notices.is_empty(), "{notices:?}");
+    assert!(w.a.join("agent-memory/ops/fresh.md").exists());
+}
+
+#[test]
+fn reads_that_start_at_the_same_time_share_one_fetch() {
+    let w = World::new();
+    let a = std::sync::Arc::new(w.repo(Person::A));
+    let threads = 8;
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(threads));
+    let handles: Vec<_> = (0..threads)
+        .map(|_| {
+            let (a, barrier) = (a.clone(), barrier.clone());
+            std::thread::spawn(move || {
+                barrier.wait();
+                a.refresh_for_read()
+            })
+        })
+        .collect();
+    for h in handles {
+        assert!(h.join().unwrap().is_empty());
+    }
+    let runs = a.read_updates_run();
+    assert!(
+        (1..=2).contains(&runs),
+        "{threads} reads ran {runs} updates"
+    );
+}
+
+#[test]
+fn a_failed_update_is_tried_again_at_the_next_read() {
+    let w = World::new();
+    let (a, b) = (w.repo(Person::A), w.repo(Person::B));
+    a.refresh_for_read();
+    // An untracked file in A blocks the fast-forward to B's new document.
+    let blocker = w.a.join("agent-memory/ops/clash.md");
+    std::fs::create_dir_all(blocker.parent().unwrap()).unwrap();
+    std::fs::write(&blocker, "local draft\n").unwrap();
+    write_doc(&b, "agent-memory/ops/clash.md", DOC, Verb::Add).unwrap();
+    let notices = a.refresh_for_read();
+    assert!(
+        notices.iter().any(|n| n.contains("may be behind")),
+        "{notices:?}"
+    );
+    // The fetch itself worked. The next read must still try the update again.
+    std::fs::remove_file(&blocker).unwrap();
+    let notices = a.refresh_for_read();
+    assert!(notices.is_empty(), "{notices:?}");
+    assert_eq!(
+        std::fs::read_to_string(&blocker).unwrap(),
+        DOC,
+        "the update ran again"
+    );
 }

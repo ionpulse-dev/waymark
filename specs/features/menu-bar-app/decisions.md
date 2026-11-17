@@ -44,6 +44,8 @@
 
 ## The app raises its own read budget — 2026-11-17
 
+**Superseded by:** "The app works within the limits, and starts a new session for the read budget — 2026-11-17".
+
 **Decision:** The app passes `--max-documents-opened 500`. After `access_denied` it starts a new `waymark` process and tries once more.
 
 **Reason:** The default of 20 is for an agent session, which is short. The app runs all day and opens many documents. The flag is a layer of the person. A stricter layer, such as the shared settings of the team, still wins. The restart is only a fallback for that case.
@@ -71,3 +73,47 @@
 - `--access read-only` and a special exception for `undo` in `waymark` (rejected: it needs a change to the limits of `trust-model`).
 
 **Reason:** The product owner asked for Undo on 2026-11-17. Undo is the safety net of `activity-and-undo`, and it is safe: it only reverts the person's own writes, it is itself a commit that can be undone, and it never overwrites newer changes. The old approval problem does not apply: a click in the app is the person, not an agent, and the elicitation of `write-approval` already reaches the app as the MCP client.
+
+## Product owner approval and the answers to the open questions — 2026-11-17
+
+**Decision:** The product owner approved the spec and asked to build it end to end, run all automated tests, and prepare a release that stops before anything is published. The open questions are answered as follows (decided autonomously; the product owner can change any of them):
+- **Personal server over HTTPS:** not in the first version (see `todo.md`).
+- **Cheaper folder signal:** yes, but with no change to `waymark`. See "Folders are polled through `updates` and `activity`".
+- **Minimum macOS version:** macOS 14. `MenuBarExtra` with the window style, `SMAppService`, and the SwiftUI `Window` scene need macOS 13 or later. macOS 14 adds `@Observable` and is two versions behind the current one.
+- **More writes:** not in the first version. Undo stays the only write.
+- **Reviewed state across Macs:** no. It stays on one Mac.
+- **Our own small MCP client** (the draft decision above) is confirmed.
+
+## The app works within the limits, and starts a new session for the read budget — 2026-11-17
+
+**Supersedes:** "The app raises its own read budget — 2026-11-17".
+
+**Decision:** The app passes no number limit to `waymark`. It reads `max_documents_opened` and `max_results` from `status`. It counts its `show` calls and starts a new `waymark` process before the count reaches the budget. An `access_denied` from `show` still starts a new process and tries once more.
+
+**Alternatives considered:** `--max-documents-opened 500` as drafted (rejected: a test showed that a layer can only tighten a number limit, as `trust-model` says. The built-in default of 20 is the top. The flag had no effect). A change to `trust-model` that lets a person raise the limit (rejected: it loosens a rule that exists for agents, for one client).
+
+**Reason:** The read budget protects the context window of an agent session. The app is not an agent, and each process is a new session by the rules of `search-and-read`. A restart costs one `initialize` and one `tools/list`. A team that wants to stop it can set `access` or `folders` in a layer that the app cannot change.
+
+## Folders are polled through `updates` and `activity` — 2026-11-17
+
+**Decision:** A poll of a watched folder calls `updates` with `since` and `folders`. The same poll's `activity` gives the person's own writes. Only when one of them names the folder, or when its window opens, or after "Refresh now", the app reads the full list with paged `search`.
+
+**Alternatives considered:**
+- Paged `search` at every poll, as drafted (rejected: `search` returns at most `max_results` per call, 5 by default. A folder of 200 documents needs 40 calls, and every call fetches).
+- A `version` field in the `search` entries (rejected for now: a change to `search-and-read`, and it does not fix the paging).
+
+**Reason:** One `updates` call per folder per poll, plus one `activity` call for all folders. Both name exactly what changed and who changed it. A manual edit that is not committed shows at the next full read.
+
+## A core library and an app target — 2026-11-17
+
+**Decision:** The Swift package has two targets: `WaymarkBarCore` (the MCP client, the process, the poller, the models, the diff, the link rules, the stores, with no SwiftUI) and `WaymarkBar` (the SwiftUI app). The tests use the core only.
+
+**Reason:** The core can be tested with `swift test` from the command line, against a real `waymark`, with no UI and no signing. The windows stay thin.
+
+## The app bundle is built by a script, not an Xcode project — 2026-11-17
+
+**Decision:** `scripts/macos-app.sh` builds the package with `swift build -c release`, puts the binary into `WaymarkBar.app` with an `Info.plist` (`LSUIElement`), and signs it. With a Developer ID identity and a `notarytool` profile it also signs for distribution and notarizes. Without them it signs ad hoc for this Mac and says so.
+
+**Alternatives considered:** An Xcode project (rejected: a large generated file in the repository, and the build needs the Xcode UI or `xcodebuild` settings that are hard to review).
+
+**Reason:** One script that the release can run. The maintainer's Mac had no Developer ID identity on 2026-11-17, so the ad hoc path is the one that runs now.

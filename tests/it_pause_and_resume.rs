@@ -174,14 +174,7 @@ fn paused_flag_pauses_from_the_start() {
 fn a_pull_works_while_paused() {
     let w = World::new();
     pause(&w, true);
-    let mut c = McpClient::for_person(
-        &w,
-        Person::A,
-        Spawn {
-            env: vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())],
-            ..Spawn::default()
-        },
-    );
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     commit_doc(&w.b, "ops/from-ben", "From Ben", "x");
     git(&w.b, &["push", "-q"]);
     let l = c.call("search", json!({}));

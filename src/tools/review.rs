@@ -59,7 +59,7 @@ impl Tool for Review {
             .unwrap_or_default();
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders);
         let mut docs: Vec<_> = store

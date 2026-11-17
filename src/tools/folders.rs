@@ -57,7 +57,7 @@ impl Tool for Folders {
         };
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let all = memrepo.folders();
         if !start.is_empty() && !all.iter().any(|f| f.path == start) {
             return Err(

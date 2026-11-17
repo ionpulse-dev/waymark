@@ -77,7 +77,7 @@ impl Tool for Updates {
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let state = State::for_memrepo(&memrepo.settings.id);
         let now = Utc::now();
         let since = match explicit_when {

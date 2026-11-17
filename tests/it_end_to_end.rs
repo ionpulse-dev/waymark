@@ -7,9 +7,7 @@ use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 
 fn client(w: &World, p: Person, extra: &[&str]) -> McpClient {
-    let mut s = Spawn::args(extra);
-    s.env = vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())];
-    McpClient::for_person(w, p, s)
+    McpClient::for_person(w, p, Spawn::args(extra))
 }
 
 fn ok(r: common::Reply) -> Value {

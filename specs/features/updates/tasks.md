@@ -14,5 +14,5 @@ _Prerequisite: `search-and-read` is `implemented` or `done`._
 
 `git-sync` owns the code change (see its `tasks.md`). This spec only changes its test.
 
-- [ ] `tests/it_updates.rs`: rewrite T10 without `WAYMARK_FETCH_MAX_AGE`. B pushes, A runs `updates` at once and lists the change.
-- [ ] Run the full suite (`make check`).
+- [x] `tests/it_updates.rs`: rewrite T10 without `WAYMARK_FETCH_MAX_AGE`. B pushes, A runs `updates` at once and lists the change.
+- [x] Run the full suite (`make check`).

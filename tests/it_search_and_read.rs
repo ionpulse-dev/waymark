@@ -274,14 +274,7 @@ fn t13_t18_stats() {
 #[test]
 fn t14_a_stale_clone_fetches_before_it_reads() {
     let w = World::new();
-    let mut c = McpClient::for_person(
-        &w,
-        Person::A,
-        Spawn {
-            env: vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())],
-            ..Spawn::default()
-        },
-    );
+    let mut c = McpClient::for_person(&w, Person::A, Spawn::default());
     assert_eq!(
         c.call("search", json!({"query": "remote"})).json["total_matches"],
         0

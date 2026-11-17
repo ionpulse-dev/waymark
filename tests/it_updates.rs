@@ -8,14 +8,7 @@ use serde_json::{json, Value};
 use std::time::Duration;
 
 fn client(w: &World, p: Person) -> McpClient {
-    McpClient::for_person(
-        w,
-        p,
-        Spawn {
-            env: vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())],
-            ..Spawn::default()
-        },
-    )
+    McpClient::for_person(w, p, Spawn::default())
 }
 
 /// Add a document. Returns (id, version).
@@ -185,8 +178,10 @@ fn t10_a_change_on_the_remote_is_fetched_first() {
     let w = World::new();
     let mut a = client(&w, Person::A);
     let mut b = client(&w, Person::B);
+    // A reads once, so a freshness window (if there were one) would start now.
+    assert!(ids(&updates(&mut a, json!({"since": "2020-01-01"}))).is_empty());
     add(&mut b, "ops", "From the remote");
-    // A has not fetched yet.
+    // A has not fetched since. Its next call at once must fetch first.
     assert!(!w.a.join("agent-memory/ops/from-the-remote.md").exists());
     let u = updates(&mut a, json!({"since": "2020-01-01"}));
     assert_eq!(ids(&u), vec!["ops/from-the-remote"]);

@@ -19,7 +19,7 @@
 ## Test Cases
 
 - [x] [auto] The first eight criteria above (`tests/it_git_sync.rs`)
-- [ ] [auto] The three criteria of 2026-11-17: fresh push, shared fetch, retry after a failed update (`tests/it_git_sync.rs`, `src/gitsync/sync.rs`)
+- [x] [auto] The three criteria of 2026-11-17: fresh push, shared fetch, retry after a failed update (`tests/it_git_sync.rs`, `src/gitsync/sync.rs`)
 - [x] [auto] The repository is never left in a rebase or merge state after any failure (`tests/it_git_sync.rs`)
 - [x] [auto] The conflict copy has a unique title, `disputed: true`, and the name rule (`tests/it_git_sync.rs`)
 - [x] [auto] The commit message has the format `waymark: <verb> "<title>"` and no agent tag (`src/gitsync/message.rs`)

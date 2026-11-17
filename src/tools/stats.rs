@@ -68,7 +68,7 @@ impl Tool for Stats {
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders);
         let docs: Vec<_> = store.docs().filter(|d| scope.allows(&d.id)).collect();

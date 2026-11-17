@@ -25,5 +25,5 @@ _Tasks are in prerequisite-first order._
 
 `git-sync` owns the code change (see its `tasks.md`). This spec only changes its test.
 
-- [ ] `tests/it_search_and_read.rs`: rewrite T14 without `WAYMARK_FETCH_MAX_AGE`. A runs `search` once, B pushes, A runs `search` again at once and finds the document.
-- [ ] Run the full suite (`make check`).
+- [x] `tests/it_search_and_read.rs`: rewrite T14 without `WAYMARK_FETCH_MAX_AGE`. A runs `search` once, B pushes, A runs `search` again at once and finds the document.
+- [x] Run the full suite (`make check`).

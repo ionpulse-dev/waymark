@@ -62,7 +62,7 @@ impl Tool for Activity {
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let commits = repo.all_commits()?;
         let mut entries = activity::entries(&memrepo, &commits, &repo.author().email);
         entries.retain(|e| e.ids.iter().any(|id| env.effective.allows_folder(id)));

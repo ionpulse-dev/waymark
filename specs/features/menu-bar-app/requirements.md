@@ -1,6 +1,6 @@
 ---
 type: feature
-status: draft
+status: in-progress
 created: 2026-11-17
 updated: 2026-11-17
 requires:
@@ -13,7 +13,7 @@ requires:
 
 # Menu bar app
 
-> **Scope on 2026-11-17:** this spec is a draft. It does not change the current scope. "No macOS app — 2026-11-11" in [project decisions](../../../docs/decisions.md) stays in force until the product owner approves this spec. The old design was the spec `mac-app`, removed on 2026-11-17 (last version in commit `1e588d9`). This spec reuses its shell decisions, not its architecture.
+> **Scope on 2026-11-17:** the product owner approved this spec on 2026-11-17. It replaces "No macOS app — 2026-11-11" (see "The menu bar app is in scope" in [project decisions](../../../docs/decisions.md)). The old design was the spec `mac-app`, removed on 2026-11-17 (last version in commit `1e588d9`). This spec reuses its shell decisions, not its architecture.
 
 ## User Story
 
@@ -44,12 +44,12 @@ requires:
 - **Search…**: opens the search window.
 - **Recent writes**: opens the recent writes window. The menu shows the number of writes that are not reviewed yet, and the icon shows a small badge while that number is above 0.
 - The list of watched documents and folders. A click brings its window to the front. A dot marks an item that changed since its window was last shown.
-- **Refresh now**: polls all watched items at once.
+- **Refresh now**: polls all watched items at once, and reads every watched folder in full.
 - **Settings…** and **Quit**.
 
 ### Search window
 
-- One field. Typing calls `search` with the query, at level 2. The list shows title, description, folder, and the date of the last change.
+- One field. Typing calls `search` with the query, at level 2. The list shows title, description, folder, and the date of the last change. `search` returns a few results per call (`max_results`, 5 by default). **More results** reads the next page.
 - A click on a result opens the document window.
 - "Watch" on a result or on a folder adds it to the watched list.
 
@@ -112,7 +112,7 @@ For a person whose agents write on their own: one place to see what was written 
 
 - `waymark` not found: "waymark is not installed. Install it with Homebrew, then choose Retry."
 - `setup_problem` from `waymark`: the app shows the `message` and the `next` sentence of the error.
-- The read budget is used up (`access_denied`): the app starts a new `waymark` process, which is a new session, and tries once more.
+- The read budget is used up: `show` opens at most `max_documents_opened` documents in one session (20 by default), and a flag cannot raise it. The app counts its `show` calls and starts a new `waymark` process, which is a new session, before the budget runs out. If `show` still fails with `access_denied`, it starts a new process and tries once more.
 - Writes are not allowed (`access_denied` because a layer sets `read-only`, or `undo` is in a `tools_denied`): the Undo button is hidden, and the recent writes window says why.
 - Writes are paused (`paused`): the Undo button is disabled, with the line "Writes are paused."
 - The push of an undo fails (`sync_failed`): the app shows the message. The undo commit stays local and goes out with the next write or `sync`, as in `git-sync`.
@@ -124,18 +124,18 @@ The app uses only existing MCP tools and the MCP elicitation of `write-approval`
 
 | Purpose | Call |
 |---|---|
-| Start | `waymark --max-documents-opened 500 --tools-denied add_document,update_document,dispute_document,deprecate_document,restore_document,delete_document,move,create_folder,delete_folder,rename_tag,sync,init,verify_document,reject_document` plus the memory repository arguments, over stdio. A stricter layer (system file, shared settings) still wins. |
+| Start | `waymark --tools-denied add_document,update_document,dispute_document,deprecate_document,restore_document,delete_document,move,create_folder,delete_folder,rename_tag,sync,init,verify_document,reject_document` plus the memory repository arguments, over stdio. The app passes no number limits: a layer can only tighten them, so the app works with the limits that `status` reports. |
 | Check the switched-off tools | `tools/list` after the start. If a tool with `readOnlyHint: false` other than `undo` is listed (a newer `waymark` with a new write tool), the app adds it to `--tools-denied` and starts the process again. |
 | Search | `search` with `query`, `level: 2` |
 | Poll a document | `show` with the ID. A different `version` from the last poll means a change. |
-| Poll a folder | `search` with no query, `folders: [<path>]`, `level: 1`, with paging. Added, removed, and changed entries (`updated`) mean a change. Plus `updates` with `folders: [<path>]` and `since` (the time of the last poll), for the name of the person who changed it. |
+| Poll a folder | `updates` with `folders: [<path>]` and `since` (the time of the last poll) gives the changes of other people and their names. The `activity` entries of the same poll give the person's own writes in the folder. Only when one of the two names the folder, or when the window opens, the app reads the full list: `search` with no query, `folders: [<path>]`, `level: 1`, `status: "any"`, paged with `offset` (`search` returns at most `max_results` per call). |
 | Recent writes | `activity` with `limit: 50`, then `before` for older pages. A poll reads until it reaches the newest write it already knows. |
 | Change of one write | `history` of the document, to find the version before the write. Then `show` with `version` for both versions. The app computes the diff of the two bodies and properties. |
 | Undo | `undo` with `commit` and `preview: true`, then the same without `preview` after the person confirms. |
 | Status | `status`, at start and after an error. |
 
 - The app always passes `since` to `updates`. Without it, `updates` would move the stored time that the agent tools of the person share.
-- One poll calls `show` once per watched document and `search` once per watched folder.
+- One poll calls `activity` once, `updates` once per watched folder, and `show` once per watched document. `search` runs only for a folder that changed.
 
 ## Acceptance Criteria
 
@@ -168,17 +168,15 @@ The app uses only existing MCP tools and the MCP elicitation of `write-approval`
 - **macOS only.** Apps for other systems are not planned.
 - **Same clone as the agent tools.** With the same `--repo`, the app and an agent session use the same clone. The lock of `git-sync` keeps them apart. A long update of one waits for the other.
 - **Load on the Git host.** Every poll is one fetch per tool call. A short interval with many watched items means many fetches. The minimum interval is 10 seconds.
-- **Own changes in a folder.** `updates` does not list the person's own changes. The folder window still sees them through `search` (`updated`), but only with the date, so a second change on the same day to the title or the description of a document can show late. The document window always sees it, through `version`.
+- **Own changes in a folder.** `updates` does not list the person's own changes. The folder window sees them through `activity`, which lists every write of the person with its folder. The document window always sees a change, through `version`.
+- **Manual edits in a folder.** A manual edit that is not committed is in no `updates` or `activity` result. The folder window shows it at the next full read: when the window opens, or after "Refresh now".
 - **Version skew.** The app works with any `waymark` that has the tools above. If `waymark` is too old, `status` shows the version, and the app asks to update.
 - **Manual edits** in the clone that are not committed show in the app, because the read tools read the files. They have no "changed by" name.
+- **macOS 14 or later.**
 - **Not in the Mac App Store.** The sandbox blocks starting the `waymark` binary.
 - **Undo is the person's own action.** The app is not an agent. A click in the app is the person, so the app adds no extra approval of its own beyond the preview and the confirm step.
 - **Undo only of the person's own writes.** `undo` refuses commits of other people (`not_found`). The app only offers it in the recent writes window, which lists the person's writes only.
 
 ## Open Questions
 
-- Should the app also connect to a personal server over HTTPS, for a person with no local clone? It would need the sign-in flow of `personal-server`.
-- Should the folder poll get a cheaper signal, for example `version` in the `search` entries? That would be a change to `search-and-read`.
-- Which minimum macOS version? Proposed: macOS 14.
-- Are more writes a later step, for example quick capture or a fix of a document? Each would be switched on in the app's `waymark` process the same way as `undo`.
-- Should the reviewed state be shared between the Macs of the person? Today it is local to one Mac.
+None. Answered on 2026-11-17 (decided autonomously, see `decisions.md`): no personal server connection in the first version, the folder poll uses `updates` and `activity` as its cheap signal, the minimum is macOS 14, no write other than Undo in the first version, and the reviewed state stays on one Mac.

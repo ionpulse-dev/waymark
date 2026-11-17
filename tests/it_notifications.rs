@@ -8,14 +8,7 @@ use serde_json::{json, Value};
 use std::time::Duration;
 
 fn client(w: &World, p: Person) -> McpClient {
-    McpClient::for_person(
-        w,
-        p,
-        Spawn {
-            env: vec![("WAYMARK_FETCH_MAX_AGE".into(), "0".into())],
-            ..Spawn::default()
-        },
-    )
+    McpClient::for_person(w, p, Spawn::default())
 }
 
 fn pause() {

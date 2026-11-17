@@ -41,7 +41,7 @@ All tests are in `tests/it_search_and_read.rs`. Each starts a `World` and an `Mc
 - [x] [auto] T11: `show` of a deprecated document names the superseding document in `replaced_by`.
 - [x] [auto] T12: with a shared limit `folders = ["engineering/**"]`, `search` returns only `engineering/` documents and `show` of `ops/deploy` is `not_found`.
 - [x] [auto] T13: `stats` with `by: "author"` returns one group per `created_by`, and the values add up to `total`.
-- [ ] [auto] T14: clone A runs `search` once. Clone B commits a document and pushes. Clone A runs `search` again at once, with no freshness setting. It finds the document.
+- [x] [auto] T14: clone A runs `search` once. Clone B commits a document and pushes. Clone A runs `search` again at once, with no freshness setting. It finds the document.
 - [x] [auto] T15: the remote path is broken. `search` still returns results and has a notice that the clone may be behind.
 - [x] [auto] T16: `git mv` a document and commit. `show` with the old ID returns the new document, `moved_from` is the old ID, and there is a notice.
 - [x] [auto] T17: a document `ops/index.md` with the tag `index` is found by `search` and `list` like any document.

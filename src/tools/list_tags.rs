@@ -55,7 +55,7 @@ impl Tool for ListTags {
 
         let repo = ctx.repo()?;
         let memrepo = ctx.memrepo()?;
-        let notices = repo.refresh_if_stale();
+        let notices = repo.refresh_for_read();
         let store = Store::load(&memrepo);
         let scope = Scope::new(&env.effective, &folders_arg(&args));
 

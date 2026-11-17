@@ -32,7 +32,7 @@ All tests are in `tests/it_updates.rs`, with a `World` of two clones: person A r
 - [x] [auto] T7: B moves `ops/undo` to `ops/rollback`. The entry has `kind: "moved"` and `from: "ops/undo"`.
 - [x] [auto] T8: B adds a document. The entry is `new`, and `mine` is false.
 - [x] [auto] T9: `since: "yesterday"` and a `since` in the future both fail with `invalid_arguments` and a `next` sentence.
-- [ ] [auto] T10: A runs `updates` once. B pushes. A runs `updates` again at once, with no freshness setting. It lists B's change.
+- [x] [auto] T10: A runs `updates` once. B pushes. A runs `updates` again at once, with no freshness setting. It lists B's change.
 - [x] [auto] T11: B deprecates a document. The entry is `deprecated`.
 - [x] [auto] T12: 60 documents change. `updates` returns 50, `total: 60`, `truncated: true`.
 - [x] [auto] T13: a document `ops/index.md` with the tag `index` changes. It is listed like any document.

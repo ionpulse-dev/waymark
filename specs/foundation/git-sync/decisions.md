@@ -52,3 +52,10 @@
 ## Approved — 2026-11-17
 
 **Decision:** The product owner approved the change "Update at the start of every call" on 2026-11-17. The spec moves to `planned`.
+
+## The shared update is built; `status` does not update — 2026-11-17
+
+**Decision:** `Repo::refresh_for_read` has the update gate of plan step 13. The test of the shared fetch runs eight threads on one `Repo` and accepts one or two updates: a thread that starts after the first update ended runs its own, which is correct. `status` does not call `refresh_for_read`. It checks the remote with its own probe and reports `last_pull`, and it must answer even when the update hangs.
+
+**Reason:** Decided autonomously during the build. The rule "every read call" is about the tools that read documents.
+
