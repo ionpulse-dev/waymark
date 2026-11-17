@@ -9,7 +9,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | Write tools on one document are `<verb>_document`, no old name is listed | `tool_names_follow_the_naming_scheme` |
 | Every parameter has a description | `every_parameter_has_a_description` |
 | Every description says what it returns, write tools say commit and push | `every_description_says_what_it_returns_and_write_tools_say_they_commit` |
-| An old tool name runs the new tool with a notice | `an_old_tool_name_still_runs_with_a_notice` |
+| An old tool name, also `list` since 0.6.0, is an unknown tool | `the_old_names_are_unknown_tools` |
 | An old name in a limit still switches the new tool off | `an_old_name_in_a_limit_still_blocks_the_new_tool` |
 | `since` accepts an RFC 3339 time | `activity_since_accepts_a_date_and_an_rfc_3339_time` |
 | The tool list stays below the budget | `tools_list_stays_under_the_budget` (`tests/it_mcp_server.rs`), `tool_descriptions_and_instructions_stay_small` (`tests/it_context_budget.rs`) |

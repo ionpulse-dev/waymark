@@ -2,7 +2,7 @@
 type: foundation
 status: implemented
 created: 2026-11-15
-updated: 2026-11-15
+updated: 2026-11-17
 requires:
   - mcp-server
 ---
@@ -42,7 +42,7 @@ All tools follow one set of rules for names, descriptions, parameters, paging, a
 - A tool that acts on documents and folders, or on the whole memory repository, has a bare verb: `move`, `sync`, `undo`, `init`.
 - A read tool has a bare noun or verb: `status`, `search`, `show`, `history`, `stats`, `updates`, `lint`, `activity`, `review`.
 - **Renamed tools (old name, new name):** `add` to `add_document`; `delete` to `delete_document`; `deprecate` to `deprecate_document`; `dispute` to `dispute_document`; `verify` to `verify_document`; `reject` to `reject_document`; `add_empty_folder` to `create_folder`; `remove_folder` to `delete_folder`; `folders` to `folder_tree`.
-- **Aliases of calls.** The old names of the nine renames stopped working in version 0.5.0: a call with one is an unknown tool. The one alias that remains is `list` (merged into `search`, see `lean-tools`). A call with it runs the new tool, with a notice that names the new tool and says that the old name stops working in version 0.6.0. Limits and approval checks use the new name. The tool list shows only new names.
+- **Aliases of calls.** The old names of the nine renames stopped working in version 0.5.0: a call with one is an unknown tool. The alias `list` (merged into `search`, see `lean-tools`) stopped working in version 0.6.0. No call alias remains. Limits and approval checks use the new name. The tool list shows only new names.
 - **Aliases in limits.** An old name (also `list`) in `tools_denied` or `approval.required_for` (settings files, `--tools-denied`, `--no-delete`) counts as the new name. This stays, because a switched-off tool must never come back by a rename.
 - **Description form.** A description is plain and short. It says what the tool does, then what it returns ("Returns ..."), and for a write tool that it commits and pushes. It names no advice. Read tools end with "Changes nothing."
 - **Parameters.** Every parameter has a `description`. It says the meaning, and the default or the allowed values when there are any.
@@ -55,7 +55,7 @@ All tools follow one set of rules for names, descriptions, parameters, paging, a
 - **Given** a running server, **When** a client lists the tools, **Then** every write tool that acts on one document is named `<verb>_document`, and none of the old names is listed.
 - **Given** a running server, **When** a client lists the tools, **Then** every parameter of every tool has a non-empty description.
 - **Given** a running server, **When** a client lists the tools, **Then** every description says what the tool returns, and every write tool says that it commits and pushes.
-- **Given** a call with `list`, **When** the call runs, **Then** it does what `search` does, and the result has a notice with the new name. **Given** a call with one of the nine names of 0.4.0, **Then** it is an unknown tool.
+- **Given** a call with `list` or with one of the nine names of 0.4.0, **When** the call runs, **Then** it is an unknown tool.
 - **Given** a limit `tools_denied = ["delete"]`, **When** a client lists the tools or calls `delete_document`, **Then** the tool is not listed and the call is denied.
 - **Given** an `activity` call, **When** `since` is an RFC 3339 time, **Then** the call works like a call with a date.
 - **Given** the tool list, **When** its size is measured, **Then** it is below the budget.

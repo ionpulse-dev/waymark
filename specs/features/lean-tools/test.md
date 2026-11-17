@@ -9,7 +9,7 @@ _`[auto]` items are verified by running the automated test suite. `[manual]` ite
 | `list` is not listed and `search` has no required parameter | `list_is_gone_and_search_needs_no_query` |
 | `search` without a query lists by ID at level 1 with filters | `search_without_a_query_lists_by_id` |
 | The default status is `active` in both modes | `search_without_a_query_hides_deprecated_documents` |
-| A call named `list` still works with a notice | `the_old_name_list_runs_search_with_a_notice` |
+| A call named `list` is an unknown tool (since 0.6.0) | `the_old_name_list_is_an_unknown_tool` |
 | `tools_denied = ["list"]` switches off `search` | `list_in_a_limit_switches_off_search` |
 | The old names of 0.4.0 are unknown tools | `the_old_names_of_0_4_0_are_unknown_tools` |
 | The old names in limits still count | `an_old_name_in_a_limit_still_blocks_the_new_tool` (`it_tool_conventions.rs`) |

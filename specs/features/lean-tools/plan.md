@@ -9,7 +9,7 @@ Seven small changes in existing tools. `list` moves into `search`. The old-name 
 - `src/tools/search.rs`: the query is optional. Without it, the tool lists by `id`.
 - `src/tools/list.rs`: removed. `src/tools/mod.rs` no longer registers it.
 - `src/config/limits.rs`: `RENAMED_TOOLS` gets `("list", "search")`. It has 10 entries.
-- `src/mcp/tool.rs`: `Registry::call` takes a name only if it is a current tool, or if it is `list`. The old names of 0.4.0 are unknown tools. The call `list` gets the defaults `status: any` and `level: 1` when the call sends none, and a notice with 0.6.0.
+- `src/mcp/tool.rs`: `Registry::call` takes a name only if it is a current tool. The old names of 0.4.0 are unknown tools, and so is `list` since 0.6.0. (In 0.5.x, the call `list` got the defaults `status: any` and `level: 1` and a notice.)
 - `src/tools/update_document.rs`: `replace`, `append`, `add_tags`, `remove_tags`.
 - `src/tools/show.rs` and `src/gitsync/log.rs`: `Repo::deprecation_reason(rel)`.
 - `src/tools/updates.rs`: `offset` and `next_offset`.

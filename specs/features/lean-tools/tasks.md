@@ -11,3 +11,4 @@
 - [x] `tests/it_lean_tools.rs`: the cases of `test.md`, and the stale-name test.
 - [x] Update the other specs, the README, `docs/install.md`, and `INDEX.md`. Remove the done item from `write-documents/todo.md`.
 - [x] Run the full suite and the budget test.
+- [x] 0.6.0: remove the call alias of `list` from `src/mcp/tool.rs`. The alias in limits stays. Its test checks that `list` is an unknown tool.

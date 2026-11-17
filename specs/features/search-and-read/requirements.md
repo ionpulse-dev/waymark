@@ -147,7 +147,7 @@ The result has `is_current`: `true` for the current version. For an older versio
 
 ### `search` without a query
 
-Since 0.5.0 the tool `list` is a mode of `search`: a call with no `query` lists the documents that pass the filters, sorted by `id`, at level 1 by default, with the same status default `active`, and the same paging (`offset`, `next_offset`). The message is "2 of 7 documents.". A call named `list` still works until 0.6.0 (see [lean-tools](../lean-tools/requirements.md)).
+Since 0.5.0 the tool `list` is a mode of `search`: a call with no `query` lists the documents that pass the filters, sorted by `id`, at level 1 by default, with the same status default `active`, and the same paging (`offset`, `next_offset`). The message is "2 of 7 documents.". A call named `list` is an unknown tool since 0.6.0 (see [lean-tools](../lean-tools/requirements.md)).
 
 ### `stats`
 

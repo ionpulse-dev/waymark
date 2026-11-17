@@ -95,31 +95,14 @@ impl Registry {
     }
 
     pub fn call(&self, ctx: &Context, name: &str, args: Value) -> Result<Outcome, UnknownTool> {
-        // The old name `list` runs `search`, with a notice (see `lean-tools`). The old names of
-        // 0.4.0 are unknown tools now (see `tool-conventions`).
-        let aliased = name == "list";
-        let current = if aliased { "search" } else { name };
-        let mut args = args;
-        if aliased {
-            // An old call returns what it returned before: every status, and level 1.
-            if let Some(m) = args.as_object_mut() {
-                m.entry("status").or_insert_with(|| json!("any"));
-                m.entry("level").or_insert_with(|| json!(1));
-            } else if args.is_null() {
-                args = json!({"status": "any", "level": 1});
-            }
-        }
+        // Only current names are tools. The old names of 0.4.0, and `list` since 0.6.0, are
+        // unknown tools (see `tool-conventions` and `lean-tools`). In limits they still count.
         let tool = self
             .tools
             .iter()
-            .find(|t| t.name() == current)
+            .find(|t| t.name() == name)
             .ok_or_else(|| UnknownTool(name.to_string()))?;
         let (env, verification, mut notices) = self.env(ctx);
-        if aliased {
-            notices.push(format!(
-                "The tool \"{name}\" is now \"{current}\". The old name stops working in 0.6.0."
-            ));
-        }
         if env.effective.paused {
             notices.insert(0, "Writes are paused.".to_string());
         }
