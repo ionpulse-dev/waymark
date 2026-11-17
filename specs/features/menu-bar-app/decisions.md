@@ -123,3 +123,17 @@
 - A result carries the limits that `waymark` read at the start of the call, before its pull. A change of the shared settings shows from the next call. The app uses the limits of the last result, so the Undo button follows one poll later. An undo in between still gets the refusal of `waymark`.
 - The elicitation capability is announced as `{"form": {}}`. `waymark` accepts it (test A16).
 - Two `waymark` bugs that the tests found are in [git-sync/todo.md](../../foundation/git-sync/todo.md). Neither blocks the app.
+
+## "Behind" stays until `status` reports a good fetch — 2026-11-17
+
+**Decision:** The poller keeps the state "Behind" from the first notice that the clone may be behind until `status` reports a `last_pull` after that time. While it is "Behind", each poll ends with one `status` call.
+
+**Alternatives considered:** Read the state from the notices of each poll (rejected: `waymark` removes repeated notices in a session, so the second poll without network had no notice and showed "normal". Found in a real run of the app).
+
+**Reason:** Decided autonomously. The icon must show "Behind" for as long as the remote cannot be reached.
+
+## A debug file for support and tests — 2026-11-17
+
+**Decision:** When the default `debugLogFile` holds a path (`defaults write dev.waymark.bar debugLogFile <path>`), the app appends one line per poll: the state, the watched items, the counts, and the notices. Off by default. No document text is written.
+
+**Reason:** The app has no window for diagnostics, and the unified log is not readable in every environment. The real-app checks of 2026-11-17 used it.

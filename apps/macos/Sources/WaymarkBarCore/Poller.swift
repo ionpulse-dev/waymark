@@ -74,6 +74,9 @@ public actor Poller {
     private var lastPollStart: Date?
     /// Changes from `updates` that were already reported: key and the time they were seen.
     private var reported: [String: Date] = [:]
+    /// Since when the clone may be behind. `waymark` gives a notice once per session, so the state
+    /// stays until `status` reports a good fetch after this time.
+    private var behindSince: Date?
     /// `updates` looks back this far before the last poll, for commits that were pushed late.
     public static let overlap: TimeInterval = 600
 
@@ -93,6 +96,7 @@ public actor Poller {
             // 1. The writes of the person.
             let r = try await RecentWrites.refresh(caller, known: activity)
             result.notices += r.notices
+            result.limits = r.limits
             let newEntries = activityLoaded ? r.entries.filter { r.new.contains($0.commit) } : []
             result.newWrites = activityLoaded ? r.new : []
             activity = r.entries
@@ -118,8 +122,16 @@ public actor Poller {
             result.state = .error(text)
         }
         result.activity = activity
-        if case .normal = result.state, result.notices.contains(where: Self.isBehind) {
-            result.state = .behind
+        if case .normal = result.state {
+            if result.notices.contains(where: Self.isBehind) {
+                if behindSince == nil { behindSince = now }
+            } else if let since = behindSince {
+                // No new notice: ask whether a fetch worked since the clone fell behind.
+                if let s = try? await caller.status().value, let pull = s.lastPull, pull > since {
+                    behindSince = nil
+                }
+            }
+            if behindSince != nil { result.state = .behind }
         }
         return result
     }
@@ -245,7 +257,7 @@ public actor Poller {
         var offset = 0
         for _ in 0..<400 {
             let r = try await caller.search(
-                folders: path.isEmpty ? [] : [path], level: 1, status: "any", offset: offset)
+                folders: path.isEmpty ? [] : [path], level: 2, status: "any", offset: offset)
             total = r.value.total
             if r.value.hits.isEmpty { break }
             hits += r.value.hits

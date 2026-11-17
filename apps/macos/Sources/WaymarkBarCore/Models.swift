@@ -78,9 +78,12 @@ public struct StatusInfo: Equatable, Sendable {
     public var problem: ToolError?
     public var author: String?
     public var limits: Limits
+    /// The time of the last good fetch of this `waymark` process.
+    public var lastPull: Date?
 
     init(_ j: JSON) {
         version = j["version"].string
+        lastPull = j["last_pull"].string.flatMap(Time.parse)
         healthy = j["healthy"].bool ?? false
         state = j["memory_repository"]["state"].string ?? "unknown"
         name = j["memory_repository"]["name"].string

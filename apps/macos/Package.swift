@@ -15,7 +15,8 @@ let package = Package(
         .executableTarget(
             name: "WaymarkBar",
             dependencies: ["WaymarkBarCore"],
-            resources: [.process("Resources")]
+            // scripts/macos-app.sh copies the strings into the app bundle (see decisions.md).
+            exclude: ["Resources"]
         ),
         .testTarget(name: "WaymarkBarCoreTests", dependencies: ["WaymarkBarCore"]),
     ]

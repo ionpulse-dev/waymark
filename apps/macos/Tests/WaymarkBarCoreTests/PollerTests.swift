@@ -130,6 +130,15 @@ final class PollerTests: XCTestCase {
         let r = await p.poll([WatchedItem(kind: .document, path: "ops/a")])
         XCTAssertEqual(r.state, .behind)
         guard case .loaded = r.documents["ops/a"] else { return XCTFail() }
+        // No new notice and no good fetch: still behind.
+        f.answers["show"] = { _ in self.doc("v1") }
+        f.answers["status"] = { _ in ["last_pull": nil] }
+        let again = await p.poll([WatchedItem(kind: .document, path: "ops/a")])
+        XCTAssertEqual(again.state, .behind)
+        // A good fetch after it: normal.
+        f.answers["status"] = { _ in ["last_pull": .string(Time.rfc3339(Date().addingTimeInterval(5)))] }
+        let back = await p.poll([WatchedItem(kind: .document, path: "ops/a")])
+        XCTAssertEqual(back.state, .normal)
     }
 
     func testAnErrorKeepsNothingAndSetsError() async {

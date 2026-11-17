@@ -17,6 +17,11 @@ public struct WriteChange: Equatable, Sendable {
 
     public var id: String
     public var shape: Shape
+
+    public init(id: String, shape: Shape) {
+        self.id = id
+        self.shape = shape
+    }
 }
 
 public enum RecentWrites {
@@ -29,15 +34,17 @@ public enum RecentWrites {
     /// newest first, and the commits that are new.
     public static func refresh(
         _ caller: ToolCaller, known: [ActivityEntry], maxPages: Int = 5
-    ) async throws -> (entries: [ActivityEntry], new: [String], notices: [String]) {
+    ) async throws -> (entries: [ActivityEntry], new: [String], notices: [String], limits: Limits?) {
         var fresh: [ActivityEntry] = []
         var notices: [String] = []
+        var limits: Limits?
         var before: String?
         let newestKnown = known.first?.commit
         var reachedKnown = newestKnown == nil
         for page in 0..<maxPages {
             let r = try await caller.activity(before: before, limit: 50)
             notices += r.notices
+            limits = r.limits ?? limits
             for e in r.value.entries {
                 if let k = newestKnown, same(e.commit, k) { reachedKnown = true }
                 fresh.append(e)
@@ -53,7 +60,7 @@ public enum RecentWrites {
         let new = fresh.filter { !knownSet.contains($0.commit) }.map(\.commit)
         // Fresh entries carry the current flags (undone, later changes). Keep older known entries.
         let merged = fresh + known.filter { !freshSet.contains($0.commit) }
-        return (merged, new, notices)
+        return (merged, new, notices, limits)
     }
 
     /// The change of `entry` to the document `id`.

@@ -21,17 +21,17 @@ Prerequisite: `git-sync`, `search-and-read`, and `updates` reach `implemented` w
 
 ## App
 
-- [ ] `App.swift`, `AppModel.swift`, `Strings.swift`, `Localizable.strings`, `Info.plist`: menu bar only, the icon states, the poll timer, the session from the settings.
-- [ ] `MenuView.swift` and `SettingsWindow.swift`: the menu, the watched list with dots, Refresh now, the setup help, the install help, Start at login.
-- [ ] `SearchWindow.swift`: search with More results, Watch for a document and a folder.
-- [ ] `MarkdownView.swift` and `DocumentWindow.swift`: render, banners, links, Back and Forward, "Updated just now by", deleted and moved.
-- [ ] `FolderWindow.swift`: the list, newest first, marks for new and changed.
-- [ ] `DiffView.swift`, `ActivityWindow.swift`, `UndoSheet.swift`, `ApprovalSheet.swift`: the recent writes window with the detail, review buttons, Load more, Undo, and the approval dialog.
-- [ ] Notifications: one per poll for watched items and one for new writes, off by default, a click opens the window.
+- [x] `App.swift`, `AppModel.swift`, `Strings.swift`, `Localizable.strings`, `Info.plist`: menu bar only, the icon states, the poll timer, the session from the settings.
+- [x] `MenuView.swift` and `SettingsWindow.swift`: the menu, the watched list with dots, Refresh now, the setup help, the install help, Start at login.
+- [x] `SearchWindow.swift`: search with More results, Watch for a document and a folder.
+- [x] `MarkdownView.swift` and `DocumentWindow.swift`: render, banners, links, Back and Forward, "Updated just now by", deleted and moved.
+- [x] `FolderWindow.swift`: the list, newest first, marks for new and changed.
+- [x] `DiffView.swift`, `ActivityWindow.swift`, `UndoSheet.swift`, `ApprovalSheet.swift`: the recent writes window with the detail, review buttons, Load more, Undo, and the approval dialog.
+- [x] Notifications: one per poll for watched items and one for new writes, off by default, a click opens the window.
 
 ## Build and release
 
-- [ ] `scripts/macos-app.sh`: build, bundle, sign ad hoc or with a Developer ID, and with `--dist` notarize and zip.
+- [x] `scripts/macos-app.sh`: build, bundle, sign ad hoc or with a Developer ID, and with `--dist` notarize and zip.
 - [ ] `Makefile`: `app` and `app-test`. `check` runs `app-test` on macOS.
 - [ ] `packaging/homebrew/waymark-bar.rb` and `scripts/release.sh --with-app`.
 - [ ] `README.md`: the app section.

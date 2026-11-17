@@ -131,6 +131,13 @@ final class IntegrationTests: XCTestCase {
         XCTAssertEqual(r.state, .behind, "\(r.notices)")
         guard case .loaded(let d) = r.documents["ops/offline"] else { return XCTFail("\(r)") }
         XCTAssertEqual(d.title, "Offline")
+        // waymark gives the notice once per session. The state stays until a fetch works again.
+        try await Task.sleep(nanoseconds: 1_100_000_000)
+        let again = await poller.poll(items)
+        XCTAssertEqual(again.state, .behind, "\(again.notices)")
+        try FileManager.default.moveItem(at: f.root.appendingPathComponent("gone.git"), to: f.remote)
+        let back = await poller.poll(items)
+        XCTAssertEqual(back.state, .normal, "\(back.notices)")
     }
 
     // A11
