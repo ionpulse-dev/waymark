@@ -2,10 +2,11 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
-## Unreleased
+## 0.6.0 (2026-11-17)
 
-A personal server, as a first version.
+A personal server as a first version, document names, and the same rules for manual edits. The old tool name `list` stops working, as announced in 0.5.0.
 
+**A personal server, as a first version.**
 
 - **`waymark --mode personal-server`** runs waymark as a remote MCP server for one person, over HTTPS (the host provides the certificate). Chat apps and MCP clients sign in once with the one allowed GitHub account. The server keeps no database and no stored state, so it also runs on a host that starts it for each request.
 - It follows the MCP authorization standard (revision 2026-07-28): client documents, automatic registration, and one manual client ID and secret (`waymark --print-client`).
@@ -14,7 +15,7 @@ A personal server, as a first version.
 - **Not yet tested against the real apps** (Claude, ChatGPT, Gemini) and a real GitHub App. It is tested against a fake GitHub. The guide marks what is still to test.
 - A write that the Git host rejects is now tried once more after a pull, in every mode.
 
-Document names, and the same rules for manual edits.
+**Document names, and the same rules for manual edits.**
 
 - **`add_document` takes an optional `name`**, such as `readme`. Without it, the name still comes from the title. A taken name fails and names the document.
 - **`sync` uses the checks of the write tools.** A new file gets the checks of `add_document`, a changed file those of `update_document`, a deleted file those of `delete_document`, and a renamed file those of `move`. So near-duplicate titles, the `folders` limit, switched-off tools, approval, and verification apply to manual edits too. Before, `sync` checked only with `lint`.
@@ -23,6 +24,13 @@ Document names, and the same rules for manual edits.
 - **A renamed file with the same text is published as a move**, and links to it are rewritten.
 - **Short wikilinks keep their target.** When a second document gets a file name such as `readme`, every `[[readme]]` that found the first document becomes `[[people/readme]]`. This is now a rule in section 8 of the Waymark Memory Standard.
 - The `AGENTS.md` suggestions in the [install guide](docs/local-install.md) have a new line: do not call `sync` unless the person asks for it after a manual edit. Add it to your own `AGENTS.md`.
+
+**The old name `list` is gone.** A call named `list` is now an unknown tool. Use `search` without a `query`. In limits, `list` still switches off `search`.
+
+What to do:
+- Update with `brew upgrade waymark` and restart your agent tool. A running session keeps the old version until it restarts.
+- Remove `mcp__waymark__list` from your allow rules, and replace `list` with `search` in your own texts and scripts.
+- Add the `sync` line to your `AGENTS.md` (see above).
 
 ## 0.5.1 (2026-11-15)
 
