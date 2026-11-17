@@ -6,7 +6,6 @@ use common::memrepo::{commit_doc, doc, write_doc};
 use common::{McpClient, Person, Spawn, World};
 use serde_json::{json, Value};
 use std::path::Path;
-use std::time::Instant;
 
 fn client(w: &World) -> McpClient {
     McpClient::for_person(w, Person::A, Spawn::default())
@@ -382,27 +381,6 @@ fn t20_an_uncommitted_edit_shows() {
     assert_eq!(ids(&r.json), vec!["ops/doc"]);
     let s = c.call("show", json!({"id": "ops/doc"}));
     assert_eq!(s.json["pending_edit"], true);
-}
-
-#[test]
-fn t21_two_thousand_documents_are_searched_quickly() {
-    let w = World::new();
-    for i in 0..2000 {
-        write_doc(
-            &w.a,
-            &format!("gen/d{i}"),
-            &doc(&format!("Generated {i}"), "some text for the scan"),
-        );
-    }
-    write_doc(&w.a, "gen/target", &doc("Target", "findmeneedle"));
-    let mut c = client(&w);
-    // The first call fetches. Time the second.
-    c.call("search", json!({"query": "x"}));
-    let start = Instant::now();
-    let r = c.call("search", json!({"query": "findmeneedle"}));
-    let ms = start.elapsed().as_millis();
-    assert_eq!(ids(&r.json), vec!["gen/target"]);
-    assert!(ms < 500, "took {ms} ms");
 }
 
 #[test]

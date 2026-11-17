@@ -17,5 +17,6 @@ _Tasks are in prerequisite-first order._
 - [x] `src/tools/list.rs`: input schema, call, paging. Register it.
 - [x] `src/tools/stats.rs`: input schema, call. Register it.
 - [x] `tests/it_search_and_read.rs`: the test cases of `test.md`.
+- [x] `tests/it_search_speed.rs`: T21 alone in its own file (see `decisions.md`, 2026-11-17).
 - [x] Check the size of `tools/list` against the budget of `mcp-server`.
 - [x] Run the full suite (`make check`).
