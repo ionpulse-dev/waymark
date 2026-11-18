@@ -128,11 +128,11 @@ The app uses only existing MCP tools and the MCP elicitation of `write-approval`
 | Check the switched-off tools | `tools/list` after the start. If a tool with `readOnlyHint: false` other than `undo` is listed (a newer `waymark` with a new write tool), the app adds it to `--tools-denied` and starts the process again. |
 | Search | `search` with `query`, `level: 2` |
 | Poll a document | `show` with the ID. A different `version` from the last poll means a change. |
-| Poll a folder | `updates` with `folders: [<path>]` and `since` (the time of the last poll) gives the changes of other people and their names. The next poll passes the `until` of this call as `since`. The `activity` entries of the same poll give the person's own writes in the folder. Only when one of the two names the folder, or when the window opens, the app reads the full list: `search` with no query, `folders: [<path>]`, `level: 2` (for the description), `status: "any"`, paged with `offset` (`search` returns at most `max_results` per call). |
+| Poll a folder | `updates` with `folders: [<path>]` and `since` (the `until` of the last `updates` call for this folder, as the tool description says) gives the changes of other people and their names. The `activity` entries of the same poll give the person's own writes in the folder. Only when one of the two names the folder, or when the window opens, the app reads the full list: `search` with no query, `folders: [<path>]`, `level: 2` (for the description), `status: "any"`, paged with `offset` (`search` returns at most `max_results` per call). |
 | Recent writes | `activity` with `limit: 50`, then `before` for older pages. A poll reads until it reaches the newest write it already knows. |
 | Change of one write | `history` of the document, to find the version before the write. Then `show` with `version` for both versions. The app computes the diff of the two bodies and properties. |
 | Undo | `undo` with `commit` and `preview: true`, then the same without `preview` after the person confirms. |
-| Status | `status`, at start and after an error. |
+| Status | `status` at the start of each `waymark` process, for the limits. While the icon shows "Behind", once per poll, until `last_pull` shows a good fetch. |
 
 - The app always passes `since` to `updates`. Without it, `updates` would move the stored time that the agent tools of the person share.
 - One poll calls `activity` once, `updates` once per watched folder, and `show` once per watched document. `search` runs only for a folder that changed.
@@ -170,7 +170,7 @@ The app uses only existing MCP tools and the MCP elicitation of `write-approval`
 - **Load on the Git host.** Every poll is one fetch per tool call. A short interval with many watched items means many fetches. The minimum interval is 10 seconds.
 - **Own changes in a folder.** `updates` does not list the person's own changes. The folder window sees them through `activity`, which lists every write of the person with its folder. The document window always sees a change, through `version`.
 - **Manual edits in a folder.** A manual edit that is not committed is in no `updates` or `activity` result. The folder window shows it at the next full read: when the window opens, or after "Refresh now".
-- **Version skew.** The app works with any `waymark` that has the tools above. If `waymark` is too old, `status` shows the version, and the app asks to update.
+- **Version skew.** The app works with any `waymark` that has the tools above. A `waymark` that lacks one gives an error for that call, and the app shows it. Settings shows the version of `waymark` in use. A newer `waymark` with a new write tool gets it switched off (see "Check the switched-off tools").
 - **Manual edits** in the clone that are not committed show in the app, because the read tools read the files. They have no "changed by" name.
 - **macOS 14 or later.**
 - **Not in the Mac App Store.** The sandbox blocks starting the `waymark` binary.

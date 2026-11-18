@@ -127,7 +127,10 @@ final class AppModel {
         let r = await poller.poll(watched, fullFolders: full)
         polling = false
         // A settings change during the poll made a new session: this result is of the old one.
-        if gen == generation { apply(r) }
+        if gen == generation {
+            apply(r)
+            serverVersion = await session?.serverVersion
+        }
         if pollAgain || gen != generation {
             pollAgain = false
             await pollNow()

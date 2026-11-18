@@ -28,7 +28,7 @@ A `join` module prepares the memory repository at the start of the server: it ch
 4. **Path rules.** Use `std::fs` and `git -C <path> remote get-url origin`. A folder that is empty counts as a free path (the rename onto an empty folder works on macOS).
 5. **Clone.** `git clone --quiet <url> <path>.cloning-<pid>`, with `GIT_TERMINAL_PROMPT=0` and a 5 minute kill time-out. Then `fs::rename`. On failure (`ENOTEMPTY`, `EEXIST`) delete the temporary folder, and go to the "path exists" branch. Any other failure deletes the temporary folder and sets `Broken(sync_failed)`. The error text passes `redact_text`.
 6. **Retry.** A `Broken(sync_failed)` state from a failed clone is retried on the next non-`status` call, at most once per 30 seconds.
-7. **Pull.** If the path was already a clone of the same repository, `gitsync::Repo::refresh_if_stale` runs in the same thread. A failed pull is a notice, not a state change.
+7. **Pull.** If the path was already a clone of the same repository, `gitsync::Repo::refresh_for_read` runs in the same thread. A failed pull is a notice, not a state change.
 8. **No `--repo`.** `start` calls the discovery of `project-binding` and never clones.
 9. **Personal config.** Read by `config::layers` (see `trust-model`). This spec adds no code for it. The tests check the merge in the join setting.
 

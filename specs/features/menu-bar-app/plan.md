@@ -72,7 +72,7 @@ A Swift app in this repository, in `apps/macos/`. It holds no document logic. It
 
 ## Dependencies on Other Specs
 
-- `git-sync` — "Update at the start of every call". Without it, a poll can be up to 3 minutes behind.
+- `git-sync` — "Update at the start of every call" (implemented on 2026-11-17). With it, every poll sees the latest state of the remote.
 - `trust-model` — the limits. The app works within them.
 - `search-and-read` — `search`, `show`, `status`, and the read budget.
 - `updates` — `updates` with `since` and `folders`.

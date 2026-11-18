@@ -9,7 +9,7 @@ A `notices` module sits between a tool and its result. After every call, the reg
 - `mcp` — `Context` holds the `NoticeBook`. The registry in `src/mcp/tool.rs` calls `finalize` after every call, also for errors.
 - `store::changes` and `state` (from `updates`) — the check for documents and the stored time.
 - `config` — the `paused` flag.
-- `gitsync` — `Repo` gets `last_fetch_failed()` (a flag set by `refresh_if_stale` and by the write flow).
+- `gitsync` — `Repo` gets `last_fetch_failed()` (a flag set by `refresh_for_read` and by the write flow).
 - `search-and-read` — its read refresh uses the text constant of this spec.
 - `maintenance` and `session-start` — `status` calls `open_items`.
 

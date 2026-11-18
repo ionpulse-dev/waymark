@@ -7,7 +7,7 @@ A function `changes_since` compares the tree at the start of the window with `HE
 ## Components Affected
 
 - `store` — `Store` loads the title and frontmatter at `HEAD`. The new `changes` file lives here.
-- `gitsync` — `refresh_if_stale`, and a new `diff` file that runs `git diff` and `git log` for the window.
+- `gitsync` — `refresh_for_read`, and a new `diff` file that runs `git diff` and `git log` for the window.
 - `config` — the `folders` limit.
 - `mcp` — the registry gets `updates`.
 

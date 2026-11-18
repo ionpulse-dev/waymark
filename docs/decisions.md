@@ -334,6 +334,8 @@ feature specs keep their words. The reasons are in the spec
 
 ## A menu bar app as an MCP client is drafted — 2026-11-17
 
+**Superseded by:** "The menu bar app is in scope — 2026-11-17".
+
 **Decision:** A new feature spec, [menu-bar-app](../specs/features/menu-bar-app/requirements.md), describes a macOS menu bar app that reads a memory repository. It is an MCP client of `waymark`: it starts its own `waymark` process, polls at an interval to show changes to watched documents and folders, and lists the person's recent writes for a fast review. Its only write is `undo` of the person's own writes. It stays `draft`. The decision "No macOS app — 2026-11-11" and "A desktop app" under out of scope in [PROJECT.md](../specs/PROJECT.md) are not changed. The spec waits until the product owner changes the scope.
 
 **Alternatives considered:** Restore the superseded `mac-app` spec (rejected: it was built on the CLI and the app link, which no longer exist; see the `decisions.md` of the new spec). A watch feature with MCP subscriptions in `waymark` (rejected: polling works with no change to `waymark`, now that every read updates the clone at its start).

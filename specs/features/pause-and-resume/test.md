@@ -35,7 +35,7 @@ _The tests use the harness of `integration-testing`. The personal config file is
 - [x] [auto] A syntax error in the personal file gives `setup_problem` with the path, for a read and for a write (`tests/it_pause_and_resume.rs`)
 - [x] [auto] Every result while paused has the notice "Writes are paused." as the first notice (`tests/it_pause_and_resume.rs`)
 - [x] [auto] `--paused` in the arguments pauses from the start (`tests/it_pause_and_resume.rs`)
-- [x] [auto] Person B pushes a document while A is paused. `Repo::refresh_if_stale` on the clone of A brings it in (`tests/it_pause_and_resume.rs`)
+- [x] [auto] Person B pushes a document while A is paused. `Repo::refresh_for_read` on the clone of A brings it in (`tests/it_pause_and_resume.rs`)
 - [x] [auto] Unit tests of the pause rules: the existing tests in `src/config/limits.rs` (`paused_if_any_layer_says_so`, check order) replace `write_block`
 - [ ] [manual] The kill switch with a real agent tool. Steps: (1) Add the MCP entry to Claude Code and start a session. (2) Ask the agent to add a test document. It works. (3) In a terminal, add `paused = true` under `[limits]` in `~/.config/waymark/config.toml`. (4) Ask the agent to add another document. Expected: the agent reports that writes are paused, and no commit appears in the clone. (5) Set `paused = false` and ask again. Expected: the write works.
 - [ ] [manual] The README steps work as written, on a Mac with no config file and on a Mac with a config file that has `[limits]`. Expected: no `setup_problem`.

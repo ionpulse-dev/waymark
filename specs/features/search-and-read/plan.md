@@ -9,7 +9,7 @@ A new `store` module loads the documents of the memory repository from the worki
 - `format` — `parse`, `count` (words, tokens, chars), `links` (finds links for backlinks). No change.
 - `config` — `EffectiveSettings` gives `max_results`, `max_tokens`, `max_documents_opened`, and `folders`. `config::glob` matches folder globs.
 - `memrepo` — the root and the `exclude` list.
-- `gitsync` — `Repo::refresh_if_stale` before every read. `gitsync::log` gives the last commit of a path. This spec adds `last_commit_info` and `renamed_to` to `src/gitsync/log.rs`.
+- `gitsync` — `Repo::refresh_for_read` at the start of every read (see `git-sync`). `gitsync::log` gives the last commit of a path. This spec adds `last_commit_info` and `renamed_to` to `src/gitsync/log.rs`.
 - `mcp` — `Context` gets the read budget (`opened: HashSet<String>`). The registry gets four tools.
 
 ## New Files
@@ -28,7 +28,7 @@ A new `store` module loads the documents of the memory repository from the worki
 
 ## Technical Approach
 
-1. **Refresh.** Every tool calls `Repo::refresh_if_stale()` first. A failed fetch adds the notice "The last update from the remote failed. The clone may be behind." and the tool goes on.
+1. **Refresh.** Every tool calls `Repo::refresh_for_read()` first. A failed fetch adds the notice "The last update from the remote failed. The clone may be behind." and the tool goes on.
 2. **Load.** `Store::load(root, exclude)` walks the tree, parses each file, and keeps the parse findings. It reads the working tree, so manual edits show. It is built per call. A call takes milliseconds for a few thousand files. A cache is deferred.
 3. **Scope.** `Scope` holds the limit globs and the argument folders. A document is in scope if it matches a limit glob (when any is set) and lies under an argument folder (when any is given). A folder `a/b` means the glob `a/b/**`.
 4. **Search.** Split the query on white space and lowercase it. A document matches if every term occurs as a substring in at least one searched part. The score of a term is the sum over the parts where it occurs: title 5, tags 3, path 2, description 2, body 1. Sort by score, then `updated` descending, then `id`. The snippet is about 25 words around the first body match, with `...` at a cut end. It is made only at level 2.
