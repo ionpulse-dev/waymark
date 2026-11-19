@@ -103,6 +103,7 @@ that you own**, with **rules that the server enforces**.
 
 ## Documentation
 
+- [Tool reference](docs/tools.md): every MCP tool, its parameters, and its results.
 - [Development](docs/development.md): build, test, and release from source.
 - [Product overview](specs/PROJECT.md): vision, personas, core concepts, scope.
 - [Waymark Memory Standard](standard/waymark-1.0.md): the document format.

@@ -126,7 +126,7 @@ waymark keeps the memory repository in a folder on your computer. You give it `-
 
 ## Agent tools
 
-waymark installs nothing into your agent tools and ships no skill. You add one MCP entry, and you write your own rules in `AGENTS.md`. Every entry uses the server name `waymark`, so that an entry in a project can override an entry of the same name for the user (see `project-binding`).
+waymark installs nothing into your agent tools and ships no skill. You add one MCP entry, and you write your own rules in `AGENTS.md`. Every entry uses the server name `waymark`, so that an entry in a project can override an entry of the same name for the user (see `project-binding`). The [tool reference](tools.md) lists every waymark tool and its kind.
 
 Replace the repository URL with the URL of your memory repository. Add `--path <folder>` to the arguments to choose where the clone lives (see "Where the memory repository lives"). The author name and email are optional. Without them, waymark uses the Git name and email of the person. The examples use `example.org`.
 
