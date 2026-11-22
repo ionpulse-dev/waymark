@@ -2,6 +2,29 @@
 
 What each release is about, newest first. The text of an entry is the text of the GitHub release. Write a short description for people: what is new, and what to do. Do not list commits. Process: [specs/foundation/distribution](specs/foundation/distribution/requirements.md), section "Release process".
 
+## 0.8.0 (2026-11-22)
+
+A first menu bar app for macOS, a warning instead of a block for bank and card numbers, and a written rule for manual edits.
+
+**Waymark Bar, a menu bar app for macOS (first version).**
+
+- Watch a document or a folder in a small window that updates by itself when someone pushes a change. Search the memory repository without an agent.
+- **Recent writes:** every write that your agents made under your name, from every agent tool, with a diff of each change. Mark writes as reviewed, and **undo** a bad write after a preview.
+- The app is an MCP client of `waymark`: it starts its own `waymark` with the same memory repository and only reads. Its one write is Undo of your own writes. It needs macOS 14 and `waymark` from Homebrew.
+- There is no notarized download of the app yet. Build it from the repository with `make app`. See the [README](README.md#menu-bar-app-macos).
+
+**Bank account and card numbers no longer block a write.**
+
+- An IBAN or a payment card number is now the warning `financial-data` (it was the error `personal-data`). The write goes through and the result has a notice. Only a secret is an error.
+- Waymark serves all kinds of companies, and a payments team may need to store account formats and reconciliation notes. The check is a hint, not a guarantee: it can miss a number and it can flag a long number that is not a card.
+
+**Manual edits follow the same rules as a write.**
+
+- A document that people edit by hand and then publish with `sync` gets the rules of its write tool, so a broken link, a near-duplicate title, or a switched-off tool is reported the same way.
+
+What to do:
+- Update with `brew upgrade ionpulse-dev/tap/waymark` and restart your agent tool. A running session keeps the old version until it restarts.
+
 ## 0.7.0 (2026-11-18)
 
 Every read now sees the latest state of the memory repository, and a first menu bar app for macOS.
