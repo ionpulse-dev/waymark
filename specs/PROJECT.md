@@ -87,7 +87,7 @@ built-in guidance.
 ### Behavior
 
 What an agent reads, when it writes, and what deserves a document is the choice
-of each team. Teams write it in their own `AGENTS.md`. The README gives example
+of each team. Teams write it in their own `AGENTS.md`. The [install guide](../docs/local-install.md) gives example
 snippets. Waymark ships no skill.
 
 ### Limits
