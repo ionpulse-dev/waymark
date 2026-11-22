@@ -68,20 +68,6 @@ For manual installation steps, tool configurations, and options, see the [instal
 
 <br/>
 
-## Menu bar app (macOS)
-
-Waymark Bar keeps your memory repository in view without an agent:
-
-- Watch a document or a folder in a small window. It updates by itself when someone pushes a change.
-- Search the memory repository.
-- See every write that your agents made under your name, as a diff, mark it as reviewed, and **undo** a bad write after a preview.
-
-The app is an MCP client of the `waymark` binary: it starts its own `waymark` with the same memory repository as your agent tools. It only reads. Its one write is Undo of your own writes. It needs macOS 14 or later and `waymark` from Homebrew.
-
-The app is new. Until a notarized release is published, build it from this repository with `make app` and open `apps/macos/build/WaymarkBar.app`. Details: [menu-bar-app](specs/features/menu-bar-app/requirements.md).
-
-<br/>
-
 ## Where the idea came from
 
 The idea for waymark came from a 2026 incident involving OpenAI agents, described in
