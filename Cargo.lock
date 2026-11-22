@@ -2298,7 +2298,7 @@ dependencies = [
 
 [[package]]
 name = "waymark"
-version = "0.6.0"
+version = "0.8.0"
 dependencies = [
  "axum",
  "base64 0.22.1",
