@@ -22,6 +22,7 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** `preview: true`, **When** `sync` runs, **Then** nothing is committed, pulled, or pushed. | T12 |
 | **Given** an edit to `.waymark/settings.toml`, **When** `sync` runs, **Then** it is not committed. | T13 |
 | **Given** a remote change to the same document as a pending edit, **When** `sync` runs, **Then** both versions are kept and a notice says so. | T14 |
+| **Given** a pending edit with an IBAN, **When** `sync` runs, **Then** it is committed like any edit (financial data is a warning). | T16b |
 
 ## Test Cases
 
@@ -43,6 +44,7 @@ All auto tests are in `tests/it_manual_edits.rs`, with a `World` and an `McpClie
 - [x] [auto] T14: B edits the same document and pushes. A has a pending edit to it. `sync` keeps both files, and the result has `conflicts` and a notice.
 - [x] [auto] T15: a pending delete is committed with kind `deleted`.
 - [x] [auto] T16: the `lint` rules apply: a duplicate title in a new file blocks it with `duplicate-title`.
+- [x] [auto] T16b: a pending edit with a valid IBAN is committed, not blocked (financial data is a warning, see `quality-checks`).
 - [x] [auto] T17: a clean tree: `sync` returns `committed: []`, pulls, and does not create an empty commit.
 - [x] [auto] T18: a repository with no remote commits locally and the result has a notice that there is no remote.
 - [x] [auto] T19: a `preview: true` write does not commit pending edits.

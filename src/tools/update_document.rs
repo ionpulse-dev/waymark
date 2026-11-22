@@ -215,7 +215,7 @@ impl Tool for UpdateDocument {
                 tx.check_base(&rel, Some(&base))?;
                 let old_title = doc.frontmatter.get_text("title").unwrap_or("").to_string();
                 let mut changed: Vec<&str> = Vec::new();
-                let mut secret_fields: Vec<(&str, String)> = Vec::new();
+                let mut scan_fields: Vec<(&str, String)> = Vec::new();
 
                 for key in ["title", "description"] {
                     if let Some(new) = writes::get_str(&args, key) {
@@ -224,7 +224,7 @@ impl Tool for UpdateDocument {
                             doc.frontmatter.set_text(key, new);
                             changed.push(key);
                         }
-                        secret_fields.push((key, new.to_string()));
+                        scan_fields.push((key, new.to_string()));
                     }
                 }
                 if let Some(new) = writes::get_str(&args, "body") {
@@ -233,7 +233,7 @@ impl Tool for UpdateDocument {
                         doc.body = stored;
                         changed.push("body");
                     }
-                    secret_fields.push(("body", new.to_string()));
+                    scan_fields.push(("body", new.to_string()));
                 }
                 if let Some((old, new)) = &replace {
                     let n = doc.body.matches(old.as_str()).count();
@@ -255,7 +255,7 @@ impl Tool for UpdateDocument {
                         doc.body = stored;
                         changed.push("body");
                     }
-                    secret_fields.push(("body", new.clone()));
+                    scan_fields.push(("body", new.clone()));
                 }
                 if let Some(text) = writes::get_str(&args, "append") {
                     let text = text.replace("\r\n", "\n").replace('\r', "\n");
@@ -270,7 +270,7 @@ impl Tool for UpdateDocument {
                         doc.body = stored;
                         changed.push("body");
                     }
-                    secret_fields.push(("body", text));
+                    scan_fields.push(("body", text));
                 }
                 if !add_tags.is_empty() || !remove_tags.is_empty() {
                     let current: Vec<String> = doc
@@ -285,7 +285,7 @@ impl Tool for UpdateDocument {
                         }
                     }
                     list.retain(|t| !remove_tags.contains(t));
-                    secret_fields.push(("tags", add_tags.join("\n")));
+                    scan_fields.push(("tags", add_tags.join("\n")));
                     if list != current {
                         if list.is_empty() {
                             doc.frontmatter.remove("tags");
@@ -298,7 +298,7 @@ impl Tool for UpdateDocument {
                 for key in ["sources", "tags", "related", "anchors"] {
                     if let Some(mut list) = writes::get_list(&args, key) {
                         if key == "sources" || key == "tags" {
-                            secret_fields.push((key, list.join("\n")));
+                            scan_fields.push((key, list.join("\n")));
                         }
                         if key == "related" {
                             list = list.iter().map(|r| writes::wikilink(r)).collect();
@@ -388,7 +388,7 @@ impl Tool for UpdateDocument {
                     &id,
                     &text,
                     &ids_after,
-                    &secret_fields,
+                    &scan_fields,
                     if changed.contains(&"title") {
                         Some(TitleCheck { skip: &skip })
                     } else {

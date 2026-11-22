@@ -2,7 +2,7 @@
 type: feature
 status: implemented
 created: 2026-11-08
-updated: 2026-11-16
+updated: 2026-11-22
 requires:
   - search-and-read
 ---
@@ -41,7 +41,11 @@ Every finding is `{ path, rule, severity, message }`. `path` is the file path be
 | `author-mismatch` | warning | `created_by` differs from the author of the commit that added the file, or `updated_by` differs from the author of the last commit that changed it. Only for files that are in Git history. |
 | `author-not-allowed` | error | The email domain of `created_by` or `updated_by` is not in `people.email_domains` (when set), or it holds a part of `people.email_blocklist`. |
 | `secret` | error | Built-in secret patterns and `lint.extra_secret_patterns`. |
-| `personal-data` | error | A valid IBAN or a payment card number (Luhn check). |
+| `financial-data` | warning | A valid IBAN or a payment card number (Luhn check). |
+
+`secret` is the only error that the text scan makes. A secret can be a live credential, so it stops a write. An IBAN or a card number is data that a company may need to store (a payments team documents account formats and reconciliation). It is a warning: it does not stop a write, and `lint` lists it. The other rules keep their severity: the format rules are errors, and a property link, a duplicate title, and a not-allowed author are errors.
+
+In a write, a warning goes to the notices of the result. In `sync`, a manual edit is blocked by an error (see `manual-edits`).
 
 Built-in secret patterns: a private key block, an AWS access key ID, a GitHub token, a Slack token, an `sk-` API key, a JSON Web Token, a connection string with a password, and an assignment like `password = ...` or `api_key: ...` with a value of 8 or more characters. A placeholder such as `<password>` or `***` is not a secret. A finding never repeats the matched text. It names the pattern and the line.
 
@@ -97,7 +101,8 @@ Write tools check the text that they will write with the same code (see `plan.md
 - **Given** a callout or an embed written by a person, **When** `lint` runs, **Then** it does not reject it.
 - **Given** a body with a private key block, **When** a write tool runs, **Then** it fails and the message does not repeat the key.
 - **Given** two documents with the same title, **When** `lint` runs, **Then** the newer one has `duplicate-title`.
-- **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `personal-data`.
+- **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `financial-data` as a warning.
+- **Given** an IBAN in a body, **When** a write through waymark runs, **Then** the write succeeds and the result has a notice about it.
 - **Given** the conformance fixtures, **When** `lint` runs on them, **Then** valid ones have no error and invalid ones have the rule that their file name names.
 - **Given** `people.email_domains = ["example.org"]` and an author with another domain, **When** `lint` runs, **Then** it reports `author-not-allowed`.
 - **Given** `access = "read-only"`, **When** the client lists tools, **Then** `lint` is listed.

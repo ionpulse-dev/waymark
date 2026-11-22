@@ -1,7 +1,7 @@
 //! Quality checks: `lint` over stored documents, and the checks that write tools share.
 
 pub mod authors;
-pub mod personal;
+pub mod financial;
 pub mod secrets;
 
 use crate::error::Result;
@@ -45,7 +45,7 @@ pub fn next_for(rule: &str) -> &'static str {
     }
 }
 
-/// Findings that need only the text: secrets and personal data. `path` is the file path.
+/// Findings that need only the text: secrets and financial data. `path` is the file path.
 pub fn text_findings(path: &str, text: &str, custom: &[Regex]) -> Vec<Finding> {
     let mut out = Vec::new();
     for hit in secrets::scan(text, custom) {
@@ -55,10 +55,10 @@ pub fn text_findings(path: &str, text: &str, custom: &[Regex]) -> Vec<Finding> {
             format!("Line {} looks like a secret ({}).", hit.line, hit.rule),
         ));
     }
-    for line in personal::scan(text) {
-        out.push(Finding::error(
+    for line in financial::scan(text) {
+        out.push(Finding::warning(
             path,
-            "personal-data",
+            "financial-data",
             format!("Line {line} looks like an IBAN or a payment card number."),
         ));
     }

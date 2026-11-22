@@ -212,7 +212,7 @@ fn t9_the_newer_of_two_equal_titles_has_the_finding() {
 }
 
 #[test]
-fn t10_an_iban_is_personal_data_and_a_wrong_one_is_not() {
+fn t10_an_iban_is_financial_data_and_a_wrong_one_is_not() {
     let w = World::new();
     commit_text(
         &w.a,
@@ -236,9 +236,10 @@ fn t10_an_iban_is_personal_data_and_a_wrong_one_is_not() {
     );
     let mut c = client(&w);
     let r = c.call("lint", json!({}));
-    let f = rules(&r.json, "personal-data");
+    let f = rules(&r.json, "financial-data");
     assert_eq!(f.len(), 1, "{}", r.json);
     assert_eq!(f[0]["path"], "ops/iban.md");
+    assert_eq!(f[0]["severity"], "warning");
 }
 
 #[test]
@@ -376,6 +377,31 @@ fn t24_a_secret_in_a_code_block_is_a_finding() {
     let mut c = client(&w);
     let r = c.call("lint", json!({}));
     assert_eq!(rules(&r.json, "secret").len(), 1, "{}", r.json);
+}
+
+#[test]
+fn t25_an_iban_does_not_block_a_write_but_a_secret_does() {
+    let w = World::new();
+    let mut c = client(&w);
+    let r = c.call(
+        "add_document",
+        json!({"folder": "ops", "title": "Bank details", "description": "D.",
+            "body": "Pay to DE89 3704 0044 0532 0130 00."}),
+    );
+    assert!(!r.is_error, "{}", r.json);
+    let notices = r.json["notices"].to_string();
+    assert!(
+        notices.contains("IBAN") && notices.contains("line 1"),
+        "{}",
+        r.json
+    );
+    let r = c.call(
+        "add_document",
+        json!({"folder": "ops", "title": "Keys", "description": "D.",
+            "body": "Pay to DE89 3704 0044 0532 0130 00.\n-----BEGIN RSA PRIVATE KEY-----\nMIIEvQSECRETKEYTEXT\n-----END RSA PRIVATE KEY-----"}),
+    );
+    assert_eq!(r.code(), Some("validation_failed"));
+    assert!(!r.json.to_string().contains("SECRETKEYTEXT"));
 }
 
 #[test]

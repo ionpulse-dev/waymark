@@ -1,4 +1,6 @@
-//! Personal data: IBANs (mod 97) and payment card numbers (Luhn).
+//! Financial data: IBANs (mod 97) and payment card numbers (Luhn).
+//! The rule of these findings is a warning, never an error: a company may need to store an
+//! account number or a card scheme.
 
 use regex::Regex;
 use std::sync::OnceLock;

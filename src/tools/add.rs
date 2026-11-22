@@ -212,20 +212,20 @@ impl Tool for Add {
                 ids_after.insert(id.clone());
                 let mut problems = writes::Problems::default();
                 let mut notices = Vec::new();
-                let mut secret_fields = vec![
+                let mut scan_fields = vec![
                     ("title", title.clone()),
                     ("description", description.clone()),
                     ("body", body.clone()),
                 ];
-                secret_fields.push(("sources", sources.join("\n")));
-                secret_fields.push(("tags", tags.join("\n")));
+                scan_fields.push(("sources", sources.join("\n")));
+                scan_fields.push(("tags", tags.join("\n")));
                 let skip_refs: Vec<&str> = skip.iter().map(String::as_str).collect();
                 writes::check_document_links(
                     memrepo,
                     &id,
                     &text,
                     &ids_after,
-                    &secret_fields,
+                    &scan_fields,
                     Some(TitleCheck { skip: &skip_refs }),
                     writes::NewLinks::All,
                     &mut problems,

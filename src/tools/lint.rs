@@ -29,7 +29,7 @@ impl Tool for Lint {
     }
 
     fn description(&self) -> &'static str {
-        "Checks documents for format, size, links, secrets, personal data, duplicate titles, and authors. Returns checked, errors, warnings, and findings. Changes nothing."
+        "Checks documents for format, size, links, secrets, financial data (an IBAN or a card number, as a warning), duplicate titles, and authors. Returns checked, errors, warnings, and findings. Changes nothing."
     }
 
     fn kind(&self) -> Kind {

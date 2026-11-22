@@ -356,6 +356,22 @@ fn t16_lint_rules_apply_to_pending_edits() {
 }
 
 #[test]
+fn t16b_financial_data_does_not_block_a_pending_edit() {
+    let w = World::new();
+    setup(&w);
+    edit_deploy(&w, "Pay to DE89 3704 0044 0532 0130 00.");
+    let mut c = client(&w);
+    let r = c.call("sync", json!({}));
+    assert!(!r.is_error, "{}", r.json);
+    assert_eq!(ids(&r.json, "committed"), vec!["ops/deploy"]);
+    assert!(
+        r.json["blocked"].as_array().unwrap().is_empty(),
+        "{}",
+        r.json
+    );
+}
+
+#[test]
 fn t17_a_clean_tree_makes_no_commit() {
     let w = World::new();
     setup(&w);

@@ -9,6 +9,7 @@ None.
 ## Deferred
 
 - [ ] A setting to turn off or extend built-in secret patterns (allow list). Blocked by real false positives.
+- [ ] A setting for the severity of `financial-data` (`error`, `warning`, or `off`). The default is now `warning`. Deferred until a company asks.
 - [ ] A command for CI on the Git host. Blocked by demand. Today a CI job can use the server through an MCP client.
 - [ ] A check for near-duplicate titles (word overlap). It belongs to `write-documents`, which may use `lint::duplicates`.
 - [ ] A check that flags documents whose anchor changed (`docs/ideas.md`).

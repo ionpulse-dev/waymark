@@ -33,7 +33,7 @@ Scope: local mode on macOS (Apple silicon) and Linux, plus the personal server. 
 | [write-approval](features/write-approval/requirements.md) | `implemented` | 2026-11-16 |
 | [manual-edits](features/manual-edits/requirements.md) | `implemented` | 2026-11-16 |
 | [move-documents](features/move-documents/requirements.md) | `implemented` | 2026-11-16 |
-| [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-16 |
+| [quality-checks](features/quality-checks/requirements.md) | `implemented` | 2026-11-22 |
 | [verification](features/verification/requirements.md) | `implemented` | 2026-11-16 |
 | [agent-tool-setup](features/agent-tool-setup/requirements.md) | `implemented` | 2026-11-17 |
 | [login-and-identity](features/login-and-identity/requirements.md) | `implemented` | 2026-11-14 |

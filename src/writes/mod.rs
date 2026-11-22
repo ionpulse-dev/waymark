@@ -256,7 +256,7 @@ pub enum NewLinks<'a> {
 
 /// Check the full text of a document as it will be written.
 /// `ids_after` is the set of document IDs after the write. `scan_fields` are the texts to scan for
-/// secrets and personal data. Warnings go to `notices`.
+/// secrets and financial data. Warnings go to `notices`.
 #[allow(clippy::too_many_arguments)]
 pub fn check_document(
     memrepo: &MemRepo,
@@ -334,11 +334,11 @@ pub fn check_document_links(
                 "Remove the secret, or replace it with a placeholder.",
             );
         }
-        for line in crate::lint::personal::scan(value) {
-            problems.add(
-                format!("The {field} looks like it contains an IBAN or a payment card number (line {line})."),
-                "Remove the number.",
-            );
+        for line in crate::lint::financial::scan(value) {
+            // A warning, not a problem: an IBAN or a card number may be what a company stores.
+            notices.push(format!(
+                "The {field} looks like it contains an IBAN or a payment card number (line {line})."
+            ));
         }
     }
     if let Ok(doc) = format::parse(text) {

@@ -17,10 +17,11 @@ _AI checks off `[auto]` items when tests pass. A human checks off `[manual]` ite
 | **Given** a callout or an embed, **When** `lint` runs, **Then** it does not reject it. | T7 |
 | **Given** a private key block, **When** a write tool runs, **Then** it fails and the message does not repeat the key. | T8 |
 | **Given** two documents with the same title, **When** `lint` runs, **Then** the newer one has `duplicate-title`. | T9 |
-| **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `personal-data`. | T10 |
+| **Given** an IBAN in a body, **When** `lint` runs, **Then** it reports `financial-data` as a warning. | T10 |
 | **Given** the conformance fixtures, **When** `lint` runs, **Then** valid ones have no error and invalid ones the named rule. | T11 |
 | **Given** `people.email_domains` and an author with another domain, **When** `lint` runs, **Then** it reports `author-not-allowed`. | T12 |
 | **Given** `access = "read-only"`, **When** the client lists tools, **Then** `lint` is listed, and there is no `index` tool and no `index-stale` (see `remove-index`). | T17 |
+| **Given** an IBAN in a body, **When** a write through waymark runs, **Then** the write succeeds and the result has a notice about it. | T25 |
 
 ## Test Cases
 
@@ -35,7 +36,7 @@ Unit tests are in the files of `src/lint/`. End-to-end tests are in `tests/it_qu
 - [x] [auto] T7: a document with a callout, an embed, a highlight, and a `%%` comment gives no finding.
 - [x] [auto] T8: `add_document` with a private key block fails with `validation_failed`. The `message` and `next` do not contain the key text.
 - [x] [auto] T9: two documents with one title: the one with the later `created` has `duplicate-title` and the message names the other.
-- [x] [auto] T10: a body with `DE89 3704 0044 0532 0130 00` (a valid test IBAN) gives `personal-data`. A made-up number with a wrong check digit gives none.
+- [x] [auto] T10: a body with `DE89 3704 0044 0532 0130 00` (a valid test IBAN) gives `financial-data` with severity `warning`. A made-up number with a wrong check digit gives none.
 - [x] [auto] T11: `tests/lint_conformance.rs` over `vault/` and `invalid/`.
 - [x] [auto] T12: with `people.email_domains = ["example.org"]`, an author `Jo <jo@other.test>` gives `author-not-allowed`.
 - [x] [auto] T17: `tools/list` has `lint` and no `index`, with `read-write` and with `read-only`. A call of `index` is a protocol error. `lint` never reports `index-stale`.
@@ -44,6 +45,7 @@ Unit tests are in the files of `src/lint/`. End-to-end tests are in `tests/it_qu
 - [x] [auto] T22: 150 findings: the result has 100 and `truncated: true`, errors first.
 - [x] [auto] T23: `lint` with `folders: ["ops"]` reports only files below `ops`.
 - [x] [auto] T24: a secret inside a fenced code block is a finding.
+- [x] [auto] T25: `add_document` with a valid IBAN in the body succeeds (no `validation_failed`) and the result has a notice that names the line. A private key in the same call still fails.
 
 ## Notes
 

@@ -34,6 +34,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Decision:** The rule names of the format checks are the file names of `standard/conformance/invalid/`. This spec adds `bad-file-name`, `bad-encoding`, `bad-line-ending`, `document-too-large`, `duplicate-title`, `author-mismatch`, `author-not-allowed`, `secret`, `personal-data`, and `index-stale`. `broken-link` is an error in a property and a warning in the body, as `document-format` decided. `author-mismatch` and `index-stale` are warnings. The others are errors.
 
+**Superseded by:** Financial data is a warning, and its rule name is `financial-data` (2026-11-22).
+
 **Reason:** A warning must never block a manual edit that is correct. Git can differ from the frontmatter for good reasons, such as a rebase. Decided autonomously.
 
 ## `lint` shares code with the write flow — 2026-11-14
@@ -83,6 +85,8 @@ _Records why technical choices were made. Never delete entries — add new ones 
 
 **Alternatives considered:** An allow list now (rejected: no data on false positives yet. It is in `todo.md`).
 
+**Superseded by (in part):** Financial data is a warning, and its module is `financial` (2026-11-22). The no-switch decision stays for secret patterns.
+
 **Reason:** The first release keeps the guard simple and safe. Decided autonomously.
 
 ## Findings never repeat a secret — 2026-11-14
@@ -113,10 +117,25 @@ _Records why technical choices were made. Never delete entries — add new ones 
 - **Secret scan moved.** `src/writes/secrets.rs` is now `src/lint/secrets.rs`, with the built-in patterns of this spec (also Slack tokens, JSON Web Tokens, and connection strings). A value that holds `example` or `placeholder`, or starts with `$`, `{`, or a backtick is not an assignment. A bad extra pattern is a `setup_problem`, also in write tools.
 - **Scan unit.** `lint` scans the whole file and names the file line. Write tools scan the fields that the call sends and name the line inside the field.
 - **IBAN and card scan.** A valid IBAN (mod 97) or card number (Luhn) in any line is `personal-data`. A random long number has a 1 in 10 chance to pass Luhn. Accepted for the first release.
+
+  **Superseded by:** Financial data is a warning, and its rule name is `financial-data` (2026-11-22).
 - **`path_authors`** reads the whole history once (`git log --reverse --name-status -M`). A file with pending edits or no history is skipped.
 - **`commit_change` guard.** `Repo::write` with an empty list of paths commits nothing. This keeps `git add -A` from running without a path.
 - **Index title.** `waymark: update "Index"` is not used: a run that writes only the root index has the title "Index". A run that writes several files has "Indexes".
 - **Index links to subfolders** appear only for subfolders that are in scope of the call, so that no link points to a missing file.
+
+## Financial data is a warning, and its module is `financial` — 2026-11-22
+
+**Decision (decided with the product owner):** The IBAN and card scan is a warning, not an error, and its rule name is `financial-data`. A write through waymark goes on and puts the finding in its notices. The module is `src/lint/financial.rs` (it was `personal.rs`).
+
+**Alternatives considered:**
+- Keep it an error (rejected: waymark serves all kinds of companies. A payments team must be able to store account formats, card schemes, and reconciliation notes. A private Git repository is the security layer, not the server's scan. And a random long number passes Luhn 1 time in 10, so a false finding would block a good write.)
+- Remove the scan (rejected: the accidental paste of a real customer card is the one case that hurts, and a warning costs nothing.)
+- A setting for the severity of `financial-data` (`error`, `warning`, or `off`) (deferred: no request yet. It is in `todo.md`.)
+
+**Supersedes:** the `personal-data` rule of "Rules, severities, and rule names", and the IBAN bullet of "Implementation notes".
+
+**Reason:** The scan can miss and can misfire, so it must not block. A warning still shows in `lint` and in the write result. The name `personal` promised more than the code does: it checks an IBAN and a card, nothing else. `financial` names exactly that. The `Audience::Personal` of `AGENTS.md` (a personal memory repository) is a different meaning and keeps its name. `secret` stays the only error of the text scan. Decided with the product owner.
 
 ## Index files stay manual — 2026-11-14
 

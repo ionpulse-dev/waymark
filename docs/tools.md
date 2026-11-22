@@ -171,7 +171,7 @@ Returns `since`, `until` (pass it as `since` next time), `changes` (`id`, `title
 
 ### `lint`
 
-Checks documents for format, size, links, secrets, personal data, duplicate titles, and authors.
+Checks documents for format, size, links, secrets, financial data (an IBAN or a card number, as a warning), duplicate titles, and authors.
 
 Returns `checked`, `errors`, `warnings`, and `findings`.
 
